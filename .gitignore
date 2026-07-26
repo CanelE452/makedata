@@ -14,6 +14,11 @@ sacred/
 artifacts/
 run_used.yml
 
+# DOPE 원본 저장소 (로컬에만 유지, makedata 에는 포함하지 않음)
+# clone: git clone https://github.com/NVlabs/Deep_Object_Pose.git
+# 로컬 수정 적용: git apply ../scripts/dope/deep_object_pose_local.patch
+Deep_Object_Pose/
+
 # ===========================
 # Heavy binaries (images / video / models / 3D assets)
 # ===========================
