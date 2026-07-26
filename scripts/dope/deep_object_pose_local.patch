@@ -1,0 +1,111 @@
+diff --git a/common/detector.py b/common/detector.py
+index ede6d13..1fd0c10 100644
+--- a/common/detector.py
++++ b/common/detector.py
+@@ -556,15 +556,45 @@ class ObjectDetector(object):
+         for obj in objects:
+             # Run PNP
+             points = obj[1] + [(obj[0][0] * scale_factor, obj[0][1] * scale_factor)]
+-            if None in points:
+-                print("Incomplete cuboid detection.")
++            
++            # Count valid (not None) points
++            valid_count = sum(1 for p in points if p is not None)
++            
++            if valid_count < 4:
++                print(f"Insufficient points for PnP: {valid_count} (need 4+)")
+                 print("  result from detection:", points)
+                 print("Skipping.")
++                detected_objects.append(
++                    {
++                        "name": obj_name,
++                        "location": None,
++                        "quaternion": None,
++                        "cuboid2d": None,
++                        "projected_points": None,
++                        "confidence": obj[-1],
++                        "raw_points": points,
++                    }
++                )
+                 continue
+ 
+-            cuboid2d = np.copy(points)
++            cuboid2d = list(points)
+             location, quaternion, projected_points = pnp_solver.solve_pnp(points)
+ 
++            # If PnP still fails even with 4+ points
++            if location is None:
++                print("PnP failed despite 4+ points.")
++                detected_objects.append(
++                    {
++                        "name": obj_name,
++                        "location": None,
++                        "quaternion": None,
++                        "cuboid2d": None,
++                        "projected_points": None,
++                        "confidence": obj[-1],
++                        "raw_points": points,
++                    }
++                )
++                continue
+             # run multiple sample
+             if run_sampling:
+                 lx, ly, lz = [], [], []
+diff --git a/train/train.py b/train/train.py
+index 44c1ce3..85de06f 100755
+--- a/train/train.py
++++ b/train/train.py
+@@ -185,7 +185,11 @@ def main(opt):
+     torch.cuda.manual_seed_all(random_seed)
+ 
+     torch.cuda.set_device(local_rank)
+-    torch.distributed.init_process_group(backend="NCCL", init_method="env://")
++    # Windows 단일 GPU: distributed 우회
++    if os.name == 'nt' or int(os.environ.get('WORLD_SIZE', '1')) <= 1:
++        pass  # skip distributed init
++    else:
++        torch.distributed.init_process_group(backend="nccl", init_method="env://")
+ 
+ 
+     # Data Augmentation
+@@ -197,7 +201,7 @@ def main(opt):
+     # Load Model
+     net = DopeNetwork()
+     output_size = 50
+-    opt.sigma = 0.5
++    # sigma is controlled via --sigma CLI argument (default: 4.0)
+ 
+     # Convert object names to lower-case for comparison later
+     for idx in range(len(opt.object)):
+@@ -224,11 +228,14 @@ def main(opt):
+         print("training data: {} batches".format(len(training_data)))
+ 
+         print("Loading Model...")
+-        net = torch.nn.parallel.DistributedDataParallel(
+-            net.cuda(),
+-            device_ids=[local_rank],
+-            output_device=local_rank
+-        )
++        if os.name == 'nt' or int(os.environ.get('WORLD_SIZE', '1')) <= 1:
++            net = net.cuda()
++        else:
++            net = torch.nn.parallel.DistributedDataParallel(
++                net.cuda(),
++                device_ids=[local_rank],
++                output_device=local_rank
++            )
+ 
+     # Load any previous checkpoint (i.e. current job is a follow-up job)
+     if opt.net_path is not None:
+@@ -407,8 +414,9 @@ if __name__ == "__main__":
+     )
+     parser.add_argument(
+         "--sigma",
+-        default=4,
+-        help="keypoint creation sigma")
++        type=float,
++        default=4.0,
++        help="keypoint creation sigma (Gaussian std for belief map)")
+     parser.add_argument(
+         "--local-rank",
+         type=int,

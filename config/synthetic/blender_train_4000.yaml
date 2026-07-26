@@ -1,0 +1,309 @@
+{
+  "render": {
+    "num_frames": 4000,
+    "image_width": 640,
+    "image_height": 480,
+    "sensor_width": 36.0,
+    "intrinsics": {
+      "fx": 615.111,
+      "fy": 615.111,
+      "cx": 320.0,
+      "cy": 240.0
+    },
+    "view_transform": "Filmic",
+    "view_look": "Medium Contrast",
+    "file_format": "PNG",
+    "color_mode": "RGB",
+    "taa_render_samples": 64
+  },
+  "output": {
+    "base_dir": "data/pallet/training_data",
+    "version_prefix": "blender_train_v",
+    "overlay_subdir": "overlay",
+    "save_overlay": false
+  },
+  "assets": {
+    "pallet_source_dir": "data/pallet/models_usd",
+    "pallet_names": ["Pallet_0", "Pallet_1", "Pallet_2", "Pallet_3"],
+    "pallet_weights": [0.4, 0.4, 0.1, 0.1],
+    "pallet_source_assets": {
+      "Pallet_0": "scene.usd",
+      "Pallet_1": "scene_1.usd",
+      "Pallet_2": "scene_2.usd",
+      "Pallet_3": "scene_3.usd"
+    },
+    "distractor_names": [
+      "Barrel_01",
+      "Barrel_1",
+      "concrete_road_barrier",
+      "TrafficCone_1",
+      "TrafficCone_2"
+    ],
+    "box_names": [
+      "PalletBox_0",
+      "PalletBox_1",
+      "PalletBox_2",
+      "PalletBox_3",
+      "PalletBox_4",
+      "PalletBox_5",
+      "PalletBox_6"
+    ],
+    "box_shape_profiles": [
+      {"name": "compact", "scale": [0.82, 0.85, 0.78]},
+      {"name": "standard", "scale": [1.0, 1.0, 1.0]},
+      {"name": "wide", "scale": [1.18, 0.92, 0.82]},
+      {"name": "deep", "scale": [0.9, 1.18, 0.86]},
+      {"name": "tall", "scale": [0.92, 0.92, 1.22]}
+    ]
+  },
+  "background": {
+    "keys": ["industrial", "parking_lot"],
+    "assets": {
+      "industrial": {
+        "kind": "existing",
+        "root_name": "BG_industrial",
+        "weight": 0.5
+      },
+      "parking_lot": {
+        "kind": "gltf",
+        "filepath": "data/pallet/background/parking_lot/scene.gltf",
+        "root_name": "BG_parking_lot",
+        "weight": 0.5
+      }
+    }
+  },
+  "appearance": {
+    "pallet_color_group_for_model": {
+      "Pallet_0": "plastic",
+      "Pallet_1": "plastic",
+      "Pallet_2": "wood",
+      "Pallet_3": "wood"
+    },
+    "pallet_color_variants": {
+      "plastic": [
+        {"name": "green", "base_color": [0.06, 0.27, 0.13], "roughness": 0.58, "specular": 0.35, "weight": 0.36},
+        {"name": "blue", "base_color": [0.06, 0.18, 0.44], "roughness": 0.60, "specular": 0.33, "weight": 0.28},
+        {"name": "gray", "base_color": [0.22, 0.25, 0.28], "roughness": 0.64, "specular": 0.28, "weight": 0.14},
+        {"name": "black", "base_color": [0.05, 0.05, 0.06], "roughness": 0.72, "specular": 0.24, "weight": 0.10},
+        {"name": "red", "base_color": [0.43, 0.10, 0.09], "roughness": 0.60, "specular": 0.31, "weight": 0.06},
+        {"name": "orange", "base_color": [0.60, 0.27, 0.07], "roughness": 0.57, "specular": 0.31, "weight": 0.06}
+      ],
+      "wood": [
+        {"name": "natural_wood", "base_color": [0.30, 0.20, 0.12], "roughness": 0.80, "specular": 0.18, "weight": 0.34},
+        {"name": "weathered_brown", "base_color": [0.26, 0.20, 0.15], "roughness": 0.84, "specular": 0.16, "weight": 0.24},
+        {"name": "weathered_gray", "base_color": [0.30, 0.30, 0.28], "roughness": 0.86, "specular": 0.14, "weight": 0.20},
+        {"name": "painted_green", "base_color": [0.10, 0.27, 0.13], "roughness": 0.74, "specular": 0.22, "weight": 0.12},
+        {"name": "painted_blue", "base_color": [0.09, 0.20, 0.36], "roughness": 0.74, "specular": 0.22, "weight": 0.10}
+      ]
+    }
+  },
+  "camera": {
+    "view_modes": {
+      "forklift_like": {
+        "weight": 0.24,
+        "distance": [3.2, 6.2],
+        "distance_bias": 1.85,
+        "height_base": [0.18, 0.42],
+        "height_scale": [0.04, 0.10],
+        "look_offset": [0.00, 0.28],
+        "center_prob": 0.72,
+        "angle_mode": "front_bias",
+        "angle_jitter_deg": 26.0,
+        "min_area_ratio": 0.025
+      },
+      "low_random": {
+        "weight": 0.10,
+        "distance": [3.4, 5.8],
+        "distance_bias": 1.70,
+        "height_base": [0.22, 0.62],
+        "height_scale": [0.06, 0.13],
+        "look_offset": [0.08, 0.50],
+        "center_prob": 0.58,
+        "angle_mode": "full",
+        "angle_jitter_deg": 180.0,
+        "min_area_ratio": 0.024
+      },
+      "mid_random": {
+        "weight": 0.29,
+        "distance": [4.4, 6.4],
+        "distance_bias": 1.55,
+        "height_base": [0.42, 0.95],
+        "height_scale": [0.08, 0.18],
+        "look_offset": [0.10, 0.80],
+        "center_prob": 0.46,
+        "angle_mode": "full",
+        "angle_jitter_deg": 180.0,
+        "min_area_ratio": 0.023
+      },
+      "far_context": {
+        "weight": 0.25,
+        "distance": [5.7, 7.4],
+        "distance_bias": 1.30,
+        "height_base": [0.60, 1.12],
+        "height_scale": [0.08, 0.16],
+        "look_offset": [0.00, 0.72],
+        "center_prob": 0.64,
+        "angle_mode": "full",
+        "angle_jitter_deg": 180.0,
+        "min_area_ratio": 0.020
+      },
+      "ultra_far": {
+        "weight": 0.12,
+        "distance": [7.2, 8.6],
+        "distance_bias": 1.10,
+        "height_base": [0.78, 1.25],
+        "height_scale": [0.08, 0.14],
+        "look_offset": [0.00, 0.62],
+        "center_prob": 0.70,
+        "angle_mode": "full",
+        "angle_jitter_deg": 180.0,
+        "min_area_ratio": 0.014
+      }
+    },
+    "distance_buckets": {
+      "close": [2.0, 3.7],
+      "mid": [3.7, 5.4],
+      "far": [5.4, 7.2],
+      "ultra_far": [7.2, 8.8]
+    }
+  },
+  "quality": {
+    "visible_min_fraction": 0.60,
+    "occlusion_heavy_ray_range": [0.45, 0.78],
+    "occlusion_light_ray_range": [0.55, 1.01],
+    "min_projected_area_ratio": 0.03,
+    "far_view_min_projected_area_ratio": 0.025
+  },
+  "generation": {
+    "max_retries": 20,
+    "three_box_probability": 0.4,
+    "heavy_occlusion_probability": 0.5,
+    "ultra_far_heavy_occlusion_probability": 0.25
+  },
+  "placement": {
+    "pallet_xy_range": {
+      "x": [-12.0, -6.0],
+      "y": [-12.0, -2.0]
+    },
+    "pallet_attempts": 20,
+    "collision_margin": 0.3,
+    "aabb_overlap_margin": 0.5,
+    "static_obstacles": {
+      "skip_prefixes": [
+        "Floor",
+        "PalletBox",
+        "Pallet_",
+        "Pallet_0",
+        "Sun",
+        "ForkliftCam",
+        "Camera",
+        "Looks",
+        "Collada",
+        "pallet",
+        "pallet_low"
+      ],
+      "min_height": 0.1,
+      "min_width": 0.1
+    }
+  },
+  "randomization": {
+    "camera": {
+      "front_bias_reverse_probability": 0.18,
+      "look_z_min": 0.05,
+      "look_z_scale_range": [0.45, 1.0]
+    },
+    "distractors": {
+      "min_count": 2,
+      "max_count_light": 5,
+      "max_count_heavy": 4,
+      "placement_attempts": 12,
+      "central_angle_jitter_deg": 10.313240312354818,
+      "central_distance_range": [0.7, 1.6],
+      "central_lateral_range": [-0.4, 0.4],
+      "side_angle_fraction_range": [0.15, 0.85],
+      "side_distance_range": [1.5, 3.2],
+      "yaw_range_deg": [0.0, 360.0]
+    },
+    "boxes": {
+      "min_boxes": 2,
+      "max_boxes_light": 3,
+      "max_boxes_heavy": 4,
+      "width_span_factor_light": 0.86,
+      "width_span_factor_heavy": 0.78,
+      "depth_span_factor_light": 0.8,
+      "depth_span_factor_heavy": 0.7,
+      "slot_offsets_light": [
+        [-0.36, -0.24],
+        [0.36, -0.24],
+        [-0.30, 0.22],
+        [0.30, 0.22],
+        [0.0, 0.28],
+        [0.0, -0.30],
+        [-0.18, -0.02],
+        [0.18, -0.02]
+      ],
+      "slot_offsets_heavy": [
+        [-0.32, -0.22],
+        [0.32, -0.22],
+        [-0.28, 0.10],
+        [0.28, 0.10],
+        [0.0, -0.02],
+        [0.0, 0.28],
+        [-0.18, 0.28],
+        [0.18, 0.28]
+      ],
+      "slot_jitter": 0.02,
+      "placement_attempts_per_slot": 3,
+      "yaw_options_deg": [0.0, 90.0],
+      "yaw_jitter_rad": 0.08,
+      "shape_scale_jitter_xy": [0.95, 1.05],
+      "shape_scale_jitter_z": [0.95, 1.08],
+      "profile_exclude": {
+        "light": ["tall"],
+        "heavy": ["compact"]
+      }
+    },
+    "hdri": {
+      "rotation_range_rad": [0.0, 6.283185307179586],
+      "exposure_range_ev": [-0.2, 0.2]
+    }
+  },
+  "geometry": {
+    "orientation_overrides": {
+      "Pallet_0": [90, 0, 90],
+      "Pallet_1": [0, 0, 0],
+      "Pallet_2": [0, 0, 0],
+      "Pallet_3": [0, 0, 90]
+    },
+    "canonical_bbox_min": [0.0, 0.0, 0.0],
+    "canonical_bbox_max": [1.1, 0.15, 1.1],
+    "pallet_top_z": {
+      "Pallet_0": 0.137,
+      "Pallet_1": 0.137,
+      "Pallet_2": 0.218,
+      "Pallet_3": 0.145
+    },
+    "pallet_surface_z": 0.15
+  },
+  "overlay": {
+    "cuboid_edges": [
+      [0, 1], [1, 2], [2, 3], [3, 0],
+      [4, 5], [5, 6], [6, 7], [7, 4],
+      [0, 4], [1, 5], [2, 6], [3, 7]
+    ],
+    "corner_colors_rgb": [
+      [255, 0, 0],
+      [255, 128, 0],
+      [255, 255, 0],
+      [0, 255, 0],
+      [0, 0, 255],
+      [0, 128, 255],
+      [128, 0, 255],
+      [255, 0, 255]
+    ]
+  },
+  "lighting": {
+    "hdri_base_strength": 1.0,
+    "hdri_dir": "data/pallet/hdri"
+  }
+}

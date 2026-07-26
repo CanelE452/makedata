@@ -1,0 +1,91 @@
+# Stage 3: FixMatch-based Self-Training Configuration
+# Paper: Unsupervised Domain Adaptation for Pallet 6D Pose Estimation
+
+# --- Pallet 3D Model ---
+pallet:
+  # KS T 1002 standard pallet dimensions (meters)
+  width: 1.1    # X axis
+  depth: 1.1    # Z axis (forward)
+  height: 0.15  # Y axis (up, OpenCV convention: Y points down)
+
+# --- Camera Intrinsics ---
+camera:
+  fx: 615.0
+  fy: 615.0
+  cx: 320.0
+  cy: 240.0
+  width: 640
+  height: 480
+
+# --- Self-Training ---
+self_training:
+  num_rounds: 10
+  epochs_per_round: 3
+  optimizer: adam
+  learning_rate: 1.0e-5
+  weight_decay: 1.0e-4
+  batch_size: 8
+  lambda_real: 1.0           # weight for pseudo-label loss
+  synthetic_ratio: 0.5       # ratio of synthetic data per batch
+  image_size: 448             # DOPE input size
+  belief_map_size: 56         # belief map output resolution (448 / 8)
+  sigma: 2.0                 # Gaussian sigma for belief map generation
+  num_workers: 4
+  convergence_threshold: 0.01  # stop if acceptance rate change < 1% for 3 rounds
+  convergence_patience: 3
+
+# --- Geometric Filter ---
+geometric_filter:
+  # Condition 1: Reprojection error (pixels)
+  tau_reproj: 5.0
+
+  # Condition 2: Cuboid geometry
+  tau_ratio_min: 0.5          # opposite edge length ratio min
+  tau_ratio_max: 2.0          # opposite edge length ratio max
+  tau_angle_min: 60.0         # adjacent edge angle min (degrees)
+  tau_angle_max: 120.0        # adjacent edge angle max (degrees)
+
+  # Condition 3: Physical size (meters)
+  tau_size_min: 0.5           # estimated pallet width min
+  tau_size_max: 2.5           # estimated pallet width max
+
+  # Minimum valid keypoints for PnP
+  min_keypoints: 5
+
+# --- PnP Solver ---
+pnp:
+  method: epnp               # cv2.SOLVEPNP_EPNP
+  use_ransac: true
+  ransac_reproj_threshold: 8.0
+  ransac_iterations: 100
+
+# --- Augmentations ---
+augmentation:
+  weak:
+    brightness: 0.1           # +/- range
+    contrast: 0.1
+    gaussian_noise_std: 0.01
+  strong:
+    brightness: 0.4
+    contrast: 0.4
+    saturation: 0.4
+    hue: 0.1
+    random_erasing_prob: 0.5
+    random_erasing_scale: [0.02, 0.2]
+    gaussian_blur_prob: 0.5
+    gaussian_blur_kernel: [3, 7]
+    gaussian_noise_std: 0.05
+
+# --- Paths ---
+paths:
+  synthetic_data: data/pallet/training_data/train
+  real_unlabeled: data/pallet/real_unlabeled
+  pretrained_weights: weights/pallet_category/net_pallet_best.pth
+  output_dir: output/stage3_selftrain
+  val_dir: data/pallet/training_data/val
+
+# --- Logging ---
+logging:
+  log_interval: 50
+  save_every_round: true
+  tensorboard: true

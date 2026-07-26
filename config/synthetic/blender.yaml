@@ -1,0 +1,332 @@
+{
+  "render": {
+    "num_frames": 1000,
+    "image_width": 640,
+    "image_height": 480,
+    "sensor_width": 36.0,
+    "intrinsics": {
+      "fx": 615.111,
+      "fy": 615.111,
+      "cx": 320.0,
+      "cy": 240.0
+    },
+    "view_transform": "Filmic",
+    "view_look": "Medium Contrast",
+    "file_format": "PNG",
+    "color_mode": "RGB",
+    "taa_render_samples": 64
+  },
+  "output": {
+    "base_dir": "data/pallet",
+    "version_prefix": "test_blender_v",
+    "overlay_subdir": "overlay",
+    "save_overlay": true
+  },
+  "assets": {
+    "pallet_source_dir": "data/pallet/models_usd",
+    "pallet_names": ["Pallet_0", "Pallet_1", "Pallet_2", "Pallet_3"],
+    "pallet_weights": [1.0, 0.0, 0.0, 0.0],
+    "pallet_source_assets": {
+      "Pallet_0": "scene.usd",
+      "Pallet_1": "scene_1.usd",
+      "Pallet_2": "woodpallet_block_jtoastie_ccby.glb",
+      "Pallet_3": "eur_pallet_bk_cc0.glb"
+    },
+    "distractor_names": [
+      "Barrel_01",
+      "Barrel_1",
+      "concrete_road_barrier",
+      "TrafficCone_1",
+      "TrafficCone_2"
+    ],
+    "box_names": [
+      "PalletBox_0",
+      "PalletBox_1",
+      "PalletBox_2",
+      "PalletBox_3",
+      "PalletBox_4",
+      "PalletBox_5",
+      "PalletBox_6"
+    ],
+    "box_shape_profiles": [
+      {"name": "compact", "scale": [0.82, 0.85, 0.78]},
+      {"name": "standard", "scale": [1.0, 1.0, 1.0]},
+      {"name": "wide", "scale": [1.18, 0.92, 0.82]},
+      {"name": "deep", "scale": [0.9, 1.18, 0.86]},
+      {"name": "tall", "scale": [0.92, 0.92, 1.22]}
+    ]
+  },
+  "background": {
+    "keys": ["industrial", "parking_lot"],
+    "assets": {
+      "industrial": {
+        "kind": "existing",
+        "root_name": "BG_industrial",
+        "weight": 0.5
+      },
+      "parking_lot": {
+        "kind": "gltf",
+        "filepath": "data/pallet/background/parking_lot/scene.gltf",
+        "root_name": "BG_parking_lot",
+        "weight": 0.5
+      }
+    }
+  },
+  "appearance": {
+    "pallet_color_group_for_model": {
+      "Pallet_0": "plastic",
+      "Pallet_1": "plastic",
+      "Pallet_2": "wood",
+      "Pallet_3": "wood"
+    },
+    "pallet_color_variants": {
+      "plastic": [
+        {"name": "ind_blue",  "base_color": [0.05, 0.09, 0.21], "roughness": 0.46, "specular": 0.34, "weight": 0.24},
+        {"name": "ind_red",   "base_color": [0.26, 0.05, 0.05], "roughness": 0.48, "specular": 0.32, "weight": 0.22},
+        {"name": "ind_green", "base_color": [0.05, 0.16, 0.08], "roughness": 0.48, "specular": 0.32, "weight": 0.22},
+        {"name": "black",     "base_color": [0.03, 0.03, 0.035], "roughness": 0.52, "specular": 0.28, "weight": 0.14},
+        {"name": "graphite",  "base_color": [0.09, 0.09, 0.10], "roughness": 0.54, "specular": 0.30, "weight": 0.10},
+        {"name": "mid_gray",  "base_color": [0.17, 0.17, 0.18], "roughness": 0.50, "specular": 0.30, "weight": 0.08}
+      ],
+      "wood": [
+        {"name": "worn_natural", "texture": "worn_planks_diff.png", "normal": "worn_planks_nor_gl.png", "roughness_map": "worn_planks_rough.png", "uv_scale": 1.0, "tint": [1.00, 0.95, 0.88], "tint_strength": 1.0, "base_color": [0.45, 0.37, 0.31], "roughness": 0.78, "specular": 0.18, "weight": 0.09},
+        {"name": "worn_dark", "texture": "worn_planks_diff.png", "normal": "worn_planks_nor_gl.png", "roughness_map": "worn_planks_rough.png", "uv_scale": 1.0, "tint": [0.60, 0.52, 0.46], "tint_strength": 1.0, "base_color": [0.27, 0.22, 0.18], "roughness": 0.82, "specular": 0.15, "weight": 0.07},
+        {"name": "weathered_brown", "texture": "weathered_brown_planks_diff.png", "normal": "weathered_brown_planks_nor_gl.png", "roughness_map": "weathered_brown_planks_rough.png", "uv_scale": 1.0, "uv_rotation": 90, "tint": [1.00, 0.92, 0.82], "tint_strength": 1.0, "base_color": [0.38, 0.29, 0.22], "roughness": 0.80, "specular": 0.16, "weight": 0.08},
+        {"name": "weathered_warm", "texture": "weathered_brown_planks_diff.png", "normal": "weathered_brown_planks_nor_gl.png", "roughness_map": "weathered_brown_planks_rough.png", "uv_scale": 1.0, "uv_rotation": 90, "tint": [1.00, 0.80, 0.58], "tint_strength": 1.0, "base_color": [0.38, 0.26, 0.16], "roughness": 0.80, "specular": 0.18, "weight": 0.07},
+        {"name": "brown_dry", "texture": "brown_planks_03_diff.png", "normal": "brown_planks_03_nor_gl.png", "roughness_map": "brown_planks_03_rough.png", "uv_scale": 1.0, "tint": [1.00, 0.94, 0.86], "tint_strength": 1.0, "base_color": [0.40, 0.34, 0.28], "roughness": 0.82, "specular": 0.15, "weight": 0.09},
+        {"name": "pine_warm", "texture": "wood_planks_diff.png", "normal": "wood_planks_nor_gl.png", "roughness_map": "wood_planks_rough.png", "uv_scale": 1.15, "uv_rotation": 90, "tint": [1.00, 0.93, 0.84], "tint_strength": 1.0, "base_color": [0.44, 0.33, 0.22], "roughness": 0.78, "specular": 0.18, "weight": 0.11},
+        {"name": "rough_tan", "texture": "brown_planks_04_diff.png", "normal": "brown_planks_04_nor_gl.png", "roughness_map": "brown_planks_04_rough.png", "uv_scale": 1.0, "uv_rotation": 90, "tint": [1.00, 0.97, 0.92], "tint_strength": 0.7, "base_color": [0.49, 0.43, 0.39], "roughness": 0.80, "specular": 0.17, "weight": 0.11},
+        {"name": "cabin_light", "texture": "plank_flooring_03_diff.png", "normal": "plank_flooring_03_nor_gl.png", "roughness_map": "plank_flooring_03_rough.png", "uv_scale": 0.85, "uv_rotation": 90, "tint": [1.00, 0.95, 0.87], "tint_strength": 1.0, "base_color": [0.47, 0.40, 0.31], "roughness": 0.76, "specular": 0.19, "weight": 0.10},
+        {"name": "dark_knot", "texture": "dark_planks_diff.png", "normal": "dark_planks_nor_gl.png", "roughness_map": "dark_planks_rough.png", "uv_scale": 1.1, "uv_rotation": 90, "tint": [0.95, 0.91, 0.86], "tint_strength": 1.0, "base_color": [0.36, 0.34, 0.30], "roughness": 0.82, "specular": 0.15, "weight": 0.10},
+        {"name": "grey_weathered", "texture": "wood_planks_grey_diff.png", "normal": "wood_planks_grey_nor_gl.png", "roughness_map": "wood_planks_grey_rough.png", "uv_scale": 0.9, "tint": [1.00, 0.99, 0.97], "tint_strength": 0.6, "base_color": [0.30, 0.29, 0.27], "roughness": 0.84, "specular": 0.13, "weight": 0.09},
+        {"name": "aged_reddish", "texture": "weathered_planks_diff.png", "normal": "weathered_planks_nor_gl.png", "roughness_map": "weathered_planks_rough.png", "uv_scale": 1.0, "tint": [1.00, 0.92, 0.84], "tint_strength": 1.0, "base_color": [0.33, 0.27, 0.23], "roughness": 0.84, "specular": 0.14, "weight": 0.09}
+      ]
+    }
+  },
+  "camera": {
+    "view_modes": {
+      "top_down": {
+        "weight": 0.25,
+        "distance": [1.0, 4.0],
+        "distance_bias": 1.0,
+        "height_base": [3.0, 5.5],
+        "height_scale": [0.3, 0.6],
+        "look_offset": [0.00, 0.10],
+        "center_prob": 0.50,
+        "edge_crop_prob": 0.35,
+        "angle_mode": "full",
+        "angle_jitter_deg": 180.0,
+        "min_area_ratio": 0.03
+      },
+      "top_down_crop": {
+        "weight": 0.15,
+        "distance": [0.8, 3.0],
+        "distance_bias": 1.0,
+        "height_base": [2.5, 5.0],
+        "height_scale": [0.4, 0.7],
+        "look_offset": [0.25, 0.60],
+        "center_prob": 0.0,
+        "edge_crop_prob": 0.45,
+        "angle_mode": "full",
+        "angle_jitter_deg": 180.0,
+        "min_area_ratio": 0.04
+      },
+      "close_full": {
+        "weight": 0.12,
+        "distance": [1.5, 2.8],
+        "distance_bias": 1.0,
+        "height_base": [0.3, 2.0],
+        "height_scale": [0.05, 0.15],
+        "look_offset": [0.00, 0.15],
+        "center_prob": 0.90,
+        "angle_mode": "full",
+        "angle_jitter_deg": 180.0,
+        "min_area_ratio": 0.12
+      },
+      "close_crop": {
+        "weight": 0.15,
+        "distance": [1.2, 2.2],
+        "distance_bias": 1.0,
+        "height_base": [0.2, 1.5],
+        "height_scale": [0.05, 0.15],
+        "look_offset": [0.30, 0.80],
+        "center_prob": 0.0,
+        "edge_crop_prob": 0.40,
+        "angle_mode": "full",
+        "angle_jitter_deg": 180.0,
+        "min_area_ratio": 0.08
+      },
+      "mid": {
+        "weight": 0.18,
+        "distance": [3.5, 6.0],
+        "distance_bias": 1.0,
+        "height_base": [0.3, 2.5],
+        "height_scale": [0.05, 0.20],
+        "look_offset": [0.15, 0.70],
+        "center_prob": 0.35,
+        "edge_crop_prob": 0.35,
+        "angle_mode": "full",
+        "angle_jitter_deg": 180.0,
+        "min_area_ratio": 0.025
+      },
+      "far": {
+        "weight": 0.15,
+        "distance": [6.0, 8.5],
+        "distance_bias": 1.0,
+        "height_base": [0.5, 3.0],
+        "height_scale": [0.08, 0.20],
+        "look_offset": [0.20, 0.80],
+        "center_prob": 0.30,
+        "edge_crop_prob": 0.35,
+        "angle_mode": "full",
+        "angle_jitter_deg": 180.0,
+        "min_area_ratio": 0.015
+      }
+    },
+    "distance_buckets": {
+      "close": [1.8, 3.5],
+      "mid": [3.5, 6.0],
+      "far": [6.0, 8.5]
+    }
+  },
+  "quality": {
+    "visible_min_fraction": 0.60,
+    "occlusion_heavy_ray_range": [0.20, 0.85],
+    "occlusion_light_ray_range": [0.40, 1.01],
+    "min_projected_area_ratio": 0.03,
+    "far_view_min_projected_area_ratio": 0.025
+  },
+  "generation": {
+    "max_retries": 20,
+    "three_box_probability": 0.4,
+    "empty_pallet_probability": 0.15,
+    "heavy_occlusion_probability": 0.5,
+    "ultra_far_heavy_occlusion_probability": 0.25
+  },
+  "placement": {
+    "pallet_xy_range": {
+      "x": [-12.0, -6.0],
+      "y": [-12.0, -2.0]
+    },
+    "pallet_attempts": 20,
+    "collision_margin": 0.3,
+    "aabb_overlap_margin": 0.5,
+    "static_obstacles": {
+      "skip_prefixes": [
+        "Floor",
+        "PalletBox",
+        "Pallet_",
+        "Pallet_0",
+        "Sun",
+        "ForkliftCam",
+        "Camera",
+        "Looks",
+        "Collada",
+        "pallet",
+        "pallet_low"
+      ],
+      "min_height": 0.1,
+      "min_width": 0.1
+    }
+  },
+  "randomization": {
+    "camera": {
+      "front_bias_reverse_probability": 0.18,
+      "look_z_min": 0.05,
+      "look_z_scale_range": [0.45, 1.0]
+    },
+    "distractors": {
+      "min_count": 2,
+      "max_count_light": 5,
+      "max_count_heavy": 4,
+      "placement_attempts": 12,
+      "central_angle_jitter_deg": 10.313240312354818,
+      "central_distance_range": [0.7, 1.6],
+      "central_lateral_range": [-0.4, 0.4],
+      "side_angle_fraction_range": [0.15, 0.85],
+      "side_distance_range": [1.5, 3.2],
+      "yaw_range_deg": [0.0, 360.0]
+    },
+    "boxes": {
+      "min_boxes": 2,
+      "max_boxes_light": 3,
+      "max_boxes_heavy": 4,
+      "width_span_factor_light": 0.86,
+      "width_span_factor_heavy": 0.78,
+      "depth_span_factor_light": 0.8,
+      "depth_span_factor_heavy": 0.7,
+      "slot_offsets_light": [
+        [-0.36, -0.24],
+        [0.36, -0.24],
+        [-0.30, 0.22],
+        [0.30, 0.22],
+        [0.0, 0.28],
+        [0.0, -0.30],
+        [-0.18, -0.02],
+        [0.18, -0.02]
+      ],
+      "slot_offsets_heavy": [
+        [-0.32, -0.22],
+        [0.32, -0.22],
+        [-0.28, 0.10],
+        [0.28, 0.10],
+        [0.0, -0.02],
+        [0.0, 0.28],
+        [-0.18, 0.28],
+        [0.18, 0.28]
+      ],
+      "slot_jitter": 0.02,
+      "placement_attempts_per_slot": 5,
+      "yaw_options_deg": [0.0, 90.0],
+      "yaw_jitter_rad": 0.08,
+      "shape_scale_jitter_xy": [0.95, 1.05],
+      "shape_scale_jitter_z": [0.95, 1.08],
+      "profile_exclude": {
+        "light": ["tall"],
+        "heavy": ["compact"]
+      }
+    },
+    "hdri": {
+      "rotation_range_rad": [0.0, 6.283185307179586],
+      "exposure_range_ev": [-1.5, 0.2]
+    }
+  },
+  "geometry": {
+    "orientation_overrides": {
+      "Pallet_0": [90, 0, 90],
+      "Pallet_1": [0, 0, 0],
+      "Pallet_2": [0, 0, 0],
+      "Pallet_3": [0, 0, 90]
+    },
+    "canonical_bbox_min": [0.0, 0.0, 0.0],
+    "canonical_bbox_max": [1.1, 0.15, 1.1],
+    "pallet_top_z": {
+      "Pallet_0": 0.137,
+      "Pallet_1": 0.137,
+      "Pallet_2": 0.218,
+      "Pallet_3": 0.145
+    },
+    "pallet_surface_z": 0.15
+  },
+  "overlay": {
+    "cuboid_edges": [
+      [0, 1], [1, 2], [2, 3], [3, 0],
+      [4, 5], [5, 6], [6, 7], [7, 4],
+      [0, 4], [1, 5], [2, 6], [3, 7]
+    ],
+    "corner_colors_rgb": [
+      [255, 0, 0],
+      [255, 128, 0],
+      [255, 255, 0],
+      [0, 255, 0],
+      [0, 0, 255],
+      [0, 128, 255],
+      [128, 0, 255],
+      [255, 0, 255]
+    ]
+  },
+  "lighting": {
+    "hdri_base_strength": 0.6,
+    "hdri_dir": "data/pallet/hdri"
+  }
+}

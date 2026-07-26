@@ -1,0 +1,262 @@
+{
+  "paths": {
+    "gltf_dir": "data/pallet/pallet_scene/Collected_World0/SubUSDs/textures",
+    "gltf_files": ["scene.gltf", "scene_1.gltf", "scene_2.gltf", "scene_3.gltf"],
+    "usd_cache_dir": "data/pallet/models_usd",
+    "default_output_dir": "data/pallet/training_data",
+    "isaac_assets_root": "data/pallet/isaac_assets/Assets/Isaac/4.5/Isaac",
+    "hdri_dir": "data/pallet/isaac_assets/Assets/Isaac/4.5/NVIDIA/Assets/Skies",
+    "procedural_texture_dir": "data/pallet/_procedural_textures"
+  },
+  "render": {
+    "image_width": 640,
+    "image_height": 480,
+    "focal_length": 34.6,
+    "sensor_width": 36.0,
+    "pallet_target_size": 1.2,
+    "warmup_steps": 2,
+    "rt_subframes_pt": 2,
+    "rt_subframes_rtl": 2
+  },
+  "generation": {
+    "min_visibility": 0.6,
+    "max_retries": 5
+  },
+  "camera": {
+    "mode_probabilities": [0.60, 0.25, 0.15],
+    "mode_a": {
+      "height_min": 0.2,
+      "height_max": 0.5,
+      "pitch_min": -5,
+      "pitch_max": 5,
+      "distance_min": 5.0,
+      "distance_max": 8.0,
+      "yaw_min": -30,
+      "yaw_max": 30
+    },
+    "mode_b": {
+      "height_min": 0.5,
+      "height_max": 1.2,
+      "pitch_min": -25,
+      "pitch_max": 5,
+      "distance_min": 5.0,
+      "distance_max": 8.0,
+      "yaw_min": -45,
+      "yaw_max": 45
+    },
+    "mode_c": {
+      "height_min": 0.05,
+      "height_max": 0.3,
+      "distance_min": 5.0,
+      "distance_max": 8.0,
+      "yaw_min": -20,
+      "yaw_max": 20
+    },
+    "look_at_target": [0.0, 0.0, 0.08],
+    "look_at_jitter": 0.15,
+    "front_view_probability": null
+  },
+  "distractors": {
+    "max_per_frame": 10,
+    "max_pool": 24,
+    "active_count_min": 3,
+    "default_pallet_half_extents": [0.5, 0.6],
+    "floor_sampling": {
+      "max_attempts": 10,
+      "corridor_half_width": 0.8,
+      "xy_range": [-3.0, 3.0],
+      "z_range": [0.0, 0.05],
+      "fallback_away_multiplier": 0.5,
+      "fallback_jitter_xy": [-1.0, 1.0]
+    },
+    "cargo_local_fraction": 0.8,
+    "cargo_rotation_deg": {
+      "x": [-3.0, 3.0],
+      "y": [-3.0, 3.0],
+      "z": [0.0, 360.0]
+    },
+    "cargo_primitive_z_scale_range": [0.8, 1.2],
+    "floor_rotation_deg": {
+      "x": [-5.0, 5.0],
+      "y": [-5.0, 5.0],
+      "z": [0.0, 360.0]
+    },
+    "prop_scale_range": [0.8, 1.5],
+    "primitive_scale_ranges": {
+      "x": [0.2, 0.8],
+      "y": [0.2, 0.8],
+      "z": [0.15, 0.6]
+    },
+    "primitive_color_ranges": {
+      "cardboard": {
+        "min": [0.45, 0.35, 0.18],
+        "max": [0.72, 0.55, 0.35]
+      },
+      "plastic": {
+        "min": [0.15, 0.15, 0.15],
+        "max": [0.90, 0.90, 0.85]
+      },
+      "concrete": {
+        "base": [0.30, 0.55],
+        "g_multiplier": [0.95, 1.05],
+        "b_multiplier": [0.90, 1.00]
+      },
+      "metal": {
+        "base": [0.40, 0.75],
+        "b_multiplier": [0.95, 1.05]
+      }
+    },
+    "nucleus_props": [
+      "/Isaac/Environments/Simple_Warehouse/Props/SM_CardBoxA_01.usd",
+      "/Isaac/Environments/Simple_Warehouse/Props/SM_CardBoxB_01.usd",
+      "/Isaac/Environments/Simple_Warehouse/Props/SM_CardBoxC_01.usd",
+      "/Isaac/Environments/Simple_Warehouse/Props/SM_BarelPlastic_A_01.usd",
+      "/Isaac/Environments/Simple_Warehouse/Props/SM_BarelPlastic_A_02.usd",
+      "/Isaac/Environments/Simple_Warehouse/Props/S_TrafficCone.usd",
+      "/Isaac/Environments/Simple_Warehouse/Props/S_WetFloorSign.usd"
+    ],
+    "categories": {
+      "cardbox": [
+        "Environments/Simple_Warehouse/Props/SM_CardBoxA_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_CardBoxA_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_CardBoxB_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_CardBoxB_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_CardBoxC_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_CardBoxC_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_CardBoxD_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_CardBoxD_03.usd",
+        "Environments/Simple_Warehouse/Props/SM_CardBoxD_04.usd",
+        "Environments/Simple_Warehouse/Props/SM_CardBoxD_05.usd"
+      ],
+      "barrel": [
+        "Environments/Simple_Warehouse/Props/SM_BarelPlastic_A_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_BarelPlastic_A_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_BarelPlastic_A_03.usd",
+        "Environments/Simple_Warehouse/Props/SM_BarelPlastic_B_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_BarelPlastic_B_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_BarelPlastic_C_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_BarelPlastic_C_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_BarelPlastic_D_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_BarelPlastic_D_02.usd"
+      ],
+      "crate": [
+        "Environments/Simple_Warehouse/Props/SM_CratePlastic_A_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_CratePlastic_B_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_CratePlastic_C_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_CratePlastic_D_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_CratePlastic_E_01.usd"
+      ],
+      "bottle": [
+        "Environments/Simple_Warehouse/Props/SM_BottlePlasticA_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_BottlePlasticA_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_BottlePlasticB_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_BottlePlasticB_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_BottlePlasticC_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_BottlePlasticC_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_BottlePlasticD_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_BottlePlasticD_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_BottlePlasticE_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_BottlePlasticE_02.usd"
+      ],
+      "sign": [
+        "Environments/Simple_Warehouse/Props/S_WetFloorSign.usd",
+        "Environments/Simple_Warehouse/Props/S_AisleSign.usd",
+        "Environments/Simple_Warehouse/Props/SM_SignA_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_SignA_03.usd",
+        "Environments/Simple_Warehouse/Props/SM_SignB_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_SignB_05.usd",
+        "Environments/Simple_Warehouse/Props/SM_SignCVer_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_SignCVer_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_SignCVer_03.usd",
+        "Environments/Simple_Warehouse/Props/SM_EmergencyBoardFull_01.usd"
+      ],
+      "misc": [
+        "Environments/Simple_Warehouse/Props/SM_BucketPlastic_B.usd",
+        "Environments/Simple_Warehouse/Props/SM_PushcartA_02.usd",
+        "Environments/Simple_Warehouse/Props/SM_FireExtinguisher_02.usd",
+        "Environments/Simple_Warehouse/Props/S_TrafficCone.usd",
+        "Environments/Simple_Warehouse/Props/SM_FuseBox_01.usd",
+        "Environments/Simple_Warehouse/Props/SM_FuseBox_04.usd",
+        "Environments/Simple_Warehouse/Props/SM_RackPile_03.usd",
+        "Environments/Simple_Warehouse/Props/SM_RackPile_04.usd"
+      ]
+    }
+  },
+  "cargo": {
+    "on_pallet_probability": 0.8,
+    "occlusion_tiers": [
+      {"probability": 0.15, "max_count": 2, "scale_range": [0.30, 0.50]},
+      {"probability": 0.35, "max_count": 4, "scale_range": [0.40, 0.70]},
+      {"probability": 0.30, "max_count": 6, "scale_range": [0.50, 0.80]},
+      {"probability": 0.20, "max_count": 8, "scale_range": [0.60, 1.00]}
+    ],
+    "surface_height": 0.15,
+    "z_clearance": 0.01
+  },
+  "pallet": {
+    "colors": [
+      [0.0, 0.2, 0.8],
+      [0.8, 0.1, 0.1],
+      [0.25, 0.25, 0.25],
+      [0.45, 0.45, 0.45],
+      [0.4, 0.25, 0.1],
+      [0.1, 0.6, 0.2],
+      [0.8, 0.7, 0.1],
+      [0.0, 0.5, 0.6]
+    ],
+    "tilt_max": 0.0,
+    "palette_probability": 0.6,
+    "hsv_range": {
+      "h": [0.0, 1.0],
+      "s": [0.2, 1.0],
+      "v": [0.25, 0.85]
+    },
+    "position_xy_range": {
+      "x": [-0.3, 0.3],
+      "y": [-0.3, 0.3]
+    }
+  },
+  "background": {
+    "warehouse_usd": "/Isaac/Environments/Simple_Warehouse/warehouse.usd",
+    "warehouse_local_variants": [
+      "Environments/Simple_Warehouse/warehouse.usd",
+      "Environments/Simple_Warehouse/warehouse_multiple_shelves.usd",
+      "Environments/Simple_Warehouse/warehouse_with_forklifts.usd"
+    ],
+    "warehouse_probability": 0.2,
+    "outdoor_probability": 0.6
+  },
+  "materials": {
+    "floor_diffuse_range": [[0.12, 0.11, 0.09], [0.60, 0.55, 0.53]],
+    "wall_diffuse_range": [[0.18, 0.17, 0.15], [0.65, 0.62, 0.60]],
+    "texture_realistic_probability": 0.7
+  },
+  "lighting": {
+    "dome_intensity_range": [2000.0, 3500.0],
+    "main": {
+      "color_min": [0.85, 0.82, 0.78],
+      "color_max": [1.0, 0.98, 0.95],
+      "intensity_range": [100000.0, 300000.0],
+      "position_min": [-3.0, -3.0, 4.0],
+      "position_max": [3.0, 3.0, 6.0],
+      "rotation_min": [-100.0, -20.0, -20.0],
+      "rotation_max": [-70.0, 20.0, 20.0]
+    },
+    "fill_1": {
+      "color_min": [0.7, 0.7, 0.75],
+      "color_max": [1.0, 1.0, 0.95],
+      "intensity_range": [50000.0, 200000.0],
+      "position_min": [-5.0, -5.0, 2.0],
+      "position_max": [5.0, 5.0, 5.0],
+      "visible_probability": 0.75
+    },
+    "fill_2": {
+      "color_min": [0.75, 0.75, 0.75],
+      "color_max": [1.0, 1.0, 0.95],
+      "intensity_range": [40000.0, 180000.0],
+      "position_min": [-5.0, -5.0, 2.0],
+      "position_max": [5.0, 5.0, 5.0],
+      "visible_probability": 0.75
+    }
+  }
+}
