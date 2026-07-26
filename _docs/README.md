@@ -35,6 +35,8 @@
 |------|------|
 | [experiments.md](experiments/experiments.md) | 실험 설계 (비교 테이블, Ablation, 수렴 분석) |
 
+Blender v2 500-record 진단의 차트·표·전수 이미지 감사 해석은 [v2_scene_logic_500_eda_results.md](experiments/v2_scene_logic_500_eda_results.md)에 정리되어 있다.
+
 ### 서베이 (`survey/`)
 
 | 파일 | 내용 |
