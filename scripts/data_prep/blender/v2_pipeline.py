@@ -106,6 +106,15 @@ PROJ_SIZE_EDGES = [(0.0, 0.10), (0.10, 0.20), (0.20, 0.40), (0.40, 0.60), (0.60,
 PROJ_SIZE_LABELS = ["<10%", "10-20%", "20-40%", "40-60%", ">60%"]
 PROJ_SIZE_FRAC = [0.20, 0.20, 0.20, 0.20, 0.20]  # uniform over geometric bins (prescribed)
 
+# --- camera distance CAP (Phase 1, 2026-07-27). ---------------------------------
+# solve_placement inverts the projected-size ratio into a camera distance
+#   d = fx * PALLET_W / (proj_size_ratio * image_width),
+# so a ratio near 0 (the open lower edge of PROJ_SIZE_EDGES[0]) puts the camera hundreds of
+# metres away — physically meaningless for a warehouse pallet and useless for training. The
+# cap is enforced at SAMPLING time (sample_frame narrows/masks the ratio bins so no frame can
+# ever ask for d > cap) and re-checked as a hard defensive reject in solve_placement.
+MAX_CAMERA_DISTANCE_M = 10.0
+
 # --- azimuth — 30deg x 12 bins uniform. ----------------------------------------
 AZIMUTH_NBINS = 12
 AZIMUTH_BIN_DEG = 30.0
@@ -121,6 +130,19 @@ F_TARGET_FRAC = [0.40, 0.25, 0.20, 0.15]
 # 2D-alignment/C2 issue, so quota-forcing high-f would just spin render attempts). Labels/audit
 # bin frames by f_actual so weak-occluder frames land in their TRUE bin, not the target bin.
 F_ACTUAL_CUTS = [0.10, 0.20, 0.35]   # -> bin0 <0.10, bin1 [0.10,0.20), bin2 [0.20,0.35), bin3 >=0.35
+
+
+def projected_size_actual(uv_points, image_width):
+    """MEASURED projected width ratio = (max u - min u)/image_width over the 8 cuboid corners.
+
+    Single-sourced here so the Blender label (v2_realize.label) and the bpy-free record
+    (run_v2_scene_logic) report the identical quantity. KNOWN LIMITATION (unchanged in this
+    phase): corners that fall off-screen or behind the camera still contribute their raw u, so
+    a truncated frame can over-read. Returns None when unmeasurable."""
+    if uv_points is None or not image_width:
+        return None
+    xs = [float(p[0]) for p in uv_points if math.isfinite(float(p[0]))]
+    return (max(xs) - min(xs)) / float(image_width) if xs else None
 
 
 def f_actual_bin(f_total):
@@ -320,6 +342,7 @@ class FrameSpec:
     v_target: int                        # 4..8 (in-frame corner count target; joint w/ elev)
     proj_size_bin: int                   # 0..4 (image-width ratio)
     proj_size_ratio: float               # target pallet width / image width
+    proj_size_feasible_lower: float      # smallest ratio whose camera distance <= the cap
     # -- intrinsics / sensor --
     aspect: str
     resolution: tuple                    # (W, H)
@@ -372,23 +395,36 @@ class QuotaState:
         )
 
 
-def _deficit_pick(frac, counts, rng):
+def _deficit_pick(frac, counts, rng, mask=None):
     """Greedy least-filled pick: choose among under-quota bins weighted by deficit
     (same pattern as gen_trunc_addon._weighted_pick over the deficit vector). Falls
     back to uniform when every bin is at/over quota. Deterministic under a seeded rng.
+
+    mask: optional per-bin feasibility flags. A masked-out bin is not physically realisable
+    for this frame (e.g. a projected-size bin whose camera distance would exceed the cap), so
+    it gets selection probability 0; the deficit weights of the remaining bins are untouched,
+    which keeps the greedy quota logic intact — an infeasible bin simply accrues deficit and
+    is re-targeted on the next frame whose intrinsics make it feasible.
     """
     n = sum(counts)
     deficits = [max(0.0, f * (n + 1) - c) for f, c in zip(frac, counts)]
+    if mask is None:
+        allowed = list(range(len(frac)))
+    else:
+        allowed = [i for i, m in enumerate(mask) if m]
+        if not allowed:
+            raise ValueError("_deficit_pick: every bin is masked out as infeasible")
+        deficits = [d if m else 0.0 for d, m in zip(deficits, mask)]
     tot = sum(deficits)
     if tot <= 0:
-        return rng.randrange(len(frac))
+        return allowed[rng.randrange(len(allowed))]
     r = rng.uniform(0.0, tot)
     acc = 0.0
-    for i, d in enumerate(deficits):
-        acc += d
+    for i in allowed:
+        acc += deficits[i]
         if r <= acc:
             return i
-    return len(frac) - 1
+    return allowed[-1]
 
 
 def _deficit_pick_2d(joint_frac, counts, rng):
@@ -455,6 +491,17 @@ def advance_quota(qs: QuotaState, picks: Picks):
     qs.n += 1
 
 
+def proj_size_feasible_lower(fx, image_width, max_distance_m=None):
+    """Smallest projected width-ratio whose inverted camera distance still obeys the cap.
+
+    solve_placement uses d = fx * PALLET_W / (ratio * image_width); requiring d <= cap gives
+    ratio >= fx * PALLET_W / (image_width * cap). (PALLET_W is bound further down in this
+    module — it exists by the time sample_frame runs.)
+    """
+    cap = MAX_CAMERA_DISTANCE_M if max_distance_m is None else float(max_distance_m)
+    return float(fx) * PALLET_W / (float(image_width) * cap)
+
+
 def sample_frame(rng: random.Random, quota_state: QuotaState, assets: Assets,
                  frame_index: int = -1, seed: int = -1):
     """Sample one FrameSpec by marginal greedy quota fill (+ elev x V joint).
@@ -498,12 +545,8 @@ def sample_frame(rng: random.Random, quota_state: QuotaState, assets: Assets,
     ai = _deficit_pick(AZIMUTH_FRAC, qs.azimuth, rng)
     azimuth_deg = rng.uniform(ai * AZIMUTH_BIN_DEG, (ai + 1) * AZIMUTH_BIN_DEG)
 
-    # -- projected size (image-width ratio) --
-    psi = _deficit_pick(PROJ_SIZE_FRAC, qs.proj_size, rng)
-    plo, phi = PROJ_SIZE_EDGES[psi]
-    proj_size_ratio = rng.uniform(plo, phi)
-
-    # -- aspect / resolution --
+    # -- aspect / resolution -- (BEFORE projected size: the camera-distance cap below needs
+    #    the image width and fx, so the intrinsics must be settled first.)
     aspi = _deficit_pick(ASPECT_FRAC, qs.aspect, rng)
     aspect, resolution = ASPECTS[aspi]
 
@@ -511,6 +554,24 @@ def sample_frame(rng: random.Random, quota_state: QuotaState, assets: Assets,
     fxi = _deficit_pick(FX_FRAC, qs.fx, rng)
     fx_mode = FX_MODES[fxi]
     fx = FX_ANCHOR if fx_mode == "anchor" else rng.uniform(*FX_RANDOM_RANGE)
+
+    # -- projected size (image-width ratio), capped by MAX_CAMERA_DISTANCE_M --
+    #    solve_placement will invert this ratio into d = fx*PALLET_W/(ratio*W), so ratios
+    #    below `lower` are unreachable for THIS frame's intrinsics. Bins entirely below the
+    #    floor are masked out (probability 0, no clamping => no point mass at the floor);
+    #    a partially-feasible bin is narrowed to [max(lo, lower), hi) and sampled
+    #    continuous-uniform inside the narrowed interval.
+    lower = proj_size_feasible_lower(fx, resolution[0])
+    feasible = [max(lo, lower) < hi for lo, hi in PROJ_SIZE_EDGES]
+    if not any(feasible):
+        raise RuntimeError(
+            "no feasible proj_size bin: camera-distance cap "
+            f"{MAX_CAMERA_DISTANCE_M} m forces ratio >= {lower:.4f} but the largest bin "
+            f"edge is {PROJ_SIZE_EDGES[-1][1]} (fx={fx:.2f}, image_width={resolution[0]})"
+        )
+    psi = _deficit_pick(PROJ_SIZE_FRAC, qs.proj_size, rng, mask=feasible)
+    plo, phi = PROJ_SIZE_EDGES[psi]
+    proj_size_ratio = rng.uniform(max(plo, lower), phi)
 
     # -- f_target (occlusion) --
     fti = _deficit_pick(F_TARGET_FRAC, qs.f_target, rng)
@@ -536,6 +597,7 @@ def sample_frame(rng: random.Random, quota_state: QuotaState, assets: Assets,
         elev_bin=e_idx, elevation_deg=elevation_deg,
         azimuth_bin=ai, azimuth_deg=azimuth_deg, v_target=v_target,
         proj_size_bin=psi, proj_size_ratio=proj_size_ratio,
+        proj_size_feasible_lower=lower,
         aspect=aspect, resolution=resolution, fx_mode=fx_mode, fx=fx,
         f_target_bin=fti, f_target=f_target, position_mode=position_mode,
         cargo_on=cargo_on, cargo_seed=cargo_seed,
@@ -795,10 +857,18 @@ class Plan:
     f_need: float                 # residual occlusion the occluder must supply
     occluder: Optional[dict]      # None | {name, obj_name, d_occ, center, bbox_m, ...}
     reason: Optional[str] = None  # always None for a Plan (present for symmetry)
+    camera_distance_limit_m: float = MAX_CAMERA_DISTANCE_M  # cap in force at solve time
+
+    @property
+    def camera_distance_target_m(self):
+        """Alias of cam_distance_m under the Phase-1 camera-distance naming (the sampled
+        TARGET distance; the REALIZED one is measured after realize())."""
+        return float(self.cam_distance_m)
 
     def to_dict(self):
         d = asdict(self)
         d["spec"] = self.spec.to_dict()
+        d["camera_distance_target_m"] = self.camera_distance_target_m
         return d
 
 
@@ -1063,6 +1133,13 @@ def solve_placement(
     proj = max(float(spec.proj_size_ratio), 1e-3)
     d_pallet = fx * PALLET_W / (proj * W)
     lens_mm = fx * SENSOR_MM / W
+    # DEFENSIVE (Phase 1): sample_frame already narrows the ratio bins so the cap holds, so a
+    # correct sampler yields 0 of these. It fires only if a hand-built / externally-loaded
+    # FrameSpec asks for a distance no camera in this dataset should ever take.
+    if d_pallet > MAX_CAMERA_DISTANCE_M + 1e-6:
+        return _reject(spec, "camera_distance_out_of_range",
+                       f"d_pallet={d_pallet:.3f}m > cap={MAX_CAMERA_DISTANCE_M}m "
+                       f"(fx={fx:.2f} W={W} ratio={proj:.5f})")
 
     e = math.radians(spec.elevation_deg)
     az = math.radians(spec.azimuth_deg)
@@ -1234,6 +1311,7 @@ def solve_placement(
         f_cargo=float(f_cargo),
         f_need=float(f_need),
         occluder=occluder,
+        camera_distance_limit_m=float(MAX_CAMERA_DISTANCE_M),
     )
 
 
@@ -1878,8 +1956,8 @@ def _main():
           f"determinism(same spec => same Plan)={plan_ident}")
     print(f"  accepted={len(accepted)} ({100*len(accepted)/max(1,len(plans)):.1f}%)  "
           f"rejected={len(rejects)}")
-    reason_order = ["v_below_min", "d_occ_fail", "penetration",
-                    "resample_exhausted", "C1", "C2"]
+    reason_order = ["camera_distance_out_of_range", "v_below_min", "d_occ_fail",
+                    "penetration", "resample_exhausted", "C1", "C2"]
     rc = _tally([r.reason for r in rejects], reason_order)
     print("  reject reason breakdown:")
     for k in reason_order:

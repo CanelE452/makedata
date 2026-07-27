@@ -213,7 +213,8 @@ def fig_side(after, path):
 
 
 def fig_reject_compare(before, after, path):
-    order = ["v_below_min", "d_occ_fail", "penetration", "resample_exhausted", "C1", "C2"]
+    order = ["camera_distance_out_of_range", "v_below_min", "d_occ_fail",
+             "penetration", "resample_exhausted", "C1", "C2"]
     rb, cb = reject_stats(before)
     ra, ca = reject_stats(after)
     x = np.arange(len(order))
@@ -313,7 +314,8 @@ def write_report(path, n, seed, before, after, assets, elapsed):
         pr = res["pass_rate"]
         L.append(f"## [{tag}] pass = {len(res['accepted'])}/{res['attempts']} = {pr:.4f} ({pr:.1%})")
         reason, c1 = reject_stats(res)
-        for k in ["v_below_min", "d_occ_fail", "penetration", "resample_exhausted", "C1", "C2"]:
+        for k in ["camera_distance_out_of_range", "v_below_min", "d_occ_fail",
+             "penetration", "resample_exhausted", "C1", "C2"]:
             L.append(f"    {k:<20} n={reason.get(k, 0)}")
         L.append("    C1 by mesh: " + ", ".join(
             f"{m}={c1.get(m,0)}" for m in ["pallet", "cargo", "distractor", "background"]))

@@ -48,6 +48,13 @@ CAMERA_CLEARANCE_BY_ROLE = {
     "explicit_occluder": 0.20,
 }
 
+# Ground-continuity audit: probes along the camera->pallet ground segment.
+GROUND_PROBE_COUNT = 11
+# 50 mm = 1/3 of the KS T-11 pallet height (150 mm) and >2x the 20 mm contact tolerance the
+# support probes already use. Below it a step is contact noise / the 6 mm procedural-plane
+# offset; above it the ground reads as a visible ledge at pallet scale.
+GROUND_PROBE_STEP_TOLERANCE_M = 0.05
+
 EXPLICIT_OCCLUDER_SIDES = frozenset(("left", "right", "bottom", "center"))
 EXPLICIT_TARGET_ABS_TOLERANCE = 0.12
 EXPLICIT_PRECISE_ABS_TOLERANCE = 0.05
@@ -724,6 +731,165 @@ def support_hit_objects(report):
             }
         )
     )
+
+
+def ground_probe_points_xy(camera_xy, target_xy, count=GROUND_PROBE_COUNT):
+    """Return `count` evenly spaced XY probes from the camera ground-projection to the target.
+
+    Both endpoints are included, so index 0 sits under the camera and index -1 under the
+    target (pallet centroid). Degenerate input (camera directly above the target) collapses
+    to repeated points, which is valid: every probe then samples the same ground spot."""
+    count = int(count)
+    if count < 2:
+        raise ValueError("ground probe count must be >= 2")
+    cam = tuple(float(value) for value in camera_xy)
+    tgt = tuple(float(value) for value in target_xy)
+    if len(cam) != 2 or len(tgt) != 2:
+        raise ValueError("ground probe endpoints must contain xy")
+    if not all(math.isfinite(value) for value in cam + tgt):
+        raise ValueError("ground probe endpoints must be finite")
+    last = count - 1
+    return [
+        (
+            cam[0] + (tgt[0] - cam[0]) * (idx / last),
+            cam[1] + (tgt[1] - cam[1]) * (idx / last),
+        )
+        for idx in range(count)
+    ]
+
+
+def procedural_plane_bounds(center_xy, plane_size):
+    """Return the (min_x, min_y, max_x, max_y) world bounds of a square procedural floor."""
+    center = tuple(float(value) for value in center_xy)
+    if len(center) != 2:
+        raise ValueError("plane center must contain xy")
+    size = float(plane_size)
+    if not math.isfinite(size) or size <= 0.0:
+        raise ValueError("plane size must be finite and positive")
+    half = size / 2.0
+    return (center[0] - half, center[1] - half, center[0] + half, center[1] + half)
+
+
+def plane_bounds_margin_m(point_xy, bounds):
+    """Signed distance from one XY point to a rectangle border (positive = inside)."""
+    if bounds is None:
+        return None
+    x, y = (float(value) for value in point_xy)
+    min_x, min_y, max_x, max_y = (float(value) for value in bounds)
+    return min(x - min_x, max_x - x, y - min_y, max_y - y)
+
+
+def _ground_probe_kind(sample, floor_object_name=None):
+    """Classify one probe hit: the procedural floor, another support, a non-support, or a miss."""
+    if not sample.get("hit"):
+        return "miss"
+    support = sample.get("support")
+    if support is None:
+        return "other"
+    if sample.get("ok", True) is False:
+        return "steep"
+    if floor_object_name is not None and str(support) == str(floor_object_name):
+        return "floor"
+    return "support"
+
+
+def ground_continuity_verdict(
+    samples,
+    *,
+    floor_object_name=None,
+    plane_bounds=None,
+    step_tolerance_m=GROUND_PROBE_STEP_TOLERANCE_M,
+    expected_count=GROUND_PROBE_COUNT,
+):
+    """Aggregate downward ground probes into the ground-continuity audit metrics.
+
+    `samples` are ordered camera-side -> target-side rows shaped like
+    `scene_visibility_v2.support_surface_at_xy` output plus a `point` (x, y) key.
+
+    A frame passes when (1) every probe lands on a support-role surface, (2) the support
+    height step between adjacent probes stays within `step_tolerance_m`, and (3) no probe
+    leaves the finite procedural floor rectangle."""
+    rows = list(samples or ())
+    tolerance = float(step_tolerance_m)
+    hit_objects = []
+    fail_count = 0
+    reasons = []
+    edge_margin = None
+    edge_risk = False
+    for idx, sample in enumerate(rows):
+        point = tuple(float(value) for value in sample.get("point", (float("nan"),) * 2))
+        kind = _ground_probe_kind(sample, floor_object_name=floor_object_name)
+        support_z = sample.get("support_z")
+        margin = plane_bounds_margin_m(point, plane_bounds)
+        if margin is not None:
+            edge_margin = margin if edge_margin is None else min(edge_margin, margin)
+            if margin < 0.0:
+                edge_risk = True
+        ok = kind in {"floor", "support"}
+        if not ok:
+            fail_count += 1
+            reasons.append(f"probe{idx}_{kind}")
+        # The probe XY and its plane margin are deliberately NOT stored per row: both are
+        # derivable from the labelled camera/centroid pair, and 11 extra rows per frame is
+        # real cost at 40k frames. Only the non-derivable raycast outcome is kept.
+        hit_objects.append(
+            {
+                "idx": idx,
+                "kind": kind,
+                "hit_object": sample.get("hit_object"),
+                "support": sample.get("support"),
+                "support_z": (
+                    None if support_z is None else round(float(support_z), 5)
+                ),
+                "ok": bool(ok),
+            }
+        )
+
+    z_values = [
+        float(sample["support_z"])
+        for sample in rows
+        if sample.get("support_z") is not None
+    ]
+    max_step = None
+    step_pass = True
+    consecutive = [
+        row.get("support_z")
+        for row in rows
+    ]
+    for left, right in zip(consecutive, consecutive[1:]):
+        if left is None or right is None:
+            continue
+        step = abs(float(right) - float(left))
+        max_step = step if max_step is None else max(max_step, step)
+        if step > tolerance:
+            step_pass = False
+    if not step_pass:
+        reasons.append("support_z_discontinuity")
+    if edge_risk:
+        reasons.append("procedural_floor_edge")
+    count_ok = len(rows) == int(expected_count)
+    if not count_ok:
+        reasons.append("probe_count_mismatch")
+
+    passed = bool(count_ok and rows and fail_count == 0 and step_pass and not edge_risk)
+    return {
+        "ground_continuity_pass": passed,
+        "ground_probe_count": len(rows),
+        "ground_probe_fail_count": int(fail_count),
+        "ground_probe_hit_objects": hit_objects,
+        "procedural_floor_edge_risk": bool(edge_risk),
+        "procedural_floor_edge_margin_m": (
+            None if edge_margin is None else round(float(edge_margin), 4)
+        ),
+        "ground_probe_max_step_m": (
+            None if max_step is None else round(float(max_step), 5)
+        ),
+        "ground_probe_z_range_m": (
+            None if not z_values else round(float(max(z_values) - min(z_values)), 5)
+        ),
+        "ground_probe_step_tolerance_m": tolerance,
+        "ground_continuity_reason": ";".join(reasons) if reasons else None,
+    }
 
 
 def explicit_feedback_offsets(

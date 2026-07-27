@@ -15,6 +15,19 @@ Outputs default to <input>/eda:
   audit_README.md
   summary.json (preserved, with concise visual_audit merge)
   README.md (preserved, with concise Visual Audit section)
+
+Phase 5 adds a source-mask integrity pass on top of the scalar area checks. Its reports go to
+--mask-report-out (default <out>/mask_integrity):
+  mask_hashes.csv
+  mask_duplicate_groups.json
+  mask_pixel_inclusion_failures.csv
+  mask_integrity_source_masks*.png (also written into <out>/contact_sheets/)
+
+Role split against audit_pnp_eligibility.py (Phase 4): that script answers "is the target big
+enough to solve PnP" and therefore only needs M0's bbox/area; this script answers "is the M0..M4
+mask SET internally consistent" (strict decode, hashes, pixel-level inclusion, duplicates,
+projected-cuboid alignment). The foreground-bbox primitive is shared (foreground_bbox below), the
+empty-M0 verdict stays on the pre-existing empty_target_mask column instead of being recomputed.
 """
 from __future__ import annotations
 
@@ -34,12 +47,23 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFile, ImageFont
+
+# Strict decode: a truncated PNG must raise instead of being silently zero-filled. Another import
+# in the same process can flip this global, so pin it here.
+ImageFile.LOAD_TRUNCATED_IMAGES = False
 
 
 DEFAULT_DIR = "data/pallet/_v2_scene_logic_500_seed7500"
 DEFAULT_OUT_DIRNAME = "eda"
 MASK_NAMES = ["m0", "m1", "m2", "m3", "m4"]
+DEFAULT_MASK_REPORT_DIRNAME = "mask_integrity"
+# Which scene component removes target pixels on each M(i-1) -> M(i) transition
+# (scene_placement_v2.OCCLUSION_DECOMPOSITION_ORDER / _MASK_AREA_KEYS).
+MASK_STAGE_OCCLUDER_SOURCE = {"m1": "static", "m2": "cargo", "m3": "context", "m4": "explicit"}
+# Foreground pixels of a target mask must lie inside the projected cuboid hull, so anything above
+# this is flagged for review. [미검증 시작값] - reported only, never a hard audit failure.
+DEFAULT_HULL_OUTSIDE_WARN_RATIO = 0.20
 FRONT_EDGES = [(0, 1), (1, 2), (2, 3), (3, 0)]
 REAR_EDGES = [(4, 5), (5, 6), (6, 7), (7, 4)]
 CONN_EDGES = [(0, 4), (1, 5), (2, 6), (3, 7)]
@@ -70,6 +94,13 @@ AUDIT_COLUMNS = [
     "camera_clearance_pass",
     "support_required",
     "support_pass",
+    "ground_continuity_pass",
+    "ground_probe_count",
+    "ground_probe_fail_count",
+    "ground_probe_max_step_m",
+    "procedural_floor_edge_risk",
+    "procedural_floor_edge_margin_m",
+    "ground_continuity_reason",
     "anchor_reject_reason",
     "reject_reason",
     "front_near",
@@ -80,6 +111,23 @@ AUDIT_COLUMNS = [
     "points_2d_in_image_count",
     "mask_monotonic_ok",
     "empty_target_mask",
+    "mask_strict_decode_ok",
+    "mask_shape_consistent",
+    "mask_rgb_shape_match",
+    "mask_pixel_inclusion_ok",
+    "mask_pixel_inclusion_violation_px",
+    "mask_pixel_inclusion_violations",
+    "mask_empty_stages",
+    "mask_within_frame_duplicate_groups",
+    "mask_within_frame_duplicate_class",
+    "mask_cross_frame_duplicate_stages",
+    "mask_cross_frame_duplicate_class",
+    "mask_m0_hull_bbox_iou",
+    "mask_m0_hull_outside_ratio",
+    "mask_m4_hull_bbox_iou",
+    "mask_m4_hull_outside_ratio",
+    "mask_hull_align_warn",
+    "mask_hull_align_reason",
     "magenta_ratio",
     "magenta_fail",
     "all_pass_gate",
@@ -87,17 +135,33 @@ AUDIT_COLUMNS = [
     "fatal_failure_count",
     "fatal_failures",
 ]
+MASK_FRAME_COLUMNS = [c for c in AUDIT_COLUMNS if c.startswith("mask_")]
+
+
+def per_mask_columns(name: str) -> list[str]:
+    return [
+        f"mask_{name}_present",
+        f"mask_{name}_decode_ok",
+        f"mask_{name}_area",
+        f"mask_{name}_error",
+        f"mask_{name}_sha256",
+        f"mask_{name}_content_sha256",
+        f"mask_{name}_width",
+        f"mask_{name}_height",
+    ]
+
+
 for _name in MASK_NAMES:
-    AUDIT_COLUMNS.extend([f"mask_{_name}_present", f"mask_{_name}_decode_ok", f"mask_{_name}_area", f"mask_{_name}_error"])
+    AUDIT_COLUMNS.extend(per_mask_columns(_name))
 
 
 def audit_columns(mask_names: list[str]) -> list[str]:
-    cols = [c for c in AUDIT_COLUMNS if not c.startswith("mask_")]
+    cols = [c for c in AUDIT_COLUMNS if not c.startswith("mask_") or c in MASK_FRAME_COLUMNS]
     if "duplicate_filename" not in cols:
         insert_at = cols.index("duplicate_rgb_hash") if "duplicate_rgb_hash" in cols else len(cols)
         cols.insert(insert_at, "duplicate_filename")
     for name in mask_names:
-        cols.extend([f"mask_{name}_present", f"mask_{name}_decode_ok", f"mask_{name}_area", f"mask_{name}_error"])
+        cols.extend(per_mask_columns(name))
     return cols
 
 
@@ -111,6 +175,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--magenta-threshold", type=float, default=0.0, help="Fail if magenta ratio is greater than this.")
     p.add_argument("--expected-frame-count", type=int, default=None, help="Require this exact count and contiguous index range.")
     p.add_argument("--expected-start-index", type=int, default=0, help="First required index when --expected-frame-count is set.")
+    p.add_argument("--mask-report-out", default=None, help=f"Mask integrity report directory. Default: <out>/{DEFAULT_MASK_REPORT_DIRNAME}")
+    p.add_argument("--hull-outside-warn-ratio", type=float, default=DEFAULT_HULL_OUTSIDE_WARN_RATIO, help="Warn when this fraction of mask foreground falls outside the projected cuboid hull.")
     p.add_argument("--self-test", action="store_true", help="Run a synthetic fixture test for audit outputs.")
     return p.parse_args()
 
@@ -358,6 +424,411 @@ def mask_area(path: Path) -> dict[str, Any]:
     return out
 
 
+# ------------------------------------------------------------------------------------------
+# Phase 5: source-mask integrity (strict decode, hashes, pixel-level inclusion, hull alignment)
+# ------------------------------------------------------------------------------------------
+
+def strict_decode_mask(path: Path) -> dict[str, Any]:
+    """Strictly decode one source mask into a boolean foreground array plus its SHA256.
+
+    Superset of mask_area(): keeps present/decode_ok/area/error/image so existing consumers work,
+    and adds fg/sha256/width/height/all_black for the pixel-level checks. Truncated or
+    CRC-corrupt PNGs fail here instead of decoding to a partially zeroed image.
+    """
+    out: dict[str, Any] = {
+        "present": path.exists(),
+        "decode_ok": False,
+        "area": None,
+        "error": None,
+        "image": None,
+        "fg": None,
+        "sha256": None,
+        "content_sha256": None,
+        "width": None,
+        "height": None,
+        "all_black": None,
+    }
+    if not path.exists():
+        out["error"] = "missing"
+        return out
+    out["sha256"] = sha256_file(path)
+    try:
+        with Image.open(path) as probe:
+            probe.verify()  # structural/CRC pass; the handle is unusable afterwards
+    except Exception as e:
+        out["error"] = f"verify_failed: {e}"
+        return out
+    try:
+        with Image.open(path) as im:
+            gray = im.convert("L")
+            gray.load()
+            arr = np.asarray(gray)
+            fg = arr > 127
+            out["width"], out["height"] = gray.size
+            out["area"] = int(fg.sum())
+            out["all_black"] = bool(out["area"] == 0)
+            # Byte SHA256 alone under-reports identical masks: Cycles writes sub-threshold
+            # antialiasing noise, so two stages can share an identical >127 foreground and still
+            # differ byte-wise. The content hash is the one that means "same mask".
+            out["content_sha256"] = hashlib.sha256(
+                f"{fg.shape[0]}x{fg.shape[1]}|".encode("ascii") + np.packbits(fg).tobytes()
+            ).hexdigest()
+            out["decode_ok"] = True
+            out["image"] = gray.copy()
+            out["fg"] = fg
+    except Exception as e:
+        out["error"] = str(e)
+    return out
+
+
+def foreground_bbox(mask: Any) -> dict[str, float | None]:
+    """Foreground bbox of a boolean array or a decoded PIL 'L' mask (>127 = foreground)."""
+    out: dict[str, float | None] = {
+        "x0": None, "y0": None, "x1": None, "y1": None,
+        "w": None, "h": None, "min_side": None,
+    }
+    if mask is None:
+        return out
+    arr = mask if isinstance(mask, np.ndarray) else np.asarray(mask)
+    fg = arr if arr.dtype == bool else (arr > 127)
+    if fg.ndim != 2:
+        return out
+    if not fg.any():
+        return {"x0": None, "y0": None, "x1": None, "y1": None, "w": 0.0, "h": 0.0, "min_side": 0.0}
+    rows = np.where(fg.any(axis=1))[0]
+    cols = np.where(fg.any(axis=0))[0]
+    x0, x1 = float(cols[0]), float(cols[-1])
+    y0, y1 = float(rows[0]), float(rows[-1])
+    w = x1 - x0 + 1.0
+    h = y1 - y0 + 1.0
+    return {"x0": x0, "y0": y0, "x1": x1, "y1": y1, "w": w, "h": h, "min_side": min(w, h)}
+
+
+def mask_pixel_inclusion(masks: dict[str, dict[str, Any]], mask_names: list[str]) -> dict[str, Any]:
+    """Pixel-level M4 subset-of M3 subset-of M2 subset-of M1 subset-of M0.
+
+    The scalar area check only sees monotonic totals; this compares the boolean arrays so a
+    later stage that gains a pixel somewhere while losing more elsewhere is still caught.
+    """
+    out: dict[str, Any] = {
+        "checked": False,
+        "ok": None,
+        "pairs": [],
+        "violation_pair_count": 0,
+        "violation_px_total": 0,
+        "max_violation_ratio": None,
+        "shape_consistent": None,
+        "reason": None,
+    }
+    usable = [name for name in mask_names if masks.get(name, {}).get("fg") is not None]
+    if len(usable) < 2:
+        out["reason"] = "insufficient_decoded_masks"
+        return out
+    shapes = {masks[name]["fg"].shape for name in usable}
+    out["shape_consistent"] = len(shapes) == 1
+    if len(usable) != len(mask_names):
+        out["reason"] = "partial_mask_set"
+    max_ratio = 0.0
+    for outer_name, inner_name in zip(usable, usable[1:]):
+        outer = masks[outer_name]["fg"]
+        inner = masks[inner_name]["fg"]
+        pair: dict[str, Any] = {
+            "outer": outer_name,
+            "inner": inner_name,
+            "outer_area": int(outer.sum()),
+            "inner_area": int(inner.sum()),
+            "shape_mismatch": outer.shape != inner.shape,
+            "violation_px": None,
+            "violation_ratio": None,
+        }
+        if pair["shape_mismatch"]:
+            pair["reason"] = f"shape {outer.shape} vs {inner.shape}"
+            out["violation_pair_count"] += 1
+        else:
+            violation = int(np.count_nonzero(inner & ~outer))
+            denom = max(1, pair["inner_area"])
+            pair["violation_px"] = violation
+            pair["violation_ratio"] = float(violation) / float(denom)
+            if violation > 0:
+                out["violation_pair_count"] += 1
+                out["violation_px_total"] += violation
+                max_ratio = max(max_ratio, pair["violation_ratio"])
+        out["pairs"].append(pair)
+    out["checked"] = True
+    out["max_violation_ratio"] = max_ratio
+    out["ok"] = out["violation_pair_count"] == 0
+    return out
+
+
+def _cross2(o: np.ndarray, a: np.ndarray, b: np.ndarray) -> float:
+    return float((a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]))
+
+
+def convex_hull_points(points: Any) -> np.ndarray | None:
+    """Andrew monotone-chain hull. numpy-only so this audit keeps its PIL/numpy/stdlib footprint."""
+    if points is None:
+        return None
+    p = np.asarray(points, dtype=np.float64)
+    if p.ndim != 2 or p.shape[1] < 2 or not np.isfinite(p[:, :2]).all():
+        return None
+    pts = np.unique(np.round(p[:, :2], 6), axis=0)
+    if len(pts) < 3:
+        return pts
+    order = np.lexsort((pts[:, 1], pts[:, 0]))
+    pts = pts[order]
+    lower: list[np.ndarray] = []
+    for q in pts:
+        while len(lower) >= 2 and _cross2(lower[-2], lower[-1], q) <= 0:
+            lower.pop()
+        lower.append(q)
+    upper: list[np.ndarray] = []
+    for q in pts[::-1]:
+        while len(upper) >= 2 and _cross2(upper[-2], upper[-1], q) <= 0:
+            upper.pop()
+        upper.append(q)
+    hull = lower[:-1] + upper[:-1]
+    if len(hull) < 3:
+        return pts
+    return np.asarray(hull, dtype=np.float64)
+
+
+def clip_polygon_to_rect(poly: np.ndarray | None, width: float, height: float) -> np.ndarray | None:
+    """Sutherland-Hodgman clip to the image rectangle.
+
+    Cuboid corners can land thousands of pixels off-screen (or behind the camera); clipping first
+    keeps the rasterizer bounded and makes the hull bbox comparable to a mask bbox.
+    """
+    if poly is None or len(poly) < 3:
+        return None
+    out = [np.asarray(pt, dtype=np.float64) for pt in poly]
+    edges = (
+        (lambda pt: pt[0] >= 0.0, (0.0, 0.0), (0.0, 1.0)),
+        (lambda pt: pt[0] <= width, (width, 0.0), (0.0, 1.0)),
+        (lambda pt: pt[1] >= 0.0, (0.0, 0.0), (1.0, 0.0)),
+        (lambda pt: pt[1] <= height, (0.0, height), (1.0, 0.0)),
+    )
+    for inside, origin, direction in edges:
+        if not out:
+            return None
+        o = np.asarray(origin, dtype=np.float64)
+        d = np.asarray(direction, dtype=np.float64)
+        clipped: list[np.ndarray] = []
+        for i, cur in enumerate(out):
+            prev = out[i - 1]
+            cur_in = inside(cur)
+            prev_in = inside(prev)
+            if cur_in != prev_in:
+                seg = cur - prev
+                denom = _cross2(np.zeros(2), d, seg)
+                if abs(denom) > 1e-12:
+                    t = _cross2(np.zeros(2), d, o - prev) / denom
+                    clipped.append(prev + t * seg)
+            if cur_in:
+                clipped.append(cur)
+        out = clipped
+    if len(out) < 3:
+        return None
+    return np.asarray(out, dtype=np.float64)
+
+
+def rasterize_polygon(poly: np.ndarray | None, width: int, height: int) -> np.ndarray | None:
+    if poly is None or len(poly) < 3 or width <= 0 or height <= 0:
+        return None
+    img = Image.new("L", (int(width), int(height)), 0)
+    ImageDraw.Draw(img).polygon([(float(x), float(y)) for x, y in poly], fill=255)
+    return np.asarray(img) > 127
+
+
+def bbox_iou(a: dict[str, float | None], b: dict[str, float | None]) -> float | None:
+    if any(a.get(k) is None for k in ("x0", "y0", "x1", "y1")):
+        return None
+    if any(b.get(k) is None for k in ("x0", "y0", "x1", "y1")):
+        return None
+    ix0 = max(float(a["x0"]), float(b["x0"]))
+    iy0 = max(float(a["y0"]), float(b["y0"]))
+    ix1 = min(float(a["x1"]), float(b["x1"]))
+    iy1 = min(float(a["y1"]), float(b["y1"]))
+    iw = max(0.0, ix1 - ix0 + 1.0)
+    ih = max(0.0, iy1 - iy0 + 1.0)
+    inter = iw * ih
+    area_a = (float(a["x1"]) - float(a["x0"]) + 1.0) * (float(a["y1"]) - float(a["y0"]) + 1.0)
+    area_b = (float(b["x1"]) - float(b["x0"]) + 1.0) * (float(b["y1"]) - float(b["y0"]) + 1.0)
+    union = area_a + area_b - inter
+    return float(inter / union) if union > 0 else None
+
+
+def hull_alignment(fg: np.ndarray | None, hull: np.ndarray | None, width: Any, height: Any) -> dict[str, Any]:
+    """Compare a mask's foreground with the projected-cuboid hull (bbox IoU + outside ratio)."""
+    out: dict[str, Any] = {
+        "bbox_iou": None,
+        "center_dist_px": None,
+        "outside_ratio": None,
+        "outside_px": None,
+        "mask_bbox": None,
+        "hull_bbox": None,
+        "reason": None,
+    }
+    if fg is None:
+        out["reason"] = "mask_unavailable"
+        return out
+    if hull is None or len(hull) < 3:
+        out["reason"] = "hull_unavailable"
+        return out
+    try:
+        w = int(width)
+        h = int(height)
+    except Exception:
+        out["reason"] = "image_size_unknown"
+        return out
+    if fg.shape != (h, w):
+        out["reason"] = "mask_shape_mismatch"
+        return out
+    clipped = clip_polygon_to_rect(hull, float(w), float(h))
+    if clipped is None:
+        out["reason"] = "hull_outside_image"
+        return out
+    hull_mask = rasterize_polygon(clipped, w, h)
+    if hull_mask is None:
+        out["reason"] = "hull_rasterize_failed"
+        return out
+    m_box = foreground_bbox(fg)
+    h_box = foreground_bbox(hull_mask)
+    out["mask_bbox"] = [m_box["x0"], m_box["y0"], m_box["x1"], m_box["y1"]]
+    out["hull_bbox"] = [h_box["x0"], h_box["y0"], h_box["x1"], h_box["y1"]]
+    fg_area = int(fg.sum())
+    if fg_area == 0:
+        out["reason"] = "empty_mask"
+        return out
+    outside = int(np.count_nonzero(fg & ~hull_mask))
+    out["outside_px"] = outside
+    out["outside_ratio"] = float(outside) / float(fg_area)
+    out["bbox_iou"] = bbox_iou(m_box, h_box)
+    if m_box["x0"] is not None and h_box["x0"] is not None:
+        mcx = 0.5 * (float(m_box["x0"]) + float(m_box["x1"]))
+        mcy = 0.5 * (float(m_box["y0"]) + float(m_box["y1"]))
+        hcx = 0.5 * (float(h_box["x0"]) + float(h_box["x1"]))
+        hcy = 0.5 * (float(h_box["y0"]) + float(h_box["y1"]))
+        out["center_dist_px"] = float(math.hypot(mcx - hcx, mcy - hcy))
+    return out
+
+
+MASK_STAGE_FRACTION_KEY = {
+    "static": "f_static",
+    "cargo": "f_cargo",
+    "context": "f_context",
+    "explicit": "f_explicit",
+}
+
+
+def occluder_source_states(rec_map: dict[str, Any], v2: dict[str, Any] | None) -> dict[str, str]:
+    """Per-transition state used to judge identical stage masks inside one frame.
+
+    "absent"              nothing was placed for that source
+    "placed_no_occlusion" something was placed but the record's own occlusion fraction is 0
+                          (a context prop next to the pallet occludes nothing - not a defect)
+    "contradiction"       the record claims a non-zero occlusion fraction yet the mask is unchanged
+    "unknown"             the record does not carry enough fields to decide
+    """
+    def pick(*keys: str) -> Any:
+        for key in keys:
+            val = first_value(rec_map.get(key), nested(v2, [key]))
+            if val is not None:
+                return val
+        return None
+
+    placed: dict[str, bool | None] = {}
+    n_cargo = int_value(pick("n_cargo_placed", "n_cargo_actual"))
+    cargo_on = bool_value(pick("cargo_on"))
+    if n_cargo is not None:
+        placed["cargo"] = n_cargo > 0
+    elif cargo_on is not None:
+        placed["cargo"] = cargo_on
+    else:
+        placed["cargo"] = None
+    n_context = int_value(pick("n_context_placed"))
+    placed["context"] = (n_context > 0) if n_context is not None else None
+    explicit = bool_value(pick("explicit_occluder_placed", "occluder_placed"))
+    placed["explicit"] = explicit
+    # Static scene geometry has no placement counter; only its area-derived fraction is recorded.
+    placed["static"] = None
+
+    out: dict[str, str] = {}
+    for source, frac_key in MASK_STAGE_FRACTION_KEY.items():
+        raw = pick(frac_key)
+        try:
+            fraction = float(raw) if raw is not None else None
+        except (TypeError, ValueError):
+            fraction = None
+        if placed.get(source) is False:
+            out[source] = "absent"
+        elif fraction is None:
+            out[source] = "unknown"
+        elif fraction > 0.0:
+            out[source] = "contradiction"
+        elif placed.get(source) is True:
+            out[source] = "placed_no_occlusion"
+        else:
+            out[source] = "absent"
+    return out
+
+
+def classify_stage_span(stages: list[str], mask_names: list[str], states: dict[str, str]) -> dict[str, Any]:
+    """Classify identical stage masks inside one frame as a legitimate no-op or a defect."""
+    order = {name: i for i, name in enumerate(mask_names)}
+    idxs = sorted(order[s] for s in stages if s in order)
+    spanned = [mask_names[i] for i in range(idxs[0] + 1, idxs[-1] + 1)] if idxs else []
+    sources = [MASK_STAGE_OCCLUDER_SOURCE.get(name) for name in spanned]
+    span_states = [states.get(src, "unknown") if src else "unknown" for src in sources]
+    if not span_states:
+        verdict = "unverified_no_op"
+    elif "contradiction" in span_states:
+        verdict = "unexpected_identical_stage"
+    elif "unknown" in span_states:
+        verdict = "unverified_no_op"
+    elif all(state == "absent" for state in span_states):
+        verdict = "expected_no_op"
+    else:
+        verdict = "no_op_placed_but_not_occluding"
+    return {
+        "stages": stages,
+        "spanned_transitions": spanned,
+        "occluder_sources": [s for s in sources if s],
+        "occluder_states": span_states,
+        "classification": verdict,
+    }
+
+
+def within_frame_mask_duplicates(
+    masks: dict[str, dict[str, Any]],
+    mask_names: list[str],
+    states: dict[str, str],
+) -> list[dict[str, Any]]:
+    """Groups of two or more stages inside a frame that carry the same mask.
+
+    Grouped on the foreground content hash; `byte_identical` says whether the PNG bytes also
+    match (a byte-exact copy vs. the same silhouette re-rendered).
+    """
+    by_hash: dict[str, list[str]] = defaultdict(list)
+    for name in mask_names:
+        ms = masks.get(name) or {}
+        if ms.get("decode_ok") and ms.get("content_sha256"):
+            by_hash[str(ms["content_sha256"])].append(name)
+    groups = []
+    for digest, stages in by_hash.items():
+        if len(stages) < 2:
+            continue
+        stages = [name for name in mask_names if name in set(stages)]
+        info = classify_stage_span(stages, mask_names, states)
+        info["content_sha256"] = digest
+        info["byte_identical"] = len({masks[s].get("sha256") for s in stages}) == 1
+        info["sha256"] = [masks[s].get("sha256") for s in stages]
+        info["area"] = masks[stages[0]].get("area")
+        info["all_black"] = masks[stages[0]].get("all_black")
+        groups.append(info)
+    groups.sort(key=lambda g: mask_names.index(g["stages"][0]))
+    return groups
+
+
 def front_is_near(lab: dict[str, Any] | None, obj: dict[str, Any] | None) -> tuple[bool | None, float | None, float | None]:
     if not lab or not obj:
         return None, None, None
@@ -498,6 +969,16 @@ def fatal_failure_reasons(row: dict[str, Any], mask_names: list[str]) -> list[st
                 reasons.append("corrupt_mask")
     if row.get("mask_monotonic_ok") is False:
         reasons.append("mask_nonmonotonic")
+    if row.get("mask_pixel_inclusion_ok") is False:
+        reasons.append("mask_pixel_inclusion")
+    if row.get("mask_shape_consistent") is False:
+        reasons.append("mask_shape_inconsistent")
+    if row.get("mask_rgb_shape_match") is False:
+        reasons.append("mask_rgb_shape_mismatch")
+    if row.get("mask_cross_frame_duplicate_class") and "stale_or_mismatched_mask" in str(
+        row.get("mask_cross_frame_duplicate_class")
+    ):
+        reasons.append("mask_stale_cross_frame_duplicate")
     if artifacts_required and int(row.get("required_label_missing_count") or 0) > 0:
         reasons.append("required_label_missing")
     if row.get("magenta_fail"):
@@ -531,6 +1012,7 @@ def evaluate_frame(
     duplicate_hashes: set[str],
     duplicate_filenames: set[str],
     magenta_threshold: float,
+    hull_outside_warn_ratio: float = DEFAULT_HULL_OUTSIDE_WARN_RATIO,
 ) -> tuple[dict[str, Any], Image.Image | None, dict[str, Any] | None, dict[str, Any] | None, dict[str, dict[str, Any]]]:
     frame = f"f{idx:04d}"
     lab, obj, v2 = load_label(root, idx)
@@ -544,7 +1026,7 @@ def evaluate_frame(
     width = rgb.get("width") or cam.get("width")
     height = rgb.get("height") or cam.get("height")
     in_count = in_image_count(pc, width, height)
-    masks = {name: mask_area(root / "mask" / f"{frame}_{name}.png") for name in mask_names}
+    masks = {name: strict_decode_mask(root / "mask" / f"{frame}_{name}.png") for name in mask_names}
     areas = [masks[name]["area"] for name in mask_names if masks[name]["decode_ok"]]
     mask_monotonic_ok = None
     if len(areas) == len(mask_names):
@@ -590,6 +1072,31 @@ def evaluate_frame(
     context_context_collision_count = int_value(first_value(rec_map.get("context_context_collision_count"), nested(v2, ["context_context_collision_count"])))
     camera_clearance_pass = bool_value(first_value(rec_map.get("camera_clearance_pass"), nested(v2, ["camera_clearance_pass"])))
     support_pass = bool_value(first_value(rec_map.get("support_pass"), nested(v2, ["support_pass"])))
+    ground_continuity_pass = bool_value(
+        first_value(rec_map.get("ground_continuity_pass"), nested(v2, ["ground_continuity_pass"]))
+    )
+    ground_probe_count = int_value(
+        first_value(rec_map.get("ground_probe_count"), nested(v2, ["ground_probe_count"]))
+    )
+    ground_probe_fail_count = int_value(
+        first_value(rec_map.get("ground_probe_fail_count"), nested(v2, ["ground_probe_fail_count"]))
+    )
+    ground_probe_max_step_m = first_value(
+        rec_map.get("ground_probe_max_step_m"), nested(v2, ["ground_probe_max_step_m"])
+    )
+    procedural_floor_edge_risk = bool_value(
+        first_value(
+            rec_map.get("procedural_floor_edge_risk"),
+            nested(v2, ["procedural_floor_edge_risk"]),
+        )
+    )
+    procedural_floor_edge_margin_m = first_value(
+        rec_map.get("procedural_floor_edge_margin_m"),
+        nested(v2, ["procedural_floor_edge_margin_m"]),
+    )
+    ground_continuity_reason = first_value(
+        rec_map.get("ground_continuity_reason"), nested(v2, ["ground_continuity_reason"])
+    )
     accepted_frame = (rendered is True and realize_ok is not False) or (
         rendered is None and realize_ok is True
     )
@@ -599,6 +1106,42 @@ def evaluate_frame(
         (lab is None)
         or (not rgb["present"])
         or any(not masks[name]["present"] for name in mask_names)
+    )
+
+    # --- Phase 5: pixel-level mask integrity (scalar areas alone cannot see these) ---
+    inclusion = mask_pixel_inclusion(masks, mask_names)
+    # Missing files are reported by missing_mask_* and are legitimate for rejected proposals; this
+    # column is only about whether the files that DO exist survive a strict decode.
+    present_masks = [name for name in mask_names if masks[name]["present"]]
+    strict_decode_ok = all(masks[name]["decode_ok"] for name in present_masks) if present_masks else None
+    empty_stages = [name for name in mask_names if masks[name].get("all_black") is True]
+    occluder_states = occluder_source_states(rec_map, v2)
+    within_dupes = within_frame_mask_duplicates(masks, mask_names, occluder_states)
+    mask_sizes = {
+        (masks[name]["width"], masks[name]["height"])
+        for name in mask_names
+        if masks[name]["decode_ok"]
+    }
+    rgb_shape_match = None
+    if mask_sizes and rgb["decode_ok"]:
+        rgb_shape_match = mask_sizes == {(rgb["width"], rgb["height"])}
+    hull = convex_hull_points(pc[:, :2]) if (ok2d and pc is not None) else None
+    hull_align: dict[str, dict[str, Any]] = {}
+    for slot, name in (("m0", mask_names[0] if mask_names else None), ("m4", mask_names[-1] if mask_names else None)):
+        if name is None:
+            hull_align[slot] = {"bbox_iou": None, "outside_ratio": None, "reason": "no_mask_names"}
+            continue
+        hull_align[slot] = hull_alignment(masks[name].get("fg"), hull, width, height)
+    hull_ratios = [
+        hull_align[slot]["outside_ratio"]
+        for slot in ("m0", "m4")
+        if hull_align[slot].get("outside_ratio") is not None
+    ]
+    hull_warn = (max(hull_ratios) > hull_outside_warn_ratio) if hull_ratios else None
+    hull_reason = ";".join(
+        f"{slot}:{hull_align[slot]['reason']}"
+        for slot in ("m0", "m4")
+        if hull_align[slot].get("reason")
     )
 
     row = {
@@ -627,6 +1170,13 @@ def evaluate_frame(
         "camera_clearance_pass": camera_clearance_pass,
         "support_required": support_required,
         "support_pass": support_pass,
+        "ground_continuity_pass": ground_continuity_pass,
+        "ground_probe_count": ground_probe_count,
+        "ground_probe_fail_count": ground_probe_fail_count,
+        "ground_probe_max_step_m": ground_probe_max_step_m,
+        "procedural_floor_edge_risk": procedural_floor_edge_risk,
+        "procedural_floor_edge_margin_m": procedural_floor_edge_margin_m,
+        "ground_continuity_reason": ground_continuity_reason,
         "anchor_reject_reason": anchor_reject_reason,
         "reject_reason": reject_reason,
         "front_near": front_near,
@@ -637,6 +1187,27 @@ def evaluate_frame(
         "points_2d_in_image_count": in_count,
         "mask_monotonic_ok": mask_monotonic_ok,
         "empty_target_mask": empty_target,
+        "mask_strict_decode_ok": strict_decode_ok,
+        "mask_shape_consistent": inclusion["shape_consistent"],
+        "mask_rgb_shape_match": rgb_shape_match,
+        "mask_pixel_inclusion_ok": inclusion["ok"],
+        "mask_pixel_inclusion_violation_px": inclusion["violation_px_total"] if inclusion["checked"] else None,
+        "mask_pixel_inclusion_violations": ";".join(
+            f"{p['inner']}!<={p['outer']}:" + ("shape" if p["shape_mismatch"] else str(p["violation_px"]))
+            for p in inclusion["pairs"]
+            if p["shape_mismatch"] or (p["violation_px"] or 0) > 0
+        ),
+        "mask_empty_stages": ";".join(empty_stages),
+        "mask_within_frame_duplicate_groups": ";".join("+".join(g["stages"]) for g in within_dupes),
+        "mask_within_frame_duplicate_class": ";".join(sorted({g["classification"] for g in within_dupes})),
+        "mask_cross_frame_duplicate_stages": "",
+        "mask_cross_frame_duplicate_class": "",
+        "mask_m0_hull_bbox_iou": hull_align["m0"].get("bbox_iou"),
+        "mask_m0_hull_outside_ratio": hull_align["m0"].get("outside_ratio"),
+        "mask_m4_hull_bbox_iou": hull_align["m4"].get("bbox_iou"),
+        "mask_m4_hull_outside_ratio": hull_align["m4"].get("outside_ratio"),
+        "mask_hull_align_warn": hull_warn,
+        "mask_hull_align_reason": hull_reason,
         "magenta_ratio": rgb["magenta_ratio"],
         "magenta_fail": (rgb["magenta_ratio"] is not None and rgb["magenta_ratio"] > magenta_threshold),
         "all_pass_gate": all_pass_gate,
@@ -647,6 +1218,14 @@ def evaluate_frame(
         row[f"mask_{name}_decode_ok"] = ms["decode_ok"]
         row[f"mask_{name}_area"] = ms["area"]
         row[f"mask_{name}_error"] = ms["error"]
+        row[f"mask_{name}_sha256"] = ms["sha256"]
+        row[f"mask_{name}_content_sha256"] = ms["content_sha256"]
+        row[f"mask_{name}_width"] = ms["width"]
+        row[f"mask_{name}_height"] = ms["height"]
+    row["_mask_inclusion"] = inclusion
+    row["_mask_within_frame_duplicates"] = within_dupes
+    row["_mask_occluder_states"] = occluder_states
+    row["_mask_hull_align"] = hull_align
 
     failures = []
     if not rec:
@@ -685,6 +1264,12 @@ def evaluate_frame(
         failures.append("support_fail")
     elif support_required and support_pass is None:
         failures.append("support_unknown")
+    # Ground continuity is reported only by post-Phase-2 runs; older datasets leave it None
+    # and must not be retro-failed, so only an explicit False counts.
+    if ground_continuity_pass is False:
+        failures.append("ground_continuity_fail")
+    if procedural_floor_edge_risk is True:
+        failures.append("procedural_floor_edge_risk")
     if anchor_reject_reason and str(anchor_reject_reason).lower() not in {"accepted", "none", "ok"}:
         failures.append("anchor_reject")
     if front_near is False:
@@ -714,6 +1299,14 @@ def evaluate_frame(
                 failures.append(f"missing_mask_{name}")
         elif not masks[name]["decode_ok"]:
             failures.append(f"corrupt_mask_{name}")
+    if inclusion["ok"] is False:
+        failures.append("mask_pixel_inclusion")
+    if inclusion["shape_consistent"] is False:
+        failures.append("mask_shape_inconsistent")
+    if rgb_shape_match is False:
+        failures.append("mask_rgb_shape_mismatch")
+    if any(g["classification"] == "unexpected_identical_stage" for g in within_dupes):
+        failures.append("mask_within_frame_duplicate_unexpected")
     fatal_failures = fatal_failure_reasons(row, mask_names)
     row["fatal_pass"] = len(fatal_failures) == 0
     row["fatal_failure_count"] = len(fatal_failures)
@@ -721,7 +1314,54 @@ def evaluate_frame(
     row["failure_count"] = len(failures)
     row["failures"] = ";".join(failures)
     row["audit_pass"] = len(failures) == 0
+    # Boolean foreground planes are only needed for the per-frame checks above; dropping them
+    # keeps peak memory at the pre-Phase-5 level for 400+ frame datasets.
+    for name in mask_names:
+        masks[name]["fg"] = None
     return row, rgb_img, lab, obj, masks
+
+
+def ground_continuity_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """N-frame ground-continuity roll-up: pass rate, failure indices, floor-edge headroom."""
+    measured = [r for r in rows if r.get("ground_continuity_pass") is not None]
+    passed = [r for r in measured if r.get("ground_continuity_pass") is True]
+    margins = [
+        float(r["procedural_floor_edge_margin_m"])
+        for r in rows
+        if r.get("procedural_floor_edge_margin_m") is not None
+    ]
+    reason_counter: Counter[str] = Counter()
+    for r in measured:
+        reason = r.get("ground_continuity_reason")
+        if reason:
+            for token in str(reason).split(";"):
+                reason_counter[token] += 1
+    return {
+        "measured_frame_count": len(measured),
+        "unmeasured_frame_count": len(rows) - len(measured),
+        "pass_count": len(passed),
+        "fail_count": len(measured) - len(passed),
+        "pass_rate": (len(passed) / len(measured)) if measured else None,
+        "fail_indices": [
+            r["idx"] for r in measured if r.get("ground_continuity_pass") is False
+        ],
+        "probe_fail_total": sum(
+            int(r.get("ground_probe_fail_count") or 0) for r in measured
+        ),
+        "max_probe_step_m": max(
+            (
+                float(r["ground_probe_max_step_m"])
+                for r in rows
+                if r.get("ground_probe_max_step_m") is not None
+            ),
+            default=None,
+        ),
+        "floor_edge_risk_indices": [
+            r["idx"] for r in rows if r.get("procedural_floor_edge_risk") is True
+        ],
+        "min_floor_edge_margin_m": min(margins) if margins else None,
+        "reason_counts": dict(reason_counter.most_common()),
+    }
 
 
 def collect_hash_duplicates(root: Path) -> set[str]:
@@ -732,6 +1372,509 @@ def collect_hash_duplicates(root: Path) -> set[str]:
             hashes.append(h)
     c = Counter(hashes)
     return {h for h, n in c.items() if n > 1}
+
+
+def geometry_signature(root: Path, idx: int) -> dict[str, Any]:
+    """Camera/K/pose fingerprint used to separate a stale mask from a genuinely identical scene."""
+    lab, obj, _ = load_label(root, idx)
+    cam = lab.get("camera_data") if isinstance(lab, dict) else None
+    cam = cam if isinstance(cam, dict) else {}
+    obj = obj if isinstance(obj, dict) else {}
+    intr = cam.get("intrinsics") if isinstance(cam.get("intrinsics"), dict) else {}
+    return {
+        "K": [intr.get(k) for k in ("fx", "fy", "cx", "cy")],
+        "resolution": [cam.get("width"), cam.get("height")],
+        "camera_location_worldframe": cam.get("location_worldframe"),
+        "camera_look_worldframe": cam.get("look_worldframe"),
+        "pose_transform": obj.get("pose_transform"),
+        "projected_cuboid": obj.get("projected_cuboid"),
+        "target_asset": first_value(obj.get("source_asset"), obj.get("name")),
+        "label_present": lab is not None,
+    }
+
+
+GEOMETRY_SIGNATURE_FIELDS = (
+    "K",
+    "resolution",
+    "camera_location_worldframe",
+    "camera_look_worldframe",
+    "pose_transform",
+    "projected_cuboid",
+    "target_asset",
+)
+
+
+def compare_geometry_signatures(signatures: list[dict[str, Any]]) -> dict[str, Any]:
+    """Cross-check geometry for frames whose mask bytes are identical."""
+    if len(signatures) < 2:
+        return {"geometry_identical": None, "differing_fields": [], "comparable": False}
+    if any(not s.get("label_present") for s in signatures):
+        return {"geometry_identical": None, "differing_fields": [], "comparable": False}
+    differing = []
+    for field in GEOMETRY_SIGNATURE_FIELDS:
+        ref = json.dumps(signatures[0].get(field), sort_keys=True, default=str)
+        if any(json.dumps(s.get(field), sort_keys=True, default=str) != ref for s in signatures[1:]):
+            differing.append(field)
+    return {"geometry_identical": not differing, "differing_fields": differing, "comparable": True}
+
+
+def cross_frame_mask_duplicates(
+    root: Path,
+    rows: list[dict[str, Any]],
+    mask_names: list[str],
+    target_mask: str,
+) -> list[dict[str, Any]]:
+    """Same stage, different frames, same mask.
+
+    Grouped on the foreground content hash (byte-exact duplicates are a subset, flagged by
+    `byte_identical`). Classification rules:
+      - all-black target-stage duplicate            -> empty_target_defect
+      - all-black non-target stage duplicate        -> all_black_stage_duplicate (fully occluded)
+      - non-black + geometry differs across frames  -> stale_or_mismatched_mask (real defect)
+      - non-black + geometry identical              -> duplicate_with_identical_geometry
+    """
+    # All-black masks are grouped by CONTENT, not by bytes: sub-threshold anti-aliased pixels and
+    # differing resolutions give every empty mask its own SHA256, so byte grouping would silently
+    # miss the empty-target case this check exists for. [확인: 500-frame run, 3 empty 960x540 M0
+    # masks with 3 different hashes]
+    buckets: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        for name in mask_names:
+            digest = row.get(f"mask_{name}_content_sha256")
+            if not (row.get(f"mask_{name}_decode_ok") and digest):
+                continue
+            key = "__all_black__" if row.get(f"mask_{name}_area") == 0 else str(digest)
+            buckets[(name, key)].append(row)
+    groups: list[dict[str, Any]] = []
+    signature_cache: dict[int, dict[str, Any]] = {}
+    for (name, key), member_rows in buckets.items():
+        if len(member_rows) < 2:
+            continue
+        member_rows = sorted(member_rows, key=lambda r: int(r["idx"]))
+        indices = [int(r["idx"]) for r in member_rows]
+        area = member_rows[0].get(f"mask_{name}_area")
+        all_black = key == "__all_black__"
+        byte_hashes = [str(r.get(f"mask_{name}_sha256")) for r in member_rows]
+        byte_identical = len(set(byte_hashes)) == 1
+        for idx in indices:
+            if idx not in signature_cache:
+                signature_cache[idx] = geometry_signature(root, idx)
+        cross = compare_geometry_signatures([signature_cache[i] for i in indices])
+        if all_black:
+            classification = "empty_target_defect" if name == target_mask else "all_black_stage_duplicate"
+        elif cross["geometry_identical"] is False:
+            classification = "stale_or_mismatched_mask"
+        elif cross["geometry_identical"] is True:
+            classification = "duplicate_with_identical_geometry"
+        else:
+            classification = "duplicate_geometry_unverifiable"
+        rgb_hashes = {r.get("rgb_sha256") for r in member_rows}
+        groups.append(
+            {
+                "stage": name,
+                "group_key": key,
+                "grouped_by": "content_all_black" if all_black else "content_sha256",
+                "content_sha256": None if all_black else key,
+                "byte_identical": byte_identical,
+                "sha256": byte_hashes,
+                "frame_count": len(indices),
+                "indices": indices,
+                "area": area,
+                "all_black": all_black,
+                "classification": classification,
+                "geometry_cross_check": cross,
+                "rgb_sha256_identical": len(rgb_hashes) == 1 and None not in rgb_hashes,
+                "diagnostic_modes": sorted({str(r.get("diagnostic_mode") or r.get("mode") or "") for r in member_rows}),
+            }
+        )
+    groups.sort(key=lambda g: (mask_names.index(g["stage"]), g["indices"][0]))
+    return groups
+
+
+CROSS_FRAME_DUPLICATE_FAILURES = {
+    "stale_or_mismatched_mask": "mask_stale_cross_frame_duplicate",
+    "duplicate_geometry_unverifiable": "mask_duplicate_geometry_unverifiable",
+}
+
+
+def apply_mask_duplicate_findings(
+    rows: list[dict[str, Any]],
+    groups: list[dict[str, Any]],
+    mask_names: list[str],
+) -> None:
+    """Fold the cross-frame verdicts back into the per-frame failure columns."""
+    by_idx = {int(r["idx"]): r for r in rows}
+    stages: dict[int, list[str]] = defaultdict(list)
+    classes: dict[int, set[str]] = defaultdict(set)
+    for group in groups:
+        for idx in group["indices"]:
+            stages[idx].append(group["stage"])
+            classes[idx].add(group["classification"])
+    for idx, row in by_idx.items():
+        row["mask_cross_frame_duplicate_stages"] = ";".join(stages.get(idx, []))
+        row["mask_cross_frame_duplicate_class"] = ";".join(sorted(classes.get(idx, set())))
+        extra = [
+            CROSS_FRAME_DUPLICATE_FAILURES[c]
+            for c in sorted(classes.get(idx, set()))
+            if c in CROSS_FRAME_DUPLICATE_FAILURES
+        ]
+        if not extra:
+            continue
+        failures = [f for f in str(row.get("failures") or "").split(";") if f]
+        for token in extra:
+            if token not in failures:
+                failures.append(token)
+        row["failures"] = ";".join(failures)
+        row["failure_count"] = len(failures)
+        row["audit_pass"] = len(failures) == 0
+        fatal = fatal_failure_reasons(row, mask_names)
+        row["fatal_pass"] = len(fatal) == 0
+        row["fatal_failure_count"] = len(fatal)
+        row["fatal_failures"] = ";".join(fatal)
+
+
+MASK_HASH_COLUMNS = [
+    "idx",
+    "frame_id",
+    "diagnostic_mode",
+    "stage",
+    "path",
+    "present",
+    "decode_ok",
+    "decode_error",
+    "sha256",
+    "content_sha256",
+    "width",
+    "height",
+    "area",
+    "all_black",
+    "rgb_sha256",
+    "within_frame_duplicate_group",
+    "cross_frame_duplicate_frame_count",
+    "cross_frame_duplicate_class",
+]
+
+MASK_INCLUSION_FAILURE_COLUMNS = [
+    "idx",
+    "frame_id",
+    "diagnostic_mode",
+    "outer_stage",
+    "inner_stage",
+    "outer_area",
+    "inner_area",
+    "violation_px",
+    "violation_ratio",
+    "shape_mismatch",
+    "reason",
+]
+
+
+def build_mask_hash_rows(
+    root: Path,
+    rows: list[dict[str, Any]],
+    groups: list[dict[str, Any]],
+    mask_names: list[str],
+) -> list[dict[str, Any]]:
+    group_by_key: dict[tuple[str, str], dict[str, Any]] = {(g["stage"], g["group_key"]): g for g in groups}
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        idx = int(row["idx"])
+        frame = f"f{idx:04d}"
+        within = {}
+        for group in row.get("_mask_within_frame_duplicates") or []:
+            for stage in group["stages"]:
+                within[stage] = "+".join(group["stages"]) + f" [{group['classification']}]"
+        for name in mask_names:
+            digest = row.get(f"mask_{name}_sha256")
+            content = row.get(f"mask_{name}_content_sha256")
+            area = row.get(f"mask_{name}_area")
+            key = "__all_black__" if area == 0 else str(content)
+            cross = group_by_key.get((name, key)) if content else None
+            out.append(
+                {
+                    "idx": idx,
+                    "frame_id": frame,
+                    "diagnostic_mode": row.get("diagnostic_mode") or row.get("mode"),
+                    "stage": name,
+                    "path": str(Path("mask") / f"{frame}_{name}.png"),
+                    "present": row.get(f"mask_{name}_present"),
+                    "decode_ok": row.get(f"mask_{name}_decode_ok"),
+                    "decode_error": row.get(f"mask_{name}_error"),
+                    "sha256": digest,
+                    "content_sha256": content,
+                    "width": row.get(f"mask_{name}_width"),
+                    "height": row.get(f"mask_{name}_height"),
+                    "area": area,
+                    "all_black": (area == 0) if area is not None else None,
+                    "rgb_sha256": row.get("rgb_sha256"),
+                    "within_frame_duplicate_group": within.get(name, ""),
+                    "cross_frame_duplicate_frame_count": cross["frame_count"] if cross else "",
+                    "cross_frame_duplicate_class": cross["classification"] if cross else "",
+                }
+            )
+    return out
+
+
+def build_mask_inclusion_failure_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        inclusion = row.get("_mask_inclusion") or {}
+        for pair in inclusion.get("pairs", []):
+            if not pair["shape_mismatch"] and not (pair.get("violation_px") or 0) > 0:
+                continue
+            out.append(
+                {
+                    "idx": int(row["idx"]),
+                    "frame_id": row.get("frame_id"),
+                    "diagnostic_mode": row.get("diagnostic_mode") or row.get("mode"),
+                    "outer_stage": pair["outer"],
+                    "inner_stage": pair["inner"],
+                    "outer_area": pair["outer_area"],
+                    "inner_area": pair["inner_area"],
+                    "violation_px": pair.get("violation_px"),
+                    "violation_ratio": pair.get("violation_ratio"),
+                    "shape_mismatch": pair["shape_mismatch"],
+                    "reason": pair.get("reason") or inclusion.get("reason") or "",
+                }
+            )
+    return out
+
+
+def mask_integrity_summary(
+    rows: list[dict[str, Any]],
+    groups: list[dict[str, Any]],
+    inclusion_failures: list[dict[str, Any]],
+    mask_names: list[str],
+    hull_outside_warn_ratio: float,
+) -> dict[str, Any]:
+    within_class = Counter()
+    for row in rows:
+        for group in row.get("_mask_within_frame_duplicates") or []:
+            within_class[group["classification"]] += 1
+    cross_class = Counter(g["classification"] for g in groups)
+    hull_ratios = [
+        float(row[key])
+        for row in rows
+        for key in ("mask_m0_hull_outside_ratio", "mask_m4_hull_outside_ratio")
+        if row.get(key) is not None
+    ]
+    ious = [
+        float(row["mask_m0_hull_bbox_iou"])
+        for row in rows
+        if row.get("mask_m0_hull_bbox_iou") is not None
+    ]
+    return {
+        "mask_names": mask_names,
+        "frame_count": len(rows),
+        "mask_file_count": len(rows) * len(mask_names),
+        "strict_decode_fail_indices": [r["idx"] for r in rows if r.get("mask_strict_decode_ok") is False],
+        "pixel_inclusion_checked_count": sum(1 for r in rows if r.get("mask_pixel_inclusion_ok") is not None),
+        "pixel_inclusion_fail_indices": sorted({int(r["idx"]) for r in inclusion_failures}),
+        "pixel_inclusion_failure_pair_count": len(inclusion_failures),
+        "pixel_inclusion_violation_px_total": int(
+            sum(int(r.get("violation_px") or 0) for r in inclusion_failures)
+        ),
+        "shape_inconsistent_indices": [r["idx"] for r in rows if r.get("mask_shape_consistent") is False],
+        "rgb_shape_mismatch_indices": [r["idx"] for r in rows if r.get("mask_rgb_shape_match") is False],
+        "empty_stage_frame_count": sum(1 for r in rows if r.get("mask_empty_stages")),
+        "empty_target_mask_indices": [r["idx"] for r in rows if r.get("empty_target_mask") is True],
+        "within_frame_duplicate_frame_count": sum(
+            1 for r in rows if r.get("_mask_within_frame_duplicates")
+        ),
+        "within_frame_duplicate_class_counts": dict(within_class.most_common()),
+        "within_frame_byte_exact_group_count": sum(
+            1
+            for row in rows
+            for group in (row.get("_mask_within_frame_duplicates") or [])
+            if group.get("byte_identical")
+        ),
+        "cross_frame_duplicate_group_count": len(groups),
+        "cross_frame_byte_exact_group_count": sum(1 for g in groups if g.get("byte_identical")),
+        "cross_frame_duplicate_class_counts": dict(cross_class.most_common()),
+        "cross_frame_stale_indices": sorted(
+            {i for g in groups if g["classification"] == "stale_or_mismatched_mask" for i in g["indices"]}
+        ),
+        "cross_frame_empty_target_indices": sorted(
+            {i for g in groups if g["classification"] == "empty_target_defect" for i in g["indices"]}
+        ),
+        "hull_outside_warn_ratio": hull_outside_warn_ratio,
+        "hull_align_warn_indices": [r["idx"] for r in rows if r.get("mask_hull_align_warn") is True],
+        "hull_outside_ratio_max": max(hull_ratios) if hull_ratios else None,
+        "hull_outside_ratio_median": float(np.median(hull_ratios)) if hull_ratios else None,
+        "hull_bbox_iou_median_m0": float(np.median(ious)) if ious else None,
+        "hull_metric_unavailable_count": sum(1 for r in rows if r.get("mask_hull_align_reason")),
+    }
+
+
+def mask_integrity_sheet_rows(rows: list[dict[str, Any]], max_frames: int) -> list[dict[str, Any]]:
+    """Defective frames first, then a sample of clean ones so the sheet is interpretable."""
+    def rank(row: dict[str, Any]) -> int:
+        if row.get("mask_pixel_inclusion_ok") is False or row.get("mask_shape_consistent") is False:
+            return 0
+        if row.get("mask_cross_frame_duplicate_class"):
+            return 1
+        if row.get("empty_target_mask") is True or row.get("mask_empty_stages"):
+            return 2
+        if row.get("mask_hull_align_warn") is True:
+            return 3
+        if row.get("mask_within_frame_duplicate_class") == "unexpected_identical_stage":
+            return 4
+        return 5
+
+    ordered = sorted(rows, key=lambda r: (rank(r), int(r["idx"])))
+    return ordered[:max_frames]
+
+
+def make_mask_integrity_sheet(
+    root: Path,
+    rows: list[dict[str, Any]],
+    masks_cache: dict[int, dict[str, dict[str, Any]]],
+    out_path: Path,
+    mask_names: list[str],
+    max_frames: int,
+) -> int:
+    """Source-mask contact sheet annotated with the Phase 5 verdicts (rgb + M0..M4 per row)."""
+    selected = rows[:max_frames]
+    thumb = (128, 96)
+    label_w = 150
+    row_h = thumb[1] + 34
+    width = label_w + (1 + len(mask_names)) * thumb[0]
+    if not selected:
+        sheet = Image.new("RGB", (max(900, width), 220), (30, 30, 30))
+        dr = ImageDraw.Draw(sheet)
+        dr.text((12, 12), "Mask Integrity Source Masks", fill=(255, 255, 255), font=FONT)
+        dr.text((12, 80), "No frames available", fill=(255, 210, 0), font=FONT)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        sheet.save(out_path)
+        return 0
+    sheet = Image.new("RGB", (width, 30 + len(selected) * row_h), (18, 18, 18))
+    dr = ImageDraw.Draw(sheet)
+    dr.text((8, 6), "Mask Integrity Source Masks (rgb + M0..M4, sha8/area/verdict)", fill=(255, 255, 255), font=FONT)
+    for r_i, row in enumerate(selected):
+        idx = int(row["idx"])
+        y = 30 + r_i * row_h
+        verdict = "ok"
+        color = (140, 255, 140)
+        cross_classes = str(row.get("mask_cross_frame_duplicate_class") or "").split(";")
+        if row.get("mask_pixel_inclusion_ok") is False or row.get("mask_shape_consistent") is False:
+            verdict, color = "inclusion", (255, 90, 90)
+        elif "stale_or_mismatched_mask" in cross_classes:
+            verdict, color = "stale dup", (255, 90, 90)
+        elif row.get("empty_target_mask") is True:
+            verdict, color = "empty M0", (255, 90, 90)
+        elif any(cross_classes) and cross_classes != [""]:
+            verdict, color = sorted(c for c in cross_classes if c)[0][:16], (255, 150, 60)
+        elif row.get("mask_hull_align_warn") is True:
+            verdict, color = "hull warn", (255, 210, 0)
+        dr.text((6, y + 4), f"f{idx:04d}", fill=(255, 255, 0), font=SMALL_FONT)
+        dr.text((6, y + 18), str(row.get("diagnostic_mode") or row.get("mode") or "")[:20], fill=(180, 180, 180), font=SMALL_FONT)
+        dr.text((6, y + 32), verdict, fill=color, font=SMALL_FONT)
+        dup = str(row.get("mask_within_frame_duplicate_groups") or "")
+        if dup:
+            dr.text((6, y + 46), f"dup {dup}"[:22], fill=(150, 200, 255), font=SMALL_FONT)
+        rgb_path = root / "rgb" / f"f{idx:04d}_rgb.png"
+        try:
+            rgb = Image.open(rgb_path).convert("RGB")
+        except Exception:
+            rgb = Image.new("RGB", thumb, (60, 0, 0))
+        sheet.paste(resize_fit(rgb, thumb), (label_w, y))
+        dr.text((label_w + 4, y + thumb[1] + 2), "rgb", fill=(255, 255, 255), font=SMALL_FONT)
+        for j, name in enumerate(mask_names):
+            ms = masks_cache.get(idx, {}).get(name)
+            if ms and ms.get("image") is not None:
+                im = ms["image"].convert("RGB")
+            else:
+                im = Image.new("RGB", thumb, (40, 40, 40))
+            x = label_w + (j + 1) * thumb[0]
+            sheet.paste(resize_fit(im, thumb), (x, y))
+            digest = str(row.get(f"mask_{name}_sha256") or "")[:8]
+            area = row.get(f"mask_{name}_area")
+            dr.text((x + 4, y + thumb[1] + 2), f"{name} a={area if area is not None else '-'}", fill=(255, 255, 255), font=SMALL_FONT)
+            dr.text((x + 4, y + thumb[1] + 15), digest, fill=(170, 170, 255), font=SMALL_FONT)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(out_path)
+    return len(selected)
+
+
+def write_mask_integrity_reports(
+    report_dir: Path,
+    contact_dir: Path,
+    root: Path,
+    rows: list[dict[str, Any]],
+    masks_cache: dict[int, dict[str, dict[str, Any]]],
+    mask_names: list[str],
+    target_mask: str,
+    max_sheet_frames: int,
+    hull_outside_warn_ratio: float,
+) -> dict[str, Any]:
+    groups = cross_frame_mask_duplicates(root, rows, mask_names, target_mask)
+    apply_mask_duplicate_findings(rows, groups, mask_names)
+    hash_rows = build_mask_hash_rows(root, rows, groups, mask_names)
+    inclusion_failures = build_mask_inclusion_failure_rows(rows)
+    summary = mask_integrity_summary(rows, groups, inclusion_failures, mask_names, hull_outside_warn_ratio)
+
+    report_dir.mkdir(parents=True, exist_ok=True)
+    write_csv(report_dir / "mask_hashes.csv", hash_rows, MASK_HASH_COLUMNS)
+    write_csv(report_dir / "mask_pixel_inclusion_failures.csv", inclusion_failures, MASK_INCLUSION_FAILURE_COLUMNS)
+    (report_dir / "mask_duplicate_groups.json").write_text(
+        json.dumps(
+            {
+                "root": str(root),
+                "mask_names": mask_names,
+                "target_mask": target_mask,
+                "stage_occluder_source": MASK_STAGE_OCCLUDER_SOURCE,
+                "classification_rules": {
+                    "expected_no_op": "identical stages inside one frame whose spanned occluder sources were all absent",
+                    "no_op_placed_but_not_occluding": "an occluder was placed but its recorded occlusion fraction is 0",
+                    "unverified_no_op": "same, but at least one source flag was missing from the record",
+                    "unexpected_identical_stage": "the record claims a non-zero occlusion fraction yet the stage mask is byte-identical",
+                    "empty_target_defect": "all-black target-stage mask shared by different frames",
+                    "all_black_stage_duplicate": "all-black non-target stage shared by different frames (fully occluded)",
+                    "stale_or_mismatched_mask": "identical mask bytes but different camera/K/pose across frames",
+                    "duplicate_with_identical_geometry": "identical mask bytes AND identical camera/K/pose",
+                    "duplicate_geometry_unverifiable": "identical mask bytes but geometry could not be compared",
+                },
+                "cross_frame_same_stage": groups,
+                "within_frame": [
+                    {
+                        "idx": int(row["idx"]),
+                        "diagnostic_mode": row.get("diagnostic_mode") or row.get("mode"),
+                        "occluder_source_states": row.get("_mask_occluder_states"),
+                        **group,
+                    }
+                    for row in rows
+                    for group in (row.get("_mask_within_frame_duplicates") or [])
+                ],
+                "summary": summary,
+            },
+            indent=2,
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    sheet_rows = mask_integrity_sheet_rows(rows, max_sheet_frames)
+    sheet_pages: list[dict[str, Any]] = []
+    pages = chunked(mask_integrity_sheet_rows(rows, len(rows)), max_sheet_frames) or [[]]
+    for page_no, page_rows in enumerate(pages, 1):
+        name = f"mask_integrity_source_masks_{page_no:03d}.png"
+        n = make_mask_integrity_sheet(root, page_rows, masks_cache, contact_dir / name, mask_names, max_sheet_frames)
+        sheet_pages.append({"file": name, "frames": n})
+    first = make_mask_integrity_sheet(
+        root, sheet_rows, masks_cache, contact_dir / "mask_integrity_source_masks.png", mask_names, max_sheet_frames
+    )
+    shutil.copyfile(contact_dir / "mask_integrity_source_masks.png", report_dir / "mask_integrity_source_masks.png")
+
+    summary["outputs"] = {
+        "report_dir": str(report_dir),
+        "mask_hashes": "mask_hashes.csv",
+        "mask_duplicate_groups": "mask_duplicate_groups.json",
+        "mask_pixel_inclusion_failures": "mask_pixel_inclusion_failures.csv",
+        "source_mask_sheet": "mask_integrity_source_masks.png",
+        "source_mask_sheet_pages": sheet_pages,
+        "source_mask_sheet_frames": first,
+    }
+    return summary
 
 
 def collect_duplicate_filenames(root: Path) -> set[str]:
@@ -928,6 +2071,15 @@ def write_readme(path: Path, root: Path, out: Path, summary: dict[str, Any]) -> 
         "- Connector line crossings are counted from 2D cuboid points.",
         "- 2D cuboid points must be finite.",
         "- Source mask areas are assumed non-increasing in the configured mask order.",
+        "- Source masks are decoded strictly (structural/CRC verify + full load) and hashed with SHA256.",
+        "- Pixel-level inclusion `M4 subset-of M3 subset-of M2 subset-of M1 subset-of M0` is compared on boolean arrays,",
+        "  so a later stage that gains pixels is caught even when the total area still shrinks.",
+        "- Identical mask bytes are grouped within a frame and across frames. Within-frame identity is",
+        "  expected when the spanned occluder source was not placed (clean-static, no cargo/context/explicit).",
+        "  Across frames, an all-black target mask is an empty-target defect and a non-black duplicate is",
+        "  cross-checked against camera/K/pose before it is called stale.",
+        "- Mask foreground is compared against the projected-cuboid convex hull (bbox IoU + outside ratio).",
+        "- RGB and mask resolutions must match.",
         "- Empty target mask uses the configured `--target-mask` suffix.",
         "- Duplicate filenames, duplicate RGB hashes, and duplicate record indices are reported.",
         "- Magenta contamination uses R>180, G<90, B>180 pixel ratio.",
@@ -939,7 +2091,10 @@ def write_readme(path: Path, root: Path, out: Path, summary: dict[str, Any]) -> 
         "- `contact_sheets/*.png`: mode, pass/fail, failure-reason, source-mask, and debug sheets. Sheets are paged at the configured max frame count so the full frame set is covered.",
         "- `failure_examples.csv` and `failure_examples/*.png`: all failing frame overlays.",
         "- `debug_geometry/*.png`: context-rich and controlled-occlusion geometry examples when those modes exist.",
-        "- `audit_summary.json`: aggregate counts and failure distribution.",
+        "- `audit_summary.json`: aggregate counts and failure distribution (including `mask_integrity`).",
+        f"- `{summary.get('mask_integrity', {}).get('outputs', {}).get('report_dir', 'mask_integrity/')}`:"
+        " `mask_hashes.csv`, `mask_duplicate_groups.json`, `mask_pixel_inclusion_failures.csv`,"
+        " `mask_integrity_source_masks.png`.",
         "- `audit_README.md`: audit-specific output notes.",
         "- Existing `summary.json` and `README.md` are preserved; only concise visual audit sections are merged into them.",
     ]
@@ -960,6 +2115,15 @@ def concise_visual_audit(summary: dict[str, Any]) -> dict[str, Any]:
         "missing_texture_log_count": int(summary.get("missing_texture_logs", {}).get("count", 0)),
         "mask_monotonic_fail_count": len(summary.get("mask_monotonic_fail_indices", [])),
         "empty_target_mask_count": len(summary.get("empty_target_mask_indices", [])),
+        "mask_pixel_inclusion_fail_count": len(
+            summary.get("mask_integrity", {}).get("pixel_inclusion_fail_indices", [])
+        ),
+        "mask_cross_frame_duplicate_group_count": summary.get("mask_integrity", {}).get(
+            "cross_frame_duplicate_group_count", 0
+        ),
+        "mask_stale_duplicate_count": len(
+            summary.get("mask_integrity", {}).get("cross_frame_stale_indices", [])
+        ),
         "exact_collision_count": len(summary.get("exact_collision_indices", [])),
         "support_fail_count": len(summary.get("support_fail_indices", [])),
         "outputs": {
@@ -1014,9 +2178,11 @@ def write_self_test_fixture(root: Path, mask_names: list[str]) -> None:
     (root / "labels").mkdir(parents=True, exist_ok=True)
     (root / "mask").mkdir(parents=True, exist_ok=True)
     Image.new("RGB", (64, 48), (70, 70, 65)).save(root / "rgb" / "f0000_rgb.png")
+    # Nested rectangles inside the projected cuboid below, so the fixture also satisfies the
+    # pixel-level inclusion chain and the hull-alignment check.
     for i, name in enumerate(mask_names):
         arr = np.zeros((48, 64), dtype=np.uint8)
-        arr[6 + i : 42 - i, 8 + i : 56 - i] = 255
+        arr[16 + i : 32 - i, 21 + i : 43 - i] = 255
         Image.fromarray(arr, mode="L").save(root / "mask" / f"f0000_{name}.png")
 
     label = {
@@ -1066,6 +2232,10 @@ def write_self_test_fixture(root: Path, mask_names: list[str]) -> None:
         "exact_collision_count": 0,
         "camera_clearance_pass": True,
         "support_pass": True,
+        "f_static": 0.0,
+        "n_cargo_placed": 0,
+        "n_context_placed": 0,
+        "explicit_occluder_placed": False,
     }
     (root / "records.json").write_text(json.dumps({"records": [record]}, indent=2), encoding="utf-8")
     (root / "records.jsonl").write_text(json.dumps(record) + "\n", encoding="utf-8")
@@ -1179,7 +2349,12 @@ def run_self_test(args: argparse.Namespace) -> int:
             out / "contact_sheets" / "source_masks.png",
             out / "contact_sheets" / "all_pass_001.png",
             out / "contact_sheets" / "source_masks_001.png",
+            out / "contact_sheets" / "mask_integrity_source_masks.png",
             out / "debug_geometry",
+            out / DEFAULT_MASK_REPORT_DIRNAME / "mask_hashes.csv",
+            out / DEFAULT_MASK_REPORT_DIRNAME / "mask_duplicate_groups.json",
+            out / DEFAULT_MASK_REPORT_DIRNAME / "mask_pixel_inclusion_failures.csv",
+            out / DEFAULT_MASK_REPORT_DIRNAME / "mask_integrity_source_masks.png",
         ]
         for path in required_paths:
             if not path.exists():
@@ -1210,10 +2385,12 @@ def main() -> int:
     contact_dir = out / "contact_sheets"
     failure_dir = out / "failure_examples"
     debug_dir = out / "debug_geometry"
+    mask_report_dir = as_path(args.mask_report_out) if args.mask_report_out else out / DEFAULT_MASK_REPORT_DIRNAME
     overlay_dir.mkdir(parents=True, exist_ok=True)
     contact_dir.mkdir(parents=True, exist_ok=True)
     failure_dir.mkdir(parents=True, exist_ok=True)
     debug_dir.mkdir(parents=True, exist_ok=True)
+    mask_report_dir.mkdir(parents=True, exist_ok=True)
 
     records, record_meta = load_records(root)
     indices = discover_indices(root, records, mask_names) if root.exists() else []
@@ -1235,10 +2412,24 @@ def main() -> int:
             duplicate_hashes,
             duplicate_filenames,
             args.magenta_threshold,
+            args.hull_outside_warn_ratio,
         )
         rows.append(row)
         masks_cache[idx] = masks
         draw_overlay(rgb_img, lab, obj, idx, row, overlay_dir / f"f{idx:04d}.png")
+
+    # Phase 5 runs before the failure roll-up because cross-frame verdicts can fail a frame.
+    mask_integrity = write_mask_integrity_reports(
+        mask_report_dir,
+        contact_dir,
+        root,
+        rows,
+        masks_cache,
+        mask_names,
+        args.target_mask,
+        args.max_sheet_frames,
+        args.hull_outside_warn_ratio,
+    )
 
     columns = audit_columns(mask_names)
     write_csv(out / "audit_frames.csv", rows, columns)
@@ -1384,6 +2575,7 @@ def main() -> int:
             for r in rows
             if r.get("support_required") and r.get("support_pass") is None
         ],
+        "ground_continuity": ground_continuity_summary(rows),
         "camera_clearance_fail_indices": [
             r["idx"] for r in rows if r.get("camera_clearance_pass") is False
         ],
@@ -1399,6 +2591,7 @@ def main() -> int:
         "mask_names": mask_names,
         "target_mask": args.target_mask,
         "mask_monotonic_assumption": "areas must be non-increasing in mask_names order",
+        "mask_integrity": mask_integrity,
         "record_meta": record_meta,
         "contact_sheets": sheet_manifest,
         "errors": [],

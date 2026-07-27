@@ -3221,29 +3221,107 @@ def deterministic_rgb_render_settings(scene):
         scene.render.threads = threads_backup
 
 
-def render(rs, rgb_path, samples=16, deterministic_cpu=False):
-    """Render the RGB frame (Cycles)."""
+@contextmanager
+def quality_rgb_render_settings(scene, denoiser="OPENIMAGEDENOISE"):
+    """GPU + adaptive sampling + OIDN denoise for one final RGB render, then restore.
+
+    NOT bit-reproducible (GPU + adaptive) — that is what `diagnostic-exact` is for.
+    This path exists so a *clean*-tier training frame does not ship Cycles speckle."""
+    device_backup = scene.cycles.device
+    adaptive_backup = scene.cycles.use_adaptive_sampling
+    denoising_backup = scene.cycles.use_denoising
+    denoiser_backup = getattr(scene.cycles, "denoiser", None)
+    try:
+        scene.cycles.device = "GPU"
+    except Exception:
+        pass
+    scene.cycles.use_adaptive_sampling = True
+    scene.cycles.use_denoising = True
+    try:
+        scene.cycles.denoiser = denoiser
+    except Exception:
+        pass
+    try:
+        yield
+    finally:
+        scene.cycles.device = device_backup
+        scene.cycles.use_adaptive_sampling = adaptive_backup
+        scene.cycles.use_denoising = denoising_backup
+        if denoiser_backup is not None:
+            try:
+                scene.cycles.denoiser = denoiser_backup
+            except Exception:
+                pass
+
+
+# Render profiles.  `diagnostic-exact` is the shipped 500-record diagnostic path and must
+# stay byte-reproducible.  `dataset-quality` is the training-frame path: 64 samples + OIDN
+# was measured (4 brightest-exposure frames, Immerkaer noise estimate vs a 1024-sample
+# reference) as the cheapest setting whose excess noise is |<=0.01| grey levels — 16 samples
+# without denoise leaves +0.39..+1.97, 16+OIDN OVER-smooths (-0.23), 32+OIDN still -0.03,
+# and 128+OIDN only buys ~10% more RMSE for ~30% more time.  See _docs/history/2026-07-27.md.
+RENDER_PROFILES = {
+    "diagnostic-exact": {
+        "samples": 16,
+        "deterministic_cpu": True,
+    },
+    "dataset-quality": {
+        "samples": 64,
+        "deterministic_cpu": False,
+        "denoiser": "OPENIMAGEDENOISE",
+    },
+}
+DEFAULT_RENDER_PROFILE = "diagnostic-exact"
+
+
+def render(rs, rgb_path, samples=None, deterministic_cpu=False, profile=None):
+    """Render the RGB frame (Cycles).
+
+    profile=None keeps the legacy call contract (explicit samples + deterministic_cpu).
+    profile in RENDER_PROFILES selects samples/device/denoise as a set; an explicit
+    `samples` argument still wins so a smoke run can lower the cost."""
     scene = rs["scene"]
-    scene.cycles.samples = int(samples)
+    settings = RENDER_PROFILES[profile] if profile else {}
+    n_samples = int(samples) if samples is not None else int(settings.get("samples", 16))
+    exact = bool(settings["deterministic_cpu"]) if profile else bool(deterministic_cpu)
+    scene.cycles.samples = n_samples
     scene.render.filepath = rgb_path
     scene.render.image_settings.file_format = "PNG"
     scene.render.image_settings.color_mode = "RGB"
-    if deterministic_cpu:
+    if exact:
         with deterministic_rgb_render_settings(scene):
+            bpy.ops.render.render(write_still=True)
+    elif profile:
+        with quality_rgb_render_settings(scene, settings.get("denoiser", "OPENIMAGEDENOISE")):
             bpy.ops.render.render(write_still=True)
     else:
         bpy.ops.render.render(write_still=True)
     return rgb_path
 
 
-def render_post(rgb_path, seed, luma_actual):
-    """Sensor post-effects; noise sigma raised for dark frames (Illumination DR)."""
-    noise_scale = 1.0 + max(0.0, (60.0 - float(luma_actual)) / 60.0) * 1.5  # dark -> up to 2.5x
-    try:
-        CE.apply(rgb_path, seed, noise_scale=noise_scale)
-    except TypeError:
-        CE.apply(rgb_path, seed)  # legacy signature (no noise_scale)
-    return noise_scale
+def dark_factor(luma_actual):
+    """0 (bright) .. 1 (pitch black) from the RAW frame luma; drives the in-tier sigma push."""
+    if luma_actual is None:
+        return 0.0
+    return min(1.0, max(0.0, (60.0 - float(luma_actual)) / 60.0))
+
+
+def render_post(rgb_path, seed, luma_actual, tier=None):
+    """Sensor post-effects on the saved RGB.
+
+    tier=None (legacy drivers): unchanged behaviour, returns the float noise_scale.
+    tier="auto"/<tier name>: tiered degradation, returns the applied-effects dict
+    (noise_tier / wb_gain_rgb / vignette_* / blur_* / gaussian_* / jpeg_*)."""
+    if tier is None:
+        noise_scale = 1.0 + dark_factor(luma_actual) * 1.5  # dark -> up to 2.5x
+        try:
+            CE.apply(rgb_path, seed, noise_scale=noise_scale)
+        except TypeError:
+            CE.apply(rgb_path, seed)  # legacy signature (no noise_scale)
+        return noise_scale
+    effects = CE.apply(rgb_path, seed, tier=tier, dark_factor=dark_factor(luma_actual))
+    effects["dark_factor"] = round(dark_factor(luma_actual), 4)
+    return effects
 
 
 # ---------------------------------------------------------------------------
@@ -3345,10 +3423,117 @@ def _candidate_corner_gate_metrics(
     return metrics
 
 
+def _measure_ground_continuity(rs, centroid_world):
+    """Ground-continuity audit for the realized frame (Phase 2).
+
+    The procedural floor is a FINITE 50 m quad centred under the pallet assembly, so a
+    far camera can shoot past its border and expose bare HDRI; a floating pallet/camera
+    shows up the same way (rays under the segment stop hitting a support surface). Probing
+    the camera->pallet ground segment catches both. Dynamic objects are hidden so each ray
+    reports the ground itself, not the cargo/occluder standing on it."""
+    pobj = rs["pallet"]
+    floor_mode = rs.get("floor_mode")
+    floor_obj = get_obj(cfg.FLOOR_PLANE_NAME) if floor_mode == "plane" else None
+    if floor_obj is not None and floor_obj.hide_render:
+        floor_obj = None
+
+    support_objects = list(rs.get("support_objects") or [])
+    if not support_objects and floor_obj is not None:
+        support_objects = [floor_obj]
+
+    hide = [pobj, *(rs.get("cargo") or []), *(rs.get("context") or [])]
+    if rs.get("occluder") is not None:
+        hide.append(rs["occluder"])
+
+    plane_size = float(cfg.FLOOR_PLANE_SIZE) if floor_obj is not None else None
+    plane_center_xy = (
+        (float(floor_obj.location.x), float(floor_obj.location.y))
+        if floor_obj is not None
+        else None
+    )
+    cam_pos = np.asarray(rs["cam_pos"], dtype=np.float64)
+    start_z = max(float(cam_pos[2]), float(object_top_z_world(pobj)), 0.0) + 2.0
+    return SV2.check_ground_continuity(
+        cam_pos,
+        (float(centroid_world[0]), float(centroid_world[1])),
+        support_objects,
+        floor_object=floor_obj,
+        plane_size=plane_size,
+        plane_center_xy=plane_center_xy,
+        hide_objects=hide,
+        ray_start_z=start_z,
+        ray_distance=start_z + 10.0,
+    )
+
+
+def _visible_mask_path(rs, masks, prefix):
+    """Path of the mask holding the ACTUALLY-VISIBLE pallet pixels (M4 / _visible.png)."""
+    if rs.get("placement_mode") == "constrained":
+        return (masks.get("mask_paths") or {}).get("m4")
+    return (prefix + "_visible.png") if prefix else None
+
+
+def _load_visible_mask(path):
+    """Decode a holdout mask into a boolean array (True = pallet pixel). None if absent."""
+    if not path or not os.path.isfile(path):
+        return None
+    from PIL import Image
+
+    return np.array(Image.open(path).convert("L")) > 127
+
+
+def _measure_luma(rgb_path, visible_mask):
+    """(frame mean, visible-pallet mean) luma of the RGB currently on disk.
+
+    Called twice per frame: once on the raw render, once on the post-effect image. The mask
+    is passed in (never re-rendered) so both calls index exactly the same pixels."""
+    if not rgb_path or not os.path.isfile(rgb_path):
+        return None, None
+    from PIL import Image
+
+    arr = np.array(Image.open(rgb_path).convert("L")).astype(np.float32)
+    luma_frame = float(round(arr.mean(), 2))
+    luma_pallet = None
+    # pallet-region luma via the VISIBLE mask (actually-visible pixels), so G5 judges the
+    # brightness of what the camera really sees. (unocc mask would report a bright pallet
+    # even when the visible part is dark/occluded.) If nothing is visible -> None.
+    if visible_mask is not None and visible_mask.shape == arr.shape and visible_mask.sum() > 0:
+        luma_pallet = float(round(arr[visible_mask].mean(), 2))
+    return luma_frame, luma_pallet
+
+
+def measure_final_rgb_quality(rs, meas=None):
+    """Re-read the FINAL RGB (post-effects already applied in place) and re-measure luma.
+
+    Reuses the visible mask decoded by measure_geometry_and_masks — no mask is re-rendered
+    and no geometry is recomputed. This is what G5 and the label must judge, because it is
+    the image the training run actually sees."""
+    mask = None
+    if isinstance(meas, dict):
+        mask = meas.get("_visible_mask")
+        if mask is None:
+            mask = _load_visible_mask(meas.get("visible_mask_path"))
+    luma_frame, luma_pallet = _measure_luma(rs.get("rgb_path"), mask)
+    return {"luma_frame_final": luma_frame, "luma_pallet_final": luma_pallet}
+
+
 def measure(rs):
+    """Backward-compatible wrapper: geometry/mask measurement + final-RGB quality.
+
+    NOTE: called before render_post (the legacy driver order) the *_final values simply equal
+    the raw ones, because nothing has degraded the PNG yet. New callers must use
+    measure_geometry_and_masks -> render_post -> measure_final_rgb_quality so that the gates
+    and the label describe the image on disk."""
+    meas = measure_geometry_and_masks(rs)
+    meas.update(measure_final_rgb_quality(rs, meas))
+    return meas
+
+
+def measure_geometry_and_masks(rs):
     """Measure the ACTUAL realized frame. Renders the 3 holdout masks (unoccluded / after-cargo
-    / visible), the per-corner occlusion by raycast, V_actual, luma, and the azimuth-facing
-    perm/front_cos/facing_margin. Returns a meas dict (values missing -> None = 측정불가)."""
+    / visible), the per-corner occlusion by raycast, V_actual, RAW luma, ground continuity and
+    the azimuth-facing perm/front_cos/facing_margin. Everything here is independent of the RGB
+    post-effects. Returns a meas dict (values missing -> None = 측정불가)."""
     scene = rs["scene"]
     pobj = rs["pallet"]
     K = rs["K"]
@@ -3392,6 +3577,10 @@ def measure(rs):
     V_inframe = corner_gate["V_inframe"]
     ext_occ_corners = corner_gate["ext_occ_corners"]
     V_vis = corner_gate["V_vis"]
+
+    # Ground continuity: measured BEFORE the holdout mask passes, while the scene still
+    # carries its final render visibility.
+    ground = _measure_ground_continuity(rs, centroid_world)
 
     # Occlusion masks (paths under the run dir supplied by driver via
     # rs['mask_prefix']). Legacy keeps its original three passes; constrained
@@ -3488,26 +3677,11 @@ def measure(rs):
         masks = {"area_unocc": None, "area_after_cargo": None, "area_visible": None,
                  "f_cargo": None, "f_total": None, "f_occ": None}
 
-    # luma (measured on the RGB render if present).
-    luma_frame = luma_pallet = None
-    rgb = rs.get("rgb_path")
-    if rgb and os.path.isfile(rgb):
-        from PIL import Image
-        arr = np.array(Image.open(rgb).convert("L")).astype(np.float32)
-        luma_frame = float(round(arr.mean(), 2))
-        # pallet-region luma via the VISIBLE mask (actually-visible pixels), so G5 judges the
-        # brightness of what the camera really sees. (unocc mask would report a bright pallet
-        # even when the visible part is dark/occluded.) If nothing is visible -> None.
-        vm = (
-            (masks.get("mask_paths") or {}).get("m4")
-            if rs.get("placement_mode") == "constrained"
-            else (prefix + "_visible.png" if prefix else None)
-        )
-        if vm and os.path.isfile(vm):
-            mk = np.array(Image.open(vm).convert("L"))
-            mk = mk > 127
-            if mk.shape == arr.shape and mk.sum() > 0:
-                luma_pallet = float(round(arr[mk].mean(), 2))
+    # RAW luma: measured on the RGB render BEFORE the sensor post-effects. Kept for the
+    # raw-vs-final delta; the gates/label judge the *_final values (measure_final_rgb_quality).
+    visible_mask_path = _visible_mask_path(rs, masks, prefix)
+    visible_mask = _load_visible_mask(visible_mask_path)
+    luma_frame, luma_pallet = _measure_luma(rs.get("rgb_path"), visible_mask)
 
     visibility = (
         _measure_front_opening_visibility(rs)
@@ -3572,10 +3746,15 @@ def measure(rs):
         "in_frame8": in_frame8, "center_in_frame": center_in_frame,
         "V_inframe": V_inframe, "V_vis": V_vis, "ext_occ_corners": ext_occ_corners,
         "occlusion_fraction": occ_frac,
+        # legacy aliases (== raw): existing drivers/records keep reading these.
         "luma_frame": luma_frame, "luma_pallet": luma_pallet,
+        "luma_frame_raw": luma_frame, "luma_pallet_raw": luma_pallet,
+        "visible_mask_path": visible_mask_path,
+        "_visible_mask": visible_mask,   # cached for measure_final_rgb_quality (no re-render)
         "explicit_occluder_present": bool(
             rs.get("explicit_occluder_present", rs["plan"].occluder is not None)
         ),
+        **ground,
         **visibility,
         **masks,
     }
@@ -3611,11 +3790,17 @@ def safety_gates(meas, plan):
     av = meas.get("area_visible")
     g3 = (au is not None and av is not None and au > 0 and av >= 0.5 * au)
     g4 = bool(meas["center_in_frame"])
-    # G5 judges the VISIBLE pallet region only. A dark BACKGROUND (e.g. night HDRI + low
-    # exposure) must NOT reject a frame whose visible pallet is bright — so luma_frame (whole-
-    # frame mean) is intentionally NOT used. lp=None => pallet not visible (0px); G3 rejects
-    # those via area_visible<0.5*area_unocc, so G5 stays permissive there.
-    lp = meas.get("luma_pallet")
+    # G5 judges the VISIBLE pallet region of the FINAL image (after vignette/noise/JPEG), i.e.
+    # the pixels training actually sees. A dark BACKGROUND (e.g. night HDRI + low exposure)
+    # must NOT reject a frame whose visible pallet is bright — so luma_frame (whole-frame mean)
+    # is intentionally NOT used. lp=None => pallet not visible (0px); G3 rejects those via
+    # area_visible<0.5*area_unocc, so G5 stays permissive there.
+    # (luma_pallet fallback: meas dicts produced before the raw/final split.)
+    lp = (
+        meas["luma_pallet_final"]
+        if "luma_pallet_final" in meas
+        else meas.get("luma_pallet")
+    )
     g5 = (lp is None or lp >= G5_LUMA_MIN)
     gates = {"G1_Vvis>=4": bool(g1), "G2_extocc_1to4": bool(g2),
              "G3_visible>=0.5unocc": bool(g3), "G4_center_inframe": bool(g4),
@@ -3639,9 +3824,22 @@ def _f_actual_bin(f_total):
     return _vp.f_actual_bin(f_total)
 
 
+def camera_distance_actual_m(cam_pos, centroid):
+    """REALIZED camera->pallet-centroid distance (m), recomputed from the final scene.
+
+    Deliberately NOT a copy of plan.cam_distance_m: realize() re-seats the camera on the
+    pallet CENTROID (not its origin) and the constrained placer translates the anchor, so the
+    realized distance can drift from the sampled target. Labelling the measured value is what
+    makes the camera-distance cap auditable (실측배정)."""
+    v = np.asarray(cam_pos, dtype=np.float64) - np.asarray(centroid, dtype=np.float64)
+    return float(np.linalg.norm(v))
+
+
 def label(spec, plan, meas, rs):
     """Build the v2 label dict: per-frame K + camera-facing 0123 cuboid + TARGET and ACTUAL
     quantities + safety-gate result. Missing measured values stay None (측정불가)."""
+    import v2_pipeline as _vp
+
     K = rs["K"]
     corners_v4 = meas["corners_v4"]
     uv8_v4 = meas["uv8_v4"]
@@ -3658,6 +3856,9 @@ def label(spec, plan, meas, rs):
     height_m = float(np.linalg.norm(corners_v4[3] - corners_v4[0]))
     depth_m = float(np.linalg.norm(corners_v4[4] - corners_v4[0]))
     gates = safety_gates(meas, plan)
+    # camera distance: sampled TARGET vs distance RE-MEASURED from the realized scene.
+    cam_dist_target = float(plan.cam_distance_m)
+    cam_dist_actual = camera_distance_actual_m(rs["cam_pos"], centroid)
 
     return {
         "camera_data": {
@@ -3711,6 +3912,17 @@ def label(spec, plan, meas, rs):
                 "azimuth_deg_target": round(float(spec.azimuth_deg), 3),
                 "proj_size_bin_target": spec.proj_size_bin,
                 "proj_size_ratio_target": round(float(spec.proj_size_ratio), 4),
+                # --- projected size / camera distance cap (Phase 1) ---
+                # projected_size_actual measures the rendered cuboid u-extent; it can OVER-read
+                # when corners fall off-screen or behind the camera (known limitation, unchanged).
+                "projected_size_target": round(float(spec.proj_size_ratio), 4),
+                "projected_size_actual": _vp.projected_size_actual(uv8_v4, rs["W"]),
+                "projected_size_feasible_lower": round(
+                    float(spec.proj_size_feasible_lower), 5),
+                "camera_distance_limit_m": float(plan.camera_distance_limit_m),
+                "camera_distance_target_m": round(cam_dist_target, 4),
+                "camera_distance_actual_m": round(cam_dist_actual, 4),
+                "camera_distance_error_m": round(cam_dist_actual - cam_dist_target, 4),
                 "v_target": spec.v_target,
                 "V_actual": meas["V_inframe"],
                 "V_vis_actual": meas["V_vis"],
@@ -3737,9 +3949,27 @@ def label(spec, plan, meas, rs):
                 ),
                 "n_cargo_actual": rs.get("n_cargo"),
                 # --- illumination ---
+                # raw = the Cycles render, final = after the sensor post-effects (what the
+                # PNG on disk holds and what G5 judges). luma_actual/luma_pallet_actual keep
+                # their original raw meaning so existing EDA is not silently redefined.
                 "exposure_ev": round(float(spec.exposure_ev), 4),
-                "luma_actual": meas.get("luma_frame"),
-                "luma_pallet_actual": meas.get("luma_pallet"),
+                "luma_actual": meas.get("luma_frame_raw", meas.get("luma_frame")),
+                "luma_pallet_actual": meas.get("luma_pallet_raw", meas.get("luma_pallet")),
+                "luma_frame_raw": meas.get("luma_frame_raw", meas.get("luma_frame")),
+                "luma_pallet_raw": meas.get("luma_pallet_raw", meas.get("luma_pallet")),
+                "luma_frame_final": meas.get("luma_frame_final"),
+                "luma_pallet_final": meas.get("luma_pallet_final"),
+                # --- sensor post-effects actually applied (Phase 3 tier) ---
+                "noise_tier": meas.get("noise_tier"),
+                "wb_gain_rgb": meas.get("wb_gain_rgb"),
+                "vignette_applied": meas.get("vignette_applied"),
+                "vignette_strength": meas.get("vignette_strength"),
+                "blur_applied": meas.get("blur_applied"),
+                "blur_radius_px": meas.get("blur_radius_px"),
+                "gaussian_noise_applied": meas.get("gaussian_noise_applied"),
+                "gaussian_sigma": meas.get("gaussian_sigma"),
+                "jpeg_applied": meas.get("jpeg_applied"),
+                "jpeg_quality": meas.get("jpeg_quality"),
                 # --- occluder placement ---
                 "occluder_asset": (plan.occluder or {}).get("name") if plan.occluder else None,
                 "occluder_placed": rs.get("occluder") is not None,
@@ -3760,6 +3990,22 @@ def label(spec, plan, meas, rs):
                     "occlusion_decomposition_order"
                 ),
                 "mask_invariants_pass": meas.get("mask_invariants_pass"),
+                # --- ground continuity (Phase 2) ---
+                "ground_continuity_pass": meas.get("ground_continuity_pass"),
+                "ground_probe_count": meas.get("ground_probe_count"),
+                "ground_probe_fail_count": meas.get("ground_probe_fail_count"),
+                "ground_probe_hit_objects": meas.get("ground_probe_hit_objects"),
+                "ground_probe_max_step_m": meas.get("ground_probe_max_step_m"),
+                "ground_probe_step_tolerance_m": meas.get(
+                    "ground_probe_step_tolerance_m"
+                ),
+                "ground_continuity_reason": meas.get("ground_continuity_reason"),
+                "procedural_floor_edge_risk": meas.get(
+                    "procedural_floor_edge_risk"
+                ),
+                "procedural_floor_edge_margin_m": meas.get(
+                    "procedural_floor_edge_margin_m"
+                ),
                 "front_face_visibility": meas.get("front_face_visibility"),
                 "left_opening_visibility": meas.get(
                     "left_opening_visibility"

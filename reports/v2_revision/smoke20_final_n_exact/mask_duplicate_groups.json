@@ -1,0 +1,1171 @@
+{
+  "root": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_scene_logic_smoke20_seed7500_final_n_exact",
+  "mask_names": [
+    "m0",
+    "m1",
+    "m2",
+    "m3",
+    "m4"
+  ],
+  "target_mask": "m0",
+  "stage_occluder_source": {
+    "m1": "static",
+    "m2": "cargo",
+    "m3": "context",
+    "m4": "explicit"
+  },
+  "classification_rules": {
+    "expected_no_op": "identical stages inside one frame whose spanned occluder sources were all absent",
+    "no_op_placed_but_not_occluding": "an occluder was placed but its recorded occlusion fraction is 0",
+    "unverified_no_op": "same, but at least one source flag was missing from the record",
+    "unexpected_identical_stage": "the record claims a non-zero occlusion fraction yet the stage mask is byte-identical",
+    "empty_target_defect": "all-black target-stage mask shared by different frames",
+    "all_black_stage_duplicate": "all-black non-target stage shared by different frames (fully occluded)",
+    "stale_or_mismatched_mask": "identical mask bytes but different camera/K/pose across frames",
+    "duplicate_with_identical_geometry": "identical mask bytes AND identical camera/K/pose",
+    "duplicate_geometry_unverifiable": "identical mask bytes but geometry could not be compared"
+  },
+  "cross_frame_same_stage": [],
+  "within_frame": [
+    {
+      "idx": 0,
+      "diagnostic_mode": "clean-static",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "absent",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "static",
+        "cargo",
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent",
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "31417f330c6f8cdc80cab986080941ab31ca0f92263b5a5d65f00bb3e71e5323",
+      "byte_identical": false,
+      "sha256": [
+        "ffba6d679a7b0e711852062746eff19de10ba5b7f6d9822bf8f3925f573e76b3",
+        "2984712b89e8fa839a1d279c0e1ab658f4eef33a201405cb1bdf66494e8d3b20",
+        "138374ae6984f04eddeef260503deda4c1af76e30ef97b28c5fd8d6df8284dd3",
+        "7326b19ecc6cbfbcb15668ad63857b7e72457c9d86e7a7271171f6cb7e1130eb",
+        "abe3f4c718d25e8ce34cdcd4b934f41fe6e606953bff7c1b09ac5a7f23bd5073"
+      ],
+      "area": 31029,
+      "all_black": false
+    },
+    {
+      "idx": 1,
+      "diagnostic_mode": "controlled-occlusion",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "absent",
+        "context": "placed_no_occlusion",
+        "explicit": "contradiction"
+      },
+      "stages": [
+        "m0",
+        "m1",
+        "m2",
+        "m3"
+      ],
+      "spanned_transitions": [
+        "m1",
+        "m2",
+        "m3"
+      ],
+      "occluder_sources": [
+        "static",
+        "cargo",
+        "context"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent",
+        "placed_no_occlusion"
+      ],
+      "classification": "no_op_placed_but_not_occluding",
+      "content_sha256": "9a44b5b673ff92fafa73b7e759fa022040f4b849322e128c11bf46d74c68c8c4",
+      "byte_identical": false,
+      "sha256": [
+        "fb11631e79a13d56be823a18026af6ce2267bd8f3dc5b11bab3a906533b7edf5",
+        "3a9ed5da952a941c0cb274dba70d1018430cd768c0bb056181d0bfbc0ad24cb7",
+        "9fce7e13ecc1145d3d634044b40400eb2bdffeb4ef76b98d8da5baec85739961",
+        "5781202767d3b91a6d13a5533550f50ff947da52f84958e2730158c08381d3a1"
+      ],
+      "area": 25775,
+      "all_black": false
+    },
+    {
+      "idx": 2,
+      "diagnostic_mode": "controlled-occlusion",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "absent",
+        "context": "contradiction",
+        "explicit": "contradiction"
+      },
+      "stages": [
+        "m0",
+        "m1",
+        "m2"
+      ],
+      "spanned_transitions": [
+        "m1",
+        "m2"
+      ],
+      "occluder_sources": [
+        "static",
+        "cargo"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "eb4628a8049e470aa0387da175b449414a092f0c8dc2e2106f7cc4552965021e",
+      "byte_identical": false,
+      "sha256": [
+        "be394ff63d07d2d127f45636d4cfd804031f35380d553b62c4d299d1fd269ee8",
+        "ae36dfbd1f291e83b3c34e19e063f9c9a2e700de25a73900680ed5775526b9a3",
+        "a43ab223b2541b9d0eb9384a0a03424367d37a93427f238756bbe11df4a07a65"
+      ],
+      "area": 6489,
+      "all_black": false
+    },
+    {
+      "idx": 3,
+      "diagnostic_mode": "clean-static",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "absent",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "static",
+        "cargo",
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent",
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "5dd7ae9a038e554cda3666e5226e93cab2969abf905f3167ba28525abbd2ddff",
+      "byte_identical": false,
+      "sha256": [
+        "a91a42635c22d130821fcb931f11a5635782f0e4199e086e17112b477d9f537b",
+        "851a776747cd5c03e31323376a70fb3826506dc9c07e27b3b48ce56b24d8507c",
+        "3325df556767d021bfc7d3addcb69249fe9cadd87c84f7c32335a1885e8144d5",
+        "751a233d07f190707c6dcfbce9616adf06cd24cfd92920086bee05b43221b286",
+        "4717bb264486e65e6b7931b75d7bd9f2d8d189fabe440f2f884b7f733e955a5d"
+      ],
+      "area": 41972,
+      "all_black": false
+    },
+    {
+      "idx": 4,
+      "diagnostic_mode": "clean-static",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "absent",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "static",
+        "cargo",
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent",
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "0de81b2ce2fd1d894448b47ff78f52cd9e4f051c152299608553a791e149ce24",
+      "byte_identical": false,
+      "sha256": [
+        "8eb296df8a2fd45c05569aa47d390f794701870d08c7164f5f74e6658ff195a5",
+        "b481f3151898ef307058ca263d957c66d9581854c2e1707eb48966c04cc2e51f",
+        "b934a0b3918855b293690d466b0d39715e6a86f75082945014e636a60768fad3",
+        "d456e2e0049bf1347728465b1c2de093140be5729ac97553068cd3eeb730c2b4",
+        "cc6f155d794d9a3abc3a352500b11028dd62bda77c0573f5fae3f930fe6dcad8"
+      ],
+      "area": 30,
+      "all_black": false
+    },
+    {
+      "idx": 5,
+      "diagnostic_mode": "cargo-only",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1"
+      ],
+      "spanned_transitions": [
+        "m1"
+      ],
+      "occluder_sources": [
+        "static"
+      ],
+      "occluder_states": [
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "ed1876b81988fd3344f4cb65c13c5d6a44244e6c9a74a9dd36133248d4f7055e",
+      "byte_identical": false,
+      "sha256": [
+        "c94d245de83edac90485773c6834a626116a62855d499546e31b0e27f144a333",
+        "1d20cb9eed3248893efe48ce7a79652f2c9f5b0394e43e0f98cace25c65b2315"
+      ],
+      "area": 24596,
+      "all_black": false
+    },
+    {
+      "idx": 5,
+      "diagnostic_mode": "cargo-only",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "ed2abe684040ae5f919013ee32e2e395bf5c2d6c55f0dcbfbb842a8c200c4ae5",
+      "byte_identical": false,
+      "sha256": [
+        "af75171ac9f7addea9c5d87a4294fcb7a427c0a564af308d44b8cc00320098f2",
+        "3b61d183e1171df546bc24d0fd865b762ccdceea8373c78cb4c241d33149bf29",
+        "d3f9df0d133c3c9060bf474ab4700868d92765f9688c7af065cea0c07a5336ec"
+      ],
+      "area": 23825,
+      "all_black": false
+    },
+    {
+      "idx": 6,
+      "diagnostic_mode": "controlled-occlusion",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "absent",
+        "context": "placed_no_occlusion",
+        "explicit": "contradiction"
+      },
+      "stages": [
+        "m0",
+        "m1",
+        "m2",
+        "m3"
+      ],
+      "spanned_transitions": [
+        "m1",
+        "m2",
+        "m3"
+      ],
+      "occluder_sources": [
+        "static",
+        "cargo",
+        "context"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent",
+        "placed_no_occlusion"
+      ],
+      "classification": "no_op_placed_but_not_occluding",
+      "content_sha256": "d409ff45d43522be71649a2fc421be5832962ce522273780fd92819c44cffd47",
+      "byte_identical": false,
+      "sha256": [
+        "e84402c52fe5b5986189a6204e1b028b35a363b514912cea60465eab52d4896b",
+        "7ad991983f1557c16944dc745ba3828157e340f776a9d9cb646648686613fe4f",
+        "e90849e179fddd84e14ef1c5a1ffca9dadb6a2f6cde01f051e893d85dfefdf00",
+        "6648a8b239ac94c31833645e6dee13f7f55eff269d077813fb7a31aaf8ea1d0c"
+      ],
+      "area": 14277,
+      "all_black": false
+    },
+    {
+      "idx": 7,
+      "diagnostic_mode": "cargo-only",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1"
+      ],
+      "spanned_transitions": [
+        "m1"
+      ],
+      "occluder_sources": [
+        "static"
+      ],
+      "occluder_states": [
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "2e81343eefe74eed368c238b20720f11bd9ea211e79084071c94a80925e8d170",
+      "byte_identical": false,
+      "sha256": [
+        "abe02c7461b1a5b485edf52fccfbd6f28d6d5d71d26aa57a799639cc25f84283",
+        "57540b86305e42287447c882e1b7a224872fe3b2f968036fd6cacf0d8582b50b"
+      ],
+      "area": 250550,
+      "all_black": false
+    },
+    {
+      "idx": 7,
+      "diagnostic_mode": "cargo-only",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "111f6368462d9af51d2b4cfaac48bc3215a760e7feb8b949f25f13eaccd9a338",
+      "byte_identical": false,
+      "sha256": [
+        "5812faf56c23ece1944fceb6864dc6fb98abb6a48b6c1c116ce38ad6924af29a",
+        "a6a8f47a40a5bdc1c4cb873f8b80a5e33b0d56202081b64f361f0ca8f2e7deb4",
+        "ae900ad9b825a2c783d53ced2b894de9cc486294e4019ddcf0e1ed417995ee53"
+      ],
+      "area": 232628,
+      "all_black": false
+    },
+    {
+      "idx": 8,
+      "diagnostic_mode": "cargo-only",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1"
+      ],
+      "spanned_transitions": [
+        "m1"
+      ],
+      "occluder_sources": [
+        "static"
+      ],
+      "occluder_states": [
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "712b0d22121e0e0142ad507ee0cbda1680b9191258a3668704a5dcb4d263f4ea",
+      "byte_identical": false,
+      "sha256": [
+        "b0efa8303701e434640c788781e424e82069ccbff9edc236748038426f7713b0",
+        "9baad8c8b704065a19d303e1640ea82411fbebc70442806dcb0b464084266dc6"
+      ],
+      "area": 99256,
+      "all_black": false
+    },
+    {
+      "idx": 8,
+      "diagnostic_mode": "cargo-only",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "64afc5baaf7d6304ac9d4655bf6f04a1918bcdc666fbedc932a49044096f8045",
+      "byte_identical": false,
+      "sha256": [
+        "5c16dba1c737ebcfbab7d843a2a5d33dbe45d9f6858899c55f7722ff74e7e516",
+        "e7e089d23f46c83cfaeca5a1a4bd24b9f08b6afb1f8056e65fe19ca11e5aaf36",
+        "7b2ccd24fd5b74066be1f083f0eef7f228074f39ae33e5c79b423b80bc1824a2"
+      ],
+      "area": 82092,
+      "all_black": false
+    },
+    {
+      "idx": 9,
+      "diagnostic_mode": "cargo-only",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1"
+      ],
+      "spanned_transitions": [
+        "m1"
+      ],
+      "occluder_sources": [
+        "static"
+      ],
+      "occluder_states": [
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "d03324d976bbd3cadb26eaea978ef31ade89291032e4b81a6693ab670ced02fd",
+      "byte_identical": false,
+      "sha256": [
+        "c65e5afd65bd122347f50400038e8d7d8839c98c69ce8a172f2dd7c500578a3f",
+        "e5875dce8a7d35ea3ac5417fe3bce39b52a6c567671217f1ee7565edfea08be6"
+      ],
+      "area": 1217,
+      "all_black": false
+    },
+    {
+      "idx": 9,
+      "diagnostic_mode": "cargo-only",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "4df364fdf4bd12a9de649134d1a39c21dc03c2bc1f05035334201834cd745205",
+      "byte_identical": false,
+      "sha256": [
+        "1a9a3212f9f44ca9e6af6ac2895021a31ba254aca258c2f125a24ea9a801d4c7",
+        "9252dbcb990d9776a3a3a693a432a41f6fa9233cdeb775623e20014aa448620e",
+        "76627097c17f451345b2ad0b129d503d24be8a2375e4105e2e93ff65eee38021"
+      ],
+      "area": 1176,
+      "all_black": false
+    },
+    {
+      "idx": 10,
+      "diagnostic_mode": "controlled-occlusion",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "placed_no_occlusion",
+        "explicit": "contradiction"
+      },
+      "stages": [
+        "m0",
+        "m1"
+      ],
+      "spanned_transitions": [
+        "m1"
+      ],
+      "occluder_sources": [
+        "static"
+      ],
+      "occluder_states": [
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "b4cd3a14fee2f7c8cfa0a1548a0a8ee8fe49958c3732c4302cfa63b65a2ade8a",
+      "byte_identical": false,
+      "sha256": [
+        "b08210cf1ed04aa1e9502e012b76a2b560e27b3ca5203e174564d9b5b5ba6cc2",
+        "f7c9e3037cd72a2b8a442c75ec781ed3a0528138631d34a2667aa1ad44fb6146"
+      ],
+      "area": 3342,
+      "all_black": false
+    },
+    {
+      "idx": 10,
+      "diagnostic_mode": "controlled-occlusion",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "placed_no_occlusion",
+        "explicit": "contradiction"
+      },
+      "stages": [
+        "m2",
+        "m3"
+      ],
+      "spanned_transitions": [
+        "m3"
+      ],
+      "occluder_sources": [
+        "context"
+      ],
+      "occluder_states": [
+        "placed_no_occlusion"
+      ],
+      "classification": "no_op_placed_but_not_occluding",
+      "content_sha256": "53db870050687662031e83a8013c57afbe0ea998cfad45965d5f9c395068290d",
+      "byte_identical": false,
+      "sha256": [
+        "bf4f55f1125994e2fb3d4b765f614a4d2da87aaa3d0761b651162363a86a96ce",
+        "ebb9b4e982f08b102831232b2564d0e1da16e9632ea8bad59efe754bcccef460"
+      ],
+      "area": 3147,
+      "all_black": false
+    },
+    {
+      "idx": 11,
+      "diagnostic_mode": "context-rich",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "absent",
+        "context": "placed_no_occlusion",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "static",
+        "cargo",
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent",
+        "placed_no_occlusion",
+        "absent"
+      ],
+      "classification": "no_op_placed_but_not_occluding",
+      "content_sha256": "11e11925466c92df7b86ab9c4e7e40e080c2c36c31a912b1819a75e0b8c00f7e",
+      "byte_identical": false,
+      "sha256": [
+        "7e18f00f2f2a83ec7bc84337fa9699824469626c62174783a3fea320d1939eaa",
+        "f7fdc36076e24671bc9507400540f9bd8c2264c6b88ad1f182f2f6ec812e37f7",
+        "f08b5beda91e3660e56503ce9c53e180deca6e7586ed0f2d2666c5fcd63c7ffb",
+        "4e5f86a168125c1fb671e76a481f171ab81aeac3677b9cc36dc50eabfedb10fa",
+        "e3888f050de30e50353086f0639345c38bf0619192e7d57fd2cfba48d1cea883"
+      ],
+      "area": 2454,
+      "all_black": false
+    },
+    {
+      "idx": 12,
+      "diagnostic_mode": "context-rich",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "absent",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "static",
+        "cargo",
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent",
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "0f0152f523917782a48f94c6a76efdcf65b32c8952fad33a1f9481d5c4d5668f",
+      "byte_identical": false,
+      "sha256": [
+        "8f4bc06f6e5a3451f43a5b78e91229b0a12ce4f08051e1ace0479908338fc3eb",
+        "a5d3e117ebdeb8b7d8c3e9ba9b458b582e6d52ece1b9a561814b5d07200db69a",
+        "36c1bad360d21febb7b81ff7f2cf2cbdf5e907c77c319c2452924c8f841ff6f3",
+        "55f41c861628c0d04367ba6d5c0df659702825eeccb03d4ff0cb75b8f28728d2",
+        "ca9be66d89be655b381cfd56b46e073246c5a744b904ad641133b72df475fe20"
+      ],
+      "area": 394165,
+      "all_black": false
+    },
+    {
+      "idx": 13,
+      "diagnostic_mode": "context-rich",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "placed_no_occlusion",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1"
+      ],
+      "spanned_transitions": [
+        "m1"
+      ],
+      "occluder_sources": [
+        "static"
+      ],
+      "occluder_states": [
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "ee738d1e5ed997e92591e238a4045a85ef5fc60664526b1ca74c87e297e9215d",
+      "byte_identical": false,
+      "sha256": [
+        "8b9359e69b2680118646c341805a92d369929da591fc15fa8b819dc23e97d7cf",
+        "251e20244b6a4faf4ba76923cadf6d28db2f21cc1ae4b798fe57c938edfc38d9"
+      ],
+      "area": 55537,
+      "all_black": false
+    },
+    {
+      "idx": 13,
+      "diagnostic_mode": "context-rich",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "placed_no_occlusion",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "placed_no_occlusion",
+        "absent"
+      ],
+      "classification": "no_op_placed_but_not_occluding",
+      "content_sha256": "7c6b136129392dec9cdf4a42c02141fc7c158cd84a25e0cbbdf350eb41cb75f3",
+      "byte_identical": false,
+      "sha256": [
+        "43ee924fc78559cff953c18d71a62f9be83ccfa01af515ccf5f67362ac3347df",
+        "f02001c2b6fafc09b8f1ce3cd77fc32bc30418a5ba473c2b53af9154124e1ef2",
+        "75ada2045f9ce6c122513a67b9271b748f5028ed6401369f72e848b24721c7d5"
+      ],
+      "area": 42073,
+      "all_black": false
+    },
+    {
+      "idx": 14,
+      "diagnostic_mode": "context-rich",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1"
+      ],
+      "spanned_transitions": [
+        "m1"
+      ],
+      "occluder_sources": [
+        "static"
+      ],
+      "occluder_states": [
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "1b7c3b065ee24928757f90921d7e009f8d8bb8045c05761c212f7ec56467c6f0",
+      "byte_identical": false,
+      "sha256": [
+        "ca3832b68ffe1617000df06f29e41b01f1fb87f8a890c513475400044a8e0184",
+        "0e33848d648737aa4d1c62200a3146a62d44185798dadd5a40d4646b21459613"
+      ],
+      "area": 5752,
+      "all_black": false
+    },
+    {
+      "idx": 14,
+      "diagnostic_mode": "context-rich",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "bb35e8539b80a806cb0b34bb39c104c7e05501442b8b1603bd4fb99bf3850cf0",
+      "byte_identical": false,
+      "sha256": [
+        "cfd4fa3c53e9baeabcbf2244bfbdc3cbff8db75ef96b0c38e7252dedcadefdd8",
+        "6ecae3a1eeaa813b7b137dfc29087a46eaf17cbef7002e078731febdab4b57b9",
+        "bb20073e6c592602afc99d14cb6e2125dfcc390095f6a08637e17e3e65dbebab"
+      ],
+      "area": 5262,
+      "all_black": false
+    },
+    {
+      "idx": 15,
+      "diagnostic_mode": "clean-static",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "absent",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "static",
+        "cargo",
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent",
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "efd6ae8ed64c1eb4be3d5736777ea44d15c5c5abd1fc33b81e669722a59c2c8b",
+      "byte_identical": false,
+      "sha256": [
+        "1c240abdd5c598a0075272d73dcd67b925ea3074127ddec56e8b4b972dec24e0",
+        "be58b2f6c29e38e5e925a4e6f8e09d5cb09e3ca6c2f722b3bba20439ee942ca6",
+        "feccd7390543f706fc33a915fcde02a5b1fa524975b7f40eca576da6ddce2018",
+        "f740df4333d92cdba985dbe19fa8dc4436ea789a8ef4aa7834dc29ded8173c47",
+        "222eaf372a5371de9bb7dde132d4b59b53e6ce0036c64c513ad2ce500f858689"
+      ],
+      "area": 1345,
+      "all_black": false
+    },
+    {
+      "idx": 16,
+      "diagnostic_mode": "clean-static",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "absent",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "static",
+        "cargo",
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent",
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "747e70e24528be578f22b3cd86a5609e49a9d0daaebf6e5a5452a32291e827cc",
+      "byte_identical": false,
+      "sha256": [
+        "2349bd01e5e422e27f9bc739eb1cda4ee488f96ad3ac8a59e8f54693f2816f45",
+        "fb96b869ad8e498fd436a917f126a28e85037d2576d0889ec5e83cf6c0a71c5e",
+        "e115c6fa87a65a25cbb2c4d6a921dbc7c416389a56b9fa2de46dc27812555d4b",
+        "9d8db5c5ec11cf8495f4500472d67d53fbe0b3c91e855c40d9c4f5089c52aec7",
+        "53c701da13dc6946f1c1d5e8fd045896a9cdd2535144c21b1b37c87ef37e58b8"
+      ],
+      "area": 78151,
+      "all_black": false
+    },
+    {
+      "idx": 17,
+      "diagnostic_mode": "cargo-only",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1"
+      ],
+      "spanned_transitions": [
+        "m1"
+      ],
+      "occluder_sources": [
+        "static"
+      ],
+      "occluder_states": [
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "0acd70aed3c0c6e651e19a5764763ec310e7d30e14b79fa5af5e17dc0a58cc38",
+      "byte_identical": false,
+      "sha256": [
+        "71fad080b8dd1ff349dd223f637c22fbdf118992ba642a93b4528cad59f58614",
+        "8ea5a26151678bc934e11be858826c5f42adaef6788c7d11df664e86170b523d"
+      ],
+      "area": 2966,
+      "all_black": false
+    },
+    {
+      "idx": 17,
+      "diagnostic_mode": "cargo-only",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "absent",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m3",
+        "m4"
+      ],
+      "occluder_sources": [
+        "context",
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "982df3dd834f2d29b78b7e144e2242749d0ab50ef6d20bcf91972d7957a06e56",
+      "byte_identical": false,
+      "sha256": [
+        "66bad4aba8cb69095ce1a6f1020d005c8b2ecb7e3ec77129bffad2f6c69fcd85",
+        "2b4283bcddd5ec71ce14b2457f37276a188469e207552b397f60f4665f154d9a",
+        "92caa11b27c0fe5a8f9d9d29a750937800e7d79c34635271ac6a199c6de0eff1"
+      ],
+      "area": 2531,
+      "all_black": false
+    },
+    {
+      "idx": 18,
+      "diagnostic_mode": "controlled-occlusion",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "absent",
+        "context": "absent",
+        "explicit": "contradiction"
+      },
+      "stages": [
+        "m0",
+        "m1",
+        "m2",
+        "m3"
+      ],
+      "spanned_transitions": [
+        "m1",
+        "m2",
+        "m3"
+      ],
+      "occluder_sources": [
+        "static",
+        "cargo",
+        "context"
+      ],
+      "occluder_states": [
+        "absent",
+        "absent",
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "cb76dff24737f2150c58c6ade7a4a4188733b0a897ab613e0a2a13d382e1bfa2",
+      "byte_identical": false,
+      "sha256": [
+        "185107c0541a209deb602ec8f3feaadd6a817afeef8025d84ee2f7bde9fb5245",
+        "374731d9130804fa66611393699f77a0fb2928fb1c3e2a11d09537e2fc1556d5",
+        "ae30bb52f9aa3c74dea2875fce07ef0a6b6c79c2bb1079ffcca865f5d162ff6e",
+        "20abf411133dcfdffddb87a1233553b829a01dc2271a04f94ee2455355a81796"
+      ],
+      "area": 96436,
+      "all_black": false
+    },
+    {
+      "idx": 19,
+      "diagnostic_mode": "context-rich",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "contradiction",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m0",
+        "m1"
+      ],
+      "spanned_transitions": [
+        "m1"
+      ],
+      "occluder_sources": [
+        "static"
+      ],
+      "occluder_states": [
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "510aa5c2198eef602ec8df5f38af4724eb92a834ac6ac64132a26a20c391a65b",
+      "byte_identical": false,
+      "sha256": [
+        "51053e079b008acdfb8100bb786956e9f5af6b3605fe17eafce06eb4fc0fad6d",
+        "af0abcf791a31c206be7ceab9e23e16e8cbbd5047d5793de32c0e52dfbb2330e"
+      ],
+      "area": 28753,
+      "all_black": false
+    },
+    {
+      "idx": 19,
+      "diagnostic_mode": "context-rich",
+      "occluder_source_states": {
+        "static": "absent",
+        "cargo": "contradiction",
+        "context": "contradiction",
+        "explicit": "absent"
+      },
+      "stages": [
+        "m3",
+        "m4"
+      ],
+      "spanned_transitions": [
+        "m4"
+      ],
+      "occluder_sources": [
+        "explicit"
+      ],
+      "occluder_states": [
+        "absent"
+      ],
+      "classification": "expected_no_op",
+      "content_sha256": "dbf0d4e012e0170ee1bdb69433baecf23a462c93911376166f40177aec263aac",
+      "byte_identical": false,
+      "sha256": [
+        "f5d35f265c3f3497cdc0e8bd65d204c1b18f096b77325fc50ba90638080c138c",
+        "5a6abbaf3c2890d2d166423e2383c440e622fd391840f6b04216e85777924b3e"
+      ],
+      "area": 24992,
+      "all_black": false
+    }
+  ],
+  "summary": {
+    "mask_names": [
+      "m0",
+      "m1",
+      "m2",
+      "m3",
+      "m4"
+    ],
+    "frame_count": 20,
+    "mask_file_count": 100,
+    "strict_decode_fail_indices": [],
+    "pixel_inclusion_checked_count": 20,
+    "pixel_inclusion_fail_indices": [],
+    "pixel_inclusion_failure_pair_count": 0,
+    "pixel_inclusion_violation_px_total": 0,
+    "shape_inconsistent_indices": [],
+    "rgb_shape_mismatch_indices": [],
+    "empty_stage_frame_count": 0,
+    "empty_target_mask_indices": [],
+    "within_frame_duplicate_frame_count": 20,
+    "within_frame_duplicate_class_counts": {
+      "expected_no_op": 24,
+      "no_op_placed_but_not_occluding": 5
+    },
+    "within_frame_byte_exact_group_count": 0,
+    "cross_frame_duplicate_group_count": 0,
+    "cross_frame_byte_exact_group_count": 0,
+    "cross_frame_duplicate_class_counts": {},
+    "cross_frame_stale_indices": [],
+    "cross_frame_empty_target_indices": [],
+    "hull_outside_warn_ratio": 0.2,
+    "hull_align_warn_indices": [],
+    "hull_outside_ratio_max": 0.006321612011062821,
+    "hull_outside_ratio_median": 9.299091368926548e-05,
+    "hull_bbox_iou_median_m0": 0.9703736113613657,
+    "hull_metric_unavailable_count": 0
+  }
+}

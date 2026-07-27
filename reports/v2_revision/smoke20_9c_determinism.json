@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "left_root": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1",
+  "right_root": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2",
+  "deterministic": false,
+  "excluded_json_fields": [
+    "label_path",
+    "mask_paths",
+    "output_path",
+    "output_root",
+    "processed_this_session",
+    "rendered_this_session",
+    "rgb_path",
+    "runtime_s",
+    "session_completed",
+    "session_count",
+    "session_elapsed_s",
+    "session_id",
+    "session_pending",
+    "session_start",
+    "stage_runtime_s"
+  ],
+  "indices": {
+    "left": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "right": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "common": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "match": true
+  },
+  "compared": {
+    "records": 20,
+    "labels": 18,
+    "rgb": 18,
+    "masks": 90
+  },
+  "mismatches": [],
+  "errors": [
+    {
+      "category": "label_load",
+      "side": "left",
+      "idx": 15,
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\labels\\f0015_label.json",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\labels\\f0015_label.json"
+    },
+    {
+      "category": "label_load",
+      "side": "right",
+      "idx": 15,
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\labels\\f0015_label.json",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\labels\\f0015_label.json"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "left",
+      "idx": 15,
+      "artifact": "rgb",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\rgb\\f0015_rgb.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\rgb\\f0015_rgb.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "left",
+      "idx": 15,
+      "artifact": "mask:m0",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0015_m0.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0015_m0.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "left",
+      "idx": 15,
+      "artifact": "mask:m1",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0015_m1.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0015_m1.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "left",
+      "idx": 15,
+      "artifact": "mask:m2",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0015_m2.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0015_m2.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "left",
+      "idx": 15,
+      "artifact": "mask:m3",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0015_m3.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0015_m3.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "left",
+      "idx": 15,
+      "artifact": "mask:m4",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0015_m4.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0015_m4.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "right",
+      "idx": 15,
+      "artifact": "rgb",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\rgb\\f0015_rgb.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\rgb\\f0015_rgb.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "right",
+      "idx": 15,
+      "artifact": "mask:m0",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0015_m0.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0015_m0.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "right",
+      "idx": 15,
+      "artifact": "mask:m1",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0015_m1.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0015_m1.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "right",
+      "idx": 15,
+      "artifact": "mask:m2",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0015_m2.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0015_m2.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "right",
+      "idx": 15,
+      "artifact": "mask:m3",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0015_m3.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0015_m3.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "right",
+      "idx": 15,
+      "artifact": "mask:m4",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0015_m4.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0015_m4.png"
+    },
+    {
+      "category": "label_load",
+      "side": "left",
+      "idx": 18,
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\labels\\f0018_label.json",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\labels\\f0018_label.json"
+    },
+    {
+      "category": "label_load",
+      "side": "right",
+      "idx": 18,
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\labels\\f0018_label.json",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\labels\\f0018_label.json"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "left",
+      "idx": 18,
+      "artifact": "rgb",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\rgb\\f0018_rgb.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\rgb\\f0018_rgb.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "left",
+      "idx": 18,
+      "artifact": "mask:m0",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0018_m0.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0018_m0.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "left",
+      "idx": 18,
+      "artifact": "mask:m1",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0018_m1.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0018_m1.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "left",
+      "idx": 18,
+      "artifact": "mask:m2",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0018_m2.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0018_m2.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "left",
+      "idx": 18,
+      "artifact": "mask:m3",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0018_m3.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0018_m3.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "left",
+      "idx": 18,
+      "artifact": "mask:m4",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0018_m4.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run1\\mask\\f0018_m4.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "right",
+      "idx": 18,
+      "artifact": "rgb",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\rgb\\f0018_rgb.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\rgb\\f0018_rgb.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "right",
+      "idx": 18,
+      "artifact": "mask:m0",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0018_m0.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0018_m0.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "right",
+      "idx": 18,
+      "artifact": "mask:m1",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0018_m1.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0018_m1.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "right",
+      "idx": 18,
+      "artifact": "mask:m2",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0018_m2.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0018_m2.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "right",
+      "idx": 18,
+      "artifact": "mask:m3",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0018_m3.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0018_m3.png"
+    },
+    {
+      "category": "artifact_decode",
+      "side": "right",
+      "idx": 18,
+      "artifact": "mask:m4",
+      "path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0018_m4.png",
+      "error": "missing file: E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_smoke20_9c_run2\\mask\\f0018_m4.png"
+    }
+  ]
+}

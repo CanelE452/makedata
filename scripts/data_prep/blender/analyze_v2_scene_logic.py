@@ -187,9 +187,9 @@ CHART_PLAN = [
     {"number": 13, "filename": "13_context_object_count_vs_screen_area.png", "title": "Context Object Count vs Screen Area", "metrics": ["n_context_visible", "context_screen_area_ratio"]},
     {"number": 14, "filename": "14_context_screen_area_vs_f_context.png", "title": "Context Screen Area vs f_context", "metrics": ["context_screen_area_ratio", "f_context"]},
     {"number": 15, "filename": "15_g1_g3_fail_rate_by_occlusion_source.png", "title": "G1/G3 Fail Rate by Occlusion Source", "metrics": ["G1_pass", "G3_pass", "f_static", "f_cargo", "f_context", "f_explicit"]},
-    {"number": 16, "filename": "16_all_pass_by_elevation_bin.png", "title": "All-pass by Elevation Bin", "metrics": ["elev_bin_target", "elev_target", "all_pass"]},
-    {"number": 17, "filename": "17_all_pass_by_projected_size_bin.png", "title": "All-pass by Projected-size Bin", "metrics": ["proj_size_bin_target", "projected_size_target", "all_pass"]},
-    {"number": 18, "filename": "18_all_pass_by_cargo_on.png", "title": "All-pass by Cargo On", "metrics": ["cargo_on", "all_pass"]},
+    {"number": 16, "filename": "16_all_pass_by_elevation_bin.png", "title": "All-pass by Elevation Bin (appendix diagnostic)", "metrics": ["elev_bin_target", "elev_target", "all_pass"]},
+    {"number": 17, "filename": "17_all_pass_by_projected_size_bin.png", "title": "All-pass by Projected-size Bin (appendix diagnostic)", "metrics": ["proj_size_bin_target", "projected_size_target", "all_pass"]},
+    {"number": 18, "filename": "18_all_pass_by_cargo_on.png", "title": "All-pass by Cargo On (appendix diagnostic)", "metrics": ["cargo_on", "all_pass"]},
     {"number": 19, "filename": "19_front_opening_visibility_distributions.png", "title": "Front and Opening Visibility Distributions", "metrics": ["front_face_visibility", "left_opening_visibility", "right_opening_visibility"]},
     {"number": 20, "filename": "20_placement_attempt_count_and_runtime_distribution.png", "title": "Placement Attempts and Runtime Distribution", "metrics": ["placement_attempts", "anchor_attempts", "context_placement_attempts", "cargo_placement_attempts", "occluder_feedback_iterations", "runtime_s"]},
     {"number": 21, "filename": "21_camera_geometry_prescription_distribution.png", "title": "Camera and Geometry Prescription Distribution", "metrics": ["elev_target", "azimuth_bin", "v_target", "projected_size_target", "exposure_ev", "resolution", "aspect", "fx"]},
@@ -544,6 +544,19 @@ def int_value(v: Any) -> int | None:
         return int(float(v))
     except Exception:
         return None
+
+
+def group_label(v: Any, missing_value: str = "(missing)") -> str:
+    """Grouping key that never collapses falsy-but-present values into "missing".
+
+    ``str(v or missing)`` silently maps ``0``, ``0.0`` and ``False`` onto the
+    missing bucket. Only ``None`` and empty/whitespace strings are missing here.
+    """
+    if v is None:
+        return missing_value
+    if isinstance(v, str) and not v.strip():
+        return missing_value
+    return str(v)
 
 
 def derive_explicit_occluder_placed(rec: dict[str, Any], v2: dict[str, Any] | None) -> bool | None:
@@ -1226,8 +1239,8 @@ def summarize_new(rows: list[dict[str, Any]], root: Path, record_meta: dict[str,
     }
 
     by_mode: dict[str, dict[str, Any]] = {}
-    for mode in sorted(set(str(r.get("diagnostic_mode") or "(missing)") for r in rows)):
-        mode_rows = [r for r in rows if str(r.get("diagnostic_mode") or "(missing)") == mode]
+    for mode in sorted(set(group_label(r.get("diagnostic_mode")) for r in rows)):
+        mode_rows = [r for r in rows if group_label(r.get("diagnostic_mode")) == mode]
         total = len(mode_rows)
         mode_rendered = [r for r in mode_rows if row_is_rendered(r)]
         mode_pass = sum(1 for r in mode_rendered if bool_value(r.get("all_pass")) is True)
@@ -1357,13 +1370,13 @@ def summarize_baseline(rows: list[dict[str, Any]], meta: dict[str, Any]) -> dict
     rendered = [r for r in rows if r.get("stage") == "rendered"]
     all_pass = sum(1 for r in rendered if bool_value(r.get("all_pass")) is True)
     gate_fail = {g: sum(1 for r in rendered if bool_value(r.get(g)) is False) for g in GATE_COLUMNS}
-    reject_reason_count = Counter(r.get("reject_reason") or "(missing)" for r in rows)
+    reject_reason_count = Counter(group_label(r.get("reject_reason")) for r in rows)
     f_target_bins = Counter(str(f_bin(r.get("f_target"))) for r in rendered if f_bin(r.get("f_target")) is not None)
     f_actual_bins = Counter(str(f_bin(r.get("f_actual"))) for r in rendered if f_bin(r.get("f_actual")) is not None)
     return {
         "meta": meta,
         "row_count": len(rows),
-        "stage_count": dict(Counter(r.get("stage") or "(missing)" for r in rows)),
+        "stage_count": dict(Counter(group_label(r.get("stage")) for r in rows)),
         "rendered_count": len(rendered),
         "all_pass_count": all_pass,
         "all_pass_rate": (all_pass / len(rendered) if rendered else None),
@@ -1372,14 +1385,14 @@ def summarize_baseline(rows: list[dict[str, Any]], meta: dict[str, Any]) -> dict
         "reject_reason_count": dict(reject_reason_count),
         "f_target_bin_count": dict(f_target_bins),
         "f_actual_bin_count": dict(f_actual_bins),
-        "V_actual_count": dict(Counter(r.get("V_actual") or "(missing)" for r in rendered)),
-        "V_vis_count": dict(Counter(r.get("V_vis") or "(missing)" for r in rendered)),
-        "scene_preset_count": dict(Counter(r.get("scene_preset") or "(missing)" for r in rendered)),
-        "resolution_count": dict(Counter(r.get("resolution") or "(missing)" for r in rendered)),
+        "V_actual_count": dict(Counter(group_label(r.get("V_actual")) for r in rendered)),
+        "V_vis_count": dict(Counter(group_label(r.get("V_vis")) for r in rendered)),
+        "scene_preset_count": dict(Counter(group_label(r.get("scene_preset")) for r in rendered)),
+        "resolution_count": dict(Counter(group_label(r.get("resolution")) for r in rendered)),
         "elev_target": summarize_numeric([v for r in rendered if (v := float_value(r.get("elev_target"))) is not None]),
         "projected_size_target": summarize_numeric([v for r in rendered if (v := float_value(first_value(r.get("projected_size_target"), r.get("proj_size_ratio")))) is not None]),
-        "azimuth_bin_count": dict(Counter(r.get("azimuth_bin") or "(missing)" for r in rendered)),
-        "v_target_count": dict(Counter(r.get("v_target") or "(missing)" for r in rendered)),
+        "azimuth_bin_count": dict(Counter(group_label(r.get("azimuth_bin")) for r in rendered)),
+        "v_target_count": dict(Counter(group_label(r.get("v_target")) for r in rendered)),
     }
 
 
@@ -1509,7 +1522,7 @@ def grouped_value_bar(series: dict[str, dict[str, float | None]], path: Path, ti
     width = 0.8 / max(1, len(names))
     fig, ax = plt.subplots(figsize=(12, 8))
     for i, name in enumerate(names):
-        vals = [float(series[name].get(label) or 0.0) for label in labels]
+        vals = [float(v) if (v := series[name].get(label)) is not None else 0.0 for label in labels]
         ax.bar(x - 0.4 + width / 2 + i * width, vals, width, label=name)
     ax.set_title(title)
     ax.set_ylabel(ylabel)
@@ -1532,7 +1545,10 @@ def stacked_value_bar(series: dict[str, dict[str, float | None]], path: Path, ti
     bottom = np.zeros(len(labels), dtype=np.float64)
     fig, ax = plt.subplots(figsize=(12, 8))
     for key in keys:
-        vals = np.asarray([float(series[label].get(key) or 0.0) for label in labels], dtype=np.float64)
+        vals = np.asarray(
+            [float(v) if (v := series[label].get(key)) is not None else 0.0 for label in labels],
+            dtype=np.float64,
+        )
         ax.bar(x, vals, bottom=bottom, label=key)
         bottom += vals
     ax.set_title(title)
@@ -1600,13 +1616,13 @@ def stage_runtime_totals(rows: list[dict[str, Any]]) -> dict[str, float]:
 
 
 def rows_for_mode(rows: list[dict[str, Any]], mode: str) -> list[dict[str, Any]]:
-    return [r for r in rows if str(r.get("diagnostic_mode") or "") == mode]
+    return [r for r in rows if group_label(r.get("diagnostic_mode"), "") == mode]
 
 
 def all_pass_rate_by(rows: list[dict[str, Any]], group_key: str) -> dict[str, float | None]:
     groups: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
     for r in rows:
-        groups[str(r.get(group_key) or "(missing)")].append(r)
+        groups[group_label(r.get(group_key))].append(r)
     out: dict[str, float | None] = {}
     for key, group_rows in sorted(groups.items()):
         total = len(group_rows)
@@ -1637,6 +1653,17 @@ def numeric_bin(value: Any, bins: list[float], prefix: str) -> str:
     return f"{prefix} [{low},inf)"
 
 
+def bin_or_numeric_fallback(bin_value: Any, raw_value: Any, bins: list[float], prefix: str) -> str:
+    """Prefer the prescribed integer bin; fall back to a numeric bin only when absent.
+
+    ``bin_value`` may legitimately be ``0`` (first bin), so presence is tested with
+    ``is not None`` instead of truthiness.
+    """
+    if bin_value is not None and not (isinstance(bin_value, str) and not bin_value.strip()):
+        return str(bin_value)
+    return numeric_bin(raw_value, bins, prefix)
+
+
 def scatter_plot(rows: list[dict[str, Any]], x_key: str, y_key: str, path: Path, title: str, xlabel: str, ylabel: str, color_key: str | None = None) -> None:
     points = []
     colors = []
@@ -1646,7 +1673,7 @@ def scatter_plot(rows: list[dict[str, Any]], x_key: str, y_key: str, path: Path,
         if x is None or y is None:
             continue
         points.append((x, y))
-        colors.append(str(r.get(color_key) or "(missing)") if color_key else "")
+        colors.append(group_label(r.get(color_key)) if color_key else "")
     if not points:
         no_data_plot(path, title)
         return
@@ -1670,7 +1697,7 @@ def scatter_plot(rows: list[dict[str, Any]], x_key: str, y_key: str, path: Path,
 def cross_tab_plot(rows: list[dict[str, Any]], row_key: str, col_key: str, path: Path, title: str) -> None:
     table: defaultdict[str, Counter] = defaultdict(Counter)
     for r in rows:
-        table[str(r.get(row_key) or "(missing)")][str(r.get(col_key) or "(missing)")] += 1
+        table[group_label(r.get(row_key))][group_label(r.get(col_key))] += 1
     if not table:
         no_data_plot(path, title)
         return
@@ -1697,9 +1724,9 @@ def cross_tab_plot(rows: list[dict[str, Any]], row_key: str, col_key: str, path:
 
 def occlusion_component_means_by_mode(rows: list[dict[str, Any]]) -> dict[str, dict[str, float | None]]:
     out: dict[str, dict[str, float | None]] = {}
-    modes = sorted(set(str(r.get("diagnostic_mode") or "(missing)") for r in rows))
+    modes = sorted(set(group_label(r.get("diagnostic_mode")) for r in rows))
     for mode in modes:
-        mode_rows = [r for r in rows if str(r.get("diagnostic_mode") or "(missing)") == mode]
+        mode_rows = [r for r in rows if group_label(r.get("diagnostic_mode")) == mode]
         out[mode] = mean_values(mode_rows, ["f_static", "f_cargo", "f_context", "f_explicit"])
     return out
 
@@ -1728,7 +1755,11 @@ def gate_fail_rate_by_source(rows: list[dict[str, Any]]) -> dict[str, dict[str, 
 def magenta_corrupt_empty_counts(rows: list[dict[str, Any]]) -> Counter:
     return Counter(
         {
-            "magenta_fraction_gt_0": sum(1 for r in rows if (float_value(r.get("magenta_fraction")) or 0.0) > 0.0),
+            "magenta_fraction_gt_0": sum(
+            1
+            for r in rows
+            if (v := float_value(r.get("magenta_fraction"))) is not None and v > 0.0
+        ),
             "corrupt_rgb": sum(1 for r in rows if bool_value(r.get("corrupt_rgb")) is True),
             "corrupt_mask": sum(1 for r in rows if bool_value(r.get("corrupt_mask")) is True),
             "empty_target_mask": sum(1 for r in rows if bool_value(r.get("empty_target_mask")) is True),
@@ -1853,7 +1884,12 @@ def save_charts(out: Path, rows: list[dict[str, Any]], baseline: dict[str, Any],
     add(
         16,
         lambda p: value_bar_plot(
-            all_pass_rate_by_derived(rows, lambda r: str(r.get("elev_bin_target") or numeric_bin(r.get("elev_target"), [10, 20, 30, 40, 50], "elev"))),
+            all_pass_rate_by_derived(
+                rows,
+                lambda r: bin_or_numeric_fallback(
+                    r.get("elev_bin_target"), r.get("elev_target"), [10, 20, 30, 40, 50], "elev"
+                ),
+            ),
             p,
             specs[16]["title"],
             "All-pass rate",
@@ -1862,7 +1898,15 @@ def save_charts(out: Path, rows: list[dict[str, Any]], baseline: dict[str, Any],
     add(
         17,
         lambda p: value_bar_plot(
-            all_pass_rate_by_derived(rows, lambda r: str(r.get("proj_size_bin_target") or numeric_bin(r.get("projected_size_target"), [0.05, 0.10, 0.20, 0.35], "size"))),
+            all_pass_rate_by_derived(
+                rows,
+                lambda r: bin_or_numeric_fallback(
+                    r.get("proj_size_bin_target"),
+                    r.get("projected_size_target"),
+                    [0.05, 0.10, 0.20, 0.35],
+                    "size",
+                ),
+            ),
             p,
             specs[17]["title"],
             "All-pass rate",
@@ -1908,15 +1952,15 @@ def write_reject_reasons(path: Path, rows: list[dict[str, Any]], baseline_rows: 
     for dataset, source_rows in (("new", rows), ("baseline", baseline_rows)):
         if dataset == "new":
             total = len(source_rows) or 1
-            c = Counter(r.get("reject_reason") or "(missing)" for r in source_rows)
+            c = Counter(group_label(r.get("reject_reason")) for r in source_rows)
             for reason, n in c.most_common():
                 out_rows.append({"dataset": dataset, "stage": "all", "reject_reason": reason, "count": n, "fraction": n / total})
         else:
             by_stage: dict[str, Counter] = defaultdict(Counter)
             stage_total = Counter()
             for r in source_rows:
-                st = r.get("stage") or "(missing)"
-                by_stage[st][r.get("reject_reason") or "(missing)"] += 1
+                st = group_label(r.get("stage"))
+                by_stage[st][group_label(r.get("reject_reason"))] += 1
                 stage_total[st] += 1
             for st, c in sorted(by_stage.items()):
                 total = stage_total[st] or 1

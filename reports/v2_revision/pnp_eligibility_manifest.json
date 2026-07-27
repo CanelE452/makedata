@@ -1,0 +1,247 @@
+{
+  "dataset": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\_v2_scene_logic_500_seed7500",
+  "generated_by": "scripts/data_prep/blender/audit_pnp_eligibility.py",
+  "frames_deleted": 0,
+  "note": "manifest only ADDS fields; no frame is filtered or removed by this phase",
+  "belief_cell_px": 8.0,
+  "thresholds_px": {
+    "2cell": 16.0,
+    "3cell": 24.0,
+    "4cell": 32.0
+  },
+  "pnp": {
+    "solver": "cv2.solvePnPRansac",
+    "flag": "SOLVEPNP_EPNP",
+    "reprojectionError": 8.0,
+    "iterationsCount": 100
+  },
+  "monte_carlo": {
+    "sigmas_px": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "trials": 200,
+    "base_seed": 20260727
+  },
+  "pose_tolerance": {
+    "trans_cm": 5.0,
+    "rot_deg": 5.0
+  },
+  "summary": {
+    "n_frames": 435,
+    "n_label_present": 435,
+    "n_geometry_ok": 435,
+    "n_pnp_exact_success": 414,
+    "n_physical_valid": 363,
+    "n_gate_valid": 364,
+    "n_tiny_warning": 55,
+    "n_pnp_stress": 217,
+    "belief_cell_px": 8.0,
+    "thresholds_px": {
+      "2cell": 16.0,
+      "3cell": 24.0,
+      "4cell": 32.0
+    },
+    "candidates": {
+      "2cell": {
+        "threshold_px": 16.0,
+        "n_pass": 368,
+        "n_fail": 67,
+        "mc1px_pass_pose_fail_rate_mean": 0.2530434782608696,
+        "mc1px_pass_trans_q90_median": 3.3404498347714577,
+        "mc1px_pass_rot_q90_median": 1.1773075235744166,
+        "mc1px_fail_pose_fail_rate_mean": 0.9423913043478261,
+        "mc1px_fail_trans_q90_median": 588.9020400996376,
+        "mc1px_fail_rot_q90_median": 38.01668773852107,
+        "mc2px_pass_pose_fail_rate_mean": 0.37813858695652175,
+        "mc2px_pass_trans_q90_median": 6.570663431007964,
+        "mc2px_pass_rot_q90_median": 2.439879361017274,
+        "mc2px_fail_pose_fail_rate_mean": 0.9773913043478261,
+        "mc2px_fail_trans_q90_median": 978.5697876223413,
+        "mc2px_fail_rot_q90_median": 65.17666067832562,
+        "mc3px_pass_pose_fail_rate_mean": 0.47427989130434783,
+        "mc3px_pass_trans_q90_median": 10.576753187296003,
+        "mc3px_pass_rot_q90_median": 3.8527303907842687,
+        "mc3px_fail_pose_fail_rate_mean": 0.9895652173913042,
+        "mc3px_fail_trans_q90_median": 1385.2603438324993,
+        "mc3px_fail_rot_q90_median": 110.03194427248266,
+        "n_pass_with_stress": 150,
+        "stress_rate_in_pass": 0.4076086956521739,
+        "n_fail_without_stress": 0
+      },
+      "3cell": {
+        "threshold_px": 24.0,
+        "n_pass": 341,
+        "n_fail": 94,
+        "mc1px_pass_pose_fail_rate_mean": 0.20895894428152492,
+        "mc1px_pass_trans_q90_median": 2.7865884382134847,
+        "mc1px_pass_rot_q90_median": 1.115591436424778,
+        "mc1px_fail_pose_fail_rate_mean": 0.8933561643835619,
+        "mc1px_fail_trans_q90_median": 242.6252148957492,
+        "mc1px_fail_rot_q90_median": 33.106057260014495,
+        "mc2px_pass_pose_fail_rate_mean": 0.3363049853372434,
+        "mc2px_pass_trans_q90_median": 5.608979096156162,
+        "mc2px_pass_rot_q90_median": 2.2495286098692895,
+        "mc2px_fail_pose_fail_rate_mean": 0.9511643835616439,
+        "mc2px_fail_trans_q90_median": 580.6517651758779,
+        "mc2px_fail_rot_q90_median": 51.06462288987612,
+        "mc3px_pass_pose_fail_rate_mean": 0.4375513196480938,
+        "mc3px_pass_trans_q90_median": 8.67218444939851,
+        "mc3px_pass_rot_q90_median": 3.630037898168376,
+        "mc3px_fail_pose_fail_rate_mean": 0.9705479452054796,
+        "mc3px_fail_trans_q90_median": 614.5510562346913,
+        "mc3px_fail_rot_q90_median": 69.73031469791543,
+        "n_pass_with_stress": 124,
+        "stress_rate_in_pass": 0.36363636363636365,
+        "n_fail_without_stress": 1
+      },
+      "4cell": {
+        "threshold_px": 32.0,
+        "n_pass": 308,
+        "n_fail": 127,
+        "mc1px_pass_pose_fail_rate_mean": 0.17254870129870128,
+        "mc1px_pass_trans_q90_median": 2.46992082638839,
+        "mc1px_pass_rot_q90_median": 1.0212559686565275,
+        "mc1px_fail_pose_fail_rate_mean": 0.7860849056603773,
+        "mc1px_fail_trans_q90_median": 115.40841301401548,
+        "mc1px_fail_rot_q90_median": 19.831067997443576,
+        "mc2px_pass_pose_fail_rate_mean": 0.2933279220779221,
+        "mc2px_pass_trans_q90_median": 4.920081194527571,
+        "mc2px_pass_rot_q90_median": 2.049974656053407,
+        "mc2px_fail_pose_fail_rate_mean": 0.884622641509434,
+        "mc2px_fail_trans_q90_median": 270.5014516881175,
+        "mc2px_fail_rot_q90_median": 37.77325813649237,
+        "mc3px_pass_pose_fail_rate_mean": 0.39508116883116884,
+        "mc3px_pass_trans_q90_median": 7.4002292350617065,
+        "mc3px_pass_rot_q90_median": 3.1658357205728924,
+        "mc3px_fail_pose_fail_rate_mean": 0.9280188679245285,
+        "mc3px_fail_trans_q90_median": 495.36260865527964,
+        "mc3px_fail_rot_q90_median": 53.24674147196991,
+        "n_pass_with_stress": 94,
+        "stress_rate_in_pass": 0.3051948051948052,
+        "n_fail_without_stress": 4
+      }
+    },
+    "stress_by_candidate": {},
+    "sigmas": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "label_reproj_consistency_px_max": 6.252776074688882e-13,
+    "canonical3d_exact_reproj_mean_px_max": 153.50656135176092,
+    "visible_corner_count_mismatch_idx": [],
+    "threshold_sweep": [
+      {
+        "cells": 1,
+        "threshold_px": 8.0,
+        "n_accept": 395,
+        "accept_frac": 0.9080459770114943,
+        "fail_rate_mean": 0.4181392405063291,
+        "n_stress_accepted": 177
+      },
+      {
+        "cells": 2,
+        "threshold_px": 16.0,
+        "n_accept": 368,
+        "accept_frac": 0.8459770114942529,
+        "fail_rate_mean": 0.37813858695652175,
+        "n_stress_accepted": 150
+      },
+      {
+        "cells": 3,
+        "threshold_px": 24.0,
+        "n_accept": 341,
+        "accept_frac": 0.7839080459770115,
+        "fail_rate_mean": 0.3363049853372434,
+        "n_stress_accepted": 124
+      },
+      {
+        "cells": 4,
+        "threshold_px": 32.0,
+        "n_accept": 308,
+        "accept_frac": 0.7080459770114943,
+        "fail_rate_mean": 0.2933279220779221,
+        "n_stress_accepted": 94
+      },
+      {
+        "cells": 5,
+        "threshold_px": 40.0,
+        "n_accept": 280,
+        "accept_frac": 0.6436781609195402,
+        "fail_rate_mean": 0.2576607142857143,
+        "n_stress_accepted": 73
+      },
+      {
+        "cells": 6,
+        "threshold_px": 48.0,
+        "n_accept": 263,
+        "accept_frac": 0.6045977011494252,
+        "fail_rate_mean": 0.23969581749049432,
+        "n_stress_accepted": 63
+      },
+      {
+        "cells": 7,
+        "threshold_px": 56.0,
+        "n_accept": 245,
+        "accept_frac": 0.5632183908045977,
+        "fail_rate_mean": 0.21946938775510202,
+        "n_stress_accepted": 53
+      },
+      {
+        "cells": 8,
+        "threshold_px": 64.0,
+        "n_accept": 223,
+        "accept_frac": 0.5126436781609195,
+        "fail_rate_mean": 0.20739910313901344,
+        "n_stress_accepted": 44
+      }
+    ],
+    "knee": {
+      "has_knee": false,
+      "median_step": 0.03566720779220778,
+      "max_step": 0.042977063259321324,
+      "max_step_ratio": 1.2049461093141844,
+      "max_step_at_cells": 4,
+      "steps": [
+        {
+          "from_cells": 1,
+          "to_cells": 2,
+          "drop": 0.04000065354980736
+        },
+        {
+          "from_cells": 2,
+          "to_cells": 3,
+          "drop": 0.04183360161927835
+        },
+        {
+          "from_cells": 3,
+          "to_cells": 4,
+          "drop": 0.042977063259321324
+        },
+        {
+          "from_cells": 4,
+          "to_cells": 5,
+          "drop": 0.03566720779220778
+        },
+        {
+          "from_cells": 5,
+          "to_cells": 6,
+          "drop": 0.01796489679521998
+        },
+        {
+          "from_cells": 6,
+          "to_cells": 7,
+          "drop": 0.020226429735392293
+        },
+        {
+          "from_cells": 7,
+          "to_cells": 8,
+          "drop": 0.012070284616088583
+        }
+      ]
+    },
+    "stability_target_fail_rate": 0.1
+  }
+}

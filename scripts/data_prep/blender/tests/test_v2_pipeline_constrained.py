@@ -121,8 +121,14 @@ class V2PipelinePlacementModeTests(unittest.TestCase):
             self.assets,
             placement_mode="constrained",
         )
-        for idx in (16, 18, 19):
-            original = plans[idx]
+        # select by PREDICATE, not by index: the sampler's rng stream is not a stable
+        # fixture (it shifts whenever an axis is re-ordered, e.g. the camera-distance cap).
+        occluded = [
+            plan for plan in plans
+            if plan.spec.f_target > 1e-6 and plan.occluder is not None
+        ][:3]
+        self.assertEqual(3, len(occluded))
+        for original in occluded:
             prepared = vp.prepare_diagnostic_explicit_occluders(
                 original,
                 self.assets,
@@ -441,12 +447,21 @@ class V2PipelinePlacementModeTests(unittest.TestCase):
             choose_seed_side("right", 25.0, target_fraction=0.41),
         )
 
-        original = vp.generate_accepted(
-            20,
+        # select by PREDICATE (see the note above): the case under test is a lateral "right"
+        # occluder at an elevation/target combination whose PLACEMENT seed must fall back to
+        # "bottom" while the audited side stays "right".
+        plans, _, _, _ = vp.generate_accepted(
+            200,
             7500,
             self.assets,
             placement_mode="constrained",
-        )[0][6]
+        )
+        original = next(
+            plan for plan in plans
+            if (plan.occluder or {}).get("side") == "right"
+            and 30.0 <= plan.spec.elevation_deg < 60.0
+            and plan.spec.f_target >= 0.30
+        )
         prepared = vp.prepare_diagnostic_explicit_occluders(
             original,
             self.assets,

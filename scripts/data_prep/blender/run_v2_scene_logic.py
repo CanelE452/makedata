@@ -1,15 +1,36 @@
-"""Constrained-scene diagnostic runner for the Blender v2 pipeline.
+"""Constrained-scene runner for the Blender v2 pipeline.
 
-This is intentionally separate from the legacy 2k driver.  It accepts only the
-task-authorized 20-frame smoke or 500-frame diagnostic pilot, keeps the existing
-camera/geometry prescriptions, and opts into ``placement_mode="constrained"``.
+This is intentionally separate from the legacy 2k driver.  It keeps the existing
+camera/geometry prescriptions and opts into ``placement_mode="constrained"``.
 
-Run one 100-frame pilot chunk with a fresh Blender process:
+Two completion modes:
+
+``--completion-mode records`` (default, unchanged)
+    ``--n`` is the number of PROPOSALS to realize (20-frame smoke / 500-frame
+    diagnostic pilot).  Every proposal produces one record whether it renders,
+    fails to realize, or fails a gate.
 
   blender -b data/pallet/blender_scene/synth_data_scene.blend \
     --python scripts/data_prep/blender/run_v2_scene_logic.py -- \
     --out data/pallet/_v2_scene_logic_500_seed7500 \
     --seed 7500 --n 500 --start 0 --count 100
+
+``--completion-mode usable``
+    ``--n`` is the number of USABLE frames to deliver.  Proposals keep coming
+    until that many frames satisfy every usable condition (see
+    ``usable_conditions``); rejected proposals are preserved in
+    ``records_rejected.jsonl`` and their images are removed, so the delivered
+    set is exactly ``--n`` contiguous ids 0..n-1.
+
+  blender -b data/pallet/blender_scene/synth_data_scene.blend \
+    --python scripts/data_prep/blender/run_v2_scene_logic.py -- \
+    --out data/pallet/_v2_usable50 --seed 7600 --n 50 \
+    --completion-mode usable --render-profile dataset-quality
+
+  NOTE: the usable set is filled up to ``gate_valid`` (Phase 1/2/3/5 physical +
+  G1..G5).  The PnP eligibility threshold is NOT settled (Phase 4), so the
+  manifest carries the 2/3/4-cell SIZE columns as a separate, purely
+  informational axis.  The output is NOT "final training-ready".
 """
 
 from __future__ import annotations
@@ -36,6 +57,74 @@ DIAGNOSTIC_MODES = (
     "context-rich",
     "controlled-occlusion",
 )
+
+COMPLETION_MODES = ("records", "usable")
+DIAGNOSTIC_N_CHOICES = (20, 500)
+
+# --- usable-completion configuration -------------------------------------------------------
+# Stratum shares for --completion-mode usable.  The 500-record diagnostic used
+# 100/100/150/150; the same shares are apportioned over an arbitrary usable target
+# (largest-remainder), because diagnostic_mode_for_index only knows 20 and 500.
+USABLE_MODE_FRACTIONS = (0.20, 0.20, 0.30, 0.30)
+# Safety stops (no unbounded loop).  Exceeding either one aborts with an explicit error.
+USABLE_RENDER_ATTEMPT_FACTOR = 30      # render attempts allowed per requested usable frame
+USABLE_MIN_RENDER_ATTEMPTS = 60
+USABLE_PROPOSAL_STREAM_FACTOR = 20     # bpy-free draws per render attempt (generate_accepted uses n*20)
+# A controlled-occlusion slot wants a plan that actually carries an explicit occluder.  Plans
+# are cheap (bpy-free), so unsuitable ones are skipped -- but never forever.
+CONTROLLED_MODE_MAX_SKIPS = 50
+# Any magenta pixel = a missing/failed material.  0.0 mirrors audit_v2_scene_logic's
+# --magenta-threshold default (fail when ratio > threshold).
+DEFAULT_MAGENTA_MAX_FRACTION = 0.0
+
+# PnP eligibility SIZE axis (Phase 4).  1 belief-map cell = 8 source px
+# (audit_pnp_eligibility.BELIEF_CELL_PX).  These are reported, never used to reject:
+# the hard threshold is undecided and the solve-success half needs cv2, which Blender's
+# Python does not ship.
+BELIEF_CELL_PX = 8.0
+PNP_SIZE_THRESHOLDS_PX = {
+    "2cell": 2 * BELIEF_CELL_PX,
+    "3cell": 3 * BELIEF_CELL_PX,
+    "4cell": 4 * BELIEF_CELL_PX,
+}
+TINY_MASK_AREA_PX = int(PNP_SIZE_THRESHOLDS_PX["2cell"] ** 2)
+# Corner counts as externally occluded at >= 0.5 (scene_placement_v2.external_corner_gate_metrics).
+OCCLUSION_VISIBLE_MAX = 0.5
+
+# usable conditions -- evaluated INDEPENDENTLY and AND-ed (see usable_conditions).
+# The first three groups reproduce audit_pnp_eligibility.physical_validity field for field.
+PHYSICAL_TRUE_FIELDS = (
+    "rendered",
+    "realize_ok",
+    "camera_clearance_pass",
+    "support_pass",
+    "mask_invariants_pass",
+    "ground_continuity_pass",
+)
+PHYSICAL_NEGATED_FIELDS = ("corrupt_rgb", "corrupt_mask")
+PHYSICAL_DERIVED_CONDITIONS = (
+    "exact_collision_zero",
+    "camera_distance_within_limit",
+    "mask_m0_non_empty",
+)
+EXTRA_USABLE_CONDITIONS = (
+    "no_magenta",
+    "mask_pixel_inclusion",
+    "no_stale_cross_frame_mask",
+)
+GATE_CONDITIONS = ("G1", "G2", "G3", "G4", "G5")
+GATE_RECORD_FIELDS = {
+    "G1": "G1_pass",
+    "G2": "G2_pass",
+    "G3": "G3_pass",
+    "G4": "G4_pass",
+    "G5": "G5_pass",
+}
+FALLBACK_CAMERA_DISTANCE_LIMIT_M = 10.0
+
+
+class UsableCompletionError(RuntimeError):
+    """Raised when --completion-mode usable hits a safety stop before filling --n."""
 
 
 def diagnostic_mode_for_index(idx, n):
@@ -167,6 +256,206 @@ def allocate_diagnostic_modes_for_plans(plans, n, seed):
     return modes
 
 
+def apportion(n, fractions):
+    """Largest-remainder apportionment of n over `fractions` (sums to n exactly)."""
+    n = int(n)
+    if n < 0:
+        raise ValueError(f"n must be >= 0: {n}")
+    raw = [n * float(f) for f in fractions]
+    counts = [int(math.floor(v)) for v in raw]
+    remainder = n - sum(counts)
+    order = sorted(
+        range(len(fractions)),
+        key=lambda i: (-(raw[i] - counts[i]), i),
+    )
+    for i in range(remainder):
+        counts[order[i % len(order)]] += 1
+    return counts
+
+
+def usable_diagnostic_modes(n):
+    """Diagnostic stratum for every usable SLOT (0..n-1), in DIAGNOSTIC_MODES block order.
+
+    The slot -- not the proposal -- owns the stratum, so the delivered set always has the
+    prescribed composition no matter how many proposals each slot needed.
+    """
+    counts = apportion(n, USABLE_MODE_FRACTIONS)
+    modes = []
+    for mode, count in zip(DIAGNOSTIC_MODES, counts):
+        modes.extend([mode] * count)
+    return modes
+
+
+def usable_max_render_attempts(n, override=None):
+    if override is not None and int(override) > 0:
+        return int(override)
+    return max(USABLE_MIN_RENDER_ATTEMPTS, USABLE_RENDER_ATTEMPT_FACTOR * int(n))
+
+
+def _tri_state(value):
+    """True / False / None(unknown).  None NEVER counts as a pass (Phase 2 warning:
+    ground_continuity_pass=None means 'not measured', not 'fine')."""
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        low = value.strip().lower()
+        if low in ("true", "1", "yes"):
+            return True
+        if low in ("false", "0", "no"):
+            return False
+        return None
+    return bool(value)
+
+
+def _number(value):
+    try:
+        if value is None or isinstance(value, bool):
+            return None
+        out = float(value)
+    except (TypeError, ValueError):
+        return None
+    return out if math.isfinite(out) else None
+
+
+def usable_conditions(record, magenta_max=DEFAULT_MAGENTA_MAX_FRACTION,
+                      seen_m0_hashes=None):
+    """Evaluate EVERY usable condition independently and AND them together.
+
+    Returns a dict with the per-condition tri-state, the failed condition names, the reject
+    reasons and the two Phase-4 manifest booleans (physical_valid / gate_valid).  There is no
+    short-circuit: a rejected proposal reports all of its failures, not just the first.
+
+    Condition -> source:
+      rendered/realize_ok/camera_clearance_pass/support_pass/mask_invariants_pass/
+      ground_continuity_pass/corrupt_rgb/corrupt_mask/exact_collision_zero/
+      camera_distance_within_limit/mask_m0_non_empty   -> Phase 1/2/5 record fields, i.e. the
+          exact field list of audit_pnp_eligibility.physical_validity (= physical_valid)
+      no_magenta                    -> record magenta_fraction (this runner's measurement)
+      mask_pixel_inclusion          -> Phase 5 pixel-level M4<=M3<=M2<=M1<=M0
+      no_stale_cross_frame_mask     -> Phase 5 cross-frame duplicate M0 content hash
+      G1..G5                        -> Phase 3 safety_gates (G5 on FINAL luma)
+    """
+    record = record or {}
+    conditions = {}
+
+    for field in PHYSICAL_TRUE_FIELDS:
+        conditions[field] = _tri_state(record.get(field))
+    for field in PHYSICAL_NEGATED_FIELDS:
+        state = _tri_state(record.get(field))
+        conditions[f"no_{field}"] = None if state is None else (not state)
+
+    collisions = _number(record.get("exact_collision_count"))
+    conditions["exact_collision_zero"] = (
+        None if collisions is None else collisions == 0
+    )
+
+    limit = _number(record.get("camera_distance_limit_m"))
+    if limit is None:
+        limit = FALLBACK_CAMERA_DISTANCE_LIMIT_M
+    distance = _number(record.get("camera_distance_actual_m"))
+    conditions["camera_distance_within_limit"] = (
+        None if distance is None else distance <= limit + 1e-6
+    )
+
+    m0_area = _number(record.get("mask_m0_area_px"))
+    if m0_area is None:
+        m0_area = _number(record.get("mask_area_target_only"))
+    conditions["mask_m0_non_empty"] = None if m0_area is None else m0_area > 0
+
+    magenta = _number(record.get("magenta_fraction"))
+    conditions["no_magenta"] = (
+        None if magenta is None else magenta <= float(magenta_max)
+    )
+
+    conditions["mask_pixel_inclusion"] = _tri_state(
+        record.get("mask_pixel_inclusion_ok")
+    )
+
+    m0_hash = record.get("mask_m0_content_sha256")
+    if m0_hash is None:
+        conditions["no_stale_cross_frame_mask"] = None
+    else:
+        conditions["no_stale_cross_frame_mask"] = m0_hash not in (
+            seen_m0_hashes or set()
+        )
+
+    for gate in GATE_CONDITIONS:
+        conditions[gate] = _tri_state(record.get(GATE_RECORD_FIELDS[gate]))
+
+    physical_names = (
+        [f"no_{field}" for field in PHYSICAL_NEGATED_FIELDS]
+        + list(PHYSICAL_TRUE_FIELDS)
+        + list(PHYSICAL_DERIVED_CONDITIONS)
+    )
+    failed = [name for name, state in conditions.items() if state is not True]
+    unknown = [name for name, state in conditions.items() if state is None]
+    reasons = []
+    for name in failed:
+        suffix = ":unknown" if conditions[name] is None else ""
+        if name in GATE_CONDITIONS:
+            reasons.append(f"gate_fail:{name}{suffix}")
+        else:
+            reasons.append(f"usable_reject:{name}{suffix}")
+
+    return {
+        "usable": not failed,
+        "conditions": conditions,
+        "failed_conditions": failed,
+        "unknown_conditions": unknown,
+        "reject_reasons": reasons,
+        "physical_valid": all(
+            conditions[name] is True for name in physical_names
+        ),
+        "physical_violations": [
+            name for name in physical_names if conditions[name] is not True
+        ],
+        "gate_valid": all(
+            conditions[gate] is True for gate in GATE_CONDITIONS
+        ),
+    }
+
+
+def primary_reject_reason(record, verdict):
+    """One-line reason for a render-stage reject.
+
+    A realize/render failure makes every later measurement `None`, so the full reason list is
+    16 `:unknown` entries.  The scannable answer is the pipeline's own failure reason; only
+    when the frame actually rendered do the failed conditions themselves carry the meaning.
+    """
+    measured = [
+        reason for reason in verdict["reject_reasons"]
+        if not reason.endswith(":unknown")
+    ]
+    if measured:
+        return "|".join(measured)
+    fallback = (record or {}).get("reject_reason")
+    return f"realize_fail:{fallback}" if fallback else "unknown"
+
+
+def pnp_size_fields(bbox_min_side_px, m0_area_px):
+    """SIZE half of the Phase-4 eligibility columns (informational only).
+
+    The other half -- pnp_exact_success -- needs cv2.solvePnPRansac, which is not available
+    inside Blender, so audit_pnp_eligibility.py must be run on the delivered set to complete
+    the manifest.  Naming is deliberately `pnp_size_eligible_*`, NOT
+    `pnp_eligible_candidate_*`, so the two are never confused.
+    """
+    min_side = _number(bbox_min_side_px)
+    area = _number(m0_area_px)
+    out = {}
+    for name, threshold in PNP_SIZE_THRESHOLDS_PX.items():
+        out[f"pnp_size_eligible_{name}"] = (
+            None if min_side is None else bool(min_side >= threshold)
+        )
+    out["tiny_warning"] = bool(
+        (min_side is not None and min_side < PNP_SIZE_THRESHOLDS_PX["2cell"])
+        or (area is not None and area < TINY_MASK_AREA_PX)
+    )
+    return out
+
+
 def chunk_indices(n, start, count):
     n = max(0, int(n))
     start = max(0, int(start))
@@ -175,6 +464,11 @@ def chunk_indices(n, start, count):
 
 
 def _args():
+    # imported here (not at module import time) so the bpy-free unit tests can load this
+    # module: v2_realize needs bpy, and this function only ever runs inside Blender.
+    import camera_effects as CE
+    import v2_realize as vr
+
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -182,7 +476,34 @@ def _args():
         default="data/pallet/_v2_scene_logic_500_seed7500",
     )
     parser.add_argument("--seed", type=int, default=7500)
-    parser.add_argument("--n", type=int, choices=(20, 500), default=500)
+    parser.add_argument(
+        "--n",
+        type=int,
+        default=500,
+        help="records mode: number of proposals (20 or 500). "
+             "usable mode: number of USABLE frames to deliver (any n >= 1)",
+    )
+    parser.add_argument(
+        "--completion-mode",
+        choices=COMPLETION_MODES,
+        default="records",
+        help="records = --n proposals, one record each (unchanged 20/500 diagnostics); "
+             "usable = keep proposing until --n frames pass every usable condition",
+    )
+    parser.add_argument(
+        "--max-attempts",
+        type=int,
+        default=None,
+        help="usable mode safety stop: max RENDER attempts before aborting "
+             f"(default max({USABLE_MIN_RENDER_ATTEMPTS}, {USABLE_RENDER_ATTEMPT_FACTOR}*n))",
+    )
+    parser.add_argument(
+        "--magenta-max-fraction",
+        type=float,
+        default=DEFAULT_MAGENTA_MAX_FRACTION,
+        help="usable mode: reject a frame whose magenta pixel fraction exceeds this "
+             "(default 0.0 = any magenta pixel rejects, same as audit_v2_scene_logic)",
+    )
     parser.add_argument("--start", type=int, default=0)
     parser.add_argument(
         "--count",
@@ -190,13 +511,53 @@ def _args():
         default=100,
         help="number of global frame indices handled by this Blender process",
     )
-    parser.add_argument("--samples", type=int, default=16)
+    parser.add_argument(
+        "--samples",
+        type=int,
+        default=None,
+        help="Cycles samples; default = the render profile's value",
+    )
+    parser.add_argument(
+        "--render-profile",
+        choices=tuple(vr.RENDER_PROFILES),
+        default=vr.DEFAULT_RENDER_PROFILE,
+        help="diagnostic-exact = byte-reproducible CPU path (500-record diagnostics); "
+             "dataset-quality = GPU + denoise for training frames",
+    )
+    parser.add_argument(
+        "--noise-tier",
+        default="auto",
+        choices=("auto", *CE.NOISE_TIER_LABELS),
+        help="sensor degradation tier; 'auto' draws per frame from NOISE_TIER_FRAC",
+    )
     parser.add_argument(
         "--rerun-failures",
         action="store_true",
         help="retry indices whose latest record did not render successfully",
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    validate_args(args, parser.error)
+    return args
+
+
+def validate_args(args, fail):
+    """Mode-dependent argument validation (`fail` = parser.error / raising callable)."""
+    if args.completion_mode == "records":
+        if args.n not in DIAGNOSTIC_N_CHOICES:
+            fail(
+                "--completion-mode records requires --n in "
+                f"{DIAGNOSTIC_N_CHOICES} (got {args.n})"
+            )
+    else:
+        if args.n < 1:
+            fail(f"--completion-mode usable requires --n >= 1 (got {args.n})")
+        if args.rerun_failures:
+            fail("--rerun-failures is meaningless with --completion-mode usable")
+        if args.max_attempts is not None and args.max_attempts < args.n:
+            fail(
+                f"--max-attempts ({args.max_attempts}) must be >= --n ({args.n})"
+            )
+    return args
 
 
 def _abspath(path):
@@ -284,11 +645,115 @@ def _magenta_fraction(path):
 
 
 def _projected_size_actual(meas, width):
-    points = meas.get("uv8_v4")
-    if points is None or not width:
+    import v2_pipeline as vp
+
+    return vp.projected_size_actual(meas.get("uv8_v4"), width)
+
+
+def _camera_distance_actual(rs, meas):
+    """REALIZED camera->pallet-centroid distance (m), recomputed from the final scene rather
+    than copied from plan.cam_distance_m (realize re-seats the camera on the centroid and the
+    constrained placer translates the anchor, so the two can differ)."""
+    import numpy as np
+
+    cam = rs.get("cam_pos")
+    centroid = meas.get("centroid_world")
+    if cam is None or centroid is None:
         return None
-    xs = [float(point[0]) for point in points if math.isfinite(float(point[0]))]
-    return (max(xs) - min(xs)) / float(width) if xs else None
+    delta = np.asarray(cam, dtype=float) - np.asarray(centroid, dtype=float)
+    return float(np.linalg.norm(delta))
+
+
+def _mask_integrity_fields(mask_paths):
+    """Phase 5 pixel-level mask integrity for ONE frame.
+
+    Reuses audit_v2_scene_logic (bpy-free, numpy+PIL only) so the runner gate and the offline
+    audit answer the same question with the same code: strict decode, M4<=M3<=M2<=M1<=M0 on the
+    boolean arrays, and the M0 CONTENT hash used for the cross-frame stale-mask check.
+    """
+    from pathlib import Path
+
+    import audit_v2_scene_logic as audit
+
+    names = list(audit.MASK_NAMES)
+    masks = {}
+    for name in names:
+        path = (mask_paths or {}).get(name)
+        if path:
+            masks[name] = audit.strict_decode_mask(Path(path))
+        else:
+            masks[name] = {"present": False, "decode_ok": False, "fg": None,
+                           "area": None, "content_sha256": None, "error": "missing"}
+    inclusion = audit.mask_pixel_inclusion(masks, names)
+    decode_ok = all(masks[name]["decode_ok"] for name in names)
+    violations = ";".join(
+        f"{pair['inner']}!<={pair['outer']}:{pair.get('violation_px')}"
+        for pair in inclusion["pairs"]
+        if pair.get("shape_mismatch") or (pair.get("violation_px") or 0) > 0
+    )
+    m0 = masks[names[0]]
+    fields = {
+        "mask_strict_decode_ok": bool(decode_ok),
+        "mask_decode_errors": {
+            name: masks[name]["error"]
+            for name in names
+            if masks[name].get("error")
+        },
+        "mask_shape_consistent": inclusion["shape_consistent"],
+        "mask_pixel_inclusion_ok": inclusion["ok"],
+        "mask_pixel_inclusion_violation_px": (
+            inclusion["violation_px_total"] if inclusion["checked"] else None
+        ),
+        "mask_pixel_inclusion_violations": violations,
+        "mask_pixel_inclusion_reason": inclusion["reason"],
+        "mask_m0_area_px": m0.get("area"),
+        "mask_m0_content_sha256": m0.get("content_sha256"),
+    }
+    for name in names:
+        masks[name]["fg"] = None
+        masks[name]["image"] = None
+    return fields
+
+
+def _visible_keypoint_metrics(meas):
+    """Visible-keypoint bbox of the 9 keypoints, using the Phase-4 visibility rule.
+
+    visible = in-frame AND (occlusion unknown OR occlusion < 0.5); the unknown case matches
+    audit_pnp_eligibility (only an explicit >=0.5 measurement kills a corner).
+    """
+    import numpy as np
+
+    out = {
+        "visible_kp_count": None,
+        "bbox_vis_w_px": None,
+        "bbox_vis_h_px": None,
+        "bbox_vis_min_side_px": None,
+    }
+    uv8 = meas.get("uv8_v4")
+    cent = meas.get("cent_uv")
+    in_frame8 = meas.get("in_frame8")
+    if uv8 is None or cent is None or in_frame8 is None:
+        return out
+    uv9 = np.vstack([np.asarray(uv8, dtype=float)[:, :2],
+                     np.asarray(cent, dtype=float).reshape(1, 2)])
+    in_frame9 = [bool(v) for v in in_frame8] + [bool(meas.get("center_in_frame"))]
+    occ = meas.get("occlusion_fraction") or []
+    visible = []
+    for i in range(9):
+        occ_i = _number(occ[i]) if i < len(occ) else None
+        visible.append(
+            in_frame9[i] and (occ_i is None or occ_i < OCCLUSION_VISIBLE_MAX)
+        )
+    pts = uv9[np.asarray(visible, dtype=bool)]
+    out["visible_kp_count"] = int(sum(visible))
+    if len(pts) == 0 or not np.isfinite(pts).all():
+        return out
+    w = float(pts[:, 0].max() - pts[:, 0].min())
+    h = float(pts[:, 1].max() - pts[:, 1].min())
+    out["bbox_vis_w_px"] = w
+    out["bbox_vis_h_px"] = h
+    out["bbox_vis_min_side_px"] = min(w, h)
+    return out
 
 
 def _gate_reason(gates):
@@ -301,7 +766,9 @@ def _gate_reason(gates):
 
 
 def _record_rendered(idx, frame_seed, mode, plan, rs, meas, gates, runtime_s,
-                     noise_scale, rgb_path, label_path):
+                     effects, rgb_path, label_path):
+    """`effects` is the dict render_post returned (what the sensor post-effects actually did)."""
+    effects = effects if isinstance(effects, dict) else {}
     placement = rs.get("constrained_metrics") or {}
     mask_paths = meas.get("mask_paths") or {}
     rgb_ok, rgb_error = _strict_image_check(rgb_path)
@@ -312,6 +779,8 @@ def _record_rendered(idx, frame_seed, mode, plan, rs, meas, gates, runtime_s,
             corrupt_masks[stage] = error
     magenta = _magenta_fraction(rgb_path) if rgb_ok else None
     spec = plan.spec
+    cam_dist_target = float(plan.cam_distance_m)
+    cam_dist_actual = _camera_distance_actual(rs, meas)
 
     return {
         "idx": int(idx),
@@ -337,6 +806,14 @@ def _record_rendered(idx, frame_seed, mode, plan, rs, meas, gates, runtime_s,
         "V_vis": int(meas["V_vis"]),
         "projected_size_target": float(spec.proj_size_ratio),
         "projected_size_actual": _projected_size_actual(meas, rs.get("W")),
+        # smallest projected-size ratio this frame's intrinsics allow under the distance cap
+        "projected_size_feasible_lower": float(spec.proj_size_feasible_lower),
+        "camera_distance_limit_m": float(plan.camera_distance_limit_m),
+        "camera_distance_target_m": cam_dist_target,
+        "camera_distance_actual_m": cam_dist_actual,
+        "camera_distance_error_m": (
+            None if cam_dist_actual is None else cam_dist_actual - cam_dist_target
+        ),
         "anchor_translation": placement.get("anchor_translation"),
         "procedural_support_shift": placement.get(
             "procedural_support_shift"
@@ -456,15 +933,41 @@ def _record_rendered(idx, frame_seed, mode, plan, rs, meas, gates, runtime_s,
         "left_opening_visibility": meas.get("left_opening_visibility"),
         "right_opening_visibility": meas.get("right_opening_visibility"),
         "opening_visibility_reason": meas.get("opening_visibility_reason"),
-        "luma_frame": meas.get("luma_frame"),
-        "luma_pallet": meas.get("luma_pallet"),
-        "noise_scale": noise_scale,
+        # raw = the Cycles render, final = after the sensor post-effects (the PNG on disk,
+        # which is what G5 judges and what training sees).
+        "luma_frame": meas.get("luma_frame_raw", meas.get("luma_frame")),
+        "luma_pallet": meas.get("luma_pallet_raw", meas.get("luma_pallet")),
+        "luma_frame_raw": meas.get("luma_frame_raw", meas.get("luma_frame")),
+        "luma_pallet_raw": meas.get("luma_pallet_raw", meas.get("luma_pallet")),
+        "luma_frame_final": meas.get("luma_frame_final"),
+        "luma_pallet_final": meas.get("luma_pallet_final"),
+        "noise_tier": effects.get("noise_tier"),
+        "dark_factor": effects.get("dark_factor"),
+        "wb_gain_rgb": effects.get("wb_gain_rgb"),
+        "vignette_applied": effects.get("vignette_applied"),
+        "vignette_strength": effects.get("vignette_strength"),
+        "blur_applied": effects.get("blur_applied"),
+        "blur_radius_px": effects.get("blur_radius_px"),
+        "gaussian_noise_applied": effects.get("gaussian_noise_applied"),
+        "gaussian_sigma": effects.get("gaussian_sigma"),
+        "jpeg_applied": effects.get("jpeg_applied"),
+        "jpeg_quality": effects.get("jpeg_quality"),
         "magenta_fraction": magenta,
         "corrupt_rgb": not rgb_ok,
         "corrupt_rgb_reason": rgb_error,
         "corrupt_mask": bool(corrupt_masks),
         "corrupt_mask_reasons": corrupt_masks,
         "mask_invariants_pass": meas.get("mask_invariants_pass"),
+        "ground_continuity_pass": meas.get("ground_continuity_pass"),
+        "ground_probe_count": meas.get("ground_probe_count"),
+        "ground_probe_fail_count": meas.get("ground_probe_fail_count"),
+        "ground_probe_hit_objects": meas.get("ground_probe_hit_objects"),
+        "ground_probe_max_step_m": meas.get("ground_probe_max_step_m"),
+        "ground_continuity_reason": meas.get("ground_continuity_reason"),
+        "procedural_floor_edge_risk": meas.get("procedural_floor_edge_risk"),
+        "procedural_floor_edge_margin_m": meas.get(
+            "procedural_floor_edge_margin_m"
+        ),
         "G1_pass": gates.get("G1_Vvis>=4"),
         "G2_pass": gates.get("G2_extocc_1to4"),
         "G3_pass": gates.get("G3_visible>=0.5unocc"),
@@ -498,6 +1001,9 @@ def _record_realize_failure(idx, frame_seed, mode, plan, runtime_s, detail):
         "azimuth_bin": int(plan.spec.azimuth_bin),
         "v_target": int(plan.spec.v_target),
         "projected_size_target": float(plan.spec.proj_size_ratio),
+        "projected_size_feasible_lower": float(plan.spec.proj_size_feasible_lower),
+        "camera_distance_limit_m": float(plan.camera_distance_limit_m),
+        "camera_distance_target_m": float(plan.cam_distance_m),
         "f_target": float(plan.spec.f_target),
         "reject_reason": metrics.get("failure_reason", "realize_fail"),
         "anchor_translation": metrics.get("anchor_translation"),
@@ -633,6 +1139,151 @@ def _summarize(records, seed, n, solve_rejects, solve_attempts, gpu):
     }
 
 
+def _process_frame(idx, plan, mode, args, assets, dirs, vp, vr, np,
+                   write_label=True):
+    """Realize + render + measure + gate ONE proposal into a record.
+
+    Extracted verbatim from the records loop so both completion modes run the identical
+    pipeline.  `write_label=False` defers the label write to the caller (usable mode only
+    keeps the labels of frames it actually delivers).
+    """
+    proposal_failure = None
+    if (
+        mode == "controlled-occlusion"
+        and float(plan.spec.f_target) > 1e-6
+    ):
+        adjusted_plan = vp.prepare_diagnostic_explicit_occluders(
+            plan,
+            assets,
+        )
+        if isinstance(adjusted_plan, vp.Reject):
+            proposal_failure = {
+                "failure_reason": adjusted_plan.reason,
+                "failure_detail": adjusted_plan.detail,
+                "explicit_solver_fail_reason": adjusted_plan.reason,
+            }
+        else:
+            plan = adjusted_plan
+    frame_seed = _frame_seed(args.seed, idx, plan.spec.frame_index)
+    random.seed(frame_seed)
+    np.random.seed(frame_seed & 0xFFFFFFFF)
+    frame_start = time.time()
+    rs = None
+    failure_detail = proposal_failure
+    if failure_detail is None:
+        try:
+            rs = vr.realize(
+                plan,
+                placement_mode="constrained",
+                diagnostic_mode=mode,
+                frame_seed=frame_seed,
+                floor_mode=None,
+                place_occluder=True,
+            )
+            if rs is not None and rs.get("realize_ok") is False:
+                failure_detail = rs.get("constrained_metrics") or rs
+                rs = None
+        except Exception as exc:
+            failure_detail = {
+                "failure_reason": f"realize_exception:{type(exc).__name__}",
+                "failure_detail": str(exc),
+            }
+            print(
+                f"[SCENE500] idx={idx} realize exception: {type(exc).__name__}: {exc}",
+                flush=True,
+            )
+
+    result = {
+        "record": None,
+        "rs": rs,
+        "meas": None,
+        "gates": None,
+        "label": None,
+        "effects": None,
+        "frame_seed": frame_seed,
+        "plan": plan,
+        "rgb_path": None,
+        "label_path": None,
+    }
+    if rs is None:
+        result["record"] = _record_realize_failure(
+            idx,
+            frame_seed,
+            mode,
+            plan,
+            time.time() - frame_start,
+            failure_detail,
+        )
+        return result
+
+    rgb_path = os.path.join(dirs["rgb"], f"f{idx:04d}_rgb.png")
+    label_path = os.path.join(dirs["labels"], f"f{idx:04d}_label.json")
+    result["rgb_path"] = rgb_path
+    result["label_path"] = label_path
+    rs["rgb_path"] = rgb_path
+    rs["mask_prefix"] = os.path.join(dirs["mask"], f"f{idx:04d}")
+    try:
+        vr.render(
+            rs,
+            rgb_path,
+            samples=args.samples,
+            profile=args.render_profile,
+        )
+        # Order matters: geometry/masks first (post-effect independent), THEN the
+        # sensor post-effects overwrite the PNG, THEN the final image is re-measured
+        # so the gates and the label describe the pixels training actually sees.
+        meas = vr.measure_geometry_and_masks(rs)
+        raw_luma = meas.get("luma_frame_raw")
+        effects = vr.render_post(
+            rgb_path,
+            frame_seed,
+            raw_luma if raw_luma is not None else 128.0,
+            tier=args.noise_tier,
+        )
+        meas.update(effects)
+        meas.update(vr.measure_final_rgb_quality(rs, meas))
+        gates = vr.safety_gates(meas, plan)
+        label = vr.label(plan.spec, plan, meas, rs)
+        if write_label:
+            _write_json(label_path, label)
+        result["meas"] = meas
+        result["gates"] = gates
+        result["label"] = label
+        result["effects"] = effects
+        result["record"] = _record_rendered(
+            idx,
+            frame_seed,
+            mode,
+            plan,
+            rs,
+            meas,
+            gates,
+            time.time() - frame_start,
+            effects,
+            rgb_path,
+            label_path,
+        )
+    except Exception as exc:
+        result["record"] = _record_realize_failure(
+            idx,
+            frame_seed,
+            mode,
+            plan,
+            time.time() - frame_start,
+            {
+                **(rs.get("constrained_metrics") or {}),
+                "failure_reason": f"render_measure_exception:{type(exc).__name__}",
+                "failure_detail": str(exc),
+            },
+        )
+        print(
+            f"[SCENE500] idx={idx} render/measure exception: "
+            f"{type(exc).__name__}: {exc}",
+            flush=True,
+        )
+    return result
+
+
 def run():
     args = _args()
     out = _abspath(args.out)
@@ -646,6 +1297,11 @@ def run():
     import numpy as np
     import v2_pipeline as vp
     import v2_realize as vr
+
+    dirs = {"out": out, "rgb": rgb_dir, "mask": mask_dir, "labels": label_dir,
+            "logs": log_dir}
+    if args.completion_mode == "usable":
+        return run_usable(args, dirs, vp, vr, np)
 
     jsonl_path = os.path.join(out, "records.jsonl")
     latest = _load_latest_records(jsonl_path)
@@ -683,119 +1339,21 @@ def run():
 
     session_start = time.time()
     for session_number, idx in enumerate(pending, 1):
-        plan = plans[idx]
+        processed = _process_frame(
+            idx,
+            plans[idx],
+            diagnostic_modes[idx],
+            args,
+            assets,
+            dirs,
+            vp,
+            vr,
+            np,
+        )
         mode = diagnostic_modes[idx]
-        proposal_failure = None
-        if (
-            mode == "controlled-occlusion"
-            and float(plan.spec.f_target) > 1e-6
-        ):
-            adjusted_plan = vp.prepare_diagnostic_explicit_occluders(
-                plan,
-                assets,
-            )
-            if isinstance(adjusted_plan, vp.Reject):
-                proposal_failure = {
-                    "failure_reason": adjusted_plan.reason,
-                    "failure_detail": adjusted_plan.detail,
-                    "explicit_solver_fail_reason": adjusted_plan.reason,
-                }
-            else:
-                plan = adjusted_plan
-        frame_seed = _frame_seed(args.seed, idx, plan.spec.frame_index)
-        random.seed(frame_seed)
-        np.random.seed(frame_seed & 0xFFFFFFFF)
-        frame_start = time.time()
-        rs = None
-        failure_detail = proposal_failure
-        if failure_detail is None:
-            try:
-                rs = vr.realize(
-                    plan,
-                    placement_mode="constrained",
-                    diagnostic_mode=mode,
-                    frame_seed=frame_seed,
-                    floor_mode=None,
-                    place_occluder=True,
-                )
-                if rs is not None and rs.get("realize_ok") is False:
-                    failure_detail = rs.get("constrained_metrics") or rs
-                    rs = None
-            except Exception as exc:
-                failure_detail = {
-                    "failure_reason": f"realize_exception:{type(exc).__name__}",
-                    "failure_detail": str(exc),
-                }
-                print(
-                    f"[SCENE500] idx={idx} realize exception: {type(exc).__name__}: {exc}",
-                    flush=True,
-                )
-
-        if rs is None:
-            record = _record_realize_failure(
-                idx,
-                frame_seed,
-                mode,
-                plan,
-                time.time() - frame_start,
-                failure_detail,
-            )
-            _append_record(jsonl_path, record)
-            latest[idx] = record
-        else:
-            rgb_path = os.path.join(rgb_dir, f"f{idx:04d}_rgb.png")
-            label_path = os.path.join(label_dir, f"f{idx:04d}_label.json")
-            rs["rgb_path"] = rgb_path
-            rs["mask_prefix"] = os.path.join(mask_dir, f"f{idx:04d}")
-            try:
-                vr.render(
-                    rs,
-                    rgb_path,
-                    samples=args.samples,
-                    deterministic_cpu=True,
-                )
-                meas = vr.measure(rs)
-                noise_scale = vr.render_post(
-                    rgb_path,
-                    frame_seed,
-                    meas.get("luma_frame") or 128.0,
-                )
-                gates = vr.safety_gates(meas, plan)
-                label = vr.label(plan.spec, plan, meas, rs)
-                _write_json(label_path, label)
-                record = _record_rendered(
-                    idx,
-                    frame_seed,
-                    mode,
-                    plan,
-                    rs,
-                    meas,
-                    gates,
-                    time.time() - frame_start,
-                    noise_scale,
-                    rgb_path,
-                    label_path,
-                )
-            except Exception as exc:
-                record = _record_realize_failure(
-                    idx,
-                    frame_seed,
-                    mode,
-                    plan,
-                    time.time() - frame_start,
-                    {
-                        **(rs.get("constrained_metrics") or {}),
-                        "failure_reason": f"render_measure_exception:{type(exc).__name__}",
-                        "failure_detail": str(exc),
-                    },
-                )
-                print(
-                    f"[SCENE500] idx={idx} render/measure exception: "
-                    f"{type(exc).__name__}: {exc}",
-                    flush=True,
-                )
-            _append_record(jsonl_path, record)
-            latest[idx] = record
+        record = processed["record"]
+        _append_record(jsonl_path, record)
+        latest[idx] = record
 
         ordered = _write_records_snapshot(
             os.path.join(out, "records.json"),
@@ -854,6 +1412,541 @@ def run():
     )
     _write_json(os.path.join(out, "driver_summary.json"), final_summary)
     print(f"[SCENE500] SESSION DONE {final_summary}", flush=True)
+
+
+USABLE_MANIFEST_COLUMNS = (
+    "usable_id",
+    "frame_id",
+    "proposal_index",
+    "attempt_seed",
+    "diagnostic_mode",
+    "pallet_type",
+    "scene_preset",
+    "physical_valid",
+    "gate_valid",
+    "camera_distance_actual_m",
+    "camera_distance_limit_m",
+    "projected_size_actual",
+    "elev_actual",
+    "V_vis",
+    "luma_pallet_final",
+    "luma_frame_final",
+    "noise_tier",
+    "gaussian_sigma",
+    "magenta_fraction",
+    "mask_m0_area_px",
+    "mask_pixel_inclusion_ok",
+    "visible_kp_count",
+    "bbox_vis_min_side_px",
+    "pnp_size_eligible_2cell",
+    "pnp_size_eligible_3cell",
+    "pnp_size_eligible_4cell",
+    "tiny_warning",
+    "rgb_path",
+    "label_path",
+)
+
+
+def iter_proposals(seed, assets, vp, placement_mode="constrained", max_proposals=None):
+    """Stream (proposal_index, Plan|None, Reject|None) forever (or until max_proposals).
+
+    Same draw order and same accept-time quota rule as vp.generate_accepted, so the plan
+    sequence of `usable` mode with seed S is identical to the first plans of `records` mode
+    with seed S.  The stream owns a private random.Random, so the per-frame global
+    random.seed()/np.random.seed() calls made by realize() cannot disturb it.
+    """
+    rng = random.Random(seed)
+    quota = vp.QuotaState.new(assets)
+    attempts = 0
+    while max_proposals is None or attempts < max_proposals:
+        spec, picks = vp.sample_frame(
+            rng, quota, assets, frame_index=attempts, seed=seed
+        )
+        plan = vp.solve_placement(
+            spec,
+            assets,
+            placement_mode=placement_mode,
+        )
+        proposal_index = attempts
+        attempts += 1
+        if isinstance(plan, vp.Plan):
+            vp.advance_quota(quota, picks)     # commit ONLY on accept
+            yield proposal_index, plan, None
+        else:
+            yield proposal_index, None, plan
+
+
+def _remove_attempt_files(record):
+    """Delete the images of a rejected attempt so the delivered set stays exactly --n."""
+    removed = []
+    paths = [record.get("rgb_path"), record.get("label_path")]
+    paths.extend((record.get("mask_paths") or {}).values())
+    for path in paths:
+        if not path:
+            continue
+        try:
+            os.remove(path)
+            removed.append(path)
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            print(f"[USABLE] could not remove {path}: {exc}", flush=True)
+    return removed
+
+
+def _count_jsonl_lines(path):
+    if not os.path.isfile(path):
+        return 0
+    with open(path, encoding="utf-8") as handle:
+        return sum(1 for line in handle if line.strip())
+
+
+def _resume_state(records_path, rejected_path):
+    """Resume: (accepted records by usable id, next proposal index to actually run)."""
+    latest = _load_latest_records(records_path)
+    highest = -1
+    for record in latest.values():
+        index = record.get("proposal_index")
+        if isinstance(index, int):
+            highest = max(highest, index)
+    if os.path.isfile(rejected_path):
+        with open(rejected_path, encoding="utf-8") as handle:
+            for line in handle:
+                try:
+                    entry = json.loads(line)
+                except ValueError:
+                    continue
+                index = entry.get("proposal_index")
+                if isinstance(index, int):
+                    highest = max(highest, index)
+    return latest, highest + 1
+
+
+def _usable_summary(args, state, gpu, out, elapsed_s, complete, rejected_log_entries=0):
+    return {
+        "rejected_log_entries_total": int(rejected_log_entries),
+        "completion_mode": "usable",
+        "seed": int(args.seed),
+        "usable_target": int(args.n),
+        "usable_delivered": int(state["delivered"]),
+        "complete": bool(complete),
+        "render_attempts": int(state["render_attempts"]),
+        "max_render_attempts": int(state["max_render_attempts"]),
+        "proposals_drawn": int(state["proposals_drawn"]),
+        "solve_rejects": int(state["solve_rejects"]),
+        "mode_filter_skips": int(state["mode_filter_skips"]),
+        "render_rejects": int(state["render_rejects"]),
+        "reject_reason_counts": dict(state["reason_counts"]),
+        "solve_reject_reason_counts": dict(state["solve_reason_counts"]),
+        "condition_fail_counts": dict(state["condition_fail_counts"]),
+        "primary_reject_reason_counts": dict(state["primary_reason_counts"]),
+        "diagnostic_mode_counts": dict(state["mode_counts"]),
+        "render_profile": args.render_profile,
+        "noise_tier": args.noise_tier,
+        "magenta_max_fraction": float(args.magenta_max_fraction),
+        "gpu": gpu,
+        "out": out,
+        "elapsed_s": round(elapsed_s, 2),
+        "pnp_threshold_status": "undecided (Phase 4) - size columns are informational only",
+        "delivery_level": "gate_valid (physical + G1..G5); NOT final training-ready",
+    }
+
+
+def _write_usable_manifest(out, records, args):
+    rows = []
+    for record in records:
+        row = {key: record.get(key) for key in USABLE_MANIFEST_COLUMNS}
+        row["usable_id"] = record.get("usable_id", record.get("idx"))
+        row["frame_id"] = f"f{int(row['usable_id']):04d}"
+        rows.append(row)
+    csv_path = os.path.join(out, "usable_manifest.csv")
+    with open(csv_path, "w", encoding="utf-8", newline="") as handle:
+        handle.write(",".join(USABLE_MANIFEST_COLUMNS) + "\n")
+        for row in rows:
+            values = []
+            for key in USABLE_MANIFEST_COLUMNS:
+                value = row.get(key)
+                if value is None:
+                    values.append("")
+                elif isinstance(value, str) and ("," in value or '"' in value):
+                    values.append('"' + value.replace('"', '""') + '"')
+                else:
+                    values.append(str(value))
+            handle.write(",".join(values) + "\n")
+    _write_json(
+        os.path.join(out, "usable_manifest.json"),
+        {
+            "delivery_level": (
+                "gate_valid: rendered + physical checks (Phase 1/2/5) + G1..G5 on the FINAL "
+                "RGB (Phase 3). The PnP eligibility threshold is UNDECIDED (Phase 4), so this "
+                "set is NOT 'final training-ready'."
+            ),
+            "usable_conditions": {
+                "physical_true_fields": list(PHYSICAL_TRUE_FIELDS),
+                "physical_negated_fields": list(PHYSICAL_NEGATED_FIELDS),
+                "physical_derived": list(PHYSICAL_DERIVED_CONDITIONS),
+                "extra": list(EXTRA_USABLE_CONDITIONS),
+                "gates": list(GATE_CONDITIONS),
+                "evaluation": "all conditions computed independently, then AND-ed",
+                "magenta_max_fraction": float(args.magenta_max_fraction),
+                "camera_distance_limit_m": FALLBACK_CAMERA_DISTANCE_LIMIT_M,
+            },
+            "pnp_size_axis": {
+                "thresholds_px": PNP_SIZE_THRESHOLDS_PX,
+                "belief_cell_px": BELIEF_CELL_PX,
+                "column_meaning": (
+                    "pnp_size_eligible_Ncell = visible-keypoint bbox min side >= N*8 px. "
+                    "This is only the SIZE half of Phase 4's pnp_eligible_candidate_Ncell; "
+                    "the solve half (pnp_exact_success) needs cv2 and must be filled by "
+                    "audit_pnp_eligibility.py on this directory."
+                ),
+                "not_a_filter": True,
+            },
+            "columns": list(USABLE_MANIFEST_COLUMNS),
+            "rows": rows,
+        },
+    )
+    return csv_path
+
+
+def _cumulative_primary_reasons(rejected_path):
+    """Primary reason of every proposal ever logged for this output dir (all sessions)."""
+    counts = Counter()
+    if not os.path.isfile(rejected_path):
+        return dict(counts)
+    with open(rejected_path, encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            try:
+                entry = json.loads(line)
+            except ValueError:
+                continue
+            counts[
+                entry.get("primary_reject_reason")
+                or (entry.get("reject_reason") or "unknown").split("|")[0]
+            ] += 1
+    return dict(counts)
+
+
+def _write_usable_readme(out, summary):
+    cumulative = _cumulative_primary_reasons(
+        os.path.join(out, "records_rejected.jsonl")
+    )
+    text = f"""# usable-completion output
+
+`run_v2_scene_logic.py --completion-mode usable --n {summary['usable_target']}`
+delivered **{summary['usable_delivered']}** frames with contiguous ids
+`f0000`..`f{max(summary['usable_delivered'] - 1, 0):04d}`.
+
+## What this set IS
+
+Every delivered frame satisfies ALL of the following, each evaluated independently and
+AND-ed (`run_v2_scene_logic.usable_conditions`):
+
+- `rendered`, `realize_ok`, no corrupt RGB, no corrupt mask
+- `exact_collision_count == 0`
+- `support_pass`, `camera_clearance_pass`, `ground_continuity_pass` (Phase 2; `None`
+  counts as FAIL, never as pass)
+- `mask_invariants_pass`, pixel-level `M4 <= M3 <= M2 <= M1 <= M0` (Phase 5), non-empty M0,
+  no cross-frame duplicate M0 content hash
+- magenta pixel fraction <= {summary['magenta_max_fraction']}
+- `camera_distance_actual_m <= camera_distance_limit_m` (Phase 1, 10 m)
+- G1..G5 on the FINAL post-effect RGB (Phase 3)
+
+## What this set IS NOT
+
+**NOT "final training-ready".** The PnP eligibility threshold (2/3/4 belief-map cells) was
+NOT settled in Phase 4 - the evidence did not support fixing one - so no PnP condition was
+applied here. `usable_manifest.csv` carries `pnp_size_eligible_2cell/3cell/4cell` as a
+separate, purely informational axis (visible-keypoint bbox min side >= 16/24/32 px). Those
+columns are the SIZE half only; run `audit_pnp_eligibility.py --dir <this dir>` to add the
+solve half (`pnp_exact_success`) once cv2 is available outside Blender.
+
+## Files
+
+- `rgb/`, `mask/`, `labels/` - exactly the delivered frames
+- `records.jsonl` / `records.json` - one record per DELIVERED frame (id 0..n-1), each
+  carrying `proposal_index` and `attempt_seed` of the attempt that produced it
+- `records_rejected.jsonl` - every rejected proposal (solve-level, mode-filter and
+  render/gate/usable-level) with its reasons; images of rejected attempts are deleted
+- `usable_manifest.csv` / `.json`, `driver_summary.json`, `progress.json`
+
+## Run statistics
+
+`records_rejected.jsonl` holds **{summary['rejected_log_entries_total']}** rejected proposals in
+total (all sessions).  The counters below cover THIS session only - a resumed session that
+finds the target already filled legitimately reports zeros.
+
+```
+usable delivered       {summary['usable_delivered']:>6} / {summary['usable_target']}
+render attempts        {summary['render_attempts']:>6}   (cap {summary['max_render_attempts']}, this session)
+proposals drawn        {summary['proposals_drawn']:>6}   (this session)
+solve rejects          {summary['solve_rejects']:>6}   (this session)
+mode-filter skips      {summary['mode_filter_skips']:>6}   (this session)
+render/gate rejects    {summary['render_rejects']:>6}   (this session)
+elapsed                {summary['elapsed_s']:>6} s
+```
+
+Primary reject reason of every logged proposal (cumulative, one per rejected proposal):
+{json.dumps(cumulative, ensure_ascii=False, indent=2)}
+
+All reject reasons of THIS session (a rejected proposal reports EVERY failed condition, so a
+frame that never rendered contributes one `:unknown` entry per unmeasurable condition):
+{json.dumps(summary['reject_reason_counts'], ensure_ascii=False, indent=2)}
+"""
+    path = os.path.join(out, "README_usable.md")
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write(text)
+    return path
+
+
+def run_usable(args, dirs, vp, vr, np):
+    """--completion-mode usable: keep proposing until --n frames pass every usable condition."""
+    out = dirs["out"]
+    records_path = os.path.join(out, "records.jsonl")
+    rejected_path = os.path.join(out, "records_rejected.jsonl")
+    latest, resume_from = _resume_state(records_path, rejected_path)
+
+    delivered = sorted(latest)
+    if delivered and delivered != list(range(len(delivered))):
+        raise UsableCompletionError(
+            f"existing records.jsonl has non-contiguous usable ids: {delivered[:10]}..."
+        )
+    seen_m0 = {
+        latest[key].get("mask_m0_content_sha256")
+        for key in delivered
+        if latest[key].get("mask_m0_content_sha256")
+    }
+
+    gpu = vr.enable_gpu()
+    assets = vp.load_assets()
+    slot_modes = usable_diagnostic_modes(args.n)
+    max_render_attempts = usable_max_render_attempts(args.n, args.max_attempts)
+    max_proposals = max_render_attempts * USABLE_PROPOSAL_STREAM_FACTOR
+    stream = iter_proposals(
+        args.seed,
+        assets,
+        vp,
+        placement_mode="constrained",
+        max_proposals=max_proposals,
+    )
+    state = {
+        "delivered": len(delivered),
+        "render_attempts": 0,
+        "max_render_attempts": max_render_attempts,
+        "proposals_drawn": 0,
+        "solve_rejects": 0,
+        "mode_filter_skips": 0,
+        "render_rejects": 0,
+        "reason_counts": Counter(),
+        "solve_reason_counts": Counter(),
+        "condition_fail_counts": Counter(),
+        "primary_reason_counts": Counter(),
+        "mode_counts": Counter(
+            latest[key].get("diagnostic_mode") for key in delivered
+        ),
+    }
+    print(
+        f"[USABLE] gpu={gpu} out={out} target={args.n} resume_from_proposal={resume_from} "
+        f"already_delivered={state['delivered']} max_render_attempts={max_render_attempts} "
+        f"slot_modes={dict(Counter(slot_modes))}",
+        flush=True,
+    )
+
+    session_start = time.time()
+    consecutive_mode_skips = 0
+    stop_reason = None
+    while state["delivered"] < args.n:
+        try:
+            proposal_index, plan, reject = next(stream)
+        except StopIteration:
+            stop_reason = (
+                f"proposal stream exhausted after {max_proposals} draws "
+                f"({state['delivered']}/{args.n} usable)"
+            )
+            break
+        if proposal_index < resume_from:
+            continue          # replaying a previous session's stream; do not re-log
+        state["proposals_drawn"] += 1
+
+        slot = state["delivered"]
+        mode = slot_modes[slot]
+
+        if reject is not None:
+            state["solve_rejects"] += 1
+            reason = f"solve_reject:{reject.reason}"
+            state["reason_counts"][reason] += 1
+            state["solve_reason_counts"][reject.reason] += 1
+            state["primary_reason_counts"][reason] += 1
+            _append_record(rejected_path, {
+                "proposal_index": int(proposal_index),
+                "usable_slot": int(slot),
+                "diagnostic_mode": mode,
+                "stage": "solve",
+                "primary_reject_reason": reason,
+                "reject_reason": reason,
+                "reject_reasons": [reason],
+                "solve_reject_detail": reject.detail,
+                "spec": reject.spec.to_dict(),
+            })
+            continue
+
+        if (
+            mode == "controlled-occlusion"
+            and float(plan.spec.f_target) <= 1e-6
+            and consecutive_mode_skips < CONTROLLED_MODE_MAX_SKIPS
+        ):
+            # A controlled-occlusion slot wants a plan that carries an explicit occluder;
+            # plans are free, renders are not.  Bounded so the slot can always be filled.
+            consecutive_mode_skips += 1
+            state["mode_filter_skips"] += 1
+            reason = "proposal_skip:mode_requires_explicit_occluder"
+            state["reason_counts"][reason] += 1
+            state["primary_reason_counts"][reason] += 1
+            _append_record(rejected_path, {
+                "proposal_index": int(proposal_index),
+                "usable_slot": int(slot),
+                "diagnostic_mode": mode,
+                "stage": "mode_filter",
+                "primary_reject_reason": reason,
+                "reject_reason": reason,
+                "reject_reasons": [reason],
+                "f_target": float(plan.spec.f_target),
+            })
+            continue
+        consecutive_mode_skips = 0
+
+        if state["render_attempts"] >= max_render_attempts:
+            stop_reason = (
+                f"render attempt cap reached ({max_render_attempts}); "
+                f"{state['delivered']}/{args.n} usable"
+            )
+            break
+        state["render_attempts"] += 1
+
+        processed = _process_frame(
+            slot,
+            plan,
+            mode,
+            args,
+            assets,
+            dirs,
+            vp,
+            vr,
+            np,
+            write_label=False,
+        )
+        record = processed["record"]
+        record["completion_mode"] = "usable"
+        record["proposal_index"] = int(proposal_index)
+        record["attempt_seed"] = int(processed["frame_seed"])
+        record["usable_slot"] = int(slot)
+
+        meas = processed["meas"]
+        if meas is not None:
+            record.update(_mask_integrity_fields(meas.get("mask_paths")))
+            keypoints = _visible_keypoint_metrics(meas)
+            record.update(keypoints)
+            record.update(
+                pnp_size_fields(
+                    keypoints.get("bbox_vis_min_side_px"),
+                    record.get("mask_m0_area_px"),
+                )
+            )
+
+        verdict = usable_conditions(
+            record,
+            magenta_max=args.magenta_max_fraction,
+            seen_m0_hashes=seen_m0,
+        )
+        record["usable"] = verdict["usable"]
+        record["usable_failed_conditions"] = verdict["failed_conditions"]
+        record["usable_unknown_conditions"] = verdict["unknown_conditions"]
+        record["usable_reject_reasons"] = verdict["reject_reasons"]
+        record["physical_valid"] = verdict["physical_valid"]
+        record["physical_violations"] = verdict["physical_violations"]
+        record["gate_valid"] = verdict["gate_valid"]
+
+        if verdict["usable"]:
+            record["usable_id"] = int(slot)
+            record["idx"] = int(slot)
+            _write_json(processed["label_path"], processed["label"])
+            _append_record(records_path, record)
+            latest[slot] = record
+            if record.get("mask_m0_content_sha256"):
+                seen_m0.add(record["mask_m0_content_sha256"])
+            state["delivered"] += 1
+            state["mode_counts"][mode] += 1
+        else:
+            state["render_rejects"] += 1
+            for reason in verdict["reject_reasons"]:
+                state["reason_counts"][reason] += 1
+            for name in verdict["failed_conditions"]:
+                state["condition_fail_counts"][name] += 1
+            primary = primary_reject_reason(record, verdict)
+            state["primary_reason_counts"][primary] += 1
+            removed = _remove_attempt_files(record)
+            _append_record(rejected_path, {
+                "proposal_index": int(proposal_index),
+                "usable_slot": int(slot),
+                "attempt_seed": int(processed["frame_seed"]),
+                "diagnostic_mode": mode,
+                "stage": "render",
+                "primary_reject_reason": primary,
+                "reject_reason": "|".join(verdict["reject_reasons"]),
+                "reject_reasons": verdict["reject_reasons"],
+                "failed_conditions": verdict["failed_conditions"],
+                "unknown_conditions": verdict["unknown_conditions"],
+                "removed_files": removed,
+                "record": record,
+            })
+
+        _write_json(
+            os.path.join(out, "progress.json"),
+            _usable_summary(
+                args,
+                state,
+                gpu,
+                out,
+                time.time() - session_start,
+                state["delivered"] >= args.n,
+                _count_jsonl_lines(rejected_path),
+            ),
+        )
+        print(
+            f"[USABLE] delivered={state['delivered']}/{args.n} "
+            f"proposal={proposal_index} slot={slot} mode={mode} "
+            f"usable={record.get('usable')} "
+            f"reasons={record.get('usable_reject_reasons')} "
+            f"frame_s={record.get('runtime_s', 0.0):.2f}",
+            flush=True,
+        )
+
+    complete = state["delivered"] >= args.n
+    ordered = _write_records_snapshot(os.path.join(out, "records.json"), latest)
+    summary = _usable_summary(
+        args,
+        state,
+        gpu,
+        out,
+        time.time() - session_start,
+        complete,
+        _count_jsonl_lines(rejected_path),
+    )
+    manifest_path = _write_usable_manifest(out, ordered, args)
+    summary["usable_manifest"] = manifest_path
+    _write_json(os.path.join(out, "driver_summary.json"), summary)
+    _write_usable_readme(out, summary)
+    print(f"[USABLE] SESSION DONE {summary}", flush=True)
+    if not complete:
+        raise UsableCompletionError(
+            f"usable completion aborted: {stop_reason or 'unknown stop'}. "
+            f"delivered={state['delivered']}/{args.n} "
+            f"render_attempts={state['render_attempts']} "
+            f"reasons={dict(state['reason_counts'])}"
+        )
+    return summary
 
 
 if __name__ == "__main__":

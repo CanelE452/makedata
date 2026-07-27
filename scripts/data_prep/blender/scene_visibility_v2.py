@@ -862,6 +862,95 @@ def support_surface_at_xy(
     }
 
 
+def check_ground_continuity(
+    camera_pos,
+    target_xy,
+    support_objects,
+    *,
+    floor_object=None,
+    plane_size=None,
+    plane_center_xy=None,
+    hide_objects=None,
+    probe_count=placement.GROUND_PROBE_COUNT,
+    ray_start_z=None,
+    ray_distance=None,
+    min_support_normal_z=0.5,
+    step_tolerance_m=placement.GROUND_PROBE_STEP_TOLERANCE_M,
+):
+    """Probe the ground along the camera->target segment and audit its continuity.
+
+    Answers "is there one continuous support surface between the camera and the pallet, and
+    does the finite procedural floor plane still cover it?". Dynamic objects standing on the
+    ground (pallet, cargo, context, explicit occluder) must be passed in `hide_objects` so
+    each ray reports the GROUND rather than whatever sits on it."""
+    camera = _np3(camera_pos)
+    points = placement.ground_probe_points_xy(
+        (float(camera[0]), float(camera[1])),
+        target_xy,
+        count=probe_count,
+    )
+    plane_bounds = (
+        placement.procedural_plane_bounds(
+            plane_center_xy if plane_center_xy is not None else target_xy,
+            plane_size,
+        )
+        if plane_size is not None
+        else None
+    )
+    floor = _as_obj(floor_object)
+
+    support_roots = _as_obj_list(support_objects)
+    if floor is not None and floor not in support_roots:
+        support_roots.append(floor)
+    if not support_roots:
+        return {
+            "ground_continuity_pass": None,
+            "ground_probe_count": len(points),
+            "ground_probe_fail_count": None,
+            "ground_probe_hit_objects": [],
+            "procedural_floor_edge_risk": None,
+            "procedural_floor_edge_margin_m": None,
+            "ground_probe_max_step_m": None,
+            "ground_probe_z_range_m": None,
+            "ground_probe_step_tolerance_m": float(step_tolerance_m),
+            "ground_continuity_reason": "no_support_objects",
+        }
+
+    start_z = (
+        float(ray_start_z)
+        if ray_start_z is not None
+        else float(camera[2]) + 2.0
+    )
+    distance = (
+        float(ray_distance)
+        if ray_distance is not None
+        else abs(start_z) + 20.0
+    )
+
+    samples = []
+    with _temporary_hidden(_as_obj_list(hide_objects)):
+        for point in points:
+            row = support_surface_at_xy(
+                point[0],
+                point[1],
+                support_roots,
+                start_z,
+                ray_distance=distance,
+                min_support_normal_z=min_support_normal_z,
+            )
+            row["point"] = (float(point[0]), float(point[1]))
+            row["hit"] = row.get("hit_object") is not None
+            samples.append(row)
+
+    return placement.ground_continuity_verdict(
+        samples,
+        floor_object_name=_obj_name(floor),
+        plane_bounds=plane_bounds,
+        step_tolerance_m=step_tolerance_m,
+        expected_count=len(points),
+    )
+
+
 def _pallet_los_samples(pallet_obj, cam_pos, pallet_name=None, orientation_overrides=None):
     geom = _pallet_geometry(pallet_obj, pallet_name=pallet_name, orientation_overrides=orientation_overrides)
     if geom is not None:

@@ -282,10 +282,13 @@ class SceneLogicRunnerScheduleTests(unittest.TestCase):
             azimuth_bin = 2
             v_target = 8
             proj_size_ratio = 0.25
+            proj_size_feasible_lower = 0.11
             f_target = 0.20
 
         class Plan:
             spec = Spec()
+            cam_distance_m = 2.64
+            camera_distance_limit_m = 10.0
 
         candidate_log = [
             {
@@ -372,10 +375,13 @@ class SceneLogicRunnerScheduleTests(unittest.TestCase):
             azimuth_bin = 2
             v_target = 8
             proj_size_ratio = 0.25
+            proj_size_feasible_lower = 0.11
             f_target = 0.20
 
         class Plan:
             spec = Spec()
+            cam_distance_m = 2.64
+            camera_distance_limit_m = 10.0
 
         expected = {
             "anchor_translation": [-8.5, -3.0, 0.0],
