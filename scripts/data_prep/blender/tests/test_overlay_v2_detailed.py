@@ -5,6 +5,7 @@ Three things must not regress:
   2. the colour contract (FRONT red / REAR blue / connector yellow / pose axes X,Y,Z)
   3. the panel layout: every row lands on its own line inside its column, clipped to the column
 """
+import hashlib
 import importlib.util
 import json
 import os
@@ -458,6 +459,10 @@ def write_fixture(root: Path, n=3, phase_fields=False, mask_violation=False):
 
 
 class TestRunner(unittest.TestCase):
+    """The debug style is now opt-in (`--style frontrear-debug`); the default is `archive`."""
+
+    DEBUG_MANIFEST = "overlay_manifest_frontrear_debug.json"
+
     def test_cli_end_to_end(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "ds"
@@ -465,14 +470,14 @@ class TestRunner(unittest.TestCase):
             out = root / "eda_phase6"
             proc = subprocess.run(
                 [sys.executable, MODULE_PATH, "--dir", str(root), "--out", str(out),
-                 "--sheet-frames", "2"],
+                 "--style", OV.STYLE_FRONTREAR, "--sheet-frames", "2"],
                 capture_output=True, text=True)
             self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
-            pngs = sorted((out / OV.OVERLAY_DIRNAME).glob("*.png"))
+            pngs = sorted((out / OV.STYLE_DIRNAMES[OV.STYLE_FRONTREAR]).glob("*.png"))
             self.assertEqual(len(pngs), 3)
-            sheets = sorted((out / "contact_sheets").glob("detailed_*.png"))
+            sheets = sorted((out / "contact_sheets_frontrear_debug").glob("detailed_*.png"))
             self.assertEqual(len(sheets), 2)
-            manifest = json.loads((out / "overlay_manifest.json").read_text(encoding="utf-8"))
+            manifest = json.loads((out / self.DEBUG_MANIFEST).read_text(encoding="utf-8"))
             self.assertEqual(manifest["frames"], 3)
             self.assertEqual(manifest["na_field_absent_counts"]["noise tier"], 3)
             self.assertEqual(manifest["na_field_absent_counts"]["ground contin."], 3)
@@ -487,12 +492,66 @@ class TestRunner(unittest.TestCase):
             write_fixture(root, n=2, phase_fields=True)
             out = root / "eda_phase6"
             proc = subprocess.run([sys.executable, MODULE_PATH, "--dir", str(root),
-                                   "--out", str(out)], capture_output=True, text=True)
+                                   "--out", str(out), "--style", OV.STYLE_FRONTREAR],
+                                  capture_output=True, text=True)
             self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
-            manifest = json.loads((out / "overlay_manifest.json").read_text(encoding="utf-8"))
+            manifest = json.loads((out / self.DEBUG_MANIFEST).read_text(encoding="utf-8"))
             self.assertNotIn("noise tier", manifest["na_field_absent_counts"])
             self.assertNotIn("ground contin.", manifest["na_field_absent_counts"])
             self.assertNotIn("luma final f/p", manifest["na_field_absent_counts"])
+
+    def test_cli_default_style_is_archive(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "ds"
+            write_fixture(root, n=2)
+            out = root / "eda_phase6"
+            proc = subprocess.run([sys.executable, MODULE_PATH, "--dir", str(root),
+                                   "--out", str(out)], capture_output=True, text=True)
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            pngs = sorted((out / "overlay").glob("*.png"))
+            self.assertEqual(len(pngs), 2)
+            self.assertFalse((out / "overlay_frontrear_debug").exists())
+            manifest = json.loads((out / "overlay_manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(manifest["style"], OV.STYLE_ARCHIVE)
+            self.assertEqual(manifest["per_frame"][0]["canvas"], [200, 160])
+            self.assertEqual(manifest["per_frame"][0]["contour_m0_px"], 0)
+            # canonical overlay = the RGB frame, nothing appended
+            with Image.open(pngs[0]) as im:
+                self.assertEqual(im.size, (200, 160))
+
+    def test_both_styles_coexist_in_one_out_dir(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "ds"
+            write_fixture(root, n=1)
+            out = root / "eda_phase6"
+            for style in (OV.STYLE_ARCHIVE, OV.STYLE_FRONTREAR):
+                proc = subprocess.run([sys.executable, MODULE_PATH, "--dir", str(root),
+                                       "--out", str(out), "--style", style],
+                                      capture_output=True, text=True)
+                self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            self.assertEqual(len(list((out / "overlay").glob("*.png"))), 1)
+            self.assertEqual(len(list((out / "overlay_frontrear_debug").glob("*.png"))), 1)
+            self.assertTrue((out / "overlay_manifest.json").exists())
+            self.assertTrue((out / self.DEBUG_MANIFEST).exists())
+
+    def test_overlay_run_never_rewrites_the_dataset(self):
+        """Overlays are a view: labels, records, masks and RGB must be byte-identical after."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "ds"
+            write_fixture(root, n=2)
+            inputs = sorted(p for p in root.rglob("*")
+                            if p.is_file() and "eda_phase6" not in p.parts)
+            before = {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                      for p in inputs}
+            self.assertTrue(any(k.startswith("labels/") for k in before))
+            proc = subprocess.run([sys.executable, MODULE_PATH, "--dir", str(root),
+                                   "--out", str(root / "eda_phase6")],
+                                  capture_output=True, text=True)
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            after = {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                     for p in root.rglob("*")
+                     if p.is_file() and "eda_phase6" not in p.parts}
+        self.assertEqual(before, after)
 
     def test_mask_inclusion_fallback_without_audit_csv(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -509,6 +568,17 @@ class TestRunner(unittest.TestCase):
                 OV.build_context(root, 0, lab, obj, v2, None, None, None, masks, computed, geom)))
             self.assertEqual(rows["mask incl."].text, "FAIL")
 
+    def test_resolve_mask_names_follows_the_dataset_profile(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "ds"
+            (root / "mask_amodal").mkdir(parents=True)
+            (root / "mask_visible").mkdir(parents=True)
+            self.assertEqual(OV.resolve_mask_names(root, None), ["m0", "m4"])
+            full = Path(tmp) / "ds2"
+            (full / "mask").mkdir(parents=True)
+            self.assertEqual(OV.resolve_mask_names(full, None), ["m0", "m1", "m2", "m3", "m4"])
+            self.assertEqual(OV.resolve_mask_names(full, "m0,m4"), ["m0", "m4"])
+
     def test_guard_refuses_existing_audit_overlay_dirs(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "ds"
@@ -521,6 +591,138 @@ class TestRunner(unittest.TestCase):
             root = Path(tmp) / "ds"
             root.mkdir(parents=True)
             OV.guard_output_dir(root, root / "eda_phase6")   # must not raise
+
+
+# ------------------------------------------------------------------------------------------
+# 7. v2 -> archive field adapter (the canonical overlay's data side)
+# ------------------------------------------------------------------------------------------
+
+class TestArchiveAdapter(unittest.TestCase):
+    def test_keypoints_are_8_corners_plus_centroid_with_camera_depth(self):
+        lab = make_label()
+        geom = OV.frame_geometry(lab, lab["objects"][0])
+        kps = OV.archive_keypoints(geom)
+        self.assertEqual(len(kps), 9)
+        self.assertEqual([(round(x, 3), round(y, 3)) for x, y, _ in kps[:8]],
+                         [(float(u), float(v)) for u, v in UV8])
+        self.assertEqual((kps[8][0], kps[8][1]), (60.0, 60.0))
+        self.assertTrue(all(z > 0 for _, _, z in kps), "fixture corners are all in front")
+        self.assertAlmostEqual(kps[8][2], 2.0, places=6)      # pose_transform translation z
+
+    def test_keypoints_none_without_projection(self):
+        self.assertIsNone(OV.archive_keypoints({}))
+        self.assertIsNone(OV.archive_keypoints(None))
+
+    def test_zero_and_false_survive_the_adapter(self):
+        rec = {"elev_actual": 0.0, "V_actual": 8, "V_vis": 0, "f_total": 0.0,
+               "n_cargo_placed": 0, "camera_distance_actual_m": 0.0}
+        meta = OV.archive_metadata(make_ctx(rec=rec))
+        self.assertEqual(meta["elevation_deg"], 0.0)
+        self.assertEqual(meta["cargo_count"], 0)
+        self.assertEqual(meta["n_unocc"], 0)
+        self.assertIs(meta["truncated"], False)               # 8 corners in image
+        self.assertIs(meta["occluded"], False)                # f_total == 0.0
+        self.assertEqual(meta["distance_m"], 0.0)
+        lines = OV.ARCHIVE.format_panel_lines(meta)
+        self.assertEqual(lines[19], "Trunc: N Occ: N Cargo: 0")
+        self.assertEqual(lines[7], "Elev: 0.0deg  V:8/8")
+        self.assertEqual(lines[4], "Distance: 0.00m")
+        # every numeric line is a value, not a gap (line 1 IS N/A here: the fixture has no name)
+        self.assertNotIn("N/A", " ".join(lines[4:13]))
+        self.assertEqual(lines[1], "Object: N/A")
+
+    def test_missing_v2_fields_stay_none(self):
+        lab = make_label()
+        lab["objects"][0]["v2_labels"] = {}
+        del lab["objects"][0]["dimensions_m"]
+        meta = OV.archive_metadata(make_ctx(lab=lab))
+        for key in ("elevation_deg", "cargo_count", "occluded", "size_mm"):
+            self.assertIsNone(meta[key], key)
+        lines = OV.ARCHIVE.format_panel_lines(meta)
+        self.assertEqual(lines[17], "Size: N/A")
+        self.assertTrue(lines[19].endswith("Cargo: ?"))
+        self.assertIn("Occ: ?", lines[19])
+
+    def test_truncation_is_derived_from_in_image_corners(self):
+        lab = make_label()
+        lab["objects"][0]["projected_cuboid"] = [[-50, -50]] + UV8[1:]
+        lab["objects"][0]["v2_labels"] = {}
+        meta = OV.archive_metadata(make_ctx(lab=lab))
+        self.assertEqual(meta["n_in"], 7)
+        self.assertIs(meta["truncated"], True)
+
+    def test_recorded_visibility_wins_over_the_derived_count(self):
+        meta = OV.archive_metadata(make_ctx(rec={"V_actual": 5, "V_vis": 4}))
+        self.assertEqual(meta["n_in"], 5)
+        self.assertEqual(meta["n_unocc"], 4)
+        self.assertEqual(meta["n_both"], 4)
+
+    def test_area_uses_the_archive_corner_bbox_definition(self):
+        meta = OV.archive_metadata(make_ctx())
+        # UV8 spans x 20..100, y 20..100 on a 200x160 image
+        self.assertAlmostEqual(meta["area_pct"], (80 * 80) / (200 * 160) * 100.0, places=6)
+
+    def test_pose_axis_projection_reaches_the_canvas(self):
+        """K + pose rotation -> expected 2D endpoints -> those pixels carry the axis colour."""
+        lab = make_label()
+        lab["camera_data"].update({"width": 640, "height": 480})
+        lab["camera_data"]["intrinsics"] = {"fx": 100.0, "fy": 100.0, "cx": 400.0, "cy": 300.0}
+        obj = lab["objects"][0]
+        geom = OV.frame_geometry(lab, obj)
+        axes = OV.pose_axis_endpoints(geom)
+        np.testing.assert_allclose(axes[0]["start"], (400.0, 300.0), atol=1e-6)
+        np.testing.assert_allclose(axes[0]["end"], (425.0, 300.0), atol=1e-6)   # +0.5 m X at z=2
+        np.testing.assert_allclose(axes[1]["end"], (400.0, 325.0), atol=1e-6)
+        base = Image.new("RGB", (640, 480), (30, 40, 50))
+        ctx = OV.build_context(Path("."), 0, lab, obj, obj.get("v2_labels"), None, None, None, {})
+        canvas, stats = OV.render_archive_overlay(base, ctx)
+        self.assertEqual(stats["axes_drawn"], 3)
+        px = canvas.load()
+        self.assertEqual(px[412, 300], OV.ARCHIVE.AXIS_COLORS[0])
+        self.assertEqual(px[400, 312], OV.ARCHIVE.AXIS_COLORS[1])
+
+    def test_render_archive_overlay_keeps_the_rgb_size(self):
+        base = Image.new("RGB", (200, 160), (10, 10, 10))
+        canvas, stats = OV.render_archive_overlay(base, make_ctx(rec={"rendered": True}))
+        self.assertEqual(canvas.size, (200, 160))
+        self.assertEqual(stats["canvas"], [200, 160])
+        self.assertEqual(stats["style"], OV.STYLE_ARCHIVE)
+        self.assertTrue(stats["rgb_present"])
+        self.assertTrue(stats["cuboid_drawn"])
+        self.assertEqual(len(stats["panel_lines"]), 20)
+
+    def test_render_archive_overlay_without_rgb(self):
+        canvas, stats = OV.render_archive_overlay(None, make_ctx())
+        self.assertFalse(stats["rgb_present"])
+        self.assertEqual(canvas.size, (200, 160))
+
+    def test_corner_ids_follow_the_label_projected_cuboid_order(self):
+        """Corner i of the label must be drawn with archive colour i.
+
+        This is the keypoint-convention guard on the drawing side: the canonical overlay may not
+        re-permute `projected_cuboid` (camera_dynamic_0123_v4) on its way to the canvas.
+        """
+        lab = make_label(width=640, height=480)
+        corners = [[220, 80], [500, 80], [500, 360], [220, 360],
+                   [260, 120], [540, 120], [540, 400], [260, 400]]
+        lab["objects"][0]["projected_cuboid"] = corners
+        lab["objects"][0]["projected_cuboid_centroid"] = [380.0, 240.0]
+        canvas, stats = OV.render_archive_overlay(Image.new("RGB", (640, 480), (30, 40, 50)),
+                                                  make_ctx(lab=lab))
+        self.assertTrue(stats["cuboid_drawn"])
+        px = canvas.load()
+        for i, (x, y) in enumerate(corners):
+            self.assertEqual(px[x, y], OV.ARCHIVE.KP_COLORS[i], f"corner {i}")
+        self.assertEqual(px[380, 240], OV.ARCHIVE.KP_COLORS[8])
+        self.assertEqual(lab["objects"][0]["keypoint_convention"], "camera_dynamic_0123_v4")
+
+    def test_missing_fields_are_reported_in_the_stats(self):
+        lab = make_label()
+        lab["objects"][0]["v2_labels"] = {}
+        _, stats = OV.render_archive_overlay(Image.new("RGB", (200, 160)), make_ctx(lab=lab))
+        self.assertIn("cargo_count", stats["na_absent"])
+        self.assertIn("elevation_deg", stats["na_absent"])
+        self.assertNotIn("area_pct", stats["na_absent"])
 
 
 if __name__ == "__main__":

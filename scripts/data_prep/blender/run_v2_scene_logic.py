@@ -31,6 +31,12 @@ Two completion modes:
   G1..G5).  The PnP eligibility threshold is NOT settled (Phase 4), so the
   manifest carries the 2/3/4-cell SIZE columns as a separate, purely
   informational axis.  The output is NOT "final training-ready".
+
+``--mask-profile`` (see mask_profiles.py) chooses which masks survive:
+``full-audit`` (default) keeps M0..M4 under ``mask/`` with exact per-source occlusion
+fractions; ``public`` keeps only ``mask_amodal/`` + ``mask_visible/`` and never renders
+M1..M3, so f_static/f_cargo/f_context/f_explicit are ``null`` (NOT MEASURED) while
+f_total stays exact.
 """
 
 from __future__ import annotations
@@ -49,6 +55,9 @@ from collections import Counter
 _THIS = os.path.dirname(os.path.abspath(__file__))
 if _THIS not in sys.path:
     sys.path.insert(0, _THIS)
+
+# bpy-free (like the audit helpers below), so the unit tests can import this runner.
+import mask_profiles as MP  # noqa: E402
 
 
 DIAGNOSTIC_MODES = (
@@ -531,6 +540,14 @@ def _args():
         help="sensor degradation tier; 'auto' draws per frame from NOISE_TIER_FRAC",
     )
     parser.add_argument(
+        "--mask-profile",
+        choices=MP.MASK_PROFILES,
+        default=MP.DEFAULT_MASK_PROFILE,
+        help="full-audit = keep M0..M4 with exact per-source occlusion fractions "
+             "(500-record diagnostics); public = keep only mask_amodal/ + mask_visible/ "
+             "(M1..M3 are never rendered, so f_static/f_cargo/f_context/f_explicit are None)",
+    )
+    parser.add_argument(
         "--rerun-failures",
         action="store_true",
         help="retry indices whose latest record did not render successfully",
@@ -664,18 +681,22 @@ def _camera_distance_actual(rs, meas):
     return float(np.linalg.norm(delta))
 
 
-def _mask_integrity_fields(mask_paths):
+def _mask_integrity_fields(mask_paths, mask_profile=None):
     """Phase 5 pixel-level mask integrity for ONE frame.
 
     Reuses audit_v2_scene_logic (bpy-free, numpy+PIL only) so the runner gate and the offline
     audit answer the same question with the same code: strict decode, M4<=M3<=M2<=M1<=M0 on the
     boolean arrays, and the M0 CONTENT hash used for the cross-frame stale-mask check.
+
+    The stage list follows the run's mask profile, so a `public` frame is checked on the two
+    masks it actually has (visible subset-of amodal) instead of being failed for the three it
+    was never supposed to render.
     """
     from pathlib import Path
 
     import audit_v2_scene_logic as audit
 
-    names = list(audit.MASK_NAMES)
+    names = list(MP.mask_stages(mask_profile))
     masks = {}
     for name in names:
         path = (mask_paths or {}).get(name)
@@ -1222,6 +1243,8 @@ def _process_frame(idx, plan, mode, args, assets, dirs, vp, vr, np,
     result["label_path"] = label_path
     rs["rgb_path"] = rgb_path
     rs["mask_prefix"] = os.path.join(dirs["mask"], f"f{idx:04d}")
+    rs["mask_profile"] = args.mask_profile
+    rs["mask_paths"] = MP.frame_mask_paths(dirs["out"], idx, args.mask_profile)
     try:
         vr.render(
             rs,
@@ -1291,7 +1314,12 @@ def run():
     mask_dir = os.path.join(out, "mask")
     label_dir = os.path.join(out, "labels")
     log_dir = os.path.join(out, "logs")
-    for path in (out, rgb_dir, mask_dir, label_dir, log_dir):
+    # Only the mask directories this profile actually writes are created (public leaves no
+    # empty `mask/` behind); mask_dir stays the legacy prefix root.
+    profile_mask_dirs = [
+        os.path.join(out, name) for name in MP.mask_dirnames(args.mask_profile)
+    ]
+    for path in (out, rgb_dir, *profile_mask_dirs, label_dir, log_dir):
         os.makedirs(path, exist_ok=True)
 
     import numpy as np
@@ -1408,6 +1436,11 @@ def run():
                 1 for idx in pending if latest.get(idx, {}).get("rendered")
             ),
             "session_elapsed_s": round(time.time() - session_start, 2),
+            "mask_profile": args.mask_profile,
+            "mask_dirs": list(MP.mask_dirnames(args.mask_profile)),
+            "occlusion_decomposition_available": (
+                MP.occlusion_decomposition_available(args.mask_profile)
+            ),
         }
     )
     _write_json(os.path.join(out, "driver_summary.json"), final_summary)
@@ -1543,6 +1576,11 @@ def _usable_summary(args, state, gpu, out, elapsed_s, complete, rejected_log_ent
         "diagnostic_mode_counts": dict(state["mode_counts"]),
         "render_profile": args.render_profile,
         "noise_tier": args.noise_tier,
+        "mask_profile": args.mask_profile,
+        "mask_dirs": list(MP.mask_dirnames(args.mask_profile)),
+        "occlusion_decomposition_available": MP.occlusion_decomposition_available(
+            args.mask_profile
+        ),
         "magenta_max_fraction": float(args.magenta_max_fraction),
         "gpu": gpu,
         "out": out,
@@ -1633,6 +1671,20 @@ def _write_usable_readme(out, summary):
     cumulative = _cumulative_primary_reasons(
         os.path.join(out, "records_rejected.jsonl")
     )
+    mask_profile = summary.get("mask_profile", MP.DEFAULT_MASK_PROFILE)
+    mask_stages = MP.mask_stages(mask_profile)
+    inclusion_chain = " <= ".join(stage.upper() for stage in reversed(mask_stages))
+    mask_dirs_text = ", ".join(f"`{name}/`" for name in MP.mask_dirnames(mask_profile))
+    if MP.occlusion_decomposition_available(mask_profile):
+        decomposition_text = (
+            "`f_static` / `f_cargo` / `f_context` / `f_explicit` are EXACT "
+            "(M0..M4 all rendered)."
+        )
+    else:
+        decomposition_text = (
+            "`f_static` / `f_cargo` / `f_context` / `f_explicit` are `null` = NOT MEASURED "
+            "(M1..M3 were never rendered). `f_total` is still exact, from M0 and M4."
+        )
     text = f"""# usable-completion output
 
 `run_v2_scene_logic.py --completion-mode usable --n {summary['usable_target']}`
@@ -1648,7 +1700,7 @@ AND-ed (`run_v2_scene_logic.usable_conditions`):
 - `exact_collision_count == 0`
 - `support_pass`, `camera_clearance_pass`, `ground_continuity_pass` (Phase 2; `None`
   counts as FAIL, never as pass)
-- `mask_invariants_pass`, pixel-level `M4 <= M3 <= M2 <= M1 <= M0` (Phase 5), non-empty M0,
+- `mask_invariants_pass`, pixel-level `{inclusion_chain}` (Phase 5), non-empty M0,
   no cross-frame duplicate M0 content hash
 - magenta pixel fraction <= {summary['magenta_max_fraction']}
 - `camera_distance_actual_m <= camera_distance_limit_m` (Phase 1, 10 m)
@@ -1665,7 +1717,8 @@ solve half (`pnp_exact_success`) once cv2 is available outside Blender.
 
 ## Files
 
-- `rgb/`, `mask/`, `labels/` - exactly the delivered frames
+- `rgb/`, {mask_dirs_text}, `labels/` - exactly the delivered frames
+  (mask profile `{mask_profile}`: {decomposition_text})
 - `records.jsonl` / `records.json` - one record per DELIVERED frame (id 0..n-1), each
   carrying `proposal_index` and `attempt_seed` of the attempt that produced it
 - `records_rejected.jsonl` - every rejected proposal (solve-level, mode-filter and
@@ -1845,7 +1898,11 @@ def run_usable(args, dirs, vp, vr, np):
 
         meas = processed["meas"]
         if meas is not None:
-            record.update(_mask_integrity_fields(meas.get("mask_paths")))
+            record.update(
+                _mask_integrity_fields(
+                    meas.get("mask_paths"), meas.get("mask_profile")
+                )
+            )
             keypoints = _visible_keypoint_metrics(meas)
             record.update(keypoints)
             record.update(

@@ -49,6 +49,12 @@ from typing import Any
 import numpy as np
 from PIL import Image, ImageDraw, ImageFile, ImageFont
 
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+if _THIS_DIR not in sys.path:
+    sys.path.insert(0, _THIS_DIR)
+
+import mask_profiles as MP  # noqa: E402  (bpy-free; shared mask layout/profile definition)
+
 # Strict decode: a truncated PNG must raise instead of being silently zero-filled. Another import
 # in the same process can flip this global, so pin it here.
 ImageFile.LOAD_TRUNCATED_IMAGES = False
@@ -56,11 +62,12 @@ ImageFile.LOAD_TRUNCATED_IMAGES = False
 
 DEFAULT_DIR = "data/pallet/_v2_scene_logic_500_seed7500"
 DEFAULT_OUT_DIRNAME = "eda"
-MASK_NAMES = ["m0", "m1", "m2", "m3", "m4"]
+MASK_NAMES = list(MP.mask_stages(MP.FULL_AUDIT))
 DEFAULT_MASK_REPORT_DIRNAME = "mask_integrity"
 # Which scene component removes target pixels on each M(i-1) -> M(i) transition
-# (scene_placement_v2.OCCLUSION_DECOMPOSITION_ORDER / _MASK_AREA_KEYS).
-MASK_STAGE_OCCLUDER_SOURCE = {"m1": "static", "m2": "cargo", "m3": "context", "m4": "explicit"}
+# (scene_placement_v2.OCCLUSION_DECOMPOSITION_ORDER / _MASK_AREA_KEYS).  Rebound in main()
+# for a `public` set, where the single M0 -> M4 transition carries every source at once.
+MASK_STAGE_OCCLUDER_SOURCE = MP.stage_occluder_source(MP.FULL_AUDIT)
 # Foreground pixels of a target mask must lie inside the projected cuboid hull, so anything above
 # this is flagged for review. [미검증 시작값] - reported only, never a hard audit failure.
 DEFAULT_HULL_OUTSIDE_WARN_RATIO = 0.20
@@ -169,7 +176,16 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Audit v2 scene-logic frames and overlays.")
     p.add_argument("--dir", default=DEFAULT_DIR, help="Input dataset root.")
     p.add_argument("--out", default=None, help="Output directory. Default: <dir>/eda")
-    p.add_argument("--mask-names", default=",".join(MASK_NAMES), help="Comma-separated mask suffixes.")
+    p.add_argument("--mask-names", default=None, help="Comma-separated mask suffixes. Default: the mask profile's stages.")
+    p.add_argument(
+        "--mask-profile",
+        default="auto",
+        choices=("auto", *MP.MASK_PROFILES),
+        help=(
+            "Which mask layout the dataset uses (mask_profiles.py). auto = detect from the "
+            "directories present: mask_amodal/+mask_visible/ -> public, else full-audit."
+        ),
+    )
     p.add_argument("--target-mask", default="m0", help="Mask suffix used for empty-target check.")
     p.add_argument("--max-sheet-frames", type=int, default=20, help="Max frames per contact sheet.")
     p.add_argument("--magenta-threshold", type=float, default=0.0, help="Fail if magenta ratio is greater than this.")
@@ -183,6 +199,44 @@ def parse_args() -> argparse.Namespace:
 
 def as_path(s: str | os.PathLike[str]) -> Path:
     return Path(s).expanduser().resolve()
+
+
+def resolve_mask_setup(args: argparse.Namespace, root: Path) -> tuple[str, list[str]]:
+    """(mask profile, ordered stage names) for this dataset.
+
+    `--mask-names` still wins when given explicitly (legacy suffixes such as unocc/visible);
+    otherwise the stage list comes from the profile, so a `public` set is audited on the two
+    masks it has instead of being failed for the three it never rendered.
+    """
+    profile = args.mask_profile
+    if profile == "auto":
+        profile = MP.detect_profile(root)
+    if args.mask_names:
+        mask_names = [x.strip() for x in args.mask_names.split(",") if x.strip()]
+    else:
+        mask_names = list(MP.mask_stages(profile))
+    if args.target_mask not in mask_names:
+        mask_names = [args.target_mask] + mask_names
+    return profile, mask_names
+
+
+def count_mask_files(root: Path, profile: str = MP.FULL_AUDIT) -> int:
+    """Permanent mask files on disk, counted in whatever layout this profile writes."""
+    if profile == MP.PUBLIC:
+        return sum(
+            len(list((root / dirname).glob("f*.png")))
+            for dirname in MP.mask_dirnames(MP.PUBLIC)
+        )
+    return len(list((root / "mask").glob("f*_*.png")))
+
+
+def mask_file_path(root: Path, idx: int, name: str, profile: str = MP.FULL_AUDIT) -> Path:
+    """Where mask stage `name` of frame `idx` lives under `root` for this profile."""
+    paths = MP.frame_mask_paths(root, idx, profile)
+    if name in paths:
+        return Path(paths[name])
+    # Legacy/explicit suffix outside the profile's stage list (e.g. --mask-names unocc,visible).
+    return root / "mask" / f"f{idx:04d}_{name}.png"
 
 
 def read_json(path: Path) -> Any | None:
@@ -287,7 +341,12 @@ def load_records(root: Path) -> tuple[dict[int, dict[str, Any]], dict[str, Any]]
     }
 
 
-def discover_indices(root: Path, records: dict[int, dict[str, Any]], mask_names: list[str]) -> list[int]:
+def discover_indices(
+    root: Path,
+    records: dict[int, dict[str, Any]],
+    mask_names: list[str],
+    profile: str = MP.FULL_AUDIT,
+) -> list[int]:
     indices = set(records.keys())
     for path in (root / "rgb").glob("f*_rgb.png"):
         m = re.match(r"f(\d+)_rgb\.png$", path.name)
@@ -297,6 +356,13 @@ def discover_indices(root: Path, records: dict[int, dict[str, Any]], mask_names:
         m = re.match(r"f(\d+)_label\.json$", path.name)
         if m:
             indices.add(int(m.group(1)))
+    if profile == MP.PUBLIC:
+        for dirname in MP.mask_dirnames(MP.PUBLIC):
+            for path in (root / dirname).glob("f*.png"):
+                m = re.match(r"f(\d+)\.png$", path.name)
+                if m:
+                    indices.add(int(m.group(1)))
+        return sorted(indices)
     for suffix in mask_names:
         for path in (root / "mask").glob(f"f*_{suffix}.png"):
             m = re.match(r"f(\d+)_" + re.escape(suffix) + r"\.png$", path.name)
@@ -1013,6 +1079,7 @@ def evaluate_frame(
     duplicate_filenames: set[str],
     magenta_threshold: float,
     hull_outside_warn_ratio: float = DEFAULT_HULL_OUTSIDE_WARN_RATIO,
+    mask_profile: str = MP.FULL_AUDIT,
 ) -> tuple[dict[str, Any], Image.Image | None, dict[str, Any] | None, dict[str, Any] | None, dict[str, dict[str, Any]]]:
     frame = f"f{idx:04d}"
     lab, obj, v2 = load_label(root, idx)
@@ -1026,7 +1093,10 @@ def evaluate_frame(
     width = rgb.get("width") or cam.get("width")
     height = rgb.get("height") or cam.get("height")
     in_count = in_image_count(pc, width, height)
-    masks = {name: strict_decode_mask(root / "mask" / f"{frame}_{name}.png") for name in mask_names}
+    masks = {
+        name: strict_decode_mask(mask_file_path(root, idx, name, mask_profile))
+        for name in mask_names
+    }
     areas = [masks[name]["area"] for name in mask_names if masks[name]["decode_ok"]]
     mask_monotonic_ok = None
     if len(areas) == len(mask_names):
@@ -1574,6 +1644,7 @@ def build_mask_hash_rows(
     rows: list[dict[str, Any]],
     groups: list[dict[str, Any]],
     mask_names: list[str],
+    mask_profile: str = MP.FULL_AUDIT,
 ) -> list[dict[str, Any]]:
     group_by_key: dict[tuple[str, str], dict[str, Any]] = {(g["stage"], g["group_key"]): g for g in groups}
     out: list[dict[str, Any]] = []
@@ -1596,7 +1667,8 @@ def build_mask_hash_rows(
                     "frame_id": frame,
                     "diagnostic_mode": row.get("diagnostic_mode") or row.get("mode"),
                     "stage": name,
-                    "path": str(Path("mask") / f"{frame}_{name}.png"),
+                    # dataset-relative (Path(".") normalises the leading dot away)
+                    "path": str(mask_file_path(Path("."), idx, name, mask_profile)),
                     "present": row.get(f"mask_{name}_present"),
                     "decode_ok": row.get(f"mask_{name}_decode_ok"),
                     "decode_error": row.get(f"mask_{name}_error"),
@@ -1806,10 +1878,11 @@ def write_mask_integrity_reports(
     target_mask: str,
     max_sheet_frames: int,
     hull_outside_warn_ratio: float,
+    mask_profile: str = MP.FULL_AUDIT,
 ) -> dict[str, Any]:
     groups = cross_frame_mask_duplicates(root, rows, mask_names, target_mask)
     apply_mask_duplicate_findings(rows, groups, mask_names)
-    hash_rows = build_mask_hash_rows(root, rows, groups, mask_names)
+    hash_rows = build_mask_hash_rows(root, rows, groups, mask_names, mask_profile)
     inclusion_failures = build_mask_inclusion_failure_rows(rows)
     summary = mask_integrity_summary(rows, groups, inclusion_failures, mask_names, hull_outside_warn_ratio)
 
@@ -1821,6 +1894,7 @@ def write_mask_integrity_reports(
             {
                 "root": str(root),
                 "mask_names": mask_names,
+                "mask_profile": mask_profile,
                 "target_mask": target_mask,
                 "stage_occluder_source": MASK_STAGE_OCCLUDER_SOURCE,
                 "classification_rules": {
@@ -1879,6 +1953,9 @@ def write_mask_integrity_reports(
 
 def collect_duplicate_filenames(root: Path) -> set[str]:
     names = []
+    # Public mask dirs are deliberately excluded: mask_amodal/fNNNN.png and
+    # mask_visible/fNNNN.png share a basename BY DESIGN, and the duplicate-filename verdict
+    # (evaluate_frame) only ever looks at the rgb/label names anyway.
     for sub in ("rgb", "labels", "mask"):
         base = root / sub
         if base.exists():
@@ -2173,17 +2250,18 @@ def merge_visual_audit_readme(path: Path, summary: dict[str, Any]) -> None:
     path.write_text(text, encoding="utf-8")
 
 
-def write_self_test_fixture(root: Path, mask_names: list[str]) -> None:
+def write_self_test_fixture(root: Path, mask_names: list[str], mask_profile: str = MP.FULL_AUDIT) -> None:
     (root / "rgb").mkdir(parents=True, exist_ok=True)
     (root / "labels").mkdir(parents=True, exist_ok=True)
-    (root / "mask").mkdir(parents=True, exist_ok=True)
     Image.new("RGB", (64, 48), (70, 70, 65)).save(root / "rgb" / "f0000_rgb.png")
     # Nested rectangles inside the projected cuboid below, so the fixture also satisfies the
     # pixel-level inclusion chain and the hull-alignment check.
     for i, name in enumerate(mask_names):
         arr = np.zeros((48, 64), dtype=np.uint8)
         arr[16 + i : 32 - i, 21 + i : 43 - i] = 255
-        Image.fromarray(arr, mode="L").save(root / "mask" / f"f0000_{name}.png")
+        path = mask_file_path(root, 0, name, mask_profile)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        Image.fromarray(arr, mode="L").save(path)
 
     label = {
         "camera_data": {
@@ -2242,14 +2320,20 @@ def write_self_test_fixture(root: Path, mask_names: list[str]) -> None:
 
 
 def run_self_test(args: argparse.Namespace) -> int:
-    mask_names = [x.strip() for x in args.mask_names.split(",") if x.strip()]
+    mask_profile = (
+        MP.DEFAULT_MASK_PROFILE if args.mask_profile == "auto" else args.mask_profile
+    )
+    if args.mask_names:
+        mask_names = [x.strip() for x in args.mask_names.split(",") if x.strip()]
+    else:
+        mask_names = list(MP.mask_stages(mask_profile))
     if args.target_mask not in mask_names:
         mask_names = [args.target_mask] + mask_names
     with tempfile.TemporaryDirectory(prefix="scene_logic_audit_selftest_") as tmp:
         tmp_root = Path(tmp)
         root = tmp_root / "fixture"
         out = root / DEFAULT_OUT_DIRNAME
-        write_self_test_fixture(root, mask_names)
+        write_self_test_fixture(root, mask_names, mask_profile)
         fixture_records, fixture_record_meta = load_records(root)
         errors = []
         if fixture_record_meta.get("source_used") != "records.jsonl":
@@ -2285,6 +2369,8 @@ def run_self_test(args: argparse.Namespace) -> int:
             str(root),
             "--mask-names",
             ",".join(mask_names),
+            "--mask-profile",
+            mask_profile,
             "--target-mask",
             args.target_mask,
             "--max-sheet-frames",
@@ -2374,11 +2460,10 @@ def main() -> int:
         return run_self_test(args)
     root = as_path(args.dir)
     out = as_path(args.out) if args.out else root / DEFAULT_OUT_DIRNAME
-    mask_names = [x.strip() for x in args.mask_names.split(",") if x.strip()]
-    if args.target_mask not in mask_names:
-        mask_names = [args.target_mask] + mask_names
-    global MASK_NAMES
+    mask_profile, mask_names = resolve_mask_setup(args, root)
+    global MASK_NAMES, MASK_STAGE_OCCLUDER_SOURCE
     MASK_NAMES = mask_names
+    MASK_STAGE_OCCLUDER_SOURCE = MP.stage_occluder_source(mask_profile)
 
     out.mkdir(parents=True, exist_ok=True)
     overlay_dir = out / "overlay_all"
@@ -2393,7 +2478,7 @@ def main() -> int:
     mask_report_dir.mkdir(parents=True, exist_ok=True)
 
     records, record_meta = load_records(root)
-    indices = discover_indices(root, records, mask_names) if root.exists() else []
+    indices = discover_indices(root, records, mask_names, mask_profile) if root.exists() else []
     duplicate_hashes = collect_hash_duplicates(root) if root.exists() else set()
     duplicate_filenames = collect_duplicate_filenames(root) if root.exists() else set()
     duplicate_records = set(record_meta.get("duplicate_record_indices", []))
@@ -2413,6 +2498,7 @@ def main() -> int:
             duplicate_filenames,
             args.magenta_threshold,
             args.hull_outside_warn_ratio,
+            mask_profile,
         )
         rows.append(row)
         masks_cache[idx] = masks
@@ -2429,6 +2515,7 @@ def main() -> int:
         args.target_mask,
         args.max_sheet_frames,
         args.hull_outside_warn_ratio,
+        mask_profile,
     )
 
     columns = audit_columns(mask_names)
@@ -2559,7 +2646,7 @@ def main() -> int:
             "records": len(records),
             "rgb": len(list((root / "rgb").glob("f*_rgb.png"))) if root.exists() else 0,
             "labels": len(list((root / "labels").glob("f*_label.json"))) if root.exists() else 0,
-            "mask_files": len(list((root / "mask").glob("f*_*.png"))) if root.exists() else 0,
+            "mask_files": count_mask_files(root, mask_profile) if root.exists() else 0,
             "overlays": len(list(overlay_dir.glob("*.png"))),
         },
         "file_count_mismatch_indices": [r["idx"] for r in rows if r.get("file_count_mismatch")],
@@ -2589,6 +2676,7 @@ def main() -> int:
         "missing_expected_indices": missing_expected_indices,
         "unexpected_indices": unexpected_indices,
         "mask_names": mask_names,
+        "mask_profile": mask_profile,
         "target_mask": args.target_mask,
         "mask_monotonic_assumption": "areas must be non-increasing in mask_names order",
         "mask_integrity": mask_integrity,

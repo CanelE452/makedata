@@ -46,6 +46,7 @@ for _p in (str(_THIS_DIR), str(_REPO_ROOT / "scripts" / "self_training")):
 import cv2  # noqa: E402  (project dependency, see requirements.txt)
 
 from blender_math import build_view_matrix  # noqa: E402  (bpy-free helper)
+import mask_profiles as MP  # noqa: E402  (bpy-free mask layout/profile definition)
 from pnp_solver import PalletPnPSolver, make_pallet_keypoints_3d  # noqa: E402
 
 
@@ -561,7 +562,8 @@ def evaluate_frame(root: Path, idx: int, rec: dict[str, Any] | None, args) -> di
         AUDIT.nested(obj, ["scene_placement_v2", "diagnostic_mode"]) if obj else None)
     row["noise_tier"] = rec.get("noise_tier")
 
-    m0 = AUDIT.mask_area(root / "mask" / f"{frame_id}_m0.png")
+    # Layout-agnostic: full-audit keeps mask/fNNNN_m0.png, public keeps mask_amodal/fNNNN.png.
+    m0 = AUDIT.mask_area(Path(MP.resolve_frame_mask_path(root, idx, MP.AMODAL_STAGE)))
     row["mask_m0_area"] = m0.get("area")
     mb = mask_bbox(m0.get("image"))
     row["mask_m0_bbox_w_px"] = mb["w"]

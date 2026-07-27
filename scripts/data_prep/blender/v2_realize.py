@@ -60,6 +60,7 @@ from randomizers import (
 from pallet_geometry import object_bottom_z_world, object_top_z_world
 import distractor_pool_v2 as dpool
 import camera_effects as CE
+import mask_profiles as MP
 import scene_placement_v2 as SP2
 import scene_visibility_v2 as SV2
 from efront_kp12 import compute_efront_kp12, efront_result_to_json
@@ -3582,9 +3583,9 @@ def measure_geometry_and_masks(rs):
     # carries its final render visibility.
     ground = _measure_ground_continuity(rs, centroid_world)
 
-    # Occlusion masks (paths under the run dir supplied by driver via
-    # rs['mask_prefix']). Legacy keeps its original three passes; constrained
-    # adds the source-separated M0..M4 sequence.
+    # Occlusion masks (paths under the run dir supplied by driver via rs['mask_prefix'] or
+    # rs['mask_paths']). Legacy keeps its original three passes; constrained renders the
+    # stages of its mask profile (mask_profiles.py): full-audit = M0..M4, public = M0/M4.
     prefix = rs.get("mask_prefix")
     masks = {}
     if prefix:
@@ -3592,74 +3593,43 @@ def measure_geometry_and_masks(rs):
             cargo = list(rs.get("cargo") or [])
             context = list(rs.get("context") or [])
             explicit = rs.get("occluder")
-            mask_paths = {
-                "m0": prefix + "_m0.png",
-                "m1": prefix + "_m1.png",
-                "m2": prefix + "_m2.png",
-                "m3": prefix + "_m3.png",
-                "m4": prefix + "_m4.png",
+            # Which masks this run keeps decides which holdout passes run at all: the public
+            # profile renders M0/M4 only (three passes fewer) and reports the per-source
+            # fractions as None, because they are NOT MEASURED - not zero.
+            profile = MP.normalize_profile(rs.get("mask_profile"))
+            mask_paths = rs.get("mask_paths")
+            if mask_paths is None:
+                mask_paths = MP.mask_paths_from_prefix(prefix, profile)
+            for path in mask_paths.values():
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+            hide_groups = {
+                "all_nonpallet": _all_nonpallet_visible(pobj),
+                "cargo": cargo,
+                "context": context,
+                "explicit": [explicit] if explicit is not None else [],
             }
-            a0, _ = _render_holdout(
-                scene,
-                pobj,
-                mask_paths["m0"],
-                extra_hide=_all_nonpallet_visible(pobj),
-            )
-            a1, _ = _render_holdout(
-                scene,
-                pobj,
-                mask_paths["m1"],
-                extra_hide=[
-                    *cargo,
-                    *context,
-                    *([explicit] if explicit is not None else []),
-                ],
-            )
-            a2, _ = _render_holdout(
-                scene,
-                pobj,
-                mask_paths["m2"],
-                extra_hide=[
-                    *context,
-                    *([explicit] if explicit is not None else []),
-                ],
-            )
-            a3, _ = _render_holdout(
-                scene,
-                pobj,
-                mask_paths["m3"],
-                extra_hide=[explicit] if explicit is not None else [],
-            )
-            a4, _ = _render_holdout(scene, pobj, mask_paths["m4"])
-            invariant = SP2.validate_mask_decomposition(a0, a1, a2, a3, a4)
-            if invariant["valid"]:
-                decomposition = SP2.decompose_mask_areas(a0, a1, a2, a3, a4)
-            else:
-                base = float(a0)
-                decomposition = {
-                    "mask_area_target_only": float(a0),
-                    "mask_area_after_static": float(a1),
-                    "mask_area_after_cargo": float(a2),
-                    "mask_area_after_context": float(a3),
-                    "mask_area_visible": float(a4),
-                    "f_static": (float(a0 - a1) / base) if base else None,
-                    "f_cargo": (float(a1 - a2) / base) if base else None,
-                    "f_context": (float(a2 - a3) / base) if base else None,
-                    "f_explicit": (float(a3 - a4) / base) if base else None,
-                    "f_total": (float(a0 - a4) / base) if base else None,
-                    "occlusion_decomposition_order": [
-                        "M0", "M1", "M2", "M3", "M4"
-                    ],
-                }
+            areas = {}
+            for stage, extra_hide in MP.holdout_passes(profile, hide_groups):
+                areas[stage], _ = _render_holdout(
+                    scene,
+                    pobj,
+                    mask_paths[stage],
+                    extra_hide=extra_hide,
+                )
+            decomposition, invariant = MP.decompose(areas, profile)
             masks = {
                 **decomposition,
+                "mask_profile": profile,
+                "occlusion_decomposition_available": (
+                    MP.occlusion_decomposition_available(profile)
+                ),
                 "mask_paths": mask_paths,
                 "mask_invariants_pass": bool(invariant["valid"]),
                 "mask_invariant_errors": invariant["errors"],
                 # Legacy aliases remain available for downstream readers.
-                "area_unocc": a0,
-                "area_after_cargo": a2,
-                "area_visible": a4,
+                "area_unocc": areas[MP.AMODAL_STAGE],
+                "area_after_cargo": areas.get("m2"),
+                "area_visible": areas[MP.VISIBLE_STAGE],
                 "f_occ": decomposition.get("f_explicit"),
             }
         else:
@@ -3981,11 +3951,18 @@ def label(spec, plan, meas, rs):
                 "placement_mode": rs.get("placement_mode", "legacy"),
                 "diagnostic_mode": rs.get("diagnostic_mode"),
                 "mask_area_target_only": meas.get("mask_area_target_only"),
+                "mask_area_amodal": meas.get("mask_area_amodal"),
                 "mask_area_after_static": meas.get("mask_area_after_static"),
                 "mask_area_after_context": meas.get("mask_area_after_context"),
                 "f_static": meas.get("f_static"),
                 "f_context": meas.get("f_context"),
                 "f_explicit": meas.get("f_explicit"),
+                # Which masks this frame kept, and whether the per-source fractions above are
+                # exact (full-audit) or NOT MEASURED = None (public: M1..M3 never rendered).
+                "mask_profile": meas.get("mask_profile"),
+                "occlusion_decomposition_available": meas.get(
+                    "occlusion_decomposition_available"
+                ),
                 "occlusion_decomposition_order": meas.get(
                     "occlusion_decomposition_order"
                 ),

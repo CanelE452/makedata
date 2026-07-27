@@ -1,12 +1,20 @@
-"""Detailed per-frame overlay for v2 constrained frames (bpy-free, Phase 6).
+"""Per-frame overlays for v2 constrained frames (bpy-free, Phase 6).
 
-Why this exists
----------------
-`audit_v2_scene_logic.draw_overlay()` only draws the cuboid, the corner ids, the centroid and a
-one-line header. The old generator `gen_trunc_addon.render_frame()` used to draw a much richer
-overlay (pose axes, camera geometry, visibility, pose angles, an info panel and an axis legend) but
-that code lived inside a bpy render loop and died with it. This module restores that overlay as a
-standalone, bpy-free helper and extends it with everything Phase 1..5 added:
+Two styles, one runner
+----------------------
+``--style archive`` (DEFAULT, the canonical overlay)
+    The original `gen_trunc_addon.render_frame()` overlay, extracted verbatim into
+    `overlay_archive_trunc_style.py` and fed from v2 labels by `archive_metadata()` below.
+    Output canvas = the RGB frame, nothing appended. Written to ``<out>/overlay/``.
+    This is the style of `data/pallet/archive/trunc_addon_v1_pilot/overlay` and the one every
+    README / contact sheet / report should point at.
+
+``--style frontrear-debug`` (secondary, convention auditing only)
+    The wide FRONT/REAR/connector debug overlay with the external field panel and the M0/M4
+    contours. Useful to check the keypoint convention and the Phase 1..5 fields; it is NOT the
+    canonical look. Written to ``<out>/overlay_frontrear_debug/``.
+
+The debug style shows everything Phase 1..5 added:
 
   Phase 1  camera_distance_actual_m vs camera_distance_limit_m  (over-limit violation)
   Phase 2  ground_continuity_pass / probes / procedural floor edge risk
@@ -28,11 +36,11 @@ silent 0. The per-run manifest counts those so the gap is visible without openin
 Usage
 -----
   python scripts/data_prep/blender/overlay_v2_detailed.py \
-      --dir data/pallet/_v2_scene_logic_500_seed7500 \
-      --pnp-csv reports/v2_revision/pnp_threshold_study.csv
+      --dir data/pallet/_v2_scene_logic_500_seed7500
 
 Outputs (default <dir>/eda_phase6, never the existing eda/ or eda_phase5/ overlays):
-  overlay_detailed/fNNNN.png
+  overlay/fNNNN.png                 (--style archive, default)
+  overlay_frontrear_debug/fNNNN.png (--style frontrear-debug)
   contact_sheets/detailed_NNN.png
   overlay_manifest.json
 """
@@ -59,6 +67,8 @@ if str(_THIS_DIR) not in sys.path:
     sys.path.insert(0, str(_THIS_DIR))
 
 from blender_math import build_view_matrix  # noqa: E402  (bpy-free helper)
+import mask_profiles as MP  # noqa: E402  (bpy-free mask layout/profile definition)
+import overlay_archive_trunc_style as ARCHIVE  # noqa: E402  (canonical overlay, verbatim)
 
 
 def _load_audit_module():
@@ -75,8 +85,16 @@ AUDIT = _load_audit_module()
 
 DEFAULT_DIR = "data/pallet/_v2_scene_logic_500_seed7500"
 DEFAULT_OUT_DIRNAME = "eda_phase6"
-OVERLAY_DIRNAME = "overlay_detailed"
-MASK_NAMES = ["m0", "m1", "m2", "m3", "m4"]
+
+STYLE_ARCHIVE = "archive"
+STYLE_FRONTREAR = "frontrear-debug"
+STYLES = (STYLE_ARCHIVE, STYLE_FRONTREAR)
+DEFAULT_STYLE = STYLE_ARCHIVE
+# The canonical overlay owns the plain `overlay/` name; the debug style is clearly marked.
+STYLE_DIRNAMES = {STYLE_ARCHIVE: "overlay", STYLE_FRONTREAR: "overlay_frontrear_debug"}
+OVERLAY_DIRNAME = STYLE_DIRNAMES[DEFAULT_STYLE]
+# Fallback only: the actual stage list comes from the dataset's own mask profile (mask_profiles).
+MASK_NAMES = list(MP.mask_stages(MP.FULL_AUDIT))
 
 # Edge colouring kept from the current v2 audit overlay (do not switch to the old per-world-axis
 # colouring: FRONT/REAR/connector is what the keypoint convention doc uses).
@@ -495,8 +513,12 @@ def mask_boundary(fg: np.ndarray | None, thickness: int = 1) -> np.ndarray | Non
 
 
 def load_mask_foreground(root: Path, idx: int, name: str) -> dict[str, Any]:
-    """Strict-decoded mask stage: {'present','decode_ok','fg','area','error'}."""
-    path = root / "mask" / f"f{idx:04d}_{name}.png"
+    """Strict-decoded mask stage: {'present','decode_ok','fg','area','error'}.
+
+    Layout-agnostic (mask_profiles): full-audit keeps mask/fNNNN_mX.png, public keeps
+    mask_amodal/ + mask_visible/fNNNN.png.
+    """
+    path = Path(MP.resolve_frame_mask_path(root, idx, name))
     info = AUDIT.strict_decode_mask(path)
     return {
         "present": info.get("present"),
@@ -835,6 +857,126 @@ def build_context(root: Path, idx: int, lab: dict[str, Any] | None, obj: dict[st
 
 
 # --------------------------------------------------------------------------------------
+# v2 -> archive field adapter (data only; the drawing lives in overlay_archive_trunc_style)
+# --------------------------------------------------------------------------------------
+
+def archive_keypoints(geom: dict[str, Any] | None) -> list[tuple[float, float, float]] | None:
+    """The archive's 9 keypoints: 8 projected corners + centroid, each with its CAMERA-frame z.
+
+    z decides the archive's off-screen grey (`z > 0` = in front of the camera). When the label
+    carries no camera pose the depth is unknown and the corner keeps its colour rather than being
+    greyed out on a guess.
+    """
+    geom = geom or {}
+    uv8 = geom.get("uv8")
+    if uv8 is None or len(uv8) != 8:
+        return None
+    corners_cam = geom.get("corners_cam")
+    pts: list[tuple[float, float, float]] = []
+    for i in range(8):
+        z = float(corners_cam[i, 2]) if corners_cam is not None else 1.0
+        pts.append((float(uv8[i][0]), float(uv8[i][1]), z))
+    uv_c = geom.get("uv_centroid")
+    pose_t = geom.get("pose_t")
+    if uv_c is None:
+        cx = sum(p[0] for p in pts) / 8.0
+        cy = sum(p[1] for p in pts) / 8.0
+    else:
+        cx, cy = float(uv_c[0]), float(uv_c[1])
+    if pose_t is not None:
+        cz = float(pose_t[2])
+    elif corners_cam is not None:
+        cz = float(corners_cam[:, 2].mean())
+    else:
+        cz = 1.0
+    pts.append((cx, cy, cz))
+    return pts
+
+
+def _round_or_none(value: Any, digits: int) -> float | None:
+    if value is None:
+        return None
+    try:
+        return round(float(value), digits)
+    except (TypeError, ValueError):
+        return None
+
+
+def archive_metadata(ctx: dict[str, Any]) -> dict[str, Any]:
+    """v2 label/record -> the archive panel's fields.
+
+    Missing stays missing: a field the v2 pipeline does not record is passed as None so the panel
+    prints `N/A` / `?`. 0, 0.0 and False are values and are passed through untouched.
+    """
+    geom = ctx.get("geom") or {}
+    obj = ctx.get("obj") or {}
+    rec = ctx.get("rec") or {}
+    v2 = ctx.get("v2") or {}
+    sp = ctx.get("sp") or {}
+    cam = ctx.get("cam") or {}
+    euler = ctx.get("euler") or {}
+
+    # V:/Kpt Vis = corners inside the image; falls back to the count derived from the projection.
+    n_in = AUDIT.int_value(AUDIT.first_value(rec.get("V_actual"), v2.get("V_actual")))
+    if n_in is None:
+        n_in = ctx.get("kp_in_image")
+    # v2 records a single raycast visibility count; Ray Vis and Combined both report it.
+    v_vis = AUDIT.int_value(AUDIT.first_value(rec.get("V_vis"), v2.get("V_vis_actual")))
+
+    kps = archive_keypoints(geom)
+    area_pct = None
+    if kps is not None and geom.get("W") and geom.get("H"):
+        area_pct = ARCHIVE.corner_bbox_area_pct(kps, geom["W"], geom["H"])
+
+    f_total = AUDIT.first_value(rec.get("f_total"), v2.get("f_total"), sp.get("f_total"))
+    cargo_n = AUDIT.int_value(AUDIT.first_value(v2.get("n_cargo_actual"), rec.get("n_cargo_placed"),
+                                                sp.get("n_cargo_placed")))
+    dims = obj.get("dimensions_m") if isinstance(obj.get("dimensions_m"), dict) else None
+    size_mm = None
+    if dims:
+        try:
+            size_mm = (int(float(dims["width"]) * 1000), int(float(dims["height"]) * 1000),
+                       int(float(dims["depth"]) * 1000))
+        except (KeyError, TypeError, ValueError):
+            size_mm = None
+    cam_pos = geom.get("cam_pos")
+
+    return {
+        "frame": ctx.get("idx"),
+        "object_name": obj.get("name"),
+        # v2 has no "scenario"; the diagnostic mode is what selects the scene composition.
+        "scenario": AUDIT.first_value(rec.get("diagnostic_mode"), sp.get("diagnostic_mode"),
+                                      cam.get("scene_preset"), rec.get("scene_preset")),
+        "background": AUDIT.first_value(cam.get("background_asset"), rec.get("background_asset")),
+        "distance_m": AUDIT.first_value(rec.get("camera_distance_actual_m"),
+                                        v2.get("camera_distance_actual_m"),
+                                        geom.get("camera_distance_m")),
+        "cam_dist_surface_m": geom.get("nearest_corner_distance_m"),
+        "cam_height_m": _round_or_none(ctx.get("camera_height_m"), 2),
+        "elevation_deg": _round_or_none(AUDIT.first_value(rec.get("elev_actual"),
+                                                          v2.get("elevation_deg_actual")), 1),
+        # trunc_addon's worst-combo sampler has no v2 equivalent.
+        "worst_combo": False,
+        "lens_mm": cam.get("lens_mm"),
+        "hfov_deg": ctx.get("hfov_deg"),
+        "n_in": n_in,
+        "n_unocc": v_vis,
+        "n_both": v_vis,
+        "area_pct": area_pct,
+        "pitch_deg": euler.get("pitch"),
+        "yaw_deg": euler.get("yaw"),
+        "roll_deg": euler.get("roll"),
+        "quaternion_xyzw": obj.get("quaternion_xyzw"),
+        "size_mm": size_mm,
+        "camera_xyz": None if cam_pos is None else [float(c) for c in cam_pos],
+        # v2 has no trunc_mode; a corner outside the image IS the truncation.
+        "truncated": None if n_in is None else bool(n_in < 8),
+        "occluded": None if f_total is None else bool(float(f_total) > 0.0),
+        "cargo_count": cargo_n,
+    }
+
+
+# --------------------------------------------------------------------------------------
 # Drawing
 # --------------------------------------------------------------------------------------
 
@@ -1032,6 +1174,44 @@ def render_overlay(base: Image.Image | None, ctx: dict[str, Any], out_path: Path
     return canvas, stats
 
 
+def render_archive_overlay(base: Image.Image | None, ctx: dict[str, Any],
+                           out_path: Path | None = None) -> tuple[Image.Image, dict[str, Any]]:
+    """Canonical overlay: `overlay_archive_trunc_style` drawn on the RGB frame, same size."""
+    geom = ctx.get("geom") or {}
+    if base is None:
+        width = int(geom.get("W") or 640)
+        height = int(geom.get("H") or 480)
+        base = Image.new("RGB", (width, height), (35, 35, 35))
+        missing_rgb = True
+    else:
+        base = base.convert("RGB")
+        missing_rgb = False
+
+    kps = archive_keypoints(geom)
+    axes = pose_axis_endpoints(geom, length=ARCHIVE.AXIS_LEN_M)
+    meta = archive_metadata(ctx)
+    canvas = ARCHIVE.draw_archive_style_overlay(base, kps, axes, meta, output_path=None)
+
+    if out_path is not None:
+        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+        canvas.save(out_path)
+    lines = ARCHIVE.format_panel_lines(meta)
+    stats = {
+        "style": STYLE_ARCHIVE,
+        "contour_m0_px": 0,
+        "contour_m4_px": 0,
+        "axes_drawn": sum(1 for a in (axes or []) if a.get("ok")),
+        "cuboid_drawn": kps is not None,
+        "canvas": [canvas.width, canvas.height],
+        "rgb_present": not missing_rgb,
+        "panel_lines": lines,
+        # Fields the v2 pipeline could not supply for this frame (0/False are NOT counted).
+        "na_absent": [k for k, v in meta.items() if v is None],
+        "na_null": [],
+    }
+    return canvas, stats
+
+
 # --------------------------------------------------------------------------------------
 # Runner
 # --------------------------------------------------------------------------------------
@@ -1058,10 +1238,21 @@ def compute_mask_fallback(masks: dict[str, dict[str, Any]], mask_names: list[str
     return out
 
 
+def resolve_mask_names(root: Path, explicit: str | None) -> list[str]:
+    """Stage list of the dataset's own mask profile (public keeps m0/m4 only), unless overridden."""
+    if explicit:
+        return [n.strip() for n in explicit.split(",") if n.strip()]
+    return list(MP.mask_stages(MP.detect_profile(root)))
+
+
 def render_dataset(root: Path, out_dir: Path, args) -> dict[str, Any]:
-    mask_names = [n.strip() for n in args.mask_names.split(",") if n.strip()]
+    style = getattr(args, "style", DEFAULT_STYLE)
+    if style not in STYLES:
+        raise SystemExit(f"unknown overlay style {style!r} (expected one of {list(STYLES)})")
+    mask_names = resolve_mask_names(root, getattr(args, "mask_names", None))
     records, _ = AUDIT.load_records(root)
-    indices = AUDIT.discover_indices(root, records, mask_names)
+    indices = AUDIT.discover_indices(root, records, mask_names,
+                                     profile=MP.detect_profile(root))
     if args.indices:
         wanted = {int(i) for i in args.indices.split(",") if i.strip()}
         indices = [i for i in indices if i in wanted]
@@ -1073,7 +1264,8 @@ def render_dataset(root: Path, out_dir: Path, args) -> dict[str, Any]:
     audit_rows = load_csv_rows(audit_csv)
     pnp_rows = load_csv_rows(pnp_csv)
 
-    overlay_dir = out_dir / OVERLAY_DIRNAME
+    overlay_dirname = getattr(args, "overlay_dirname", None) or STYLE_DIRNAMES[style]
+    overlay_dir = out_dir / overlay_dirname
     overlay_dir.mkdir(parents=True, exist_ok=True)
     na_absent: dict[str, int] = {}
     na_null: dict[str, int] = {}
@@ -1083,13 +1275,19 @@ def render_dataset(root: Path, out_dir: Path, args) -> dict[str, Any]:
     for idx in indices:
         lab, obj, v2 = AUDIT.load_label(root, idx)
         rgb, rgb_info = AUDIT.strict_open_rgb(root / "rgb" / f"f{idx:04d}_rgb.png")
-        masks = {name: load_mask_foreground(root, idx, name) for name in mask_names}
+        # The canonical overlay draws no contours, so it needs no masks at all.
+        masks = ({} if style == STYLE_ARCHIVE
+                 else {name: load_mask_foreground(root, idx, name) for name in mask_names})
         geom = frame_geometry(lab, obj) or {}
-        computed = {} if audit_rows else compute_mask_fallback(masks, mask_names, geom)
+        computed = ({} if (audit_rows or style == STYLE_ARCHIVE)
+                    else compute_mask_fallback(masks, mask_names, geom))
         ctx = build_context(root, idx, lab, obj, v2, records.get(idx), audit_rows.get(idx),
                             pnp_rows.get(idx), masks, computed, geom)
         out_path = overlay_dir / f"f{idx:04d}.png"
-        _, stats = render_overlay(rgb, ctx, out_path, cols=args.panel_cols)
+        if style == STYLE_ARCHIVE:
+            _, stats = render_archive_overlay(rgb, ctx, out_path)
+        else:
+            _, stats = render_overlay(rgb, ctx, out_path, cols=args.panel_cols)
         written.append(out_path)
         for label in stats["na_absent"]:
             na_absent[label] = na_absent.get(label, 0) + 1
@@ -1102,22 +1300,30 @@ def render_dataset(root: Path, out_dir: Path, args) -> dict[str, Any]:
             "canvas": stats["canvas"], "n_absent": len(stats["na_absent"]),
         })
 
-    sheets = make_detailed_sheets(written, out_dir / "contact_sheets", args.sheet_frames,
-                                  args.sheet_cell_w)
+    # The two styles never overwrite each other's sheets/manifest inside one output dir.
+    suffix = "" if style == DEFAULT_STYLE else f"_{STYLE_DIRNAMES[style].replace('overlay_', '')}"
+    sheet_dir = out_dir / (getattr(args, "sheet_dirname", None) or f"contact_sheets{suffix}")
+    manifest_name = (f"{overlay_dirname}_manifest.json" if getattr(args, "overlay_dirname", None)
+                     else f"overlay_manifest{suffix}.json")
+    manifest_path = out_dir / manifest_name
+    sheets = make_detailed_sheets(written, sheet_dir, args.sheet_frames, args.sheet_cell_w)
     manifest = {
         "dataset": str(root),
         "out": str(out_dir),
+        "style": style,
         "frames": len(written),
         "overlay_dir": str(overlay_dir),
         "audit_csv": str(audit_csv) if audit_csv else None,
         "pnp_csv": str(pnp_csv) if pnp_csv else None,
         "mask_names": mask_names,
         "contact_sheets": sheets,
+        "contact_sheet_dir": str(sheet_dir),
         "na_field_absent_counts": dict(sorted(na_absent.items(), key=lambda kv: -kv[1])),
         "na_field_null_counts": dict(sorted(na_null.items(), key=lambda kv: -kv[1])),
         "per_frame": per_frame,
     }
-    (out_dir / "overlay_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    manifest["manifest_path"] = str(manifest_path)
     return manifest
 
 
@@ -1161,24 +1367,35 @@ def make_detailed_sheets(paths: list[Path], out_dir: Path, per_page: int,
 PROTECTED_OVERLAY_DIRS = ("eda/overlay_all", "eda_phase5/overlay_all")
 
 
-def guard_output_dir(root: Path, out_dir: Path) -> None:
+def guard_output_dir(root: Path, out_dir: Path, style: str = DEFAULT_STYLE,
+                     dirname: str | None = None) -> None:
     """Never write into the pre-existing audit overlay directories."""
+    dirname = dirname or STYLE_DIRNAMES.get(style, OVERLAY_DIRNAME)
     resolved = out_dir.resolve()
     for rel in PROTECTED_OVERLAY_DIRS:
-        if resolved == (root / rel).resolve() or (resolved / OVERLAY_DIRNAME).resolve() == (root / rel).resolve():
+        if resolved == (root / rel).resolve() or (resolved / dirname).resolve() == (root / rel).resolve():
             raise SystemExit(f"refusing to write into the existing audit overlay dir: {root / rel}")
-    if (resolved / OVERLAY_DIRNAME).exists() and any((resolved / OVERLAY_DIRNAME).glob("*.png")):
+    if (resolved / dirname).exists() and any((resolved / dirname).glob("*.png")):
         if not getattr(guard_output_dir, "allow_overwrite", False):
-            print(f"[overlay] note: {resolved / OVERLAY_DIRNAME} already has PNGs; they will be replaced")
+            print(f"[overlay] note: {resolved / dirname} already has PNGs; they will be replaced")
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Detailed per-frame overlays for v2 frames (Phase 6).")
+    p = argparse.ArgumentParser(description="Per-frame overlays for v2 frames (Phase 6).")
     p.add_argument("--dir", default=DEFAULT_DIR, help="Dataset root (rgb/, labels/, mask/).")
     p.add_argument("--out", default=None, help=f"Output dir. Default: <dir>/{DEFAULT_OUT_DIRNAME}")
+    p.add_argument("--style", choices=list(STYLES), default=DEFAULT_STYLE,
+                   help=("archive = the canonical trunc_addon overlay (default, -> overlay/); "
+                         "frontrear-debug = wide FRONT/REAR convention debug overlay "
+                         "(-> overlay_frontrear_debug/)"))
+    p.add_argument("--overlay-dirname", default=None,
+                   help="Leaf dir under --out for the PNGs. Default: the style's dir (archive -> overlay/).")
+    p.add_argument("--sheet-dirname", default=None,
+                   help="Leaf dir under --out for the contact sheets. Default: contact_sheets[_style].")
     p.add_argument("--audit-csv", default=None, help="audit_frames.csv (auto: eda_phase5 then eda).")
     p.add_argument("--pnp-csv", default=None, help="pnp_threshold_study.csv from Phase 4.")
-    p.add_argument("--mask-names", default=",".join(MASK_NAMES))
+    p.add_argument("--mask-names", default=None,
+                   help="Mask stages for the debug style. Default: the dataset's mask profile.")
     p.add_argument("--indices", default=None, help="Comma separated frame indices.")
     p.add_argument("--max-frames", type=int, default=None)
     p.add_argument("--panel-cols", type=int, default=PANEL_COLS)
@@ -1194,12 +1411,12 @@ def main(argv: list[str] | None = None) -> int:
     if not root.exists():
         print(f"[overlay] dataset not found: {root}")
         return 2
-    guard_output_dir(root, out_dir)
+    guard_output_dir(root, out_dir, args.style, args.overlay_dirname)
     out_dir.mkdir(parents=True, exist_ok=True)
     manifest = render_dataset(root, out_dir, args)
-    print(f"[overlay] frames={manifest['frames']} -> {manifest['overlay_dir']}")
+    print(f"[overlay] style={manifest['style']} frames={manifest['frames']} -> {manifest['overlay_dir']}")
     print(f"[overlay] audit_csv={manifest['audit_csv']} pnp_csv={manifest['pnp_csv']}")
-    print(f"[overlay] sheets={len(manifest['contact_sheets'])} manifest={out_dir / 'overlay_manifest.json'}")
+    print(f"[overlay] sheets={len(manifest['contact_sheets'])} manifest={manifest['manifest_path']}")
     absent = manifest["na_field_absent_counts"]
     if absent:
         top = ", ".join(f"{k}={v}" for k, v in list(absent.items())[:8])

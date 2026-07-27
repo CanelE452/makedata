@@ -497,7 +497,8 @@ class RunUsableTests(unittest.TestCase):
         base = dict(
             out=self.out, seed=7500, n=n, completion_mode="usable", max_attempts=None,
             magenta_max_fraction=0.0, samples=None, render_profile="diagnostic-exact",
-            noise_tier="auto", start=0, count=100, rerun_failures=False,
+            noise_tier="auto", mask_profile="full-audit", start=0, count=100,
+            rerun_failures=False,
         )
         base.update(kwargs)
         return SimpleNamespace(**base)
