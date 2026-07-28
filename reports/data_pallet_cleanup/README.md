@@ -264,6 +264,11 @@ D7  경로 registry (config/paths.yaml)               아래 14절 설계안 채
 
 ## 14. 정리 후 경로 설계 (7절 요구사항 — 설계만, 구현 안 함)
 
+> **[Stage 2-A.1 갱신]** registry 는 도입 완료됐다. 정본 관계는 다음 하나로 고정한다 —
+> `config/synthetic/pallet_paths.yaml` 이 **runtime source of truth** 이고,
+> `data/pallet/manifests/*.csv` 는 **local inventory snapshot** 이다.
+> 상세: `reports/data_pallet_cleanup/stage2a1/source_of_truth_audit.md`
+
 ### 경로 registry 가 필요한가 → **필요하다.**
 
 근거: `data/pallet` 경로 리터럴이 **124개 파일에 552회** 등장하고, 그중 **209회가 실행 코드/설정**이다.

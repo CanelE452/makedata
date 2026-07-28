@@ -37,6 +37,50 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 from PIL import Image  # noqa: E402
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import mask_profiles as MP  # noqa: E402
+
+
+MASK_PROFILE_AUTO = "auto"
+
+
+def resolve_mask_profile(root: Path, requested: str, explicit_names: bool) -> dict[str, Any]:
+    """어떤 mask 레이아웃으로 읽을지 결정한다.
+
+    반환 dict: profile / detected_by / stages / occlusion_decomposition_available.
+    `explicit_names` 가 True 면 사용자가 --mask-names 를 직접 준 것이므로 legacy
+    `<root>/mask/<frame>_<name>.png` 규약을 그대로 쓴다(하위호환).
+    """
+    if explicit_names:
+        return {"profile": "legacy-explicit", "detected_by": "--mask-names",
+                "stages": None, "occlusion_decomposition_available": None}
+    if requested != MASK_PROFILE_AUTO:
+        profile = MP.normalize_profile(requested)
+        return {"profile": profile, "detected_by": "--mask-profile",
+                "stages": list(MP.mask_stages(profile)),
+                "occlusion_decomposition_available":
+                    MP.occlusion_decomposition_available(profile)}
+    # auto: 실제 디렉토리를 본다. mask_amodal + mask_visible 둘 다 있으면 public.
+    public_dirs = MP.mask_dirnames(MP.PUBLIC)
+    if all((root / name).is_dir() for name in public_dirs):
+        profile, how = MP.PUBLIC, "dirs:" + "+".join(public_dirs)
+    elif (root / "mask").is_dir():
+        profile, how = MP.FULL_AUDIT, "dirs:mask"
+    else:
+        # 어느 쪽도 없으면 판정 불가. 조용히 full-audit 으로 밀지 않고 그 사실을 남긴다.
+        profile, how = MP.FULL_AUDIT, "unknown(no mask dir; defaulted to full-audit)"
+    return {"profile": profile, "detected_by": how,
+            "stages": list(MP.mask_stages(profile)),
+            "occlusion_decomposition_available":
+                MP.occlusion_decomposition_available(profile)}
+
+
+def mask_path_for(root: Path, idx: int, stage: str, profile_info: dict[str, Any]) -> Path:
+    """프레임 idx 의 stage mask 경로. 직접 문자열 조립을 대신한다."""
+    if profile_info["profile"] == "legacy-explicit":
+        return root / "mask" / f"{MP.frame_stem(idx)}_{stage}.png"
+    return Path(MP.frame_mask_paths(root, idx, profile_info["profile"])[stage])
+
 
 DEFAULT_DIR = "data/pallet/_v2_scene_logic_500_seed7500"
 DEFAULT_OUT_DIRNAME = "eda"
@@ -352,9 +396,13 @@ for _name in MASK_NAMES:
 
 
 def frame_columns(mask_names: list[str]) -> list[str]:
+    # 알려진 모든 stage 를 먼저 제거한다. 전역 MASK_NAMES 만 쓰면 public(2 stage)에서
+    # m1~m3 컬럼이 살아남아 "값이 비어 있다 = 결측"처럼 보인다.
+    known_stages = set(MASK_NAMES) | set(MP.mask_stages(MP.FULL_AUDIT)) \
+        | set(MP.mask_stages(MP.PUBLIC))
     dynamic_mask_columns = {
         f"mask_{name}_{suffix}"
-        for name in MASK_NAMES
+        for name in known_stages
         for suffix in ("present", "area", "decode_ok", "decode_error")
     }
     cols = [c for c in FRAME_COLUMNS if c not in dynamic_mask_columns]
@@ -368,7 +416,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--dir", default=DEFAULT_DIR, help="Input dataset root.")
     p.add_argument("--out", default=None, help="Output directory. Default: <dir>/eda")
     p.add_argument("--baseline", default=DEFAULT_BASELINE, help="Baseline pilot_frames.csv path.")
-    p.add_argument("--mask-names", default=",".join(MASK_NAMES), help="Comma-separated mask suffixes.")
+    p.add_argument("--mask-names", default=None,
+                   help="Legacy override: comma-separated mask suffixes read from <dir>/mask/. "
+                        "Giving this disables profile auto-detection (backward compatible).")
+    p.add_argument("--mask-profile", default=MASK_PROFILE_AUTO,
+                   choices=[MASK_PROFILE_AUTO, MP.PUBLIC, MP.FULL_AUDIT],
+                   help="Mask layout. auto (default) detects it from the directories present.")
     p.add_argument("--self-test", action="store_true", help="Run a synthetic fixture test and validate required fields/charts.")
     return p.parse_args()
 
@@ -458,7 +511,8 @@ def load_records(root: Path) -> tuple[dict[int, dict[str, Any]], dict[str, Any]]
     }
 
 
-def discover_indices(root: Path, records: dict[int, dict[str, Any]], mask_names: list[str]) -> list[int]:
+def discover_indices(root: Path, records: dict[int, dict[str, Any]], mask_names: list[str],
+                     profile_info: dict[str, Any] | None = None) -> list[int]:
     indices = set(records.keys())
     for path in (root / "rgb").glob("f*_rgb.png"):
         m = re.match(r"f(\d+)_rgb\.png$", path.name)
@@ -468,12 +522,21 @@ def discover_indices(root: Path, records: dict[int, dict[str, Any]], mask_names:
         m = re.match(r"f(\d+)_label\.json$", path.name)
         if m:
             indices.add(int(m.group(1)))
-    mask_dir = root / "mask"
-    for suffix in mask_names:
-        for path in mask_dir.glob(f"f*_{suffix}.png"):
-            m = re.match(r"f(\d+)_" + re.escape(suffix) + r"\.png$", path.name)
-            if m:
-                indices.add(int(m.group(1)))
+    profile_info = profile_info or {"profile": "legacy-explicit"}
+    if profile_info["profile"] == MP.PUBLIC:
+        # public: mask_amodal/fNNNN.png, mask_visible/fNNNN.png (접미사 없음)
+        for dirname in MP.mask_dirnames(MP.PUBLIC):
+            for path in (root / dirname).glob("f*.png"):
+                m = re.match(r"f(\d+)\.png$", path.name)
+                if m:
+                    indices.add(int(m.group(1)))
+    else:
+        mask_dir = root / "mask"
+        for suffix in mask_names:
+            for path in mask_dir.glob(f"f*_{suffix}.png"):
+                m = re.match(r"f(\d+)_" + re.escape(suffix) + r"\.png$", path.name)
+                if m:
+                    indices.add(int(m.group(1)))
     return sorted(indices)
 
 
@@ -737,7 +800,9 @@ def field_key_present(
     return False
 
 
-def build_frame_row(root: Path, idx: int, rec: dict[str, Any] | None, mask_names: list[str]) -> dict[str, Any]:
+def build_frame_row(root: Path, idx: int, rec: dict[str, Any] | None, mask_names: list[str],
+                    profile_info: dict[str, Any] | None = None) -> dict[str, Any]:
+    profile_info = profile_info or {"profile": "legacy-explicit"}
     frame = f"f{idx:04d}"
     label_path = root / "labels" / f"{frame}_label.json"
     rgb_path = root / "rgb" / f"{frame}_rgb.png"
@@ -965,7 +1030,7 @@ def build_frame_row(root: Path, idx: int, rec: dict[str, Any] | None, mask_names
     elif not rgb["decode_ok"]:
         missing_sources.append("rgb_decode")
     for name in mask_names:
-        ms = mask_stats(root / "mask" / f"{frame}_{name}.png")
+        ms = mask_stats(mask_path_for(root, idx, name, profile_info))
         row[f"mask_{name}_present"] = ms["present"]
         row[f"mask_{name}_area"] = ms["area"]
         row[f"mask_{name}_decode_ok"] = ms["decode_ok"]
@@ -2198,7 +2263,9 @@ def write_self_test_fixture(root: Path, baseline_csv: Path, mask_names: list[str
 
 
 def run_self_test(args: argparse.Namespace) -> int:
-    mask_names = [x.strip() for x in args.mask_names.split(",") if x.strip()]
+    # self-test fixture 는 full-audit 5-stage 레이아웃을 만든다(기존 동작 유지).
+    raw = args.mask_names if args.mask_names is not None else ",".join(MP.mask_stages(MP.FULL_AUDIT))
+    mask_names = [x.strip() for x in raw.split(",") if x.strip()]
     with tempfile.TemporaryDirectory(prefix="scene_logic_analyze_selftest_") as tmp:
         tmp_root = Path(tmp)
         root = tmp_root / "fixture"
@@ -2324,7 +2391,12 @@ def main() -> int:
     root = as_path(args.dir)
     out = as_path(args.out) if args.out else root / DEFAULT_OUT_DIRNAME
     baseline_path = as_path(args.baseline)
-    mask_names = [x.strip() for x in args.mask_names.split(",") if x.strip()]
+    explicit_names = args.mask_names is not None
+    profile_info = resolve_mask_profile(root, args.mask_profile, explicit_names)
+    if explicit_names:
+        mask_names = [x.strip() for x in args.mask_names.split(",") if x.strip()]
+    else:
+        mask_names = list(profile_info["stages"])
     global MASK_NAMES
     MASK_NAMES = mask_names
 
@@ -2332,8 +2404,9 @@ def main() -> int:
     for dirname in ("charts", "contact_sheets", "failure_examples", "debug_geometry"):
         (out / dirname).mkdir(parents=True, exist_ok=True)
     records, record_meta = load_records(root)
-    indices = discover_indices(root, records, mask_names) if root.exists() else []
-    rows = [build_frame_row(root, idx, records.get(idx), mask_names) for idx in indices]
+    indices = discover_indices(root, records, mask_names, profile_info) if root.exists() else []
+    rows = [build_frame_row(root, idx, records.get(idx), mask_names, profile_info)
+            for idx in indices]
     columns = frame_columns(mask_names)
     write_csv(out / "frame_metrics.csv", rows, columns)
 
@@ -2341,6 +2414,13 @@ def main() -> int:
     baseline_summary = summarize_baseline(baseline_rows, baseline_meta)
     summary = summarize_new(rows, root, record_meta)
     plan_errors = validate_chart_plan(columns)
+    summary["mask_layout"] = {
+        "mask_profile": profile_info["profile"],
+        "detected_by": profile_info["detected_by"],
+        "mask_stages": mask_names,
+        "occlusion_decomposition_available":
+            profile_info["occlusion_decomposition_available"],
+    }
     summary["chart_mapping"] = chart_mapping()
     summary["self_validation"] = {
         "required_scene_logic_fields_present": not [f for f in REQUIRED_SCENE_LOGIC_FIELDS if f not in columns],

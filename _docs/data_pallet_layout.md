@@ -30,6 +30,21 @@ python scripts/data_prep/blender/pallet_data_paths.py --key hdri_root
 PALLET_DATA_ROOT=/mnt/data/pallet python ...                     # root 만 override
 ```
 
+### 정본은 하나다
+
+```
+runtime source of truth   config/synthetic/pallet_paths.yaml       <- 실행 코드는 이것만 읽는다
+resolver                  scripts/data_prep/blender/pallet_data_paths.py
+local inventory snapshot  data/pallet/manifests/*.csv              <- 조사 시점 기록. runtime config 아님
+tracked 조사·이동 기록      reports/data_pallet_cleanup/
+```
+
+- 실행 코드는 `pallet_paths.yaml` 만 읽는다. `assets.csv` 를 읽는 실행 경로는 없다.
+- `assets.csv` 를 수정해도 실행 경로는 **바뀌지 않는다.**
+- runtime 경로 변경은 `pallet_paths.yaml` 수정으로만 한다.
+- 경로 이동과 registry 변경은 **같은 transaction 단계에서 함께 검증**한다
+  (옮기고 registry 를 안 고치면 audit 의 `missing` 으로, 반대면 실행 시 파일 없음으로 드러난다).
+
 규칙:
 
 - registry 에는 **지금 실제로 있는 경로**만 적는다. 옮기고 싶은 경로(TARGET)를 미리 적지 않는다.
@@ -57,7 +72,9 @@ legacy 생성기(`gen_dataset_v4.py`, `gen_4pallet_mask.py`, `gen_trunc_addon.py
 
 ### CURRENT — 생성기가 지금 읽는 경로
 
-`data/pallet/manifests/assets.csv` 의 **`current_path` 열이 정본**이다.
+**runtime source of truth 는 `config/synthetic/pallet_paths.yaml` 하나다.**
+`data/pallet/manifests/*.csv` 는 **local inventory snapshot** 이지 runtime config 가 아니다.
+아래 표는 그 registry 의 현재 값이다(`pallet_data_paths.py --audit` 로 언제든 재출력 가능).
 
 ```
 registry key                current path                                     비고
@@ -153,7 +170,8 @@ rollback 절차: `reports/data_pallet_cleanup/rollback_plan.md`
 ## 5. manifests
 
 ```
-data/pallet/manifests/assets.csv     현역 자산. current_path 가 정본, desired_path 는 예정지
+data/pallet/manifests/assets.csv     현역 자산의 로컬 snapshot. registry 값을 조사 시점에 찍어둔 것.
+                                     이걸 고쳐도 실행 경로는 바뀌지 않는다(정본은 pallet_paths.yaml).
 data/pallet/manifests/runs.csv       run 목록(이동 146 + 원위치 유지 8)
 data/pallet/manifests/path_map.csv   original -> current -> desired_final, referenced_by
 data/pallet/manifests/archive.csv    archive 이동 계획 (Stage 2-A 실행 0건, executed=no)

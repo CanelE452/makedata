@@ -54,6 +54,12 @@ MAX_PATH_LEN = 240
 HASH_ALWAYS_EXT = {".json", ".jsonl", ".csv", ".md", ".txt", ".yaml", ".yml"}
 HASH_SIZE_LIMIT = 8 * 1024 * 1024
 
+HASH_MODE_SELECTIVE = "selective"
+HASH_MODE_ALL = "all"
+HASH_MODES = (HASH_MODE_SELECTIVE, HASH_MODE_ALL)
+# Stage 2-A 이전 manifest 에는 hash_mode 필드가 없다. 자동 rewrite 하지 않고 이 이름으로 읽는다.
+HASH_MODE_LEGACY = "selective-legacy"
+
 # Stage 1 의 문자열 스캐너가 os.path.join(root, "data", "pallet", X) 형태를 구체 경로로
 # 환원하지 못해 "문서 참조뿐"으로 보였지만, 실제로는 현재 코드의 기본 출력 경로인 항목.
 # 옮기면 다음 실행 때 스크립트가 옛 경로를 다시 만들어 이동이 조용히 무효가 된다.
@@ -79,19 +85,46 @@ def _posix(path):
     return path.replace("\\", "/")
 
 
+def is_within(candidate, root):
+    """``candidate`` 가 ``root`` 안(또는 root 자신)인가.
+
+    문자열 startswith 를 쓰면 ``data/pallet_backup`` 이 ``data/pallet`` 안으로 잘못
+    판정된다. realpath 로 ``..`` 와 symlink 를 접고, normcase 로 Windows 대소문자를
+    정규화한 뒤 commonpath 로 비교한다. 다른 드라이브면 commonpath 가 ValueError 라
+    False 다.
+    """
+    try:
+        candidate_real = os.path.normcase(os.path.realpath(candidate))
+        root_real = os.path.normcase(os.path.realpath(root))
+    except OSError:
+        return False
+    try:
+        return os.path.commonpath([candidate_real, root_real]) == root_real
+    except ValueError:
+        return False
+
+
 # ---------------------------------------------------------------------------
 # snapshot
 # ---------------------------------------------------------------------------
-def snapshot(root, hash_all_sizes=None):
+def snapshot(root, hash_all_sizes=None, hash_mode=HASH_MODE_SELECTIVE):
     """폴더의 (상대경로 -> 크기) 와 정책에 따른 SHA256 을 모은다.
 
     hash_all_sizes: 이 크기 집합에 속하면 크기 무관 해시 (동일 크기 중복 후보).
+    hash_mode:
+        "selective" - 8MB 이하 / 텍스트·manifest 확장자 / 동일 크기 중복 후보만 해시.
+                      나머지는 unhashed 로 남긴다 (Stage 2-A 정책 그대로).
+        "all"       - 크기·확장자 무관 전량 해시. active asset·production blend·HDRI·
+                      GLB/OBJ/USD·golden reference·release package 를 옮길 때 필수.
     """
+    if hash_mode not in HASH_MODES:
+        raise ValueError("unknown hash mode %r (expected %s)" % (hash_mode, list(HASH_MODES)))
     hash_all_sizes = hash_all_sizes or set()
     files = {}
     hashes = {}
     hashed_large = []
     total = 0
+    started = _now()
     for dirpath, _dirnames, filenames in os.walk(root):
         for name in filenames:
             abs_path = os.path.join(dirpath, name)
@@ -100,21 +133,33 @@ def snapshot(root, hash_all_sizes=None):
             files[rel] = size
             total += size
             ext = os.path.splitext(name)[1].lower()
-            want = (size <= HASH_SIZE_LIMIT
-                    or ext in HASH_ALWAYS_EXT
-                    or "manifest" in name.lower()
-                    or size in hash_all_sizes)
+            want = hash_mode == HASH_MODE_ALL or (
+                size <= HASH_SIZE_LIMIT
+                or ext in HASH_ALWAYS_EXT
+                or "manifest" in name.lower()
+                or size in hash_all_sizes)
             if want:
                 hashes[rel] = _sha256(abs_path)
                 if size > HASH_SIZE_LIMIT:
                     hashed_large.append(rel)
+    unhashed = sorted(set(files) - set(hashes))
+    if hash_mode == HASH_MODE_ALL and unhashed:
+        # 여기 걸리면 정책이 깨진 것이다. 조용히 넘기지 않는다.
+        raise RuntimeError(
+            "hash-mode=all 인데 해시되지 않은 파일이 %d개 있습니다: %s"
+            % (len(unhashed), unhashed[:5]))
     return {
         "file_count": len(files),
         "total_bytes": total,
         "files": files,
         "sha256": hashes,
         "hashed_over_limit": hashed_large,
-        "unhashed": sorted(set(files) - set(hashes)),
+        "unhashed": unhashed,
+        "hash_mode": hash_mode,
+        "hashed_file_count": len(hashes),
+        "unhashed_file_count": len(unhashed),
+        "hash_started_at": started,
+        "hash_completed_at": _now(),
     }
 
 
@@ -193,9 +238,10 @@ def precheck(src_abs, dst_abs, referenced_by, data_root):
         problems.append("FORBIDDEN_EXTENSION=%d" % len(stats["forbidden_ext"]))
     if stats["license_files"]:
         problems.append("LICENSE_FILE=%d" % len(stats["license_files"]))
-    if not _posix(os.path.abspath(src_abs)).startswith(_posix(data_root)):
+    if not is_within(src_abs, data_root):
         problems.append("SOURCE_OUTSIDE_DATA_ROOT")
-    if not _posix(os.path.abspath(dst_abs)).startswith(_posix(data_root)):
+    # destination 자체는 아직 없으므로 realpath 가 부모까지만 접힌다. 부모도 함께 본다.
+    if not is_within(dst_abs, data_root) or not is_within(os.path.dirname(dst_abs), data_root):
         problems.append("DEST_OUTSIDE_DATA_ROOT")
     return problems, stats
 
@@ -245,15 +291,20 @@ def cmd_plan(args, paths):
             continue
         running_total += stats["total_bytes"]
 
-        dup_sizes = duplicate_size_set(src_abs)
-        snap = snapshot(src_abs, dup_sizes)
+        dup_sizes = duplicate_size_set(src_abs) if args.hash_mode == HASH_MODE_SELECTIVE else set()
+        snap = snapshot(src_abs, dup_sizes, hash_mode=args.hash_mode)
         planned.append({
-            "move_id": "S2A%03d" % (len(planned) + 1),
+            "move_id": "%s%03d" % (args.move_id_prefix, len(planned) + 1),
             "source": src_rel,
             "destination": dst_rel,
             "relative_files": sorted(snap["files"]),
             "file_count": snap["file_count"],
             "total_bytes": snap["total_bytes"],
+            "hash_mode": snap["hash_mode"],
+            "hashed_file_count": snap["hashed_file_count"],
+            "unhashed_file_count": snap["unhashed_file_count"],
+            "hash_started_at": snap["hash_started_at"],
+            "hash_completed_at": snap["hash_completed_at"],
             "pre_hash_manifest": {
                 "sha256": snap["sha256"],
                 "sizes": snap["files"],
@@ -278,12 +329,13 @@ def cmd_plan(args, paths):
         w.writerow(["source", "reason"])
         w.writerows(skipped)
 
-    hashed = sum(len(p["pre_hash_manifest"]["sha256"]) for p in planned)
-    unhashed = sum(len(p["pre_hash_manifest"]["unhashed"]) for p in planned)
+    hashed = sum(p["hashed_file_count"] for p in planned)
+    unhashed = sum(p["unhashed_file_count"] for p in planned)
     print("planned  : %d moves" % len(planned))
     print("files    : %d" % sum(p["file_count"] for p in planned))
     print("bytes    : %d (%.3f GB)" % (running_total, running_total / 1e9))
-    print("hashed   : %d / unhashed(대형) : %d" % (hashed, unhashed))
+    print("hash-mode: %s" % args.hash_mode)
+    print("hashed   : %d / unhashed : %d" % (hashed, unhashed))
     print("skipped  : %d  -> %s" % (len(skipped), skip_path))
     print("manifest : %s" % args.manifest)
     return 0
@@ -352,13 +404,32 @@ def cmd_apply(args, paths):
 # ---------------------------------------------------------------------------
 # --verify
 # ---------------------------------------------------------------------------
+def manifest_hash_mode(row):
+    """manifest row 의 hash_mode. Stage 2-A 이전 row 에는 필드가 없다.
+
+    없으면 "selective-legacy" 로 해석한다. **row 를 고쳐 쓰지 않는다** —
+    move_transaction.jsonl 은 실이동의 유일한 rollback 원장이라 재작성 대상이 아니다.
+    """
+    mode = row.get("hash_mode")
+    if mode in HASH_MODES:
+        return mode
+    return HASH_MODE_LEGACY
+
+
 def cmd_verify(args, paths):
     rows = _read_manifest(args.manifest)
     failures = []
     checked_files = checked_bytes = checked_hashes = 0
+    modes = {}
     for row in rows:
         if row["status"] != "MOVED":
             continue
+        mode = manifest_hash_mode(row)
+        modes[mode] = modes.get(mode, 0) + 1
+        pre_unhashed = row.get("pre_hash_manifest", {}).get("unhashed", [])
+        if mode == HASH_MODE_ALL and pre_unhashed:
+            failures.append((row["move_id"],
+                             "HASH_MODE_ALL_WITH_UNHASHED=%d" % len(pre_unhashed)))
         dst = os.path.join(paths.project_root, row["destination"].replace("/", os.sep))
         src = os.path.join(paths.project_root, row["source"].replace("/", os.sep))
         pre = row["pre_hash_manifest"]
@@ -393,6 +464,8 @@ def cmd_verify(args, paths):
     print("files          : %d" % checked_files)
     print("bytes          : %d (%.3f GB)" % (checked_bytes, checked_bytes / 1e9))
     print("sha256 checked : %d" % checked_hashes)
+    print("hash modes     : %s" % (", ".join("%s=%d" % kv for kv in sorted(modes.items()))
+                                   or "(none)"))
     print("failures       : %d" % len(failures))
     for move_id, msg in failures[:40]:
         print("   %s  %s" % (move_id, msg))
@@ -444,6 +517,11 @@ def main(argv=None):
                     help="--plan 입력 (Stage 1 proposed_moves.csv)")
     ap.add_argument("--allow-empty-dirs", action="store_true",
                     help="파일이 0개인 run 폴더도 이동 대상에 포함")
+    ap.add_argument("--hash-mode", choices=list(HASH_MODES), default=HASH_MODE_SELECTIVE,
+                    help="selective(기본, Stage 2-A 정책) 또는 all(전량 SHA256 — "
+                         "active asset/production blend/HDRI/3D/golden reference 이동 시 필수)")
+    ap.add_argument("--move-id-prefix", default="S2A",
+                    help="--plan 이 붙일 move_id 접두 (기존 원장과 구분하려면 바꾼다)")
     args = ap.parse_args(argv)
 
     paths = PDP.load()

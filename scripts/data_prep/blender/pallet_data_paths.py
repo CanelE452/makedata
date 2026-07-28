@@ -13,6 +13,7 @@ Stage 2-A 도입. `config/synthetic/pallet_paths.yaml` 한 곳에서 데이터 �
 
 import json
 import os
+import sys
 
 try:  # blender_config.py 와 같은 처리 — Blender 내장 python 에 PyYAML 이 없을 수 있다.
     import yaml
@@ -210,35 +211,64 @@ def get(key, **kwargs):
     return load(**kwargs).get(key)
 
 
+def _print_audit(paths, report, stream=None):
+    out = stream or sys.stdout
+    print("project_root : %s" % paths.project_root, file=out)
+    print("config       : %s" % paths.config_path, file=out)
+    print("data_root    : %s" % paths.get(ROOT_KEY), file=out)
+    print(file=out)
+    for entry in report["ok"]:
+        print("  OK       %-26s %s" % (entry["key"], entry["relative"]), file=out)
+    for entry in report["absent_optional"]:
+        print("  ABSENT?  %-26s %s  (optional)" % (entry["key"], entry["relative"]), file=out)
+    for entry in report["missing"]:
+        print("  MISSING  %-26s %s" % (entry["key"], entry["relative"]), file=out)
+    print(file=out)
+    print("ok=%d missing=%d absent_optional=%d"
+          % (len(report["ok"]), len(report["missing"]), len(report["absent_optional"])),
+          file=out)
+
+
 def main(argv=None):
+    """CLI.
+
+    --key KEY   해당 경로만 출력하고 종료 (audit 하지 않음)
+    --audit     전체 audit 출력
+    (인자 없음)  전체 audit 출력 = --audit 와 동일
+
+    exit code:  0 = missing 없음 / 1 = missing 있음 또는 잘못된 key
+    """
     import argparse
 
     ap = argparse.ArgumentParser(description="pallet 데이터 경로 registry 조회/감사")
     ap.add_argument("--config", default=None)
     ap.add_argument("--data-root", default=None, help="pallet_data_root 만 override")
-    ap.add_argument("--audit", action="store_true", help="모든 경로 존재 여부 검사")
-    ap.add_argument("--key", default=None, help="단일 키 조회")
+    ap.add_argument("--audit", action="store_true",
+                    help="모든 경로 존재 여부 검사 (인자를 아무것도 주지 않아도 동일)")
+    ap.add_argument("--key", default=None, help="단일 키 조회 후 종료")
     args = ap.parse_args(argv)
 
-    paths = load(config_path=args.config, data_root=args.data_root, use_cache=False)
-    if args.key:
-        print(paths.get(args.key))
+    try:
+        paths = load(config_path=args.config, data_root=args.data_root, use_cache=False)
+    except (OSError, KeyError, ValueError) as exc:
+        print("registry 로드 실패: %s: %s" % (type(exc).__name__, exc), file=sys.stderr)
+        return 1
+
+    if args.key is not None:
+        # 단일 키 조회: audit 을 계산하지 않는다(불필요한 stat 방지).
+        try:
+            value = paths.get(args.key)
+        except KeyError:
+            print("알 수 없는 key: %r" % args.key, file=sys.stderr)
+            print("사용 가능한 key: %s" % ", ".join(sorted(paths.keys())), file=sys.stderr)
+            return 1
+        for item in (value if isinstance(value, list) else [value]):
+            print(item)
         return 0
+
+    # --audit 이 있든 없든 audit 을 출력한다(인자 없음 = 전체 audit).
     report = paths.audit()
-    if args.audit or True:
-        print("project_root : %s" % paths.project_root)
-        print("config       : %s" % paths.config_path)
-        print("data_root    : %s" % paths.get(ROOT_KEY))
-        print()
-        for entry in report["ok"]:
-            print("  OK       %-26s %s" % (entry["key"], entry["relative"]))
-        for entry in report["absent_optional"]:
-            print("  ABSENT?  %-26s %s  (optional)" % (entry["key"], entry["relative"]))
-        for entry in report["missing"]:
-            print("  MISSING  %-26s %s" % (entry["key"], entry["relative"]))
-        print()
-        print("ok=%d missing=%d absent_optional=%d"
-              % (len(report["ok"]), len(report["missing"]), len(report["absent_optional"])))
+    _print_audit(paths, report)
     return 1 if report["missing"] else 0
 
 

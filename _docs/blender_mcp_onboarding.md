@@ -14,7 +14,7 @@
 
 ## 0. 30초 요약 (TL;DR)
 
-- **목표**: 팔레트를 감싸는 **9-point cuboid keypoint**(8 코너 + centroid)를 라벨로 하는 DOPE keypoint 학습셋을 Blender로 렌더한다. 추가로 **12kp E-단면**(앞면 개구부) 라벨과 **visible mask** 3종을 함께 생성한다.
+- **목표**: 팔레트를 감싸는 **9-point cuboid keypoint**(8 코너 + centroid)를 라벨로 하는 DOPE keypoint 학습셋을 Blender로 렌더한다. 추가로 **12kp E-단면**(앞면 개구부) 라벨과 **holdout mask**(full-audit 5-stage 또는 public 2-stage, §3.1.1)를 함께 생성한다.
 - **아키텍처**: v2 파이프라인은 **3-layer**. `sample_frame`(순수, bpy-free) → `solve_placement`(순수 해석기하) → `realize/measure/render/label`(Blender측). 앞 2개는 Blender 없이 dry-run 감사가 가능하다.
 - **프로덕션 씬**: `data/pallet/blender_scene/synth_data_scene.blend` (342MB, NoAI 목재 제거 재-bake 완료, distractor 209 내장).
 - **실행 2경로**: MCP 세션이 살아있으면 MCP로, 아니면 **Blender CLI standalone**(`blender -b <blend> --python <script>`)로. 대량/헤드리스 렌더는 항상 CLI.
@@ -29,7 +29,7 @@
 KS T-11형 팔레트(1100×1100×150mm)의 6D 포즈를 **keypoint 기반(DOPE)** 으로 추정한다. 팔레트는 비대칭 직육면체라 keypoint 방식이 적합. 라벨은:
 - **9-point cuboid**: 8 코너 + centroid (Y=UP convention, camera-facing 동적 0123). → `_docs/preprocessing/keypoint_definition.md`.
 - **12kp E-단면**: 앞면(FRONT) 개구부 기반 외곽 4 + 개구부 4×2. `efront_kp12.py`. FRONT가 닫힌-2홀 또는 bottom_open 면일 때만 `kp12_valid=True`.
-- **visible mask 3종**: unoccluded / after-cargo / visible (아래 §3).
+- **holdout mask**: full-audit = M0~M4 5종 / public = M0·M4 2종 (아래 §3.1.1). 옛 `_unocc`/`_aftercargo`/`_visible` 접미사는 폐지됨.
 
 ### 1.2 conda / Python 환경
 ```
@@ -121,12 +121,37 @@ luma_actual            측정만 — 쿼터 없음. bin <35/35-80/80-140/>140 �
 ```
 G1  V_vis >= 4              (in_frame & occlusion<0.5인 코너 4개 이상)  ★yield 지배 인자
 G2  occluder 있으면 ext_occ_corners ∈ [1,4]   (없으면 통과)
-G3  area_visible >= 0.5 * area_unocc          (팔레트 절반 이상 보임)
+G3  area_visible(M4) >= 0.5 * area_amodal(M0)  (팔레트 절반 이상 보임)
 G4  centroid in-frame
 G5  luma_pallet(VISIBLE 마스크 영역) >= 12.0   ← ★프레임 전체 luma 아님(§5A ③)
 ```
 - net yield ≈ solve_pass(0.80) × gate_pass(0.40) ≈ **31~40%** → N장 뽑으려면 ~2.5~3.2N 렌더. 40k 스루풋 경고.
 - ★ **binding constraint = G1(저앙각 grazing)**, G5 아님. 야간 손실 주범도 저앙각(elevation 7-bin 재튜닝은 별도머신 소관).
+
+### 2.5 데이터 경로 registry (★ 문자열 조립 금지)
+
+```
+config/synthetic/pallet_paths.yaml               runtime source of truth (경로 정의)
+scripts/data_prep/blender/pallet_data_paths.py   resolver (bpy import 없음)
+```
+
+```python
+import pallet_data_paths as pdp
+scene = pdp.get("production_scene")      # data/pallet/blender_scene/synth_data_scene.blend
+hdri  = pdp.get("hdri_root")             # data/pallet/hdri
+```
+
+```bash
+python scripts/data_prep/blender/pallet_data_paths.py            # 전 경로 감사 (exit 1 = missing 있음)
+python scripts/data_prep/blender/pallet_data_paths.py --key hdri_root
+PALLET_DATA_ROOT=/mnt/data/pallet python ...                     # root 만 override
+```
+
+`data/pallet/manifests/*.csv` 는 조사 시점 snapshot 이지 runtime config 가 아니다.
+경로를 바꾸려면 `pallet_paths.yaml` 을 고치고 `--audit` 으로 확인한다.
+현행 registry 값 표는 `_docs/data_pallet_layout.md` 참조.
+**★ 이름이 `archive/` 인데 현역인 자산이 있다** — `archive/textures_wood`,
+`archive/textures_floor`, `archive/trunc_addon_v1_pilot`. 폴더명으로 판단하지 말 것.
 
 ### 2.5 재현 커맨드 (파이프라인 단계별)
 ```bash
@@ -147,13 +172,20 @@ C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/audit_v2_dryrun.py
 C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/_v2_calib_200_analyze.py  # matplotlib(base)
 
 # (e) 파일럿 2k (chunk launcher: 200장/fresh Blender, OOM 방지, resume) -> data/pallet/_v2_pilot_2k/
+#     mask 레이아웃 선택: 진단용은 --mask-profile full-audit (기본), 공개용은 --mask-profile public
 bash scripts/data_prep/blender/run_pilot_2k.sh 2000 200 7000    # TOTAL CHUNK SEED
 
 # (f) 파일럿 감사 (★overlay 폴더 선-clear 후) -> _v2_pilot_2k/audit/
 C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/_v2_pilot_audit.py \
   --dir data/pallet/_v2_pilot_2k --n_overlay 30
 
-# (g) ★전수 오버레이 (모든 프레임 9kp cuboid) -> _v2_pilot_2k/overlay_all/
+# (g) ★전수 오버레이 (canonical) -> <dataset>/overlay/
+C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/overlay_v2_detailed.py \
+  --dir data/pallet/_v2_pilot_2k --style archive
+# (g-2) 진단용 FRONT/REAR overlay -> <dataset>/overlay_frontrear_debug/
+C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/overlay_v2_detailed.py \
+  --dir data/pallet/_v2_pilot_2k --style frontrear-debug
+# (구) 파일럿 당시 전수 오버레이 스크립트 (재현용, canonical 아님)
 C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/_v2_pilot_overlay_all.py \
   --dir data/pallet/_v2_pilot_2k
 ```
@@ -168,27 +200,68 @@ C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/_v2_pilot_overlay_a
 _v2_pilot_2k/
 ├── rgb/            f{idx:04d}_rgb.png          최종 post-process된 RGB (Cycles 16spp + camera_effects)
 ├── labels/         f{idx:04d}_label.json       DOPE camera_data + objects (아래 스키마)
-├── mask/           f{idx:04d}_unocc.png        ★unoccluded holdout (팔레트-only, 비팔레트 전부 hide)
-│                   f{idx:04d}_aftercargo.png   ★after-cargo holdout (external occluder만 hide)
-│                   f{idx:04d}_visible.png      ★visible holdout (아무것도 hide 안 함 = 실제 보임)
-├── overlay_all/    f{idx:04d}.png              전수 9kp cuboid 오버레이 (bpy-free 재생성)
+├── mask/           f{idx:04d}_m0.png ~ _m4.png  ★full-audit 전용 5-stage holdout (아래 3.1.1)
+├── mask_amodal/    f{idx:04d}.png              ★public 전용 M0 (target-only amodal)
+├── mask_visible/   f{idx:04d}.png              ★public 전용 M4 (final visible)
+├── overlay/        f{idx:04d}.png              ★canonical overlay (--style archive)
+├── overlay_frontrear_debug/  f{idx:04d}.png    보조 진단 overlay (--style frontrear-debug)
 ├── audit/          overlay_perm_azimuth/ night/ kp12/ + pilot_audit_report.json
 ├── pilot_records.json(.jsonl)  처방+실측 메타(프레임당 즉시 flush, resume용)
 ├── driver_summary.json         accepted/rendered_ok/solve_pass
 └── logs/           chunk_NNN.log
 ```
-- **★ 마스크 3종 의미** (`v2_realize.measure()` = holdout 렌더, 각각 팔레트=white emission·나머지=black·world=black BW):
-```
-unocc       = 비팔레트 전부 hide → 팔레트 완전 실루엣 면적 = area_unocc
-after_cargo = external occluder만 hide (cargo는 남김) → area_after_cargo
-visible     = 아무것도 hide 안 함 (실제 카메라가 보는 것) → area_visible
+#### 3.1.1 ★ mask 규약 (2026-07-28 현행 — `mask_profiles.py` 가 단일 정의)
 
-f_cargo = 1 − area_after_cargo / area_unocc     (cargo가 가린 비율)
-f_total = 1 − area_visible     / area_unocc     (총 가림 비율)
-f_occ   = f_total − f_cargo                     (external occluder 기여분)
+`--mask-profile` 로 **두 레이아웃 중 하나**를 고른다. 목적이 다르므로 서로를 대체하지 않는다.
+
 ```
-  검증: occluder 없으면 after_cargo==visible(f_occ=0), cargo 없으면 after_cargo==unocc(f_cargo=0). [확인, B3]
-- **마스크 종류별 폴더 분리 방법**: 위처럼 파일명 접미사(`_unocc`/`_aftercargo`/`_visible`)로 구분하는 게 **정본**. 하위폴더(`mask/aftercargo/` 등)로 분리하려면 **일괄(shutil / os.rename 배치) 처리**하라 — `mv` 6000개 loop은 2분 timeout(§5A ⑬). ★접미사를 제거하면서 옮기면 `_unocc.png` 유무로 구분하던 로직·resume이 깨지므로 **접미사 유지**.
+public (공개 배포용)                     full-audit (진단용, 기본값)
+──────────────────────────────────────────────────────────────────────────────────
+mask_amodal/f{idx:04d}.png  = M0        mask/f{idx:04d}_m0.png  = M0
+mask_visible/f{idx:04d}.png = M4        mask/f{idx:04d}_m1.png  = M1
+                                        mask/f{idx:04d}_m2.png  = M2
+M1~M3 는 **렌더 자체를 하지 않는다**       mask/f{idx:04d}_m3.png  = M3
+(렌더 후 삭제가 아님 → 프레임당 3패스 절약)  mask/f{idx:04d}_m4.png  = M4
+
+f_total  = exact (1 − M4/M0)             f_total  = 1 − M4/M0
+f_static  = None  ← 미측정                f_static  = 1 − M1/M0
+f_cargo   = None  ← 미측정                f_cargo   = (M1−M2)/M0
+f_context = None  ← 미측정                f_context = (M2−M3)/M0
+f_explicit= None  ← 미측정                f_explicit= (M3−M4)/M0
+occlusion_decomposition_available=false  occlusion_decomposition_available=true
+```
+
+**M0~M4 의미** (각 stage = holdout 렌더, 팔레트=white emission·나머지=black·world=black BW):
+
+```
+M0  target-only amodal        비팔레트 전부 hide → 팔레트 완전 실루엣
+M1  static scene 반영          정적 배경만 남김 (cargo/context/explicit hide)
+M2  static + cargo            (context/explicit hide)
+M3  static + cargo + context  (explicit hide)
+M4  final visible             아무것도 hide 안 함 = 실제 카메라가 보는 것
+```
+
+**★ None 과 0.0 을 혼동하지 말 것**
+
+```
+None  = 미측정 (public 에서 source 별 분해를 애초에 렌더하지 않았다)
+0.0   = 측정했고 그 source 의 가림이 없었다
+```
+
+public 셋에서 `f_static` 등을 0 으로 채우면 "가림이 없었다"는 **거짓 정보**가 된다.
+같은 이유로 public 셋에서 M1~M3 파일이 없는 것은 **결측이 아니라 정상**이다 —
+분석기(`analyze_v2_scene_logic.py`)는 레이아웃을 자동 감지해 이를 결측으로 세지 않는다.
+
+경로를 직접 조립하지 말고 `mask_profiles.py` 를 쓴다:
+
+```python
+import mask_profiles as MP
+MP.detect_profile(root)                       # 'public' | 'full-audit'
+MP.mask_stages(profile)                       # ('m0','m4') | ('m0'..'m4')
+MP.frame_mask_paths(root, idx, profile)       # {stage: path}
+MP.resolve_frame_mask_path(root, idx, 'm0')   # 레이아웃 몰라도 찾아주는 호환 조회
+MP.decompose(areas, profile)                  # (분해값, invariant)
+```
 
 ### 3.2 label JSON 스키마 (`v2_realize.label()`, L719~)
 ```
@@ -220,7 +293,9 @@ f_occ   = f_total − f_cargo                     (external occluder 기여분)
       "cargo_on","n_cargo_actual",
       "exposure_ev","luma_actual","luma_pallet_actual",
       "occluder_asset","occluder_placed",
-      "mask_area_unocc","mask_area_after_cargo","mask_area_visible"
+      "mask_area_amodal","mask_area_visible","mask_profile",
+      "occlusion_decomposition_available",
+      # full-audit 만: "mask_area_after_static","mask_area_after_cargo","mask_area_after_context"
     },
     "safety_gates": {G1..G5, "all_pass"}
   }]
@@ -237,12 +312,24 @@ f_occ   = f_total − f_cargo                     (external occluder 기여분)
 
 ## 4. Overlay 생성법 (★ archive 방식 준수)
 
-### 4.1 스타일 규약 (`_v2_pilot_overlay_all.py` = archive `_v2_pilot_audit._draw_cuboid_overlay` verbatim)
+### 4.1 스타일 규약 (2026-07-28 현행 — canonical = `--style archive`)
 9kp cuboid를 2D projected_cuboid에 그린다:
 ```
-FRONT face (코너 0-1-2-3)   두꺼운 빨강 (255,30,30) width 4   ← 카메라-facing 옆면을 추적해야 함
-REAR  face (코너 4-5-6-7)   얇은 파랑  (60,120,255) width 2
-connector (0-4,1-5,2-6,3-7) 얇은 노랑  (255,210,0)  width 2
+canonical (--style archive)  ->  <dataset>/overlay/            ★정본
+  edge          world X/Y/Z 축별 색 (255,80,80)/(80,220,80)/(80,130,255)
+  keypoint      ID별 0~8 색, centroid 는 흰색, off-screen 은 (130,130,130)
+  pose axis     pose_transform 회전 + K 투영, z>0 일 때만
+  panel         좌상단 in-image 정보 패널 (외부 패널 없음)
+  legend        우하단 축 범례
+  canvas        입력 RGB 와 동일 크기 (full-width header 없음, mask contour 없음)
+
+secondary debug (--style frontrear-debug)  ->  <dataset>/overlay_frontrear_debug/
+  FRONT face (0-1-2-3)  두꺼운 빨강 (255,30,30) / REAR (4-5-6-7) 얇은 파랑 / connector 노랑
+  외부 진단 패널 + audit header + M0/M4 contour
+  → convention·gate 진단 전용. **canonical 이 아니다.**
+
+archive 정본 reference: `data/pallet/archive/trunc_addon_v1_pilot/`  (2026-07-28 현재 위치 불변)
+  tests/test_overlay_archive_trunc_style.py 가 이 폴더의 overlay/000000.png 를 픽셀 비교한다.
 코너 점                     0~3 빨강 · 4~7 파랑, 흰 테두리, 옆에 번호 0..7
 centroid                    초록 점 (0,255,0)
 헤더(상단 검은 띠)           f{idx} {pallet} elev(actual) az(target) front_is_camera_near
@@ -251,7 +338,7 @@ centroid                    초록 점 (0,255,0)
 - `front_is_camera_near` = FRONT centroid(코너0-3 평균)가 REAR(4-7 평균)보다 카메라에 가까운가. 정상이면 True.
 
 ### 4.2 ★ 전수 생성 필수 (샘플만으론 못 잡는다)
-- **이번 세션 실제 사고**: 파일럿 2000장 중 magenta 배경 74장이 샘플 30장에 안 걸림. **전수 오버레이 육안**으로만 발견(kp/luma 감사는 놓침, §5A ①). → **"완료" 선언 전 `overlay_all/` 전수를 눈으로 훑는다**.
+- **이번 세션 실제 사고**: 파일럿 2000장 중 magenta 배경 74장이 샘플 30장에 안 걸림. **전수 오버레이 육안**으로만 발견(kp/luma 감사는 놓침, §5A ①). → **"완료" 선언 전 canonical `overlay/` 전수를 눈으로 훑는다**.
 - 재생성은 **bpy-free**(PIL+numpy만) → 렌더 없이 disk의 labels+rgb만으로 그린다. 재렌더/Blender 불필요.
 - **함정: audit 스크립트는 overlay 폴더를 안 비운다**(makedirs exist_ok) → 옛 run 잔재와 혼재. 재실행 전 `rm overlay_*/*.png`.
 - **함정: stock audit의 perm 오버레이는 azimuth bin 0~2만 뽑는다**(`sorted(...,(azimuth_bin,idx))[:30]`) → azimuth 다양성 0. perm 규칙 검증(FRONT가 방위 추적)엔 az 0~11 round-robin 재생성 필요.
@@ -338,7 +425,7 @@ centroid                    초록 점 (0,255,0)
 
 **⑬ mask 분리 시 mv 6000개 loop timeout + 접미사 폴더 혼동**
 - 증상: 마스크를 하위폴더로 옮기는 `mv` 6000개 loop가 2분 timeout. 접미사 제거로 폴더 혼동.
-- 수정: **일괄 처리**(shutil 배치). 접미사(`_unocc`/`_aftercargo`/`_visible`) **유지**.
+- 수정: **일괄 처리**(shutil 배치). 접미사 **유지**. (당시 규약 기준 — 현행 mask 레이아웃은 §3.1.1)
 - 교훈: 대량 파일 이동은 loop 금지, 일괄. resume이 파일명 접미사에 의존하므로 접미사 제거 금지. (§3.1)
 
 ### 5B. 기하 · convention 실패 (누적)
@@ -539,7 +626,7 @@ B6  isaac_assets 제외   ★미해결 data/pallet/isaac_assets/(NVIDIA EULA) �
 - [ ] `random.seed` 명시(randomize_background/hdri/floor는 전역 unseeded → 재현 안 됨).
 
 ### 7.3 검증 (★ verify 빼먹지 말 것)
-- [ ] **★ 생성 후 전수 오버레이 육안**(샘플만으론 magenta 배경 오염 놓침, §5A ①). `overlay_all/` 전수.
+- [ ] **★ 생성 후 전수 오버레이 육안**(샘플만으론 magenta 배경 오염 놓침, §5A ①). canonical `overlay/` 전수 (`--style archive`).
 - [ ] 오버레이 폴더 재실행 전 `rm overlay_*/*.png`(옛 run 잔재 혼재).
 - [ ] 손상 PNG 검출은 `.convert("RGB")+np.asarray`(디코드 강제). `LOAD_TRUNCATED_IMAGES=True` 방어.
 - [ ] 겹침(관통) 판정은 눈이 아니라 **BVH mesh intersection / ray casting 코드**로(썸네일로 "겹침 없음" 단정 금지 — CLAUDE.md 규칙).

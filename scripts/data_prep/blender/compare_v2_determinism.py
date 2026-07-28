@@ -13,10 +13,16 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import os
+
 import numpy as np
 from PIL import Image
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import mask_profiles as MP  # noqa: E402
 
+
+# full-audit 5-stage. public 셋은 MP.mask_stages(PUBLIC) = (m0, m4) 로 축소된다.
 MASK_NAMES = ("m0", "m1", "m2", "m3", "m4")
 
 # Exact names only.  Do not replace this with suffix/pattern matching: an
@@ -206,27 +212,67 @@ def _pixel_difference(
     return item
 
 
-def _artifact_paths(root: Path, idx: int) -> dict[str, Path]:
-    frame = f"f{idx:04d}"
+def _artifact_paths(root: Path, idx: int, mask_stages=None,
+                    profile: str | None = None) -> dict[str, Path]:
+    """프레임 idx 의 비교 대상 경로.
+
+    mask 경로는 직접 조립하지 않고 mask_profiles 로 해석한다. profile 이 주어지면
+    그 레이아웃을, 아니면 legacy full-audit `<root>/mask/<frame>_<stage>.png` 를 쓴다.
+    """
+    frame = MP.frame_stem(idx)
     result = {
         "label": root / "labels" / f"{frame}_label.json",
         "rgb": root / "rgb" / f"{frame}_rgb.png",
     }
-    result.update(
-        {
-            f"mask:{name}": root / "mask" / f"{frame}_{name}.png"
-            for name in MASK_NAMES
-        }
-    )
+    stages = tuple(mask_stages) if mask_stages is not None else MASK_NAMES
+    if profile is None:
+        result.update({f"mask:{name}": root / "mask" / f"{frame}_{name}.png"
+                       for name in stages})
+    else:
+        resolved = MP.frame_mask_paths(root, idx, profile)
+        result.update({f"mask:{name}": Path(resolved[name]) for name in stages})
     return result
 
 
-def compare_output_roots(left_root: str | Path, right_root: str | Path) -> dict[str, Any]:
+def compare_output_roots(left_root: str | Path, right_root: str | Path,
+                         allow_mask_profile_mismatch: bool = False,
+                         mask_names: tuple[str, ...] | None = None) -> dict[str, Any]:
     left_root = Path(left_root).resolve()
     right_root = Path(right_root).resolve()
     errors: list[dict[str, Any]] = []
     mismatches: list[dict[str, Any]] = []
     compared = {"records": 0, "labels": 0, "rgb": 0, "masks": 0}
+
+    # ---- mask 레이아웃: 좌/우를 각각 독립 감지한다. 한쪽 profile 로 다른 쪽을 읽지 않는다.
+    if mask_names is not None:                       # legacy 명시 override (하위호환)
+        left_profile = right_profile = None
+        compared_stages = tuple(mask_names)
+        partial_mask_comparison = False
+        left_profile_name = right_profile_name = "legacy-explicit"
+    else:
+        left_profile = MP.detect_profile(left_root)
+        right_profile = MP.detect_profile(right_root)
+        left_profile_name, right_profile_name = left_profile, right_profile
+        left_stages = MP.mask_stages(left_profile)
+        right_stages = MP.mask_stages(right_profile)
+        if left_profile == right_profile:
+            compared_stages = tuple(left_stages)
+            partial_mask_comparison = False
+        else:
+            # 서로 다른 레이아웃을 조용히 섞지 않는다.
+            compared_stages = tuple(s for s in left_stages if s in right_stages)
+            partial_mask_comparison = True
+            entry = {
+                "category": "mask_profile_mismatch",
+                "left_mask_profile": left_profile,
+                "right_mask_profile": right_profile,
+                "compared_mask_stages": list(compared_stages),
+            }
+            if allow_mask_profile_mismatch:
+                # 공통 stage 만 비교하고, 완전 결정성으로 표현하지 않는다.
+                mismatches.append({**entry, "allowed": True})
+            else:
+                errors.append(entry)
 
     loaded: dict[str, dict[int, dict[str, Any]] | None] = {}
     for side, root in (("left", left_root), ("right", right_root)):
@@ -274,8 +320,8 @@ def compare_output_roots(left_root: str | Path, right_root: str | Path) -> dict[
                 }
             )
 
-        left_paths = _artifact_paths(left_root, idx)
-        right_paths = _artifact_paths(right_root, idx)
+        left_paths = _artifact_paths(left_root, idx, compared_stages, left_profile)
+        right_paths = _artifact_paths(right_root, idx, compared_stages, right_profile)
 
         try:
             left_label = _canonical_value(_read_json(left_paths["label"]))
@@ -317,7 +363,7 @@ def compare_output_roots(left_root: str | Path, right_root: str | Path) -> dict[
         decoded: dict[tuple[str, str], np.ndarray] = {}
         for side, paths in (("left", left_paths), ("right", right_paths)):
             for artifact, mode in (("rgb", "RGB"),) + tuple(
-                (f"mask:{name}", "L") for name in MASK_NAMES
+                (f"mask:{name}", "L") for name in compared_stages
             ):
                 try:
                     decoded[(side, artifact)] = _decode_pixels(
@@ -345,7 +391,7 @@ def compare_output_roots(left_root: str | Path, right_root: str | Path) -> dict[
                     _pixel_difference("rgb_pixels", idx, left_rgb, right_rgb)
                 )
 
-        for name in MASK_NAMES:
+        for name in compared_stages:
             artifact = f"mask:{name}"
             if ("left", artifact) not in decoded or ("right", artifact) not in decoded:
                 continue
@@ -368,6 +414,11 @@ def compare_output_roots(left_root: str | Path, right_root: str | Path) -> dict[
         "left_root": str(left_root),
         "right_root": str(right_root),
         "deterministic": not errors and not mismatches,
+        "left_mask_profile": left_profile_name,
+        "right_mask_profile": right_profile_name,
+        "compared_mask_stages": list(compared_stages),
+        "partial_mask_comparison": partial_mask_comparison,
+        "mask_profile_mismatch": left_profile_name != right_profile_name,
         "excluded_json_fields": sorted(EXCLUDED_JSON_FIELDS),
         "indices": {
             "left": left_indices,
@@ -388,12 +439,27 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("left_root")
     parser.add_argument("right_root")
+    parser.add_argument(
+        "--allow-mask-profile-mismatch", action="store_true",
+        help="좌/우 mask 레이아웃이 다를 때 공통 stage(m0,m4)만 비교한다. "
+             "결과는 partial_mask_comparison=true 로 표시되며 완전 결정성 통과가 아니다.",
+    )
+    parser.add_argument(
+        "--mask-names", default=None,
+        help="Legacy override: <root>/mask/<frame>_<name>.png 접미사를 직접 지정한다.",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
-    report = compare_output_roots(args.left_root, args.right_root)
+    mask_names = (tuple(x.strip() for x in args.mask_names.split(",") if x.strip())
+                  if args.mask_names else None)
+    report = compare_output_roots(
+        args.left_root, args.right_root,
+        allow_mask_profile_mismatch=args.allow_mask_profile_mismatch,
+        mask_names=mask_names,
+    )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0 if report["deterministic"] else 1
 
