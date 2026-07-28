@@ -54,14 +54,15 @@ import distractor_pool_v2 as _dp
 import scene_placement_v2 as _sp2
 
 # ---------------------------------------------------------------------------
-# Paths (no bpy). Mirrors distractor_pool_v2's project-root detection.
+# Paths (no bpy). Data paths come from the central registry
+# (config/synthetic/pallet_paths.yaml via pallet_data_paths).
 # ---------------------------------------------------------------------------
+import pallet_data_paths as _pdp
+
 _THIS = os.path.dirname(os.path.abspath(__file__))
-_PROJECT_ROOT = os.path.abspath(os.path.join(_THIS, "..", "..", ".."))
+_PROJECT_ROOT = _pdp.load().project_root
 DEFAULT_CONFIG = os.path.join(_PROJECT_ROOT, "config", "synthetic", "blender.yaml")
-DEFAULT_MANIFEST = os.path.join(
-    _PROJECT_ROOT, "data", "pallet", "distractors", "distractors_manifest.csv"
-)
+DEFAULT_MANIFEST = _pdp.get("distractor_manifest")
 
 # D435i anchor intrinsics (gen_trunc_addon.py:44 / gen_palletobj_scenarios.py:37).
 FX_ANCHOR = 605.9065

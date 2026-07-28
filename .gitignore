@@ -164,3 +164,7 @@ db.sqlite3-journal
 cosypose/experiments
 .scrapy
 docs/_build/
+
+# Stage 2-A 재스캔 중간 산출물 (13MB, 재생성 가능 + 자기 리포트를 참조로 오검출)
+# 정본 스냅샷은 reports/data_pallet_cleanup/stage2a/_raw_refs_before.json
+reports/data_pallet_cleanup/_raw_refs.json

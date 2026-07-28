@@ -57,7 +57,7 @@ B6   미해결 LOW      isaac_assets/(NVIDIA 창고 USD) 트리에 존재 — �
 Sketchfab **Free Standard License + NoAI 태그**(Standard=재배포 금지 + NoAI=AI/ML 학습·데이터셋 사용 금지).
 목재 원본 2종(P2 `scene_2.usd`, P3 `scene_3.usd`) 중 하나가 이 NoAI 모델 — 매핑 미확정이라 **둘 다 교체**.
 **3부 조건 모두 완료 → 파이프라인서 NoAI 원천 제거**:
-- **① USD 격리**: `scene_2/3.usd` → `data/pallet/_noai_quarantine_usd/`(삭제X, provenance 보관, README) [확인].
+- **① USD 격리**: `scene_2/3.usd` → `data/pallet/archive/_noai_quarantine_usd/`(삭제X, provenance 보관, README) [확인, 2026-07-28 경로 정정].
 - **② blend 재-bake [확인, zstd 해제 grep 재검증]**: 프로덕션 `synth_data_scene.blend` 재-bake로 NoAI 목재
   완전 제거 — 새 blend grep에서 **scene_2.usd=0 · scene_3.usd=0 · LP_merge_lambert16=0 · Material_018=0 ·
   Legacy_Pallet_2/3=0**(과거 로더가 삭제 않고 rename만 한 NoAI 중복본까지 제거; 백업엔 각 존재). 새 목재
@@ -124,8 +124,8 @@ usd텍스처       data/pallet/models_usd/textures/*.png Sketchfab파생 blinn1(
 ```
 asset          저장경로(신)                                   출처       라이선스              공개  블로커
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-P2 scene_2.usd data/pallet/_noai_quarantine_usd/scene_2.usd   Sketchfab  미확정 CC-BY|NoAI      N     B1(격리)
-P3 scene_3.usd data/pallet/_noai_quarantine_usd/scene_3.usd   Sketchfab  미확정 CC-BY|NoAI      N     B1(격리)
+P2 scene_2.usd data/pallet/archive/_noai_quarantine_usd/scene_2.usd   Sketchfab  미확정 CC-BY|NoAI      N     B1(격리)
+P3 scene_3.usd data/pallet/archive/_noai_quarantine_usd/scene_3.usd   Sketchfab  미확정 CC-BY|NoAI      N     B1(격리)
 ```
 - **[확인] 렌더로 재질 확정** (`_pallet_catalog_0123/pallet_0123_row.png`): P0=빨강 플라스틱, P1=초록
   플라스틱, P2=어두운 목재, P3=밝은 목재. NoAI "Old Wooden Pallet"은 목재 → 반드시 {P2,P3} 중 하나이며
@@ -253,9 +253,9 @@ Sketchfab ×16             data/pallet/distractors/{tier}/(sf__*)   Sketchfab   
 ```
 group                저장경로                          출처            저작자      라이선스        공개  블로커
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
-목재 텍스처 ×9        data/pallet/textures_wood/*.png   Poly Haven      Poly Haven  CC0 1.0(검증됨)  Y     -
-floor 텍스처 ×14      data/pallet/textures_floor/*.png  Poly Haven      Poly Haven  CC0 1.0(확정)    Y     B4 해소
-_procedural_textures  data/pallet/_procedural_textures/ 절차생성(자작)  스크립트     자작(CC0급)      Y     -(현 미사용)
+목재 텍스처 ×9        data/pallet/archive/textures_wood/*.png   Poly Haven      Poly Haven  CC0 1.0(검증됨)  Y     -
+floor 텍스처 ×14      data/pallet/archive/textures_floor/*.png  Poly Haven      Poly Haven  CC0 1.0(확정)    Y     B4 해소
+_procedural_textures  data/pallet/archive/_procedural_textures/ 절차생성(자작)  스크립트     자작(CC0급)      Y     -(현 미사용)
 ```
 - **목재 9종 [확인, 검증완료]**: `_tmp_ph/*_files.json` 6개가 `dl.polyhaven.org`(CC0) 다운로드 매니페스트
   (brown_planks_04/dark_planks/plank_flooring_03/weathered_planks/wood_planks/wood_planks_grey). 나머지 3종
@@ -316,11 +316,11 @@ cargo(배럴/카드보드)  production blend (baked, CARGO_SOURCES)            P
 dataset                          저장경로                                    상속 블로커
 ────────────────────────────────────────────────────────────────────────────────────────────
 train_palletobj_v1/v2/v3         data/pallet/train_palletobj_v{1,2,3}/       팔레트=자작 OBJ, floor=CC0, occluder=CC0/CC-BY → B5만
-train_palletobj_addon_v1         data/pallet/train_palletobj_addon_v1/       팔레트=자작 OBJ → B5(CC-BY occluder 표시)만
-train_4pallet_mask_v1            data/pallet/train_4pallet_mask_v1/          B1(NoAI 목재 P2/P3 baked) [+ B5]
-trunc_addon_v1                   data/pallet/trunc_addon_v1/                 팔레트=자작 OBJ → B5만
-training_data_v4 / _v4_split     data/pallet/training_data_v4*/              B1(NoAI 목재 P2/P3 baked) [+ B5]
-training_data (구)               data/pallet/training_data/                  B1 가능 [+구 BG]
+train_palletobj_addon_v1         data/pallet/archive/train_palletobj_addon_v1/       팔레트=자작 OBJ → B5(CC-BY occluder 표시)만
+train_4pallet_mask_v1            data/pallet/archive/train_4pallet_mask_v1/          B1(NoAI 목재 P2/P3 baked) [+ B5]
+trunc_addon_v1                   data/pallet/archive/trunc_addon_v1/                 팔레트=자작 OBJ → B5만
+training_data_v4 / _v4_split     data/pallet/archive/training_data_v4*/              B1(NoAI 목재 P2/P3 baked) [+ B5]
+training_data (구)               data/pallet/archive/training_data/                  B1 가능 [+구 BG]
 real_data (실촬영)                data/pallet/real_data/*.jpg                 본인 촬영(D435i) → 본인 IP, Y
 ```
 - 렌더 데이터셋은 **baked된 모든 소스 에셋의 라이선스를 상속**한다. **B2 오탐 종료·B4 해소(floor CC0) →

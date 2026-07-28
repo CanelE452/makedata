@@ -1,0 +1,280 @@
+[
+ {
+  "zip": "pallet.zip",
+  "zip_bytes": 16637698137,
+  "n_entries": 60022,
+  "uncompressed_bytes": 16679343532,
+  "top_entries": [
+   "train_palletobj_v1",
+   "train_palletobj_v2"
+  ],
+  "sample": [
+   "train_palletobj_v1/000000.json",
+   "train_palletobj_v1/000000.png",
+   "train_palletobj_v1/000001.json"
+  ]
+ },
+ {
+  "zip": "test_blender_v64.zip",
+  "zip_bytes": 1781592200,
+  "n_entries": 6000,
+  "uncompressed_bytes": 1786012650,
+  "top_entries": [
+   "000000.json",
+   "000000.png",
+   "000001.json",
+   "000001.png",
+   "000002.json"
+  ],
+  "sample": [
+   "000000.json",
+   "000000.png",
+   "000001.json"
+  ],
+  "match_dir": "data/pallet/archive/test_blender_v64",
+  "match_files": 6000,
+  "match_bytes": 1786012650
+ },
+ {
+  "zip": "test_blender_v65.zip",
+  "zip_bytes": 86723195,
+  "n_entries": 300,
+  "uncompressed_bytes": 86945235,
+  "top_entries": [
+   "000000.json",
+   "000000.png",
+   "000001.json",
+   "000001.png",
+   "000002.json"
+  ],
+  "sample": [
+   "000000.json",
+   "000000.png",
+   "000001.json"
+  ],
+  "match_dir": "data/pallet/archive/test_blender_v65",
+  "match_files": 300,
+  "match_bytes": 86945235
+ },
+ {
+  "zip": "test_blender_v68.zip",
+  "zip_bytes": 906940260,
+  "n_entries": 3000,
+  "uncompressed_bytes": 909147448,
+  "top_entries": [
+   "000000.json",
+   "000000.png",
+   "000001.json",
+   "000001.png",
+   "000002.json"
+  ],
+  "sample": [
+   "000000.json",
+   "000000.png",
+   "000001.json"
+  ],
+  "match_dir": "data/pallet/archive/test_blender_v68",
+  "match_files": 3000,
+  "match_bytes": 909147448
+ },
+ {
+  "zip": "test_blender_v69.zip",
+  "zip_bytes": 3653659280,
+  "n_entries": 12000,
+  "uncompressed_bytes": 3662471008,
+  "top_entries": [
+   "000000.json",
+   "000000.png",
+   "000001.json",
+   "000001.png",
+   "000002.json"
+  ],
+  "sample": [
+   "000000.json",
+   "000000.png",
+   "000001.json"
+  ],
+  "match_dir": "data/pallet/archive/test_blender_v69",
+  "match_files": 12000,
+  "match_bytes": 3662471008
+ },
+ {
+  "zip": "test_blender_v70.zip",
+  "zip_bytes": 913350083,
+  "n_entries": 3000,
+  "uncompressed_bytes": 915545347,
+  "top_entries": [
+   "000000.json",
+   "000000.png",
+   "000001.json",
+   "000001.png",
+   "000002.json"
+  ],
+  "sample": [
+   "000000.json",
+   "000000.png",
+   "000001.json"
+  ],
+  "match_dir": "data/pallet/archive/test_blender_v70",
+  "match_files": 3000,
+  "match_bytes": 915545347
+ },
+ {
+  "zip": "test_indoor_v1.zip",
+  "zip_bytes": 587372076,
+  "n_entries": 3000,
+  "uncompressed_bytes": 588469993,
+  "top_entries": [
+   "000000.json",
+   "000000.png",
+   "000001.json",
+   "000001.png",
+   "000002.json"
+  ],
+  "sample": [
+   "000000.json",
+   "000000.png",
+   "000001.json"
+  ],
+  "match_dir": "data/pallet/archive/test_indoor_v1",
+  "match_files": 3000,
+  "match_bytes": 588469993
+ },
+ {
+  "zip": "train_4pallet_mask_v1.zip",
+  "zip_bytes": 9675248635,
+  "n_entries": 40040,
+  "uncompressed_bytes": 9845542580,
+  "top_entries": [
+   "000000.json",
+   "000000.png",
+   "000001.json",
+   "000001.png",
+   "000002.json"
+  ],
+  "sample": [
+   "000000.json",
+   "000000.png",
+   "000001.json"
+  ],
+  "match_dir": "data/pallet/archive/train_4pallet_mask_v1",
+  "match_files": 40040,
+  "match_bytes": 9845542580
+ },
+ {
+  "zip": "train_palletobj_addon_v1.zip",
+  "zip_bytes": 5648950621,
+  "n_entries": 24002,
+  "uncompressed_bytes": 5752182582,
+  "top_entries": [
+   "000000.json",
+   "000000.png",
+   "000001.json",
+   "000001.png",
+   "000002.json"
+  ],
+  "sample": [
+   "000000.json",
+   "000000.png",
+   "000001.json"
+  ],
+  "match_dir": "data/pallet/archive/train_palletobj_addon_v1",
+  "match_files": 24002,
+  "match_bytes": 5752182582
+ },
+ {
+  "zip": "train_palletobj_v1 (2).zip",
+  "zip_bytes": 8316876455,
+  "n_entries": 30012,
+  "uncompressed_bytes": 8337383185,
+  "top_entries": [
+   "train_palletobj_v1"
+  ],
+  "sample": [
+   "train_palletobj_v1/000000.json",
+   "train_palletobj_v1/000000.png",
+   "train_palletobj_v1/000001.json"
+  ]
+ },
+ {
+  "zip": "train_palletobj_v1.zip",
+  "zip_bytes": 4529431174,
+  "error": "BadZipFile: File is not a zip file",
+  "match_dir": "data/pallet/archive/train_palletobj_v1",
+  "match_files": 30012,
+  "match_bytes": 8337383185
+ },
+ {
+  "zip": "train_palletobj_v2 (2).zip",
+  "zip_bytes": 8321314846,
+  "n_entries": 30010,
+  "uncompressed_bytes": 8341960347,
+  "top_entries": [
+   "train_palletobj_v2"
+  ],
+  "sample": [
+   "train_palletobj_v2/000000.json",
+   "train_palletobj_v2/000000.png",
+   "train_palletobj_v2/000001.json"
+  ]
+ },
+ {
+  "zip": "train_palletobj_v2.zip",
+  "zip_bytes": 8346416419,
+  "n_entries": 30010,
+  "uncompressed_bytes": 8341960347,
+  "top_entries": [
+   "train_palletobj_v2"
+  ],
+  "sample": [
+   "train_palletobj_v2/000000.json",
+   "train_palletobj_v2/000000.png",
+   "train_palletobj_v2/000001.json"
+  ],
+  "match_dir": "data/pallet/archive/train_palletobj_v2",
+  "match_files": 30010,
+  "match_bytes": 8341960347
+ },
+ {
+  "zip": "train_palletobj_v3.zip",
+  "zip_bytes": 10449502513,
+  "n_entries": 40002,
+  "uncompressed_bytes": 10682796255,
+  "top_entries": [
+   "_summary.json",
+   "_summary_partial.json",
+   "batch_000",
+   "batch_001",
+   "batch_002"
+  ],
+  "sample": [
+   "_summary.json",
+   "_summary_partial.json",
+   "batch_000/000000.json"
+  ],
+  "match_dir": "data/pallet/archive/train_palletobj_v3",
+  "match_files": 40002,
+  "match_bytes": 10682796255
+ },
+ {
+  "zip": "trunc_addon_v1.zip",
+  "zip_bytes": 5435835407,
+  "n_entries": 24010,
+  "uncompressed_bytes": 5544142126,
+  "top_entries": [
+   "000000.json",
+   "000000.png",
+   "000001.json",
+   "000001.png",
+   "000002.json"
+  ],
+  "sample": [
+   "000000.json",
+   "000000.png",
+   "000001.json"
+  ],
+  "match_dir": "data/pallet/archive/trunc_addon_v1",
+  "match_files": 24015,
+  "match_bytes": 5546660278
+ }
+]

@@ -1,0 +1,212 @@
+[
+ {
+  "kind": "join",
+  "path": "data/pallet/distractors",
+  "file": "scripts/data_prep/compute_distractor_fill_ratio.py",
+  "line": 49,
+  "snippet": "os.path.join(PROJECT_ROOT, \"data\", \"pallet\", \"distractors\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet",
+  "file": "scripts/data_prep/manage_pallet_data_layout.py",
+  "line": 57,
+  "snippet": "os.path.join(root, \"data\", \"pallet\", X)"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/training_data",
+  "file": "scripts/data_prep/merge_and_validate.py",
+  "line": 13,
+  "snippet": "os.path.join(\"data\", \"pallet\", \"training_data\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/training_data",
+  "file": "scripts/data_prep/merge_and_validate.py",
+  "line": 14,
+  "snippet": "os.path.join(\"data\", \"pallet\", \"training_data\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/training_data",
+  "file": "scripts/data_prep/merge_and_validate.py",
+  "line": 16,
+  "snippet": "os.path.join(\"data\", \"pallet\", \"training_data\", d)"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/training_data",
+  "file": "scripts/data_prep/merge_and_validate.py",
+  "line": 17,
+  "snippet": "os.path.join(\"data\", \"pallet\", \"training_data\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/training_data",
+  "file": "scripts/data_prep/merge_and_validate.py",
+  "line": 19,
+  "snippet": "os.path.join(\"data\", \"pallet\", \"training_data\", d)"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/v2_dryrun_audit",
+  "file": "scripts/data_prep/blender/audit_v2_dryrun.py",
+  "line": 39,
+  "snippet": "os.path.join(_PROJECT_ROOT, \"data\", \"pallet\", \"v2_dryrun_audit\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet",
+  "file": "scripts/data_prep/blender/blender_config.py",
+  "line": 21,
+  "snippet": "os.path.join(project_root, \"data\", \"pallet\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/_preview10",
+  "file": "scripts/data_prep/blender/gen_preview10.py",
+  "line": 202,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"_preview10\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/_test_topview",
+  "file": "scripts/data_prep/blender/gen_topview_test.py",
+  "line": 186,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"_test_topview\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet",
+  "file": "scripts/data_prep/blender/pallet_data_paths.py",
+  "line": 53,
+  "snippet": "os.path.join(cur, \"data\", \"pallet\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/_wood_skin_compare/random_applied",
+  "file": "scripts/data_prep/blender/_gen_wood_random_samples.py",
+  "line": 32,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"_wood_skin_compare\", \"random_applied\")"
+ },
+ {
+  "kind": "slash",
+  "path": "data/pallet/archive/trunc_addon_v1_pilot/overlay",
+  "file": "scripts/data_prep/blender/_make_archive_vs_new_sheet.py",
+  "line": 22,
+  "snippet": "a: E402 REPO = _THIS_DIR.parents[2] ARCHIVE_OVERLAY = REPO / \"data/pallet/archive/trunc_addon_v1_pilot/overlay\" NEW_OVERL"
+ },
+ {
+  "kind": "slash",
+  "path": "data/pallet/_v2_smoke50_9d/overlay_archive_style",
+  "file": "scripts/data_prep/blender/_make_archive_vs_new_sheet.py",
+  "line": 23,
+  "snippet": "et/archive/trunc_addon_v1_pilot/overlay\" NEW_OVERLAY = REPO / \"data/pallet/_v2_smoke50_9d/overlay_archive_style\" # (condi"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/_floor_uv_test",
+  "file": "scripts/data_prep/blender/_make_floor_uv_sheet.py",
+  "line": 10,
+  "snippet": "os.path.join(\"data\", \"pallet\", \"_floor_uv_test\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/_floor_applied14",
+  "file": "scripts/data_prep/blender/_render_floor_applied14.py",
+  "line": 39,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"_floor_applied14\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/textures_floor",
+  "file": "scripts/data_prep/blender/_render_floor_applied14.py",
+  "line": 41,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"textures_floor\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/_floor_compare",
+  "file": "scripts/data_prep/blender/_render_floor_compare.py",
+  "line": 37,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"_floor_compare\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/textures_floor",
+  "file": "scripts/data_prep/blender/_render_floor_compare.py",
+  "line": 39,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"textures_floor\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/_floor_fix_test",
+  "file": "scripts/data_prep/blender/_render_floor_fix_test.py",
+  "line": 31,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"_floor_fix_test\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/_floor_uv_test",
+  "file": "scripts/data_prep/blender/_render_floor_uv_compare.py",
+  "line": 31,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"_floor_uv_test\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/_material_compare",
+  "file": "scripts/data_prep/blender/_render_material_compare.py",
+  "line": 29,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"_material_compare\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/_mat_test10e/closeup",
+  "file": "scripts/data_prep/blender/_render_plastic_closeup.py",
+  "line": 31,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"_mat_test10e\", \"closeup\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/_mat_test10b/closeup",
+  "file": "scripts/data_prep/blender/_render_wood_closeup.py",
+  "line": 29,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"_mat_test10b\", \"closeup\")"
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/_wood_skin_compare",
+  "file": "scripts/data_prep/blender/_render_wood_skin_compare.py",
+  "line": 29,
+  "snippet": "os.path.join(cfg.PROJECT_ROOT, \"data\", \"pallet\", \"_wood_skin_compare\")"
+ },
+ {
+  "kind": "slash",
+  "path": "data/pallet/archive/trunc_addon_v1_pilot",
+  "file": "scripts/data_prep/blender/_verify_archive_style_pixels.py",
+  "line": 48,
+  "snippet": "noqa: E402 REPO = _THIS_DIR.parents[2] ARCHIVE_ROOT = REPO / \"data/pallet/archive/trunc_addon_v1_pilot\" NEW_ROOT"
+ },
+ {
+  "kind": "slash",
+  "path": "data/pallet/_v2_smoke50_9d",
+  "file": "scripts/data_prep/blender/_verify_archive_style_pixels.py",
+  "line": 49,
+  "snippet": "\"data/pallet/archive/trunc_addon_v1_pilot\" NEW_ROOT = REPO / \"data/pallet/_v2_smoke50_9d\" CHECKS ="
+ },
+ {
+  "kind": "slash",
+  "path": "data/pallet/archive/trunc_addon_v1_pilot/overlay/000000.png",
+  "file": "scripts/data_prep/blender/tests/test_overlay_archive_trunc_style.py",
+  "line": 42,
+  "snippet": "LE = (Path(__file__).resolve().parents[4] / \"data/pallet/archive/trunc_addon_v1_pilot/overlay/000000.png\") W, H ="
+ },
+ {
+  "kind": "join",
+  "path": "data/pallet/models_usd",
+  "file": "scripts/data_prep/isaac_sim/debug_pallet_orientation.py",
+  "line": 10,
+  "snippet": "os.path.join(PROJECT_ROOT, \"data\", \"pallet\", \"models_usd\")"
+ }
+]

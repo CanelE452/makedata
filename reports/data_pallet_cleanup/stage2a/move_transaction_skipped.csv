@@ -1,0 +1,6 @@
+﻿source,reason
+data/pallet/_v2_scene_logic_probe_seed7500_f18_r19_log.console.txt,SOURCE_NOT_A_DIRECTORY
+data/pallet/_v2_scene_logic_probe_seed7500_idx02_prealign_r01.log,SOURCE_NOT_A_DIRECTORY
+data/pallet/_v2_scene_logic_smoke20_seed7500_r40.log,SOURCE_NOT_A_DIRECTORY
+data/pallet/_v2_scene_logic_smoke20_seed7500_r7_blender.log,SOURCE_NOT_A_DIRECTORY
+data/pallet/v2_dryrun_audit,EXPLICIT_EXCLUSION: audit_v2_dryrun.py:39 DEFAULT_OUT 이 이 경로를 기본 출력으로 재생성함

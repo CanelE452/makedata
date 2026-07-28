@@ -38,7 +38,8 @@ Python + PyTorch + Isaac Sim + DOPE.
 - DOPE 모델: `Deep_Object_Pose/` 서브모듈 (VGG-19 backbone, 9 belief maps + 16 affinity fields)
 - **PnP**: EPnP + RANSAC (`scripts/self_training/pnp_solver.py`) — keypoint → 6D 포즈 복원
 - 합성 데이터: Isaac Sim 4.5.0 + Omniverse Replicator, NDDS 포맷 JSON annotation
-- USD 모델: `data/pallet/models_usd/scene*.usd` (4종 팔레트)
+- USD 모델: `data/pallet/models_usd/` — `scene.usd`(P0) / `scene_1.usd`(P1) / `scene_noemit.usd`(P0 무발광) + v2 목재 2종 `.glb`. 구 P2/P3(`scene_2/3.usd`)는 NoAI라 `data/pallet/archive/_noai_quarantine_usd/`로 격리됨
+- 데이터 경로 registry: `config/synthetic/pallet_paths.yaml` + `scripts/data_prep/blender/pallet_data_paths.py` (경로 리터럴 대신 registry 키 사용)
 - Geometric Filter: 3단계 (A: Augmentation Consistency, B: 변 길이 일관성, C: 규격 비율)
 - Keypoint convention: Y=UP, 8 cuboid corners + centroid (memory 참조)
 - **평가**: PCK@3/5/10px + PnP Reproj (val) / ADD, 5cm5° (real test, camera extrinsic 필요) — `scripts/data_prep/evaluate_on_val.py`

@@ -1,0 +1,59 @@
+# pallet 데이터 경로 registry (Stage 2-A 도입)
+#
+# 규칙
+#   - 여기 적힌 값은 "지금 실제로 존재하는 경로"다. 앞으로 가고 싶은 경로(TARGET)를 적지 않는다.
+#     현 위치가 이상해 보여도(예: 현역 텍스처가 archive/ 아래) 실제 위치를 그대로 적는다.
+#   - 경로는 프로젝트 루트 기준 상대경로. 해석은 scripts/data_prep/blender/pallet_data_paths.py.
+#   - 환경변수 PALLET_DATA_ROOT 가 있으면 pallet_data_root 만 override 된다
+#     (하위 경로는 root 기준으로 재조립된다).
+#   - 존재하지 않는 경로는 적지 않는다. optional 로 표시된 항목만 부재를 허용한다.
+#
+# 파일 형식: config/synthetic/blender.yaml 과 마찬가지로 JSON 서브셋으로 파싱한다
+#            (blender_config.py 가 .yaml 확장자에 json.loads 를 쓰는 저장소 관례를 따른다).
+{
+  "pallet_data_root": "data/pallet",
+
+  "// 씬": "프로덕션 blend 는 동반 textures/ 와 같은 폴더에 있어야 한다",
+  "production_scene": "data/pallet/blender_scene/synth_data_scene.blend",
+  "production_scene_textures": "data/pallet/blender_scene/textures",
+  "experimental_scene": "data/pallet/blender_scene/_sandbox_palletobj_production.blend",
+
+  "// 배경": "blender.yaml background.assets.parking_lot.filepath 와 같은 트리",
+  "background_root": "data/pallet/background",
+
+  "// 디스트랙터": "manifest 는 v2_pipeline.py / distractor_pool_v2.py 가 읽는 pool 정의",
+  "distractor_root": "data/pallet/distractors",
+  "distractor_manifest": "data/pallet/distractors/distractors_manifest.csv",
+
+  "// 조명": "blender.yaml lighting.hdri_dir 와 동일 대상",
+  "hdri_root": "data/pallet/hdri",
+
+  "// 머티리얼": "★ 이름은 archive 지만 현역 — v2_realize.py 가 하드코딩으로 읽던 경로",
+  "floor_material_root": "data/pallet/archive/textures_floor",
+  "pallet_material_root": "data/pallet/archive/textures_wood",
+
+  "// 팔레트 모델": "blender.yaml assets.pallet_source_dir + v2 신규 목재 2종",
+  "pallet_model_roots": [
+    "data/pallet/models_usd",
+    "data/pallet/pallets_v2_add/models"
+  ],
+  "pallet_measurements": "data/pallet/pallets_v2_add/measurements.json",
+
+  "// 검증 정본": "tests/test_overlay_archive_trunc_style.py 가 픽셀 비교하는 정본",
+  "golden_overlay_reference": "data/pallet/archive/trunc_addon_v1_pilot",
+  "real_data_root": "data/pallet/real_data",
+
+  "// 트리 루트": "Stage 2-A 에서 생성한 뼈대",
+  "runs_root": "data/pallet/runs",
+  "release_root": "data/pallet/release",
+  "archive_root": "data/pallet/archive",
+  "manifests_root": "data/pallet/manifests",
+  "assets_root": "data/pallet/assets",
+  "reference_root": "data/pallet/reference",
+
+  "// optional": "부재를 허용하는 항목 (감사에서 missing 이 아니라 absent 로 보고)",
+  "optional_keys": [
+    "release_root",
+    "pallet_measurements"
+  ]
+}

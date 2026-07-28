@@ -26,6 +26,15 @@ def _detect_project_root():
 
 
 PROJECT_ROOT = _detect_project_root()
+
+# Central data-path registry (bpy-free). Introduced in Stage 2-A so that data
+# locations live in config/synthetic/pallet_paths.yaml instead of being rebuilt
+# from string literals in every module.
+import pallet_data_paths as _pallet_data_paths  # noqa: E402
+
+_PALLET_PATHS = _pallet_data_paths.load(project_root=PROJECT_ROOT)
+PALLET_PATHS = _PALLET_PATHS  # public alias for consumers (v2_realize etc.)
+
 BLENDER_SYNTH_CONFIG_PATH = os.environ.get(
     "FOUNDATIONPOSE_BLENDER_CONFIG",
     os.path.join(PROJECT_ROOT, "config", "synthetic", "blender.yaml"),
@@ -181,7 +190,11 @@ PALLET_COLOR_VARIANTS = {
     for group, variants in _APPEARANCE["pallet_color_variants"].items()
 }
 
-WOOD_TEXTURE_DIR = os.path.join(PROJECT_ROOT, "data", "pallet", "textures_wood")
+# Registry-resolved (config/synthetic/pallet_paths.yaml). The literal
+# `data/pallet/textures_wood` this used to build has not existed since the
+# textures were moved under archive/ -- v2_realize.py carried a hardcoded
+# archive fallback to compensate. The registry now names the real location.
+WOOD_TEXTURE_DIR = _PALLET_PATHS.get("pallet_material_root")
 
 # ---------------------------------------------------------------------------
 # Floor randomization (gen_dataset_v4). The shipped scene floor `Base_base_m_0`
@@ -193,7 +206,7 @@ WOOD_TEXTURE_DIR = os.path.join(PROJECT_ROOT, "data", "pallet", "textures_wood")
 # exact ground they sit on -> grounding/shadows preserved. The plane is dropped a
 # hair (FLOOR_PLANE_Z) BELOW z=0 so it never occludes the on-ground raycast
 # silhouette points (bottom corners at z~=0) -> visibility gate unaffected.
-FLOOR_TEXTURE_DIR = os.path.join(PROJECT_ROOT, "data", "pallet", "textures_floor")
+FLOOR_TEXTURE_DIR = _PALLET_PATHS.get("floor_material_root")  # registry-resolved
 FLOOR_PLANE_NAME = "FloorRandPlane"
 FLOOR_PLANE_SIZE = 50.0          # metres. Must dominate the oblique view: at low
 # elevation the near foreground extends far past the pallet, so a small plane

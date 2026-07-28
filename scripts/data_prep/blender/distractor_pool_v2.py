@@ -26,12 +26,12 @@ yet enriched) the loader degrades to size-class-only selection with all-domain=T
 import csv
 import os
 
-# manifest lives two levels up under data/pallet/distractors/
-_THIS = os.path.dirname(os.path.abspath(__file__))
-_PROJECT_ROOT = os.path.abspath(os.path.join(_THIS, "..", "..", ".."))
-DEFAULT_MANIFEST = os.path.join(
-    _PROJECT_ROOT, "data", "pallet", "distractors", "distractors_manifest.csv"
-)
+# manifest path comes from the central registry (config/synthetic/pallet_paths.yaml)
+# so that relocating data/pallet is a one-line config change, not a code hunt.
+import pallet_data_paths as _pdp
+
+_PROJECT_ROOT = _pdp.load().project_root
+DEFAULT_MANIFEST = _pdp.get("distractor_manifest")
 
 # Blender object-name prefix used when the 209 were appended (history 2026-07-24).
 DIST_OBJ_PREFIX = "Dist_"

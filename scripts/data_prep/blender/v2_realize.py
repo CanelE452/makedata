@@ -765,13 +765,9 @@ def _realize_constrained(
     if not wood_texture_dir or not os.path.isfile(
         os.path.join(wood_texture_dir, "wood_planks_diff.png")
     ):
-        archive_wood_dir = os.path.join(
-            cfg.PROJECT_ROOT,
-            "data",
-            "pallet",
-            "archive",
-            "textures_wood",
-        )
+        # Registry-resolved (config/synthetic/pallet_paths.yaml). Was a hardcoded
+        # `data/pallet/archive/textures_wood` join; the registry now owns that fact.
+        archive_wood_dir = cfg.PALLET_PATHS.get("pallet_material_root")
         if os.path.isfile(
             os.path.join(archive_wood_dir, "wood_planks_diff.png")
         ):
@@ -801,13 +797,8 @@ def _realize_constrained(
         if not floor_texture_dir or not os.path.isfile(
             os.path.join(floor_texture_dir, probe_name)
         ):
-            archive_floor_dir = os.path.join(
-                cfg.PROJECT_ROOT,
-                "data",
-                "pallet",
-                "archive",
-                "textures_floor",
-            )
+            # Registry-resolved (config/synthetic/pallet_paths.yaml).
+            archive_floor_dir = cfg.PALLET_PATHS.get("floor_material_root")
             if os.path.isfile(os.path.join(archive_floor_dir, probe_name)):
                 randomizers.FLOOR_TEXTURE_DIR = archive_floor_dir
                 floor_texture_dir = archive_floor_dir
