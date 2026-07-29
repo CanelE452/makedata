@@ -1,0 +1,266 @@
+{
+ "rgb count == 2": {
+  "ok": true,
+  "detail": "got 2"
+ },
+ "labels count == 2": {
+  "ok": true,
+  "detail": "got 2"
+ },
+ "mask_amodal count == 2": {
+  "ok": true,
+  "detail": "got 2"
+ },
+ "mask_visible count == 2": {
+  "ok": true,
+  "detail": "got 2"
+ },
+ "archive-style overlay count == 2": {
+  "ok": true,
+  "detail": "got 2"
+ },
+ "mask/ 디렉토리 미생성 (public)": {
+  "ok": true,
+  "detail": ""
+ },
+ "usable records == 2": {
+  "ok": true,
+  "detail": "got 2"
+ },
+ "session mask_profile == public": {
+  "ok": true,
+  "detail": "'public'"
+ },
+ "session occlusion_decomposition_available == False": {
+  "ok": true,
+  "detail": "False"
+ },
+ "session mask_dirs == [mask_amodal, mask_visible]": {
+  "ok": true,
+  "detail": "['mask_amodal', 'mask_visible']"
+ },
+ "f0000 magenta_fraction == 0": {
+  "ok": true,
+  "detail": "0.0"
+ },
+ "f0000 camera distance <= limit": {
+  "ok": true,
+  "detail": "4.59m / 10m"
+ },
+ "f0000 mask_paths == m0,m4 (public)": {
+  "ok": true,
+  "detail": "['m0', 'm4']"
+ },
+ "f0000 occlusion_decomposition_order == [M0,M4]": {
+  "ok": true,
+  "detail": "['M0', 'M4']"
+ },
+ "f0000 mask_area_after_static is None (public)": {
+  "ok": true,
+  "detail": "None"
+ },
+ "f0000 mask_area_after_cargo is None (public)": {
+  "ok": true,
+  "detail": "None"
+ },
+ "f0000 mask_area_after_context is None (public)": {
+  "ok": true,
+  "detail": "None"
+ },
+ "f0000 mask_area_target_only measured": {
+  "ok": true,
+  "detail": "3727.0"
+ },
+ "f0000 mask_area_visible measured": {
+  "ok": true,
+  "detail": "3582.0"
+ },
+ "f0000 mask_invariants_pass": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0000 mask_pixel_inclusion_ok": {
+  "ok": true,
+  "detail": "violation_px=0"
+ },
+ "f0000 corrupt_mask == False": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0000 pallet_support_pass": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0000 cargo_collision_pass": {
+  "ok": true,
+  "detail": "True"
+ },
+ "f0000 all_pass (G1..G5)": {
+  "ok": true,
+  "detail": "G=[True, True, True, True, True]"
+ },
+ "f0000 background_asset non-null": {
+  "ok": true,
+  "detail": "'industrial'"
+ },
+ "f0000 floor_mode non-null": {
+  "ok": true,
+  "detail": "'plane'"
+ },
+ "f0000 scene_preset non-null": {
+  "ok": true,
+  "detail": "'random-mix'"
+ },
+ "f0000 pallet_type non-null": {
+  "ok": true,
+  "detail": "'Pallet_1'"
+ },
+ "f0000 mask_paths 가 새 run 경로": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0001 magenta_fraction == 0": {
+  "ok": true,
+  "detail": "0.0"
+ },
+ "f0001 camera distance <= limit": {
+  "ok": true,
+  "detail": "5.79m / 10m"
+ },
+ "f0001 mask_paths == m0,m4 (public)": {
+  "ok": true,
+  "detail": "['m0', 'm4']"
+ },
+ "f0001 occlusion_decomposition_order == [M0,M4]": {
+  "ok": true,
+  "detail": "['M0', 'M4']"
+ },
+ "f0001 mask_area_after_static is None (public)": {
+  "ok": true,
+  "detail": "None"
+ },
+ "f0001 mask_area_after_cargo is None (public)": {
+  "ok": true,
+  "detail": "None"
+ },
+ "f0001 mask_area_after_context is None (public)": {
+  "ok": true,
+  "detail": "None"
+ },
+ "f0001 mask_area_target_only measured": {
+  "ok": true,
+  "detail": "9521.0"
+ },
+ "f0001 mask_area_visible measured": {
+  "ok": true,
+  "detail": "6889.0"
+ },
+ "f0001 mask_invariants_pass": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0001 mask_pixel_inclusion_ok": {
+  "ok": true,
+  "detail": "violation_px=0"
+ },
+ "f0001 corrupt_mask == False": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0001 pallet_support_pass": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0001 cargo_collision_pass": {
+  "ok": true,
+  "detail": "True"
+ },
+ "f0001 all_pass (G1..G5)": {
+  "ok": true,
+  "detail": "G=[True, True, True, True, True]"
+ },
+ "f0001 background_asset non-null": {
+  "ok": true,
+  "detail": "'parking_lot'"
+ },
+ "f0001 floor_mode non-null": {
+  "ok": true,
+  "detail": "'plane'"
+ },
+ "f0001 scene_preset non-null": {
+  "ok": true,
+  "detail": "'outdoor-day'"
+ },
+ "f0001 pallet_type non-null": {
+  "ok": true,
+  "detail": "'Pallet_3'"
+ },
+ "f0001 mask_paths 가 새 run 경로": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0000 visible ⊆ amodal (violation px)": {
+  "ok": true,
+  "detail": "got 0"
+ },
+ "f0000 mask_m0 non-empty": {
+  "ok": true,
+  "detail": "area=402561"
+ },
+ "f0000 overlay canvas == RGB": {
+  "ok": true,
+  "detail": "(960, 540) vs (960, 540)"
+ },
+ "f0000 magenta pixels == 0 (실측)": {
+  "ok": true,
+  "detail": "got 0"
+ },
+ "f0001 visible ⊆ amodal (violation px)": {
+  "ok": true,
+  "detail": "got 0"
+ },
+ "f0001 mask_m0 non-empty": {
+  "ok": true,
+  "detail": "area=270036"
+ },
+ "f0001 overlay canvas == RGB": {
+  "ok": true,
+  "detail": "(720, 480) vs (720, 480)"
+ },
+ "f0001 magenta pixels == 0 (실측)": {
+  "ok": true,
+  "detail": "got 0"
+ },
+ "f0000 label 에 옛 경로 없음 (hdri)": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0000 label 에 옛 경로 없음 (models_usd)": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0000 label 에 옛 경로 없음 (textures)": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0000 label 에 옛 경로 없음 (pallets_v2_add)": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0001 label 에 옛 경로 없음 (hdri)": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0001 label 에 옛 경로 없음 (models_usd)": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0001 label 에 옛 경로 없음 (textures)": {
+  "ok": true,
+  "detail": ""
+ },
+ "f0001 label 에 옛 경로 없음 (pallets_v2_add)": {
+  "ok": true,
+  "detail": ""
+ }
+}

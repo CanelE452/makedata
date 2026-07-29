@@ -194,7 +194,7 @@ def main():
     syn_sel = syn_imgs[::syn_step][:5]
 
     # Real
-    real_imgs = sorted(glob.glob('data/pallet/real_data/*.jpg'))
+    real_imgs = sorted(glob.glob('data/pallet/reference/real_images/real_data/*.jpg'))
     real_step = max(1, len(real_imgs) // 5)
     real_sel = real_imgs[::real_step][:5]
 

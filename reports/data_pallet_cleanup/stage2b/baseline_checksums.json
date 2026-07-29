@@ -1,0 +1,18 @@
+{
+  "framespec_sha256": "938f387dd65258e0ee869d58b0f4f69046bddc5e8f56921fbb666ecf13d82a39",
+  "framespec_lines": 5000,
+  "accepted": 4313,
+  "rejected": 687,
+  "distractors": 209,
+  "nan_inf": 0,
+  "data_pallet": {
+    "dirs": 2532,
+    "files": 363026,
+    "bytes": 191023461932
+  },
+  "stage2a_ledger_sha256": "fe1adc266bd91963c7be98779ed4c114b90b0b811fabdd60471a807aeb56d101",
+  "unit_tests": 566,
+  "integration_tests": 20,
+  "registry_ok": 21,
+  "registry_missing": 0
+}

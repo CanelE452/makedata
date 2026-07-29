@@ -115,10 +115,10 @@ asset          저장경로                              출처         저작�
 ──────────────────────────────────────────────────────────────────────────────────────────────────────
 pallet_full    data/palletobj/pallet_full.obj(.mtl)  본인 촬영    사용자(본인)   본인 IP(자작) Y     -
   +diffuse텍스  data/palletobj/laydown_u1_v1_diffuse  photogram.   사용자(본인)   본인 IP      Y     -
-P0 scene.usd   data/pallet/models_usd/scene.usd      Sketchfab    (플라스틱)     CC-BY 4.0    Y*    B5(표시)
-P1 scene_1.usd data/pallet/models_usd/scene_1.usd    Sketchfab    billy3D(추정)  CC-BY 4.0    Y*    B5(표시)
-scene_noemit   data/pallet/models_usd/scene_noemit   scene.usd파생 (P0 동일)       (P0 상속)    Y*    B5(표시)
-usd텍스처       data/pallet/models_usd/textures/*.png Sketchfab파생 blinn1(P0/P1)  (P0/P1 상속) Y*    B5(표시)
+P0 scene.usd   data/pallet/assets/pallets/models/models_usd/scene.usd      Sketchfab    (플라스틱)     CC-BY 4.0    Y*    B5(표시)
+P1 scene_1.usd data/pallet/assets/pallets/models/models_usd/scene_1.usd    Sketchfab    billy3D(추정)  CC-BY 4.0    Y*    B5(표시)
+scene_noemit   data/pallet/assets/pallets/models/models_usd/scene_noemit   scene.usd파생 (P0 동일)       (P0 상속)    Y*    B5(표시)
+usd텍스처       data/pallet/assets/pallets/models/models_usd/textures/*.png Sketchfab파생 blinn1(P0/P1)  (P0/P1 상속) Y*    B5(표시)
 ```
 **격리 (목재 2종 — NoAI 원천 제거, `_noai_quarantine_usd/`로 이동, 보관만)**
 ```
@@ -151,11 +151,11 @@ P3 scene_3.usd data/pallet/archive/_noai_quarantine_usd/scene_3.usd   Sketchfab 
 ```
 asset                          저장경로                                              출처        저작자      라이선스   공개  역할/비고
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-stringer_2way_quaternius_cc0   data/pallet/pallets_v2_add/models/stringer_2way..glb  Poly Pizza  Quaternius  CC0 1.0    Y     신규 stringer(막힌면)
-woodpallet_block_jtoastie_ccby data/pallet/pallets_v2_add/models/woodpallet_block..   Poly Pizza  J-Toastie   CC-BY 3.0  Y*    ★목재 교체①, *표시 필수(B5)
-eur_pallet_bk_cc0              data/pallet/pallets_v2_add/models/eur_pallet_bk_cc0.glb BlenderKit  LensError   CC0 1.0    Y     ★목재 교체②(800×1200×144)
+stringer_2way_quaternius_cc0   data/pallet/assets/pallets/source/pallets_v2_add/models/stringer_2way..glb  Poly Pizza  Quaternius  CC0 1.0    Y     신규 stringer(막힌면)
+woodpallet_block_jtoastie_ccby data/pallet/assets/pallets/source/pallets_v2_add/models/woodpallet_block..   Poly Pizza  J-Toastie   CC-BY 3.0  Y*    ★목재 교체①, *표시 필수(B5)
+eur_pallet_bk_cc0              data/pallet/assets/pallets/source/pallets_v2_add/models/eur_pallet_bk_cc0.glb BlenderKit  LensError   CC0 1.0    Y     ★목재 교체②(800×1200×144)
 ```
-- 출처/라이선스: `data/pallet/pallets_v2_add/{LICENSE.txt, SOURCES.txt}` [확인]. 게이트=CC0/CC-BY만 수락,
+- 출처/라이선스: `data/pallet/assets/pallets/source/pallets_v2_add/{LICENSE.txt, SOURCES.txt}` [확인]. 게이트=CC0/CC-BY만 수락,
   NC/ND/SA/Standard/NoAI 제외. 3종 모두 통과. **아직 렌더/데이터셋 미생성**(소스 확보 + 정규화·12kp 측정·
   kp 오버레이만 완료). J-Toastie + EUR-Pallet 2종이 **격리된 목재 P2/P3의 교체분**(B1 repoint 대상).
 - **★ source URL (모델 페이지, 재발견용)**:
@@ -173,10 +173,10 @@ eur_pallet_bk_cc0              data/pallet/pallets_v2_add/models/eur_pallet_bk_c
 ```
 group               저장경로               출처        저작자                라이선스   공개  비고
 ─────────────────────────────────────────────────────────────────────────────────────────────────
-HDRI ×30 (.hdr)     data/pallet/hdri/*.hdr Poly Haven  각 asset별(SOURCES명시) CC0 1.0    Y     저작자표시 불요
+HDRI ×30 (.hdr)     data/pallet/assets/lighting/hdri/library/*.hdr Poly Haven  각 asset별(SOURCES명시) CC0 1.0    Y     저작자표시 불요
 ```
 - `hdri/LICENSE.txt`(CC0 1.0 명문) + `hdri/SOURCES.txt`(30종 asset_id·URL·author 전수) [확인].
-- **★ source URL (재발견용)**: 전 30종 개별 URL = `data/pallet/hdri/SOURCES.txt`의 각 행에 명시.
+- **★ source URL (재발견용)**: 전 30종 개별 URL = `data/pallet/assets/lighting/hdri/library/SOURCES.txt`의 각 행에 명시.
   URL 패턴 = `https://polyhaven.com/a/<asset_id>` (asset_id = 파일명에서 `_2k` 제거).
   예: `dresden_station_night_2k.hdr` → https://polyhaven.com/a/dresden_station_night ,
   `empty_warehouse_01_2k.hdr` → https://polyhaven.com/a/empty_warehouse_01 ,
@@ -253,8 +253,8 @@ Sketchfab ×16             data/pallet/distractors/{tier}/(sf__*)   Sketchfab   
 ```
 group                저장경로                          출처            저작자      라이선스        공개  블로커
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
-목재 텍스처 ×9        data/pallet/archive/textures_wood/*.png   Poly Haven      Poly Haven  CC0 1.0(검증됨)  Y     -
-floor 텍스처 ×14      data/pallet/archive/textures_floor/*.png  Poly Haven      Poly Haven  CC0 1.0(확정)    Y     B4 해소
+목재 텍스처 ×9        data/pallet/assets/materials/pallet/textures_wood/*.png   Poly Haven      Poly Haven  CC0 1.0(검증됨)  Y     -
+floor 텍스처 ×14      data/pallet/assets/materials/floor/textures_floor/*.png  Poly Haven      Poly Haven  CC0 1.0(확정)    Y     B4 해소
 _procedural_textures  data/pallet/archive/_procedural_textures/ 절차생성(자작)  스크립트     자작(CC0급)      Y     -(현 미사용)
 ```
 - **목재 9종 [확인, 검증완료]**: `_tmp_ph/*_files.json` 6개가 `dl.polyhaven.org`(CC0) 다운로드 매니페스트
@@ -321,7 +321,7 @@ train_4pallet_mask_v1            data/pallet/archive/train_4pallet_mask_v1/     
 trunc_addon_v1                   data/pallet/archive/trunc_addon_v1/                 팔레트=자작 OBJ → B5만
 training_data_v4 / _v4_split     data/pallet/archive/training_data_v4*/              B1(NoAI 목재 P2/P3 baked) [+ B5]
 training_data (구)               data/pallet/archive/training_data/                  B1 가능 [+구 BG]
-real_data (실촬영)                data/pallet/real_data/*.jpg                 본인 촬영(D435i) → 본인 IP, Y
+real_data (실촬영)                data/pallet/reference/real_images/real_data/*.jpg                 본인 촬영(D435i) → 본인 IP, Y
 ```
 - 렌더 데이터셋은 **baked된 모든 소스 에셋의 라이선스를 상속**한다. **B2 오탐 종료·B4 해소(floor CC0) →
   palletobj/trunc/addon 계열은 Isaac·floor 블로커 없음**(occluder=Poly Haven CC0/일부 CC-BY, floor=CC0).

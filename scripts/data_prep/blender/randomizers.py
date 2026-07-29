@@ -1232,7 +1232,7 @@ def randomize_boxes(pallet_obj, pallet_name=None, occlusion_target="light", targ
 _hdri_cache = []
 
 def _collect_hdri_images():
-    """Collect HDRIs: load from data/pallet/hdri/ on first call, then cache."""
+    """Collect HDRIs: load from cfg.HDRI_DIR (registry key hdri_root), then cache."""
     if _hdri_cache:
         return _hdri_cache
 

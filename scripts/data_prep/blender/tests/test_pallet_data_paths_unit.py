@@ -361,23 +361,48 @@ class RegistryContentRules(unittest.TestCase):
         for key in PDP.REQUIRED_KEYS:
             self.assertIn(key, self.raw, key)
 
-    def test_shipped_registry_never_points_into_the_empty_target_asset_tree(self):
-        # assets/ 는 Stage 2-A 에서 만든 빈 TARGET 뼈대다. registry 가 그쪽을 가리키면
-        # 런타임이 조용히 빈 폴더를 읽는다.
+    def test_shipped_registry_never_names_a_bare_target_root(self):
+        # Stage 2-A 에서는 assets/ 가 빈 뼈대라 그쪽을 가리키는 것 자체가 금지였다.
+        # Stage 2-B 에서 자산이 실제로 들어왔으므로, 이제 금지 대상은 "leaf 없는 루트"다
+        # (assets/ 나 reference/ 를 그대로 가리키면 런타임이 컨테이너를 읽게 된다).
+        bare = {"data/pallet/assets", "data/pallet/reference"}
         for key, value in self.raw.items():
-            if key.startswith("//") or key in ("optional_keys", "assets_root"):
+            if key.startswith("//") or key in ("optional_keys", "assets_root",
+                                               "reference_root"):
                 continue
             for v in (value if isinstance(value, list) else [value]):
-                self.assertFalse(str(v).replace("\\", "/").startswith("data/pallet/assets/"),
+                self.assertNotIn(str(v).replace("\\", "/").rstrip("/"), bare,
                                  "%s -> %s" % (key, v))
 
-    def test_shipped_registry_material_roots_name_the_archive_location(self):
+    def test_shipped_registry_material_roots_name_the_live_location(self):
         # [확인] v2_realize.py 가 실제로 읽는 위치. registry 는 "가고 싶은 곳"이 아니라
-        # "지금 있는 곳"을 담아야 한다.
+        # "지금 있는 곳"을 담아야 한다. Stage 2-B 에서 archive/ 아래에서 옮겨왔다.
         self.assertEqual(str(self.raw["pallet_material_root"]).replace("\\", "/"),
-                         "data/pallet/archive/textures_wood")
+                         "data/pallet/assets/materials/pallet/textures_wood")
         self.assertEqual(str(self.raw["floor_material_root"]).replace("\\", "/"),
-                         "data/pallet/archive/textures_floor")
+                         "data/pallet/assets/materials/floor/textures_floor")
+
+    def test_shipped_registry_parses_without_pyyaml(self):
+        """Blender 내장 Python 에는 PyYAML 이 없다. 같은 파일이 json 경로로도 읽혀야 한다.
+
+        Stage 2-A 에서 registry 파일 머리에 '#' 주석을 넣는 바람에 json fallback 이 깨져
+        blender_config import 가 Blender 안에서 실패했다(Stage 2-B §15 에서 발견). 회귀 방지.
+        """
+        path = os.path.join(PDP.detect_project_root(), PDP.DEFAULT_CONFIG_RELPATH)
+        text = open(path, encoding="utf-8").read()
+        parsed = json.loads(PDP._strip_hash_comments(text))
+        # yaml 경로와 json 경로가 같은 키 집합을 내야 한다.
+        self.assertEqual(set(parsed), set(self.raw))
+
+    def test_hash_comment_stripper_keeps_line_numbers_and_inline_hashes(self):
+        text = '# head\n{\n  "a": "x#y"\n}\n  # trailing\n'
+        stripped = PDP._strip_hash_comments(text)
+        # 파싱 오류 줄 번호가 원본과 맞아야 하므로 줄 위치가 보존돼야 한다.
+        self.assertEqual(len(stripped.split("\n")), len(text.rstrip("\n").split("\n")))
+        self.assertIn('"x#y"', stripped)          # 값 안의 '#' 는 보존
+        self.assertNotIn("head", stripped)        # 줄 전체 주석은 제거
+        self.assertNotIn("trailing", stripped)    # 앞에 공백이 있어도 주석
+        self.assertEqual(json.loads(stripped), {"a": "x#y"})
 
     def test_shipped_registry_paths_are_repo_relative(self):
         for key, value in self.raw.items():

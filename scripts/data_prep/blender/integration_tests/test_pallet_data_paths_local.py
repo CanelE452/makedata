@@ -127,32 +127,86 @@ class RegistryResolvesToRealFiles(unittest.TestCase):
         self.assertTrue([n for n in os.listdir(root) if n.endswith(".json")],
                         "golden reference 에 label JSON 이 없습니다")
 
+    def test_golden_overlay_pixel_test_is_not_skipped_here(self):
+        """clone-safe unit 에서는 skipUnless 로 넘어가지만, 로컬에서는 반드시 실행돼야 한다."""
+        import importlib.util
+
+        tests_dir = os.path.join(_BLENDER_DIR, "tests")
+        spec = importlib.util.spec_from_file_location(
+            "test_overlay_archive_trunc_style",
+            os.path.join(tests_dir, "test_overlay_archive_trunc_style.py"))
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules.setdefault("test_overlay_archive_trunc_style", mod)
+        spec.loader.exec_module(mod)
+        self.assertTrue(mod.ARCHIVE_SAMPLE.exists(),
+                        "golden 픽셀 테스트가 skip 된다: %s" % mod.ARCHIVE_SAMPLE)
+        self.assertEqual(os.path.normcase(str(mod.ARCHIVE_SAMPLE.parent.parent)),
+                         os.path.normcase(self.paths.get("golden_overlay_reference")),
+                         "golden 테스트가 registry 가 아닌 다른 경로를 본다")
+
     def test_real_data_root_exists(self):
         self.assertTrue(os.path.isdir(self.paths.get("real_data_root")))
 
     def test_runs_root_exists(self):
         self.assertTrue(os.path.isdir(self.paths.get("runs_root")))
 
-    def test_registry_does_not_point_into_the_empty_target_asset_tree(self):
-        assets_root = self.paths.get("assets_root")
+    def test_registry_never_names_a_bare_container_root(self):
+        """Stage 2-A 에서는 'assets/ 를 가리키면 빈 폴더를 읽는다'가 불변식이었다.
+
+        Stage 2-B 로 자산이 실제로 들어왔으므로 불변식이 바뀐다: 이제 금지 대상은
+        컨테이너 루트 자체(assets/ · reference/)를 가리키는 것이다. leaf 없이 루트를
+        가리키면 런타임이 여러 자산군을 한 폴더로 착각한다.
+        """
+        bare = {os.path.normcase(self.paths.get("assets_root")),
+                os.path.normcase(self.paths.get("reference_root"))}
         for key in self.paths.keys():
-            if key == "assets_root":
+            if key in ("assets_root", "reference_root"):
                 continue
             value = self.paths.get(key)
             for p in (value if isinstance(value, list) else [value]):
-                self.assertFalse(
-                    os.path.normcase(p).startswith(os.path.normcase(assets_root) + os.sep),
-                    "%s 가 아직 비어 있는 TARGET 트리를 가리킵니다: %s" % (key, p))
+                self.assertNotIn(os.path.normcase(p).rstrip(os.sep), bare,
+                                 "%s 가 컨테이너 루트를 그대로 가리킵니다: %s" % (key, p))
 
-    def test_the_target_asset_tree_is_still_empty_of_data_files(self):
-        # 자산은 Stage 2-B 에서 옮긴다. 지금 채워져 있으면 registry 와 실제가 어긋난 것이다.
-        assets_root = self.paths.get("assets_root")
-        stray = []
-        for dirpath, _dirnames, filenames in os.walk(assets_root):
-            for name in filenames:
-                if name != "README.md":
-                    stray.append(os.path.join(dirpath, name))
-        self.assertEqual(stray[:5], [], "assets/ 에 예상치 못한 파일이 있습니다")
+    def test_stage2b_moved_assets_now_live_under_assets_or_reference(self):
+        """Stage 2-B 에서 옮긴 7개 자산이 실제로 새 트리 아래에 있고 비어 있지 않다."""
+        assets_root = os.path.normcase(self.paths.get("assets_root"))
+        reference_root = os.path.normcase(self.paths.get("reference_root"))
+        moved = {
+            "pallet_material_root": assets_root,
+            "floor_material_root": assets_root,
+            "hdri_root": assets_root,
+            "golden_overlay_reference": reference_root,
+            "real_data_root": reference_root,
+        }
+        for key, root in moved.items():
+            p = self.paths.get(key)
+            self.assertTrue(os.path.normcase(p).startswith(root + os.sep),
+                            "%s 가 아직 새 트리 밖입니다: %s" % (key, p))
+            self.assertTrue(os.listdir(p), "%s 가 비어 있습니다: %s" % (key, p))
+        for p in self.paths.get("pallet_model_roots"):
+            self.assertTrue(os.path.normcase(p).startswith(assets_root + os.sep), p)
+            self.assertTrue(os.listdir(p), p)
+
+    def test_no_registry_key_still_points_at_a_stage2b_source_location(self):
+        """이동한 자산의 옛 경로가 registry 에 남아 있지 않은지."""
+        old = [
+            "data/pallet/archive/textures_wood", "data/pallet/archive/textures_floor",
+            "data/pallet/archive/trunc_addon_v1_pilot", "data/pallet/real_data",
+            "data/pallet/hdri", "data/pallet/models_usd", "data/pallet/pallets_v2_add",
+        ]
+        for key in self.paths.keys():
+            rel = self.paths.relative(key)
+            for r in (rel if isinstance(rel, list) else [rel]):
+                for o in old:
+                    self.assertFalse(r == o or r.startswith(o + "/"),
+                                     "%s 가 이동 전 경로를 가리킵니다: %s" % (key, r))
+
+    def test_the_old_source_locations_are_gone(self):
+        for rel in ("archive/textures_wood", "archive/textures_floor",
+                    "archive/trunc_addon_v1_pilot", "real_data", "hdri",
+                    "models_usd", "pallets_v2_add"):
+            p = os.path.join(self.paths.get("pallet_data_root"), rel.replace("/", os.sep))
+            self.assertFalse(os.path.exists(p), "이동했는데 원본이 남아 있습니다: " + p)
 
 
 if __name__ == "__main__":

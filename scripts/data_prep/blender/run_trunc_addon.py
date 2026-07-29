@@ -58,7 +58,7 @@ except Exception:
 scene_handles = G.get_scene_handles()
 
 # (Re)load all HDRIs from disk; protect from orphans_purge.
-HDRI_DIR = r"E:/CODING/GitHub/FoundationPose/data/pallet/hdri"
+HDRI_DIR = r"E:/CODING/GitHub/FoundationPose/data/pallet/assets/lighting/hdri/library"  # Stage 2-B: registry hdri_root
 hdri_files = sorted(_glob.glob(os.path.join(HDRI_DIR, "*.hdr")))
 print(f"[trunc_addon] HDRI files on disk: {len(hdri_files)}")
 for hf in hdri_files:

@@ -3,7 +3,8 @@
 This module is the EXTRACTED ORIGINAL, not a re-interpretation. Every constant, colour, radius,
 rectangle and format string below is copied verbatim from the `# === Detailed Overlay ===` block of
 `gen_trunc_addon.py::render_frame()` (L577-L712), which produced
-`data/pallet/archive/trunc_addon_v1_pilot/overlay/*.png`. That block lived inside a bpy render loop
+`data/pallet/reference/golden_overlay/trunc_addon_v1_pilot/overlay/*.png`
+(registry key golden_overlay_reference). That block lived inside a bpy render loop
 and could not be reused; here it is the same code with the bpy calls (project(), pal.matrix_world,
 meta_extra) replaced by plain arguments.
 

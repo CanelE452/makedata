@@ -45,7 +45,7 @@ import overlay_archive_trunc_style as ARCHIVE  # noqa: E402
 import overlay_v2_detailed as OV  # noqa: E402
 
 REPO = _THIS_DIR.parents[2]
-ARCHIVE_ROOT = REPO / "data/pallet/archive/trunc_addon_v1_pilot"
+ARCHIVE_ROOT = REPO / "data/pallet/reference/golden_overlay/trunc_addon_v1_pilot"  # registry: golden_overlay_reference
 NEW_ROOT = REPO / "data/pallet/_v2_smoke50_9d"
 
 CHECKS = [

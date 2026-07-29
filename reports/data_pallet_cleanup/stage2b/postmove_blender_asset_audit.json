@@ -1,0 +1,61 @@
+{
+ "scene_open": true,
+ "blend": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\blender_scene\\synth_data_scene.blend",
+ "missing_images": [
+  {
+   "name": "factory_yard_2k.hdr",
+   "raw": "C:\\Users\\User\\Documents\\GitHub\\FoundationPose\\data\\pallet\\hdri\\factory_yard_2k.hdr"
+  }
+ ],
+ "missing_image_count": 1,
+ "missing_libraries": [],
+ "pallet_roots": [
+  "Pallet_0",
+  "Pallet_1",
+  "Pallet_2",
+  "Pallet_3"
+ ],
+ "collections": [
+  "Collection",
+  "Distractors_v2"
+ ],
+ "distractors_v2_present": true,
+ "dist_root_count": 209,
+ "hdri_count": 30,
+ "hdri_load_failures": [],
+ "textures": {
+  "floor_material_root": {
+   "count": 42,
+   "decode_failures": []
+  },
+  "pallet_material_root": {
+   "count": 27,
+   "decode_failures": []
+  }
+ },
+ "pallet_model_files": [
+  "eur_pallet_bk_cc0.glb",
+  "eur_pallet_bk_cc0.glb",
+  "scene.usd",
+  "scene_1.usd",
+  "scene_noemit.usd",
+  "stringer_2way_quaternius_cc0.glb",
+  "woodpallet_block_jtoastie_ccby.glb",
+  "woodpallet_block_jtoastie_ccby.glb"
+ ],
+ "pallet_model_count": 8,
+ "background_config_files": [
+  "modular_buildings_industrial_area/scene.gltf",
+  "parking_lot/scene.gltf"
+ ],
+ "distractor_manifest_exists": true,
+ "distractor_manifest_rows": 209,
+ "relative_textures_resolved": 158,
+ "relative_textures_broken": 0,
+ "registry_audit": {
+  "ok": 21,
+  "missing": 0,
+  "absent_optional": 0,
+  "missing_keys": []
+ }
+}

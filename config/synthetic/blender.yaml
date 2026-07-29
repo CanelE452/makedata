@@ -23,7 +23,7 @@
     "save_overlay": true
   },
   "assets": {
-    "pallet_source_dir": "data/pallet/models_usd",
+    "pallet_source_dir": "data/pallet/assets/pallets/models/models_usd",
     "pallet_names": ["Pallet_0", "Pallet_1", "Pallet_2", "Pallet_3"],
     "pallet_weights": [1.0, 0.0, 0.0, 0.0],
     "pallet_source_assets": {
@@ -327,6 +327,6 @@
   },
   "lighting": {
     "hdri_base_strength": 0.6,
-    "hdri_dir": "data/pallet/hdri"
+    "hdri_dir": "data/pallet/assets/lighting/hdri/library"
   }
 }

@@ -66,12 +66,26 @@ def _normalize(path_value):
     return str(path_value).replace("\\", "/").strip()
 
 
+def _strip_hash_comments(text):
+    """줄 전체가 '#' 주석인 줄만 제거한다 (json fallback 용).
+
+    Blender 내장 Python 에는 PyYAML 이 없어서 json.loads 로 떨어지는데, json 은 '#' 주석을
+    파싱하지 못한다. 값 안의 '#'(색상 코드 등)을 건드리지 않도록 **줄 전체가 주석인 경우만**
+    지운다. 줄 수를 유지해야 파싱 오류 줄 번호가 원본과 맞으므로 빈 줄로 대체한다.
+    """
+    out = []
+    for line in text.splitlines():
+        out.append("" if line.lstrip().startswith("#") else line)
+    return "\n".join(out)
+
+
 def _load_raw(config_path):
     with open(config_path, "r", encoding="utf-8") as f:
         text = f.read()
     if yaml is not None:
         return yaml.safe_load(text)
-    return json.loads(text)
+    # PyYAML 이 없는 환경(Blender 내장 Python)에서도 같은 파일을 읽을 수 있어야 한다.
+    return json.loads(_strip_hash_comments(text))
 
 
 class PalletDataPaths(object):

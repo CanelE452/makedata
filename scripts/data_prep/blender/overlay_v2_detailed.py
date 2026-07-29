@@ -6,7 +6,8 @@ Two styles, one runner
     The original `gen_trunc_addon.render_frame()` overlay, extracted verbatim into
     `overlay_archive_trunc_style.py` and fed from v2 labels by `archive_metadata()` below.
     Output canvas = the RGB frame, nothing appended. Written to ``<out>/overlay/``.
-    This is the style of `data/pallet/archive/trunc_addon_v1_pilot/overlay` and the one every
+    This is the style of `data/pallet/reference/golden_overlay/trunc_addon_v1_pilot/overlay`
+    (registry key golden_overlay_reference) and the one every
     README / contact sheet / report should point at.
 
 ``--style frontrear-debug`` (secondary, convention auditing only)

@@ -1,0 +1,11 @@
+﻿key,cohort,source,destination,file_count,total_bytes,sha256_count,ext_histogram,symlink_count,inaccessible_count,reserved_name_count,max_dest_path_len,license_files,license_file_count
+A,B1_REFERENCE_MATERIALS,data/pallet/archive/textures_wood,data/pallet/assets/materials/pallet/textures_wood,0,0,0,,0,0,0,0,,0
+B,B1_REFERENCE_MATERIALS,data/pallet/archive/textures_floor,data/pallet/assets/materials/floor/textures_floor,0,0,0,,0,0,0,0,,0
+H,B1_REFERENCE_MATERIALS,data/pallet/archive/trunc_addon_v1_pilot,data/pallet/reference/golden_overlay/trunc_addon_v1_pilot,0,0,0,,0,0,0,0,,0
+I,B1_REFERENCE_MATERIALS,data/pallet/real_data,data/pallet/reference/real_images/real_data,0,0,0,,0,0,0,0,,0
+C,B2_LIGHTING_MODELS,data/pallet/hdri,data/pallet/assets/lighting/hdri/library,0,0,0,,0,0,0,0,,0
+D,B2_LIGHTING_MODELS,data/pallet/models_usd,data/pallet/assets/pallets/models/models_usd,0,0,0,,0,0,0,0,,0
+E,B2_LIGHTING_MODELS,data/pallet/pallets_v2_add,data/pallet/assets/pallets/source/pallets_v2_add,0,0,0,,0,0,0,0,,0
+F,B3_SCENE_ASSETS,data/pallet/background,data/pallet/assets/scenes/backgrounds/background,77,291054721,77,.png=48;.jpeg=20;.zip=3;.txt=2;.bin=2;.gltf=2,0,0,0,151,modular_buildings_industrial_area/license.txt;parking_lot/license.txt,2
+G,B3_SCENE_ASSETS,data/pallet/distractors,data/pallet/assets/distractors/library,1161,1958754064,1161,.jpg=228;.png=132;.pbtxt=128;.config=128;.sdf=128;.mtl=128;.obj=128;.bin=65,0,0,0,183,indoor/LICENSE.txt;indoor/SOURCES.txt;large/LICENSE.txt;large/SOURCES.txt;medium/LICENSE.txt;medium/SOURCES.txt;road/LICENSE.txt;road/SOURCES.txt;small/LICENSE.txt;small/SOURCES.txt,10
+J,B4_PRODUCTION_SCENE,data/pallet/blender_scene,data/pallet/assets/scenes/production/blender_scene,171,3118739784,171,.png=125;.jpg=33;.blend=9;.blend1=4,0,0,0,136,,0

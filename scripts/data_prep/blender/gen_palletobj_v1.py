@@ -83,7 +83,7 @@ def set_collection_hidden(coll, hidden):
     coll.hide_render = hidden
 
 # ---------- HDRI ----------
-HDRI_DIR = os.path.abspath("data/pallet/hdri")
+HDRI_DIR = os.path.abspath("data/pallet/assets/lighting/hdri/library")  # Stage 2-B: registry hdri_root
 HDRI_FILES = [
     "construction_yard_2k.hdr",
     "factory_yard_2k.hdr",

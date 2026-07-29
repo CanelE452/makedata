@@ -1,9 +1,14 @@
 """Exact-match tests for the canonical archive overlay (overlay_archive_trunc_style.py).
 
 The point of this module is that it IS the old `gen_trunc_addon.render_frame()` drawing block, so
-these tests pin the literal constants of `data/pallet/archive/trunc_addon_v1_pilot/overlay`:
-colours, radii, the 175x240 panel at (6, 6) with 11 px line spacing, the 90x60 bottom-right legend,
-and the rule that the output canvas is exactly the input RGB.
+these tests pin the literal constants of the canonical overlay set (registry key
+`golden_overlay_reference`, moved to `data/pallet/reference/golden_overlay/trunc_addon_v1_pilot`
+in Stage 2-B): colours, radii, the 175x240 panel at (6, 6) with 11 px line spacing, the 90x60
+bottom-right legend, and the rule that the output canvas is exactly the input RGB.
+
+The golden sample path comes from the registry, not from a literal, so relocating the reference
+is a one-line config change. The pixel test itself still needs the real file: it is skipped here
+(clone-safe unit run) and enforced without skipping by the local integration suite.
 """
 import ast
 import importlib.util
@@ -38,8 +43,18 @@ def _load_module():
 AR = _load_module()
 
 # One real archive overlay, used as the golden reference for the fixed-content legend box.
-ARCHIVE_SAMPLE = (Path(__file__).resolve().parents[4]
-                  / "data/pallet/archive/trunc_addon_v1_pilot/overlay/000000.png")
+# Registry-resolved (config/synthetic/pallet_paths.yaml : golden_overlay_reference).
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import pallet_data_paths as _pdp  # noqa: E402
+
+GOLDEN_SAMPLE_RELNAME = os.path.join("overlay", "000000.png")
+
+
+def golden_sample_path():
+    return Path(_pdp.get("golden_overlay_reference")) / GOLDEN_SAMPLE_RELNAME
+
+
+ARCHIVE_SAMPLE = golden_sample_path()
 
 W, H = 640, 480
 BG = (30, 40, 50)

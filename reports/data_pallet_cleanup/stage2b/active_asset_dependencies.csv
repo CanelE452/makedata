@@ -1,0 +1,11 @@
+﻿key,cohort,source,blend_refs_total,blend_blocked_absolute,blend_safe_relative,blend_missing_current,model_dep_total,model_dep_broken,model_dep_external_scope,internal_relative_ok,dependency_status
+A,B1_REFERENCE_MATERIALS,data/pallet/archive/textures_wood,0,0,0,0,0,0,0,True,OK
+B,B1_REFERENCE_MATERIALS,data/pallet/archive/textures_floor,0,0,0,0,0,0,0,True,OK
+H,B1_REFERENCE_MATERIALS,data/pallet/archive/trunc_addon_v1_pilot,0,0,0,0,0,0,0,True,OK
+I,B1_REFERENCE_MATERIALS,data/pallet/real_data,0,0,0,0,0,0,0,True,OK
+C,B2_LIGHTING_MODELS,data/pallet/hdri,0,0,0,0,0,0,0,True,OK
+D,B2_LIGHTING_MODELS,data/pallet/models_usd,0,0,0,0,5,0,0,True,OK
+E,B2_LIGHTING_MODELS,data/pallet/pallets_v2_add,0,0,0,0,3,0,0,True,OK
+F,B3_SCENE_ASSETS,data/pallet/background,0,0,0,0,69,0,0,True,OK
+G,B3_SCENE_ASSETS,data/pallet/distractors,356,356,0,0,571,0,0,True,BLOCKED_BLEND_ABSOLUTE
+J,B4_PRODUCTION_SCENE,data/pallet/blender_scene,244,0,244,0,0,0,0,True,OK

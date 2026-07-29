@@ -766,7 +766,8 @@ def _realize_constrained(
         os.path.join(wood_texture_dir, "wood_planks_diff.png")
     ):
         # Registry-resolved (config/synthetic/pallet_paths.yaml). Was a hardcoded
-        # `data/pallet/archive/textures_wood` join; the registry now owns that fact.
+        # `data/pallet/archive/textures_wood` join; Stage 2-B moved it to
+        # assets/materials/pallet/textures_wood and the registry owns that fact.
         archive_wood_dir = cfg.PALLET_PATHS.get("pallet_material_root")
         if os.path.isfile(
             os.path.join(archive_wood_dir, "wood_planks_diff.png")

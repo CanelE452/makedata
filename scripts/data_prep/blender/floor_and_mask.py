@@ -19,7 +19,8 @@ from mathutils import Vector
 # ============================================================
 # FLOOR CONFIG (ported from blender_config.py FLOOR_*)
 # ============================================================
-FLOOR_TEXTURE_DIR = r"E:/CODING/GitHub/FoundationPose/data/pallet/textures_floor"
+# Stage 2-B: registry key floor_material_root. 옛 data/pallet/textures_floor 는 없어진 지 오래다.
+FLOOR_TEXTURE_DIR = r"E:/CODING/GitHub/FoundationPose/data/pallet/assets/materials/floor/textures_floor"
 FLOOR_PLANE_NAME = "FloorRandPlane"
 FLOOR_PLANE_SIZE = 50.0      # metres; dominate oblique view
 FLOOR_PLANE_Z = -0.006       # 6mm below z=0 so it never occludes on-ground raycast

@@ -62,9 +62,9 @@ LOG="${ROOT}/data/pallet/$(basename "$OUT")_gen.log"
 missing=0
 for dep in "$BLENDER" "$SCENE" "$SCRIPT" \
            "${ROOT}/data/palletobj/pallet_full.obj" \
-           "${ROOT}/data/pallet/hdri" \
-           "${ROOT}/data/pallet/textures_floor" \
-           "${ROOT}/data/pallet/textures_wood"; do
+           "${ROOT}/data/pallet/assets/lighting/hdri/library" \
+           "${ROOT}/data/pallet/assets/materials/floor/textures_floor" \
+           "${ROOT}/data/pallet/assets/materials/pallet/textures_wood"; do
   if [ ! -e "$dep" ]; then echo "MISSING dependency: $dep"; missing=1; fi
 done
 [ "$missing" -eq 1 ] && { echo "Aborting: fix missing dependencies above."; exit 1; }

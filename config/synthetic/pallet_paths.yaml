@@ -18,30 +18,30 @@
   "production_scene_textures": "data/pallet/blender_scene/textures",
   "experimental_scene": "data/pallet/blender_scene/_sandbox_palletobj_production.blend",
 
-  "// 배경": "blender.yaml background.assets.parking_lot.filepath 와 같은 트리",
+  "// 배경": "★ Stage 2-B BLOCKED — background/ 안에 원본 다운로드 ZIP 3개가 있어 이동 금지 규칙에 걸림",
   "background_root": "data/pallet/background",
 
-  "// 디스트랙터": "manifest 는 v2_pipeline.py / distractor_pool_v2.py 가 읽는 pool 정의",
+  "// 디스트랙터": "★ Stage 2-B BLOCKED — production .blend 가 이 폴더를 절대경로로 참조(356건)",
   "distractor_root": "data/pallet/distractors",
   "distractor_manifest": "data/pallet/distractors/distractors_manifest.csv",
 
-  "// 조명": "blender.yaml lighting.hdri_dir 와 동일 대상",
-  "hdri_root": "data/pallet/hdri",
+  "// 조명": "Stage 2-B 이동 완료 (구 data/pallet/hdri)",
+  "hdri_root": "data/pallet/assets/lighting/hdri/library",
 
-  "// 머티리얼": "★ 이름은 archive 지만 현역 — v2_realize.py 가 하드코딩으로 읽던 경로",
-  "floor_material_root": "data/pallet/archive/textures_floor",
-  "pallet_material_root": "data/pallet/archive/textures_wood",
+  "// 머티리얼": "Stage 2-B 이동 완료 — archive/ 아래 있던 현역 텍스처를 정상 위치로",
+  "floor_material_root": "data/pallet/assets/materials/floor/textures_floor",
+  "pallet_material_root": "data/pallet/assets/materials/pallet/textures_wood",
 
-  "// 팔레트 모델": "blender.yaml assets.pallet_source_dir + v2 신규 목재 2종",
+  "// 팔레트 모델": "Stage 2-B 이동 완료 (구 models_usd / pallets_v2_add)",
   "pallet_model_roots": [
-    "data/pallet/models_usd",
-    "data/pallet/pallets_v2_add/models"
+    "data/pallet/assets/pallets/models/models_usd",
+    "data/pallet/assets/pallets/source/pallets_v2_add/models"
   ],
-  "pallet_measurements": "data/pallet/pallets_v2_add/measurements.json",
+  "pallet_measurements": "data/pallet/assets/pallets/source/pallets_v2_add/measurements.json",
 
-  "// 검증 정본": "tests/test_overlay_archive_trunc_style.py 가 픽셀 비교하는 정본",
-  "golden_overlay_reference": "data/pallet/archive/trunc_addon_v1_pilot",
-  "real_data_root": "data/pallet/real_data",
+  "// 검증 정본": "Stage 2-B 이동 완료. tests/test_overlay_archive_trunc_style.py 가 픽셀 비교하는 정본",
+  "golden_overlay_reference": "data/pallet/reference/golden_overlay/trunc_addon_v1_pilot",
+  "real_data_root": "data/pallet/reference/real_images/real_data",
 
   "// 트리 루트": "Stage 2-A 에서 생성한 뼈대",
   "runs_root": "data/pallet/runs",

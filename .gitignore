@@ -168,3 +168,7 @@ docs/_build/
 # Stage 2-A 재스캔 중간 산출물 (13MB, 재생성 가능 + 자기 리포트를 참조로 오검출)
 # 정본 스냅샷은 reports/data_pallet_cleanup/stage2a/_raw_refs_before.json
 reports/data_pallet_cleanup/_raw_refs.json
+
+# Stage 2-B 참조 스캔 원본 (5.4MB, 99.4%가 자기 리포트 CSV를 스캔한 자기참조 노이즈)
+# 실제로 조치가 필요한 184행은 active_asset_references_actionable.csv 로 커밋한다.
+reports/data_pallet_cleanup/stage2b/active_asset_references.csv

@@ -77,26 +77,45 @@ legacy 생성기(`gen_dataset_v4.py`, `gen_4pallet_mask.py`, `gen_trunc_addon.py
 아래 표는 그 registry 의 현재 값이다(`pallet_data_paths.py --audit` 로 언제든 재출력 가능).
 
 ```
-registry key                current path                                     비고
-──────────────────────────────────────────────────────────────────────────────────────────
-production_scene            data/pallet/blender_scene/synth_data_scene.blend  실행 스크립트 20개
-production_scene_textures   data/pallet/blender_scene/textures                blend 내부 //textures
-experimental_scene          data/pallet/blender_scene/_sandbox_palletobj_production.blend
-background_root             data/pallet/background                            parking_lot/scene.gltf
-distractor_root             data/pallet/distractors                           209종
-distractor_manifest         data/pallet/distractors/distractors_manifest.csv
-hdri_root                   data/pallet/hdri                                  Poly Haven CC0 30
-pallet_material_root        data/pallet/archive/textures_wood       ★
-floor_material_root         data/pallet/archive/textures_floor      ★
-pallet_model_roots          data/pallet/models_usd, data/pallet/pallets_v2_add/models
-golden_overlay_reference    data/pallet/archive/trunc_addon_v1_pilot ★
-real_data_root              data/pallet/real_data                             실촬영 1,924
+registry key                current path                                              비고
+───────────────────────────────────────────────────────────────────────────────────────────────────
+production_scene            data/pallet/blender_scene/synth_data_scene.blend           ✋ 이동 보류
+production_scene_textures   data/pallet/blender_scene/textures                         ✋ blend //textures
+experimental_scene          data/pallet/blender_scene/_sandbox_palletobj_production.blend  ✋
+background_root             data/pallet/background                                     ✋ 이동 보류(ZIP)
+distractor_root             data/pallet/distractors                                    ✋ 이동 보류(blend 절대참조)
+distractor_manifest         data/pallet/distractors/distractors_manifest.csv           ✋ 209종
+hdri_root                   data/pallet/assets/lighting/hdri/library                   Poly Haven CC0 30
+pallet_material_root        data/pallet/assets/materials/pallet/textures_wood
+floor_material_root         data/pallet/assets/materials/floor/textures_floor
+pallet_model_roots          data/pallet/assets/pallets/models/models_usd,
+                            data/pallet/assets/pallets/source/pallets_v2_add/models
+pallet_measurements         data/pallet/assets/pallets/source/pallets_v2_add/measurements.json
+golden_overlay_reference    data/pallet/reference/golden_overlay/trunc_addon_v1_pilot
+real_data_root              data/pallet/reference/real_images/real_data                실촬영 1,924
 runs_root                   data/pallet/runs
 ```
 
-★ = **폴더 이름이 `archive` 지만 현역**. Stage 1 에서 확인된 함정이다.
-`v2_realize.py:768/804` 가 텍스처를, `tests/test_overlay_archive_trunc_style.py:42` 가
-golden overlay 를 읽는다.
+**2026-07-29 Stage 2-B**: Stage 1 이 찾아낸 "이름은 `archive/` 인데 현역"이던 3종
+(`archive/textures_wood` · `archive/textures_floor` · `archive/trunc_addon_v1_pilot`)을
+정상 위치로 **이동 완료**했다. 더 이상 archive 아래에 현역 자산은 없다.
+
+✋ = 아직 원위치. 이유는 아래 "이동 보류" 절 참조.
+
+### 이동 보류 (Stage 2-C 대상)
+
+```
+경로                        보류 사유
+──────────────────────────────────────────────────────────────────────────────────────
+distractors/                production .blend 안의 이미지 356개가 이 폴더를 **절대경로**로
+                            참조한다(`E:\...\data\pallet\distractors\...`). 옮기면 씬 텍스처가
+                            끊기고, .blend rewrite 는 이번 단계에서 금지되어 있다.
+background/                 원본 다운로드 ZIP 3개(157MB)를 품고 있어 "ZIP 이동 금지" 규칙에 걸린다.
+                            ZIP 을 archive/packages/ 로 먼저 분리해야 폴더째 옮길 수 있다.
+blender_scene/              .blend 감사에서 BLOCKED_ABSOLUTE=356 · MISSING_CURRENT=1
+                            (factory_yard_2k.hdr 가 다른 워크스페이스 경로를 가리킨다).
+                            §3 이동 조건(둘 다 0)을 채우지 못했다.
+```
 
 ### TARGET — 최종 구조 (Stage 2-A 에서 뼈대만 생성)
 

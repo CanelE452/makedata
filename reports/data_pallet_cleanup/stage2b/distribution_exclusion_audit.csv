@@ -1,0 +1,11 @@
+﻿line,entry,resolved_relative,resolved_path,exists,is_dir,problems,ok
+13,isaac_assets/,isaac_assets,E:\CODING\GitHub\FoundationPose\data\pallet\isaac_assets,True,True,,True
+17,archive/_noai_quarantine_usd/,archive/_noai_quarantine_usd,E:\CODING\GitHub\FoundationPose\data\pallet\archive\_noai_quarantine_usd,True,True,,True
+21,archive/_pallet_catalog_0123/,archive/_pallet_catalog_0123,E:\CODING\GitHub\FoundationPose\data\pallet\archive\_pallet_catalog_0123,True,True,,True
+22,archive/_efront_12kp_check/,archive/_efront_12kp_check,E:\CODING\GitHub\FoundationPose\data\pallet\archive\_efront_12kp_check,True,True,,True
+23,archive/_floor_applied14/,archive/_floor_applied14,E:\CODING\GitHub\FoundationPose\data\pallet\archive\_floor_applied14,True,True,,True
+24,archive/_floor_compare/,archive/_floor_compare,E:\CODING\GitHub\FoundationPose\data\pallet\archive\_floor_compare,True,True,,True
+30,archive/training_data/,archive/training_data,E:\CODING\GitHub\FoundationPose\data\pallet\archive\training_data,True,True,,True
+31,archive/training_data_v4/,archive/training_data_v4,E:\CODING\GitHub\FoundationPose\data\pallet\archive\training_data_v4,True,True,,True
+32,archive/training_data_v4_split/,archive/training_data_v4_split,E:\CODING\GitHub\FoundationPose\data\pallet\archive\training_data_v4_split,True,True,,True
+33,archive/train_4pallet_mask_v1/,archive/train_4pallet_mask_v1,E:\CODING\GitHub\FoundationPose\data\pallet\archive\train_4pallet_mask_v1,True,True,,True

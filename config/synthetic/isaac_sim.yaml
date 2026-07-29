@@ -2,7 +2,7 @@
   "paths": {
     "gltf_dir": "data/pallet/pallet_scene/Collected_World0/SubUSDs/textures",
     "gltf_files": ["scene.gltf", "scene_1.gltf", "scene_2.gltf", "scene_3.gltf"],
-    "usd_cache_dir": "data/pallet/models_usd",
+    "usd_cache_dir": "data/pallet/assets/pallets/models/models_usd",
     "default_output_dir": "data/pallet/training_data",
     "isaac_assets_root": "data/pallet/isaac_assets/Assets/Isaac/4.5/Isaac",
     "hdri_dir": "data/pallet/isaac_assets/Assets/Isaac/4.5/NVIDIA/Assets/Skies",

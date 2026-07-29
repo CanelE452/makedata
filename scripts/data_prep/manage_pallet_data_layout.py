@@ -68,6 +68,81 @@ EXPLICIT_EXCLUSIONS = {
         "audit_v2_dryrun.py:39 DEFAULT_OUT 이 이 경로를 기본 출력으로 재생성함",
 }
 
+# ---------------------------------------------------------------------------
+# 이동 정책 (Stage 2-B 에서 도입). 정책은 "무엇을 어디로 옮겨도 되는가"의 전부를 담는다.
+#
+#   stage2a-runs         (기본, 하위호환) 코드 참조 없는 저위험 run 만 runs/ 아래로.
+#   stage2b-active-assets 현역 자산·golden reference 를 assets//reference/ 아래로.
+#                         source -> destination 이 exact allowlist 이고 hash-mode=all 강제.
+# ---------------------------------------------------------------------------
+POLICY_STAGE2A = "stage2a-runs"
+POLICY_STAGE2B = "stage2b-active-assets"
+
+# Stage 2-B exact allowlist. 여기 없는 source/destination 은 전부 거부한다.
+STAGE2B_ALLOWLIST = (
+    # (source, destination, cohort)
+    ("data/pallet/archive/textures_wood",
+     "data/pallet/assets/materials/pallet/textures_wood", "B1_REFERENCE_MATERIALS"),
+    ("data/pallet/archive/textures_floor",
+     "data/pallet/assets/materials/floor/textures_floor", "B1_REFERENCE_MATERIALS"),
+    ("data/pallet/archive/trunc_addon_v1_pilot",
+     "data/pallet/reference/golden_overlay/trunc_addon_v1_pilot", "B1_REFERENCE_MATERIALS"),
+    ("data/pallet/real_data",
+     "data/pallet/reference/real_images/real_data", "B1_REFERENCE_MATERIALS"),
+    ("data/pallet/hdri",
+     "data/pallet/assets/lighting/hdri/library", "B2_LIGHTING_MODELS"),
+    ("data/pallet/models_usd",
+     "data/pallet/assets/pallets/models/models_usd", "B2_LIGHTING_MODELS"),
+    ("data/pallet/pallets_v2_add",
+     "data/pallet/assets/pallets/source/pallets_v2_add", "B2_LIGHTING_MODELS"),
+    ("data/pallet/background",
+     "data/pallet/assets/scenes/backgrounds/background", "B3_SCENE_ASSETS"),
+    ("data/pallet/distractors",
+     "data/pallet/assets/distractors/library", "B3_SCENE_ASSETS"),
+    ("data/pallet/blender_scene",
+     "data/pallet/assets/scenes/production/blender_scene", "B4_PRODUCTION_SCENE"),
+)
+
+# 어떤 정책에서도 옮기지 않는 확장자 (패키지·학습 가중치).
+ALWAYS_FORBIDDEN_EXT = {
+    ".zip", ".7z", ".tar", ".gz", ".rar",
+    ".pt", ".pth", ".ckpt", ".onnx", ".engine", ".trt", ".safetensors",
+}
+# Stage 2-A 에서만 금지하던 3D/HDR. Stage 2-B 는 allowlist 안에서만 허용한다.
+ASSET_EXT = {
+    ".blend", ".blend1", ".obj", ".glb", ".gltf", ".fbx", ".ply", ".mtl",
+    ".usd", ".usda", ".usdc", ".usdz", ".hdr", ".exr",
+}
+
+POLICIES = {
+    POLICY_STAGE2A: {
+        "allowed_dest_prefixes": ALLOWED_DEST_PREFIXES,
+        "allowlist": None,                      # 목적지 prefix 방식
+        "forbidden_ext": ALWAYS_FORBIDDEN_EXT | ASSET_EXT,
+        "license_is_blocker": True,             # run 에 라이선스 파일이 있으면 이상 신호
+        "max_single_bytes": 5 * 1024 ** 3,
+        "max_total_bytes": 5 * 1024 ** 3,
+        "require_hash_mode": None,              # selective/all 모두 허용
+        "move_id_prefix": "S2A",
+    },
+    POLICY_STAGE2B: {
+        "allowed_dest_prefixes": ("assets/", "reference/"),
+        "allowlist": STAGE2B_ALLOWLIST,         # exact source->dest
+        "forbidden_ext": ALWAYS_FORBIDDEN_EXT,  # 3D/HDR 은 허용 (자산이니까)
+        "license_is_blocker": False,            # 라이선스는 자산과 함께 보존해야 한다
+        "max_single_bytes": 10 * 1024 ** 3,
+        "max_total_bytes": 10 * 1024 ** 3,
+        "require_hash_mode": HASH_MODE_ALL,     # 전량 SHA256 강제
+        "move_id_prefix": "S2B",
+    },
+}
+
+
+def get_policy(name):
+    if name not in POLICIES:
+        raise ValueError("unknown policy %r (expected %s)" % (name, list(POLICIES)))
+    return POLICIES[name]
+
 
 def _now():
     return datetime.datetime.now().isoformat(timespec="seconds")
@@ -183,7 +258,12 @@ def duplicate_size_set(root):
 # ---------------------------------------------------------------------------
 # 사전검사
 # ---------------------------------------------------------------------------
-def precheck(src_abs, dst_abs, referenced_by, data_root):
+def precheck(src_abs, dst_abs, referenced_by, data_root, policy=None):
+    """이동 사전검사. policy 를 주지 않으면 Stage 2-A 정책으로 검사한다(하위호환)."""
+    policy = policy or POLICIES[POLICY_STAGE2A]
+    forbidden_ext = policy["forbidden_ext"]
+    license_is_blocker = policy["license_is_blocker"]
+    max_single = policy["max_single_bytes"]
     problems = []
     if not os.path.isdir(src_abs):
         problems.append("SOURCE_NOT_A_DIRECTORY")
@@ -219,14 +299,14 @@ def precheck(src_abs, dst_abs, referenced_by, data_root):
             if os.path.splitext(name)[0].upper() in RESERVED_WIN:
                 stats["reserved_name"] += 1
             ext = os.path.splitext(name)[1].lower()
-            if ext in FORBIDDEN_EXT:
+            if ext in forbidden_ext:
                 stats["forbidden_ext"].append(_posix(rel))
             if any(h in name.lower() for h in LICENSE_HINTS):
                 stats["license_files"].append(_posix(rel))
 
     if stats["file_count"] == 0:
         problems.append("EMPTY_DIRECTORY")
-    if stats["total_bytes"] > MAX_SINGLE_BYTES:
+    if stats["total_bytes"] > max_single:
         problems.append("OVER_SINGLE_SIZE_LIMIT")
     for key, label in (("inaccessible", "INACCESSIBLE_FILE"),
                        ("path_over_limit", "PATH_LENGTH_OVER_240"),
@@ -236,7 +316,9 @@ def precheck(src_abs, dst_abs, referenced_by, data_root):
             problems.append("%s=%d" % (label, stats[key]))
     if stats["forbidden_ext"]:
         problems.append("FORBIDDEN_EXTENSION=%d" % len(stats["forbidden_ext"]))
-    if stats["license_files"]:
+    if stats["license_files"] and license_is_blocker:
+        # Stage 2-A: run 폴더에 라이선스 파일이 있는 것은 이상 신호였다.
+        # Stage 2-B: 자산과 함께 보존해야 하므로 blocker 가 아니다(개수·해시만 기록·검증).
         problems.append("LICENSE_FILE=%d" % len(stats["license_files"]))
     if not is_within(src_abs, data_root):
         problems.append("SOURCE_OUTSIDE_DATA_ROOT")
@@ -249,44 +331,70 @@ def precheck(src_abs, dst_abs, referenced_by, data_root):
 # ---------------------------------------------------------------------------
 # --plan
 # ---------------------------------------------------------------------------
-def cmd_plan(args, paths):
-    data_root = paths.get("pallet_data_root")
+def _stage2a_candidates(args, policy):
+    """Stage 2-A: proposed_moves.csv 의 SAFE_CANDIDATE 중 허용 목적지 prefix 만."""
     rows = list(csv.DictReader(open(args.moves, encoding="utf-8-sig")))
-    allow_empty = args.allow_empty_dirs
-
-    planned, skipped = [], []
-    running_total = 0
     for row in rows:
         if row.get("status") != "SAFE_CANDIDATE":
             continue
         dest = row["destination"]
-        if not dest.startswith(ALLOWED_DEST_PREFIXES):
+        if not dest.startswith(policy["allowed_dest_prefixes"]):
             continue
         src_rel = row["source"]
+        leaf = src_rel.rstrip("/").split("/")[-1]
+        dst_rel = "data/pallet/" + dest.rstrip("/") + "/" + leaf
+        # 문서(md)만의 참조는 "code/config/test direct reference" 가 아니다.
+        code_refs = [r for r in (row.get("required_code_changes") or "").split(";") if r]
+        test_refs = [r for r in (row.get("required_test_changes") or "").split(";")
+                     if r and r != "none"]
+        blocking = [r for r in code_refs if r != "none"] + test_refs
+        yield src_rel, dst_rel, blocking, ""
+
+
+def _stage2b_candidates(args, policy):
+    """Stage 2-B: exact allowlist. --cohort 로 걸러 cohort 별 manifest 를 만든다."""
+    wanted = set(x.strip() for x in (args.cohort or "").split(",") if x.strip())
+    only = set(x.strip() for x in (args.only_source or "").split(",") if x.strip())
+    for src_rel, dst_rel, cohort in policy["allowlist"]:
+        if wanted and cohort not in wanted:
+            continue
+        if only and src_rel not in only:
+            continue
+        yield src_rel, dst_rel, [], cohort
+
+
+def cmd_plan(args, paths):
+    policy_name = getattr(args, "policy", POLICY_STAGE2A)
+    policy = get_policy(policy_name)
+    required_hash = policy["require_hash_mode"]
+    if required_hash and args.hash_mode != required_hash:
+        print("정책 %s 는 --hash-mode %s 를 요구합니다 (현재 %s)."
+              % (policy_name, required_hash, args.hash_mode), file=sys.stderr)
+        return 2
+
+    data_root = paths.get("pallet_data_root")
+    allow_empty = args.allow_empty_dirs
+    gen = _stage2b_candidates if policy["allowlist"] else _stage2a_candidates
+
+    planned, skipped = [], []
+    running_total = 0
+    for src_rel, dst_rel, blocking, cohort in gen(args, policy):
         if not src_rel.startswith("data/pallet/"):
             skipped.append((src_rel, "SOURCE_NOT_UNDER_DATA_PALLET"))
             continue
         if src_rel in EXPLICIT_EXCLUSIONS:
             skipped.append((src_rel, "EXPLICIT_EXCLUSION: " + EXPLICIT_EXCLUSIONS[src_rel]))
             continue
-        leaf = src_rel.rstrip("/").split("/")[-1]
-        dst_rel = "data/pallet/" + dest.rstrip("/") + "/" + leaf
         src_abs = os.path.join(paths.project_root, src_rel.replace("/", os.sep))
         dst_abs = os.path.join(paths.project_root, dst_rel.replace("/", os.sep))
 
-        # 문서(md)만의 참조는 §5 의 "code/config/test direct reference" 가 아니다.
-        code_refs = [r for r in (row.get("required_code_changes") or "").split(";") if r]
-        test_refs = [r for r in (row.get("required_test_changes") or "").split(";")
-                     if r and r != "none"]
-        blocking = [r for r in code_refs if r != "none"] + test_refs
-
-        problems, stats = precheck(src_abs, dst_abs, blocking, data_root)
+        problems, stats = precheck(src_abs, dst_abs, blocking, data_root, policy=policy)
         if allow_empty and problems == ["EMPTY_DIRECTORY"]:
             problems = []
         if problems:
             skipped.append((src_rel, ";".join(problems)))
             continue
-        if running_total + stats["total_bytes"] > MAX_TOTAL_BYTES:
+        if running_total + stats["total_bytes"] > policy["max_total_bytes"]:
             skipped.append((src_rel, "OVER_TOTAL_SIZE_LIMIT"))
             continue
         running_total += stats["total_bytes"]
@@ -294,7 +402,11 @@ def cmd_plan(args, paths):
         dup_sizes = duplicate_size_set(src_abs) if args.hash_mode == HASH_MODE_SELECTIVE else set()
         snap = snapshot(src_abs, dup_sizes, hash_mode=args.hash_mode)
         planned.append({
-            "move_id": "%s%03d" % (args.move_id_prefix, len(planned) + 1),
+            "move_id": "%s%03d" % (args.move_id_prefix or policy["move_id_prefix"],
+                                   len(planned) + 1),
+            "policy": policy_name,
+            "cohort": cohort,
+            "license_files": sorted(stats["license_files"]),
             "source": src_rel,
             "destination": dst_rel,
             "relative_files": sorted(snap["files"]),
@@ -331,11 +443,14 @@ def cmd_plan(args, paths):
 
     hashed = sum(p["hashed_file_count"] for p in planned)
     unhashed = sum(p["unhashed_file_count"] for p in planned)
+    print("policy   : %s" % policy_name)
     print("planned  : %d moves" % len(planned))
     print("files    : %d" % sum(p["file_count"] for p in planned))
     print("bytes    : %d (%.3f GB)" % (running_total, running_total / 1e9))
     print("hash-mode: %s" % args.hash_mode)
     print("hashed   : %d / unhashed : %d" % (hashed, unhashed))
+    print("license  : %d files preserved"
+          % sum(len(p.get("license_files", [])) for p in planned))
     print("skipped  : %d  -> %s" % (len(skipped), skip_path))
     print("manifest : %s" % args.manifest)
     return 0
@@ -419,7 +534,7 @@ def manifest_hash_mode(row):
 def cmd_verify(args, paths):
     rows = _read_manifest(args.manifest)
     failures = []
-    checked_files = checked_bytes = checked_hashes = 0
+    checked_files = checked_bytes = checked_hashes = checked_licenses = 0
     modes = {}
     for row in rows:
         if row["status"] != "MOVED":
@@ -455,6 +570,12 @@ def cmd_verify(args, paths):
             checked_hashes += 1
             if got != want:
                 failures.append((row["move_id"], "SHA256 %s" % rel))
+        # 라이선스 파일은 자산과 함께 살아 있어야 한다. 하나라도 빠지면 실패.
+        for rel in row.get("license_files", []):
+            if not os.path.isfile(os.path.join(dst, rel.replace("/", os.sep))):
+                failures.append((row["move_id"], "LICENSE_FILE_LOST %s" % rel))
+            else:
+                checked_licenses += 1
         if os.path.exists(src):
             failures.append((row["move_id"], "SOURCE_STILL_EXISTS %s" % row["source"]))
         checked_files += post["file_count"]
@@ -466,6 +587,7 @@ def cmd_verify(args, paths):
     print("sha256 checked : %d" % checked_hashes)
     print("hash modes     : %s" % (", ".join("%s=%d" % kv for kv in sorted(modes.items()))
                                    or "(none)"))
+    print("license files  : %d verified" % checked_licenses)
     print("failures       : %d" % len(failures))
     for move_id, msg in failures[:40]:
         print("   %s  %s" % (move_id, msg))
@@ -520,8 +642,14 @@ def main(argv=None):
     ap.add_argument("--hash-mode", choices=list(HASH_MODES), default=HASH_MODE_SELECTIVE,
                     help="selective(기본, Stage 2-A 정책) 또는 all(전량 SHA256 — "
                          "active asset/production blend/HDRI/3D/golden reference 이동 시 필수)")
-    ap.add_argument("--move-id-prefix", default="S2A",
-                    help="--plan 이 붙일 move_id 접두 (기존 원장과 구분하려면 바꾼다)")
+    ap.add_argument("--move-id-prefix", default=None,
+                    help="--plan 이 붙일 move_id 접두 (기본: 정책별 S2A/S2B)")
+    ap.add_argument("--policy", choices=list(POLICIES), default=POLICY_STAGE2A,
+                    help="이동 정책. 생략하면 stage2a-runs (하위호환)")
+    ap.add_argument("--cohort", default=None,
+                    help="stage2b 전용: 이 cohort 만 계획 (예: B1_REFERENCE_MATERIALS)")
+    ap.add_argument("--only-source", default=None,
+                    help="stage2b 전용: 이 source 만 계획 (쉼표 구분, allowlist 안이어야 함)")
     args = ap.parse_args(argv)
 
     paths = PDP.load()

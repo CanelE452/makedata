@@ -19,7 +19,7 @@ if str(_THIS_DIR) not in sys.path:
 from overlay_archive_trunc_style import FONT  # noqa: E402
 
 REPO = _THIS_DIR.parents[2]
-ARCHIVE_OVERLAY = REPO / "data/pallet/archive/trunc_addon_v1_pilot/overlay"
+ARCHIVE_OVERLAY = REPO / "data/pallet/reference/golden_overlay/trunc_addon_v1_pilot/overlay"  # registry: golden_overlay_reference
 NEW_OVERLAY = REPO / "data/pallet/_v2_smoke50_9d/overlay_archive_style"
 
 # (condition, archive frame, new frame)

@@ -138,7 +138,7 @@ scripts/data_prep/blender/pallet_data_paths.py   resolver (bpy import 없음)
 ```python
 import pallet_data_paths as pdp
 scene = pdp.get("production_scene")      # data/pallet/blender_scene/synth_data_scene.blend
-hdri  = pdp.get("hdri_root")             # data/pallet/hdri
+hdri  = pdp.get("hdri_root")             # data/pallet/assets/lighting/hdri/library
 ```
 
 ```bash
@@ -150,8 +150,12 @@ PALLET_DATA_ROOT=/mnt/data/pallet python ...                     # root 만 over
 `data/pallet/manifests/*.csv` 는 조사 시점 snapshot 이지 runtime config 가 아니다.
 경로를 바꾸려면 `pallet_paths.yaml` 을 고치고 `--audit` 으로 확인한다.
 현행 registry 값 표는 `_docs/data_pallet_layout.md` 참조.
-**★ 이름이 `archive/` 인데 현역인 자산이 있다** — `archive/textures_wood`,
-`archive/textures_floor`, `archive/trunc_addon_v1_pilot`. 폴더명으로 판단하지 말 것.
+**★ 2026-07-29 Stage 2-B**: 이름은 `archive/` 인데 현역이던 자산 3종
+(`archive/textures_wood` · `archive/textures_floor` · `archive/trunc_addon_v1_pilot`)을
+`assets/materials/{pallet,floor}/` 와 `reference/golden_overlay/` 로 **이동 완료**했다.
+아직 원위치인 것: `distractors/`(production .blend 가 절대경로로 참조) ·
+`background/`(원본 ZIP 포함) · `blender_scene/`(.blend 감사 미통과). 상세는
+`reports/data_pallet_cleanup/stage2b/final_report.md`.
 
 ### 2.5 재현 커맨드 (파이프라인 단계별)
 ```bash
@@ -305,7 +309,7 @@ MP.decompose(areas, profile)                  # (분해값, invariant)
 - ⚠️ `material_family` 필드는 (이번 파일럿에서) **전 프레임 None**(미채움, §5A ⑫) — 재질 축 집계는 `material_variant_target`(17종, pallet_type 종속)으로 조인해야 함.
 - ⚠️ `camera_data.floor`가 **None인 프레임 있음**(HDRI-floor 모드) → `.get()` / dict 체크 필수.
 
-### 3.3 legacy(archive) 레이아웃 참고 (`data/pallet/archive/trunc_addon_v1_pilot/`)
+### 3.3 legacy 레이아웃 참고 (`data/pallet/reference/golden_overlay/trunc_addon_v1_pilot/`)
 과거 생성기는 **rgb+json을 루트에 colocate**(`000000.png` + `000000.json`) + `mask/`·`overlay/`·`audit_eye/` 하위폴더. 파일명 = `{i:06d}` 6자리. v2는 `f{idx:04d}_rgb.png` 4자리 접두형으로 바뀜. 오버레이 파일명 형식은 두 방식 모두 **`{번호}.png`**(zero-pad).
 
 ---
@@ -328,7 +332,8 @@ secondary debug (--style frontrear-debug)  ->  <dataset>/overlay_frontrear_debug
   외부 진단 패널 + audit header + M0/M4 contour
   → convention·gate 진단 전용. **canonical 이 아니다.**
 
-archive 정본 reference: `data/pallet/archive/trunc_addon_v1_pilot/`  (2026-07-28 현재 위치 불변)
+canonical 정본 reference: `data/pallet/reference/golden_overlay/trunc_addon_v1_pilot/`
+  (2026-07-29 Stage 2-B 에서 archive/ 밑에서 여기로 이동. registry key `golden_overlay_reference`)
   tests/test_overlay_archive_trunc_style.py 가 이 폴더의 overlay/000000.png 를 픽셀 비교한다.
 코너 점                     0~3 빨강 · 4~7 파랑, 흰 테두리, 옆에 번호 0..7
 centroid                    초록 점 (0,255,0)

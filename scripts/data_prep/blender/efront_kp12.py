@@ -29,7 +29,8 @@ longer this frame.
 Source of the ratios: P0/P1 from data/pallet/archive/_efront_12kp_check/efront_measurements.json
 (measured read-only from the baked scene, 2026-07; rebuild via build_ratio_table_from_json).
 P2/P3 were re-measured for the 2026-07 re-bake (P2=J-Toastie, P3=EUR replaced the
-removed NoAI wood pallets) from data/pallet/pallets_v2_add/measurements.json (a
+removed NoAI wood pallets) from the registry key pallet_measurements
+(data/pallet/assets/pallets/source/pallets_v2_add/measurements.json) (a
 different schema, so build_ratio_table_from_json does NOT regenerate the P2/P3 rows).
 """
 
