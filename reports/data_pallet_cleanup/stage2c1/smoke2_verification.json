@@ -1,0 +1,443 @@
+{
+  "run": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\runs\\smoke\\_stage2c1_portable_blend_smoke2_seed7210",
+  "candidate_blend": "data/pallet/blender_scene/synth_data_scene_portable_candidate_20260729.blend",
+  "seed": 7210,
+  "total_checks": 87,
+  "failed": 0,
+  "failed_checks": {},
+  "frames": [
+    {
+      "frame": "f0000",
+      "idx": 0,
+      "pallet": "Pallet_2",
+      "source_asset": "woodpallet_block_jtoastie_ccby.glb",
+      "background": "parking_lot",
+      "scene_preset": "random-mix",
+      "exposure_ev": -2.5025,
+      "floor_mode": "plane",
+      "floor_texture": "dirt_ground",
+      "material_variant": "brown_dry",
+      "cargo_on": false,
+      "n_cargo_placed": 0,
+      "diagnostic_mode": "context-rich",
+      "explicit_occluder": null,
+      "rgb_size": [
+        960,
+        540
+      ],
+      "overlay_size": [
+        960,
+        540
+      ],
+      "magenta_px": 0,
+      "magenta_fraction": 0.0,
+      "mask_area_target_only": 3308.0,
+      "mask_area_visible": 3308.0,
+      "m0_area_px": 3308,
+      "m4_area_px": 3308,
+      "visible_violation_px": 0,
+      "camera_distance_m": 4.376562993780877,
+      "all_pass": true,
+      "texture_status": "no missing texture (node_image_missing=0 in no-render audit)",
+      "verdict": "PASS"
+    },
+    {
+      "frame": "f0001",
+      "idx": 1,
+      "pallet": "Pallet_1",
+      "source_asset": "scene_1.usd",
+      "background": "parking_lot",
+      "scene_preset": "outdoor-night",
+      "exposure_ev": -1.4827,
+      "floor_mode": "plane",
+      "floor_texture": "gravel_concrete_02",
+      "material_variant": "ind_blue",
+      "cargo_on": false,
+      "n_cargo_placed": 0,
+      "diagnostic_mode": "controlled-occlusion",
+      "explicit_occluder": "Dist_utility_box_01",
+      "rgb_size": [
+        960,
+        540
+      ],
+      "overlay_size": [
+        960,
+        540
+      ],
+      "magenta_px": 0,
+      "magenta_fraction": 0.0,
+      "mask_area_target_only": 17628.0,
+      "mask_area_visible": 13255.0,
+      "m0_area_px": 17628,
+      "m4_area_px": 13255,
+      "visible_violation_px": 0,
+      "camera_distance_m": 2.3158907143094933,
+      "all_pass": true,
+      "texture_status": "no missing texture (node_image_missing=0 in no-render audit)",
+      "verdict": "PASS"
+    }
+  ],
+  "checks": {
+    "rgb count == 2": {
+      "ok": true,
+      "detail": "got 2"
+    },
+    "labels count == 2": {
+      "ok": true,
+      "detail": "got 2"
+    },
+    "mask_amodal count == 2": {
+      "ok": true,
+      "detail": "got 2"
+    },
+    "mask_visible count == 2": {
+      "ok": true,
+      "detail": "got 2"
+    },
+    "archive-style overlay count == 2": {
+      "ok": true,
+      "detail": "got 2"
+    },
+    "mask/ dir absent (public profile)": {
+      "ok": true,
+      "detail": ""
+    },
+    "session usable_delivered == 2": {
+      "ok": true,
+      "detail": "2"
+    },
+    "session complete == True": {
+      "ok": true,
+      "detail": "True"
+    },
+    "session mask_profile == 'public'": {
+      "ok": true,
+      "detail": "'public'"
+    },
+    "session render_profile == 'dataset-quality'": {
+      "ok": true,
+      "detail": "'dataset-quality'"
+    },
+    "session noise_tier == 'clean'": {
+      "ok": true,
+      "detail": "'clean'"
+    },
+    "session occlusion_decomposition_available == False": {
+      "ok": true,
+      "detail": "False"
+    },
+    "session magenta_max_fraction == 0.0": {
+      "ok": true,
+      "detail": "0.0"
+    },
+    "session mask_dirs == ['mask_amodal', 'mask_visible']": {
+      "ok": true,
+      "detail": "['mask_amodal', 'mask_visible']"
+    },
+    "session gpu recorded": {
+      "ok": true,
+      "detail": "'OPTIX'"
+    },
+    "usable records == 2": {
+      "ok": true,
+      "detail": "got 2"
+    },
+    "f0000 mask_amodal decode_ok": {
+      "ok": true,
+      "detail": "None"
+    },
+    "f0000 mask_visible decode_ok": {
+      "ok": true,
+      "detail": "None"
+    },
+    "f0000 mask_m0 non-empty": {
+      "ok": true,
+      "detail": "area=3308"
+    },
+    "f0000 visible subset of amodal": {
+      "ok": true,
+      "detail": "violation_px=0"
+    },
+    "f0000 record mask_pixel_inclusion_ok": {
+      "ok": true,
+      "detail": "True violation_px=0"
+    },
+    "f0000 mask_invariants_pass": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0000 corrupt_mask == False": {
+      "ok": true,
+      "detail": "False"
+    },
+    "f0000 corrupt_rgb == False": {
+      "ok": true,
+      "detail": "False"
+    },
+    "f0000 mask_paths == [m0, m4] (public)": {
+      "ok": true,
+      "detail": "['m0', 'm4']"
+    },
+    "f0000 mask_area_after_static is None (public)": {
+      "ok": true,
+      "detail": "None"
+    },
+    "f0000 mask_area_after_cargo is None (public)": {
+      "ok": true,
+      "detail": "None"
+    },
+    "f0000 mask_area_after_context is None (public)": {
+      "ok": true,
+      "detail": "None"
+    },
+    "f0000 overlay canvas == RGB": {
+      "ok": true,
+      "detail": "(960, 540) vs (960, 540)"
+    },
+    "f0000 magenta pixels == 0 (measured)": {
+      "ok": true,
+      "detail": "got 0"
+    },
+    "f0000 record magenta_fraction == 0": {
+      "ok": true,
+      "detail": "0.0"
+    },
+    "f0000 camera distance <= limit": {
+      "ok": true,
+      "detail": "4.38m / 10.0m"
+    },
+    "f0000 pallet_support_pass": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0000 support_pass": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0000 cargo_collision_pass": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0000 static_collision_pass": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0000 all_pass (G1..G5)": {
+      "ok": true,
+      "detail": "all_pass=True G=[True, True, True, True, True]"
+    },
+    "f0000 gate_valid": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0000 ground_continuity_pass": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0000 background metadata non-null": {
+      "ok": true,
+      "detail": "'parking_lot'"
+    },
+    "f0000 floor metadata non-null": {
+      "ok": true,
+      "detail": "plane / dirt_ground"
+    },
+    "f0000 material metadata non-null": {
+      "ok": true,
+      "detail": "'brown_dry'"
+    },
+    "f0000 lighting metadata non-null (scene_preset + exposure_ev)": {
+      "ok": true,
+      "detail": "random-mix / -2.5025"
+    },
+    "f0000 pallet_type non-null": {
+      "ok": true,
+      "detail": "'Pallet_2'"
+    },
+    "f0000 label source_asset non-null": {
+      "ok": true,
+      "detail": "'woodpallet_block_jtoastie_ccby.glb'"
+    },
+    "f0000 keypoint convention preserved": {
+      "ok": true,
+      "detail": "'camera_dynamic_0123_v4'"
+    },
+    "f0000 projected_cuboid == 8 + centroid": {
+      "ok": true,
+      "detail": "8"
+    },
+    "f0000 label free of stale path 'data/pallet/hdri'": {
+      "ok": true,
+      "detail": ""
+    },
+    "f0000 label free of stale path 'Documents/GitHub'": {
+      "ok": true,
+      "detail": ""
+    },
+    "f0000 label free of stale path 'AppData'": {
+      "ok": true,
+      "detail": ""
+    },
+    "f0000 mask_paths point inside this run": {
+      "ok": true,
+      "detail": ""
+    },
+    "f0001 mask_amodal decode_ok": {
+      "ok": true,
+      "detail": "None"
+    },
+    "f0001 mask_visible decode_ok": {
+      "ok": true,
+      "detail": "None"
+    },
+    "f0001 mask_m0 non-empty": {
+      "ok": true,
+      "detail": "area=17628"
+    },
+    "f0001 visible subset of amodal": {
+      "ok": true,
+      "detail": "violation_px=0"
+    },
+    "f0001 record mask_pixel_inclusion_ok": {
+      "ok": true,
+      "detail": "True violation_px=0"
+    },
+    "f0001 mask_invariants_pass": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0001 corrupt_mask == False": {
+      "ok": true,
+      "detail": "False"
+    },
+    "f0001 corrupt_rgb == False": {
+      "ok": true,
+      "detail": "False"
+    },
+    "f0001 mask_paths == [m0, m4] (public)": {
+      "ok": true,
+      "detail": "['m0', 'm4']"
+    },
+    "f0001 mask_area_after_static is None (public)": {
+      "ok": true,
+      "detail": "None"
+    },
+    "f0001 mask_area_after_cargo is None (public)": {
+      "ok": true,
+      "detail": "None"
+    },
+    "f0001 mask_area_after_context is None (public)": {
+      "ok": true,
+      "detail": "None"
+    },
+    "f0001 overlay canvas == RGB": {
+      "ok": true,
+      "detail": "(960, 540) vs (960, 540)"
+    },
+    "f0001 magenta pixels == 0 (measured)": {
+      "ok": true,
+      "detail": "got 0"
+    },
+    "f0001 record magenta_fraction == 0": {
+      "ok": true,
+      "detail": "0.0"
+    },
+    "f0001 camera distance <= limit": {
+      "ok": true,
+      "detail": "2.32m / 10.0m"
+    },
+    "f0001 pallet_support_pass": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0001 support_pass": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0001 cargo_collision_pass": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0001 static_collision_pass": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0001 all_pass (G1..G5)": {
+      "ok": true,
+      "detail": "all_pass=True G=[True, True, True, True, True]"
+    },
+    "f0001 gate_valid": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0001 ground_continuity_pass": {
+      "ok": true,
+      "detail": "True"
+    },
+    "f0001 background metadata non-null": {
+      "ok": true,
+      "detail": "'parking_lot'"
+    },
+    "f0001 floor metadata non-null": {
+      "ok": true,
+      "detail": "plane / gravel_concrete_02"
+    },
+    "f0001 material metadata non-null": {
+      "ok": true,
+      "detail": "'ind_blue'"
+    },
+    "f0001 lighting metadata non-null (scene_preset + exposure_ev)": {
+      "ok": true,
+      "detail": "outdoor-night / -1.4827"
+    },
+    "f0001 pallet_type non-null": {
+      "ok": true,
+      "detail": "'Pallet_1'"
+    },
+    "f0001 label source_asset non-null": {
+      "ok": true,
+      "detail": "'scene_1.usd'"
+    },
+    "f0001 keypoint convention preserved": {
+      "ok": true,
+      "detail": "'camera_dynamic_0123_v4'"
+    },
+    "f0001 projected_cuboid == 8 + centroid": {
+      "ok": true,
+      "detail": "8"
+    },
+    "f0001 label free of stale path 'data/pallet/hdri'": {
+      "ok": true,
+      "detail": ""
+    },
+    "f0001 label free of stale path 'Documents/GitHub'": {
+      "ok": true,
+      "detail": ""
+    },
+    "f0001 label free of stale path 'AppData'": {
+      "ok": true,
+      "detail": ""
+    },
+    "f0001 mask_paths point inside this run": {
+      "ok": true,
+      "detail": ""
+    },
+    "usable_manifest rows == 2": {
+      "ok": true,
+      "detail": "2"
+    }
+  },
+  "session": {
+    "usable_delivered": 2,
+    "complete": true,
+    "render_attempts": 5,
+    "proposals_drawn": 7,
+    "gpu": "OPTIX",
+    "elapsed_s": 181.45,
+    "render_profile": "dataset-quality",
+    "noise_tier": "clean",
+    "mask_profile": "public"
+  },
+  "note_hdri_metadata": "v2 라벨 스키마에는 HDRI 파일명 필드가 없다. 조명 메타는 scene_preset + exposure_ev 이며 둘 다 non-null 로 확인했다. 없는 필드를 만들어 넣지 않았다.",
+  "mask_foreground_rule": "audit_v2_scene_logic.strict_decode_mask (pixel > 127)"
+}

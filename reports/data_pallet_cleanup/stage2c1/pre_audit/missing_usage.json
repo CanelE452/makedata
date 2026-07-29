@@ -1,0 +1,17 @@
+[
+  {
+    "exists": false,
+    "fake_user": false,
+    "filepath_absolute": "C:\\Users\\User\\Documents\\GitHub\\FoundationPose\\data\\pallet\\hdri\\factory_yard_2k.hdr",
+    "filepath_raw": "C:\\Users\\User\\Documents\\GitHub\\FoundationPose\\data\\pallet\\hdri\\factory_yard_2k.hdr",
+    "is_absolute": true,
+    "is_packed": false,
+    "is_relative": false,
+    "name": "factory_yard_2k.hdr",
+    "referenced_by": "world:World/환경 텍스처",
+    "source_kind": "FILE",
+    "type": "images",
+    "users": 1,
+    "verdict": "MISSING_CURRENT"
+  }
+]

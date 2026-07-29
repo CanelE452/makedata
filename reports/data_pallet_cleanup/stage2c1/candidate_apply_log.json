@@ -1,0 +1,1178 @@
+{
+  "applied": [
+    {
+      "after": "//../distractors/medium/ph__SchoolChair_01/textures/SchoolChair_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__SchoolChair_01\\textures\\SchoolChair_01_diff_1k.jpg",
+      "name": "SchoolChair_01_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__SchoolChair_01/textures/SchoolChair_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__SchoolChair_01\\textures\\SchoolChair_01_arm_1k.jpg",
+      "name": "SchoolChair_01_metallic-SchoolChair_01_roughness"
+    },
+    {
+      "after": "//../distractors/medium/ph__SchoolChair_01/textures/SchoolChair_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__SchoolChair_01\\textures\\SchoolChair_01_nor_gl_1k.jpg",
+      "name": "SchoolChair_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__SchoolDesk_01/textures/SchoolDesk_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__SchoolDesk_01\\textures\\SchoolDesk_01_diff_1k.jpg",
+      "name": "SchoolDesk_01_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__SchoolDesk_01/textures/SchoolDesk_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__SchoolDesk_01\\textures\\SchoolDesk_01_arm_1k.jpg",
+      "name": "SchoolDesk_01_metallic-SchoolDesk_01_roughness"
+    },
+    {
+      "after": "//../distractors/medium/ph__SchoolDesk_01/textures/SchoolDesk_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__SchoolDesk_01\\textures\\SchoolDesk_01_nor_gl_1k.jpg",
+      "name": "SchoolDesk_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/indoor/ph__Shelf_01/textures/Shelf_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__Shelf_01\\textures\\Shelf_01_diff_1k.jpg",
+      "name": "Shelf_01_diff.png"
+    },
+    {
+      "after": "//../distractors/indoor/ph__Shelf_01/textures/Shelf_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__Shelf_01\\textures\\Shelf_01_arm_1k.jpg",
+      "name": "Shelf_01_metallic.png-Shelf_01_roughness"
+    },
+    {
+      "after": "//../distractors/indoor/ph__Shelf_01/textures/Shelf_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__Shelf_01\\textures\\Shelf_01_nor_gl_1k.jpg",
+      "name": "Shelf_01_nor_gl.png"
+    },
+    {
+      "after": "//../distractors/road/ph__WetFloorSign_01/textures/WetFloorSign_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__WetFloorSign_01\\textures\\WetFloorSign_01_diff_1k.jpg",
+      "name": "WetFloorSign_01_diff"
+    },
+    {
+      "after": "//../distractors/road/ph__WetFloorSign_01/textures/WetFloorSign_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__WetFloorSign_01\\textures\\WetFloorSign_01_arm_1k.jpg",
+      "name": "WetFloorSign_01_metallic-WetFloorSign_01_roughness"
+    },
+    {
+      "after": "//../distractors/road/ph__WetFloorSign_01/textures/WetFloorSign_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__WetFloorSign_01\\textures\\WetFloorSign_01_nor_gl_1k.jpg",
+      "name": "WetFloorSign_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__adjustable_wrench/textures/adjustable_wrench_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__adjustable_wrench\\textures\\adjustable_wrench_diff_1k.jpg",
+      "name": "adjustable_wrench_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__adjustable_wrench/textures/adjustable_wrench_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__adjustable_wrench\\textures\\adjustable_wrench_arm_1k.jpg",
+      "name": "adjustable_wrench_metal-adjustable_wrench_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__adjustable_wrench/textures/adjustable_wrench_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__adjustable_wrench\\textures\\adjustable_wrench_nor_gl_1k.jpg",
+      "name": "adjustable_wrench_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__ammo_box/textures/ammo_box_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__ammo_box\\textures\\ammo_box_diff_1k.jpg",
+      "name": "ammo_box_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__ammo_box/textures/ammo_box_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__ammo_box\\textures\\ammo_box_arm_1k.jpg",
+      "name": "ammo_box_metal-ammo_box_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__ammo_box/textures/ammo_box_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__ammo_box\\textures\\ammo_box_nor_gl_1k.jpg",
+      "name": "ammo_box_nor_gl"
+    },
+    {
+      "after": "//../distractors/large/ph__barrel_stove/textures/barrel_stove_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__barrel_stove\\textures\\barrel_stove_diff_1k.jpg",
+      "name": "barrel_stove_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__barrel_stove/textures/barrel_stove_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__barrel_stove\\textures\\barrel_stove_arm_1k.jpg",
+      "name": "barrel_stove_metal-barrel_stove_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__barrel_stove/textures/barrel_stove_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__barrel_stove\\textures\\barrel_stove_nor_gl_1k.jpg",
+      "name": "barrel_stove_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__bleach_bottle/textures/bleach_bottle_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__bleach_bottle\\textures\\bleach_bottle_01_diff_1k.jpg",
+      "name": "bleach_bottle_01_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__bleach_bottle/textures/bleach_bottle_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__bleach_bottle\\textures\\bleach_bottle_01_nor_gl_1k.jpg",
+      "name": "bleach_bottle_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__bleach_bottle/textures/bleach_bottle_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__bleach_bottle\\textures\\bleach_bottle_01_arm_1k.jpg",
+      "name": "bleach_bottle_01_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__can_rusted/textures/can_rusted_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__can_rusted\\textures\\can_rusted_diff_1k.jpg",
+      "name": "can_rusted_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__can_rusted/textures/can_rusted_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__can_rusted\\textures\\can_rusted_arm_1k.jpg",
+      "name": "can_rusted_metal-can_rusted_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__can_rusted/textures/can_rusted_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__can_rusted\\textures\\can_rusted_nor_gl_1k.jpg",
+      "name": "can_rusted_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__cardboard_box_01/textures/cardboard_box_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__cardboard_box_01\\textures\\cardboard_box_01_diff_1k.jpg",
+      "name": "cardboard_box_01_diff.001"
+    },
+    {
+      "after": "//../distractors/small/ph__cardboard_box_01/textures/cardboard_box_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__cardboard_box_01\\textures\\cardboard_box_01_nor_gl_1k.jpg",
+      "name": "cardboard_box_01_nor_gl.001"
+    },
+    {
+      "after": "//../distractors/small/ph__cardboard_box_01/textures/cardboard_box_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__cardboard_box_01\\textures\\cardboard_box_01_arm_1k.jpg",
+      "name": "cardboard_box_01_rough.001"
+    },
+    {
+      "after": "//../distractors/small/ph__cement_bag/textures/cement_bag_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__cement_bag\\textures\\cement_bag_diff_1k.jpg",
+      "name": "cement_bag_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__cement_bag/textures/cement_bag_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__cement_bag\\textures\\cement_bag_nor_gl_1k.jpg",
+      "name": "cement_bag_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__cement_bag/textures/cement_bag_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__cement_bag\\textures\\cement_bag_arm_1k.jpg",
+      "name": "cement_bag_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__chinese_screen_panels/textures/chinese_screen_panels_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__chinese_screen_panels\\textures\\chinese_screen_panels_diff_1k.jpg",
+      "name": "chinese_screen_panels_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__chinese_screen_panels/textures/chinese_screen_panels_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__chinese_screen_panels\\textures\\chinese_screen_panels_arm_1k.jpg",
+      "name": "chinese_screen_panels_metal-chinese_screen_panels_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__chinese_screen_panels/textures/chinese_screen_panels_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__chinese_screen_panels\\textures\\chinese_screen_panels_nor_gl_1k.jpg",
+      "name": "chinese_screen_panels_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__compost_bags/textures/compost_bags_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__compost_bags\\textures\\compost_bags_diff_1k.jpg",
+      "name": "compost_bags_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__compost_bags/textures/compost_bags_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__compost_bags\\textures\\compost_bags_arm_1k.jpg",
+      "name": "compost_bags_metal-compost_bags_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__compost_bags/textures/compost_bags_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__compost_bags\\textures\\compost_bags_nor_gl_1k.jpg",
+      "name": "compost_bags_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__compost_bags/textures/compost_bags_sss_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__compost_bags\\textures\\compost_bags_sss_1k.jpg",
+      "name": "compost_bags_sss"
+    },
+    {
+      "after": "//../distractors/road/ph__concrete_road_barrier_02/textures/concrete_road_barrier_02_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__concrete_road_barrier_02\\textures\\concrete_road_barrier_02_diff_1k.jpg",
+      "name": "concrete_road_barrier_02_diff"
+    },
+    {
+      "after": "//../distractors/road/ph__concrete_road_barrier_02/textures/concrete_road_barrier_02_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__concrete_road_barrier_02\\textures\\concrete_road_barrier_02_nor_gl_1k.jpg",
+      "name": "concrete_road_barrier_02_nor_gl"
+    },
+    {
+      "after": "//../distractors/road/ph__concrete_road_barrier_02/textures/concrete_road_barrier_02_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__concrete_road_barrier_02\\textures\\concrete_road_barrier_02_arm_1k.jpg",
+      "name": "concrete_road_barrier_02_rough"
+    },
+    {
+      "after": "//../distractors/road/ph__concrete_road_barrier/textures/concrete_road_barrier_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__concrete_road_barrier\\textures\\concrete_road_barrier_diff_1k.jpg",
+      "name": "concrete_road_barrier_diff.001"
+    },
+    {
+      "after": "//../distractors/road/ph__concrete_road_barrier/textures/concrete_road_barrier_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__concrete_road_barrier\\textures\\concrete_road_barrier_nor_gl_1k.jpg",
+      "name": "concrete_road_barrier_nor_gl.001"
+    },
+    {
+      "after": "//../distractors/road/ph__concrete_road_barrier/textures/concrete_road_barrier_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__concrete_road_barrier\\textures\\concrete_road_barrier_arm_1k.jpg",
+      "name": "concrete_road_barrier_rough.001"
+    },
+    {
+      "after": "//../distractors/large/ph__covered_car/textures/covered_car_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__covered_car\\textures\\covered_car_diff_1k.jpg",
+      "name": "covered_car_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__covered_car/textures/covered_car_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__covered_car\\textures\\covered_car_arm_1k.jpg",
+      "name": "covered_car_metal-covered_car_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__covered_car/textures/covered_car_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__covered_car\\textures\\covered_car_nor_gl_1k.jpg",
+      "name": "covered_car_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__crowbar_01/textures/crowbar_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__crowbar_01\\textures\\crowbar_01_diff_1k.jpg",
+      "name": "crowbar_01_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__crowbar_01/textures/crowbar_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__crowbar_01\\textures\\crowbar_01_arm_1k.jpg",
+      "name": "crowbar_01_metal-crowbar_01_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__crowbar_01/textures/crowbar_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__crowbar_01\\textures\\crowbar_01_nor_gl_1k.jpg",
+      "name": "crowbar_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/indoor/ph__drawer_cabinet/textures/drawer_cabinet_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__drawer_cabinet\\textures\\drawer_cabinet_diff_1k.jpg",
+      "name": "drawer_cabinet_diff"
+    },
+    {
+      "after": "//../distractors/indoor/ph__drawer_cabinet/textures/drawer_cabinet_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__drawer_cabinet\\textures\\drawer_cabinet_arm_1k.jpg",
+      "name": "drawer_cabinet_metallic.png-drawer_cabinet_roughness.png"
+    },
+    {
+      "after": "//../distractors/indoor/ph__drawer_cabinet/textures/drawer_cabinet_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__drawer_cabinet\\textures\\drawer_cabinet_nor_gl_1k.jpg",
+      "name": "drawer_cabinet_nor_gl"
+    },
+    {
+      "after": "//../distractors/indoor/ph__dustpan/textures/dustpan_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__dustpan\\textures\\dustpan_diff_1k.jpg",
+      "name": "dustpan_diff"
+    },
+    {
+      "after": "//../distractors/indoor/ph__dustpan/textures/dustpan_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__dustpan\\textures\\dustpan_arm_1k.jpg",
+      "name": "dustpan_metal-dustpan_rough"
+    },
+    {
+      "after": "//../distractors/indoor/ph__dustpan/textures/dustpan_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__dustpan\\textures\\dustpan_nor_gl_1k.jpg",
+      "name": "dustpan_nor_gl"
+    },
+    {
+      "after": "//../distractors/road/ph__fire_hydrant/textures/fire_hydrant_aged_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__fire_hydrant\\textures\\fire_hydrant_aged_diff_1k.jpg",
+      "name": "fire_hydrant_aged_diff"
+    },
+    {
+      "after": "//../distractors/road/ph__fire_hydrant/textures/fire_hydrant_aged_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__fire_hydrant\\textures\\fire_hydrant_aged_arm_1k.jpg",
+      "name": "fire_hydrant_aged_metal-fire_hydrant_aged_rough"
+    },
+    {
+      "after": "//../distractors/road/ph__fire_hydrant/textures/fire_hydrant_aged_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__fire_hydrant\\textures\\fire_hydrant_aged_nor_gl_1k.jpg",
+      "name": "fire_hydrant_aged_nor_gl"
+    },
+    {
+      "after": "//../distractors/road/ph__fire_hydrant/textures/fire_hydrant_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__fire_hydrant\\textures\\fire_hydrant_diff_1k.jpg",
+      "name": "fire_hydrant_diff"
+    },
+    {
+      "after": "//../distractors/road/ph__fire_hydrant/textures/fire_hydrant_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__fire_hydrant\\textures\\fire_hydrant_arm_1k.jpg",
+      "name": "fire_hydrant_metal-fire_hydrant_rough"
+    },
+    {
+      "after": "//../distractors/road/ph__fire_hydrant/textures/fire_hydrant_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__fire_hydrant\\textures\\fire_hydrant_nor_gl_1k.jpg",
+      "name": "fire_hydrant_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__hand_truck/textures/hand_truck_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__hand_truck\\textures\\hand_truck_diff_1k.jpg",
+      "name": "hand_truck_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__hand_truck/textures/hand_truck_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__hand_truck\\textures\\hand_truck_arm_1k.jpg",
+      "name": "hand_truck_metal-hand_truck_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__hand_truck/textures/hand_truck_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__hand_truck\\textures\\hand_truck_nor_gl_1k.jpg",
+      "name": "hand_truck_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__industrial_storage_cart/textures/industrial_storage_cart_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__industrial_storage_cart\\textures\\industrial_storage_cart_diff_1k.jpg",
+      "name": "industrial_storage_cart_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__industrial_storage_cart/textures/industrial_storage_cart_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__industrial_storage_cart\\textures\\industrial_storage_cart_arm_1k.jpg",
+      "name": "industrial_storage_cart_metal-industrial_storage_cart_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__industrial_storage_cart/textures/industrial_storage_cart_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__industrial_storage_cart\\textures\\industrial_storage_cart_nor_gl_1k.jpg",
+      "name": "industrial_storage_cart_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__korean_fire_extinguisher_01/textures/korean_fire_extinguisher_01_body_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__korean_fire_extinguisher_01\\textures\\korean_fire_extinguisher_01_body_diff_1k.jpg",
+      "name": "korean_fire_extinguisher_01_body_diff.png"
+    },
+    {
+      "after": "//../distractors/medium/ph__korean_fire_extinguisher_01/textures/korean_fire_extinguisher_01_body_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__korean_fire_extinguisher_01\\textures\\korean_fire_extinguisher_01_body_arm_1k.jpg",
+      "name": "korean_fire_extinguisher_01_body_metal.png-korean_fire_extinguisher_01_body_rough.png"
+    },
+    {
+      "after": "//../distractors/medium/ph__korean_fire_extinguisher_01/textures/korean_fire_extinguisher_01_body_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__korean_fire_extinguisher_01\\textures\\korean_fire_extinguisher_01_body_nor_gl_1k.jpg",
+      "name": "korean_fire_extinguisher_01_body_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__korean_fire_extinguisher_01/textures/korean_fire_extinguisher_01_glass_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__korean_fire_extinguisher_01\\textures\\korean_fire_extinguisher_01_glass_diff_1k.jpg",
+      "name": "korean_fire_extinguisher_01_glass_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__korean_fire_extinguisher_01/textures/korean_fire_extinguisher_01_glass_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__korean_fire_extinguisher_01\\textures\\korean_fire_extinguisher_01_glass_arm_1k.jpg",
+      "name": "korean_fire_extinguisher_01_glass_metal-korean_fire_extinguisher_01_glass_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__korean_fire_extinguisher_01/textures/korean_fire_extinguisher_01_glass_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__korean_fire_extinguisher_01\\textures\\korean_fire_extinguisher_01_glass_nor_gl_1k.jpg",
+      "name": "korean_fire_extinguisher_01_glass_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__korean_fire_extinguisher_01/textures/korean_fire_extinguisher_01_paper_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__korean_fire_extinguisher_01\\textures\\korean_fire_extinguisher_01_paper_diff_1k.jpg",
+      "name": "korean_fire_extinguisher_01_paper_diff-korean_fire_extinguisher_01_paper_opacity"
+    },
+    {
+      "after": "//../distractors/medium/ph__korean_fire_extinguisher_01/textures/korean_fire_extinguisher_01_paper_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__korean_fire_extinguisher_01\\textures\\korean_fire_extinguisher_01_paper_arm_1k.jpg",
+      "name": "korean_fire_extinguisher_01_paper_metal-korean_fire_extinguisher_01_paper_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__korean_fire_extinguisher_01/textures/korean_fire_extinguisher_01_paper_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__korean_fire_extinguisher_01\\textures\\korean_fire_extinguisher_01_paper_nor_gl_1k.jpg",
+      "name": "korean_fire_extinguisher_01_paper_nor_gl"
+    },
+    {
+      "after": "//../distractors/large/ph__ladder_sectioned_01/textures/ladder_sectioned_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__ladder_sectioned_01\\textures\\ladder_sectioned_01_diff_1k.jpg",
+      "name": "ladder_sectioned_01_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__ladder_sectioned_01/textures/ladder_sectioned_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__ladder_sectioned_01\\textures\\ladder_sectioned_01_arm_1k.jpg",
+      "name": "ladder_sectioned_01_metal-ladder_sectioned_01_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__ladder_sectioned_01/textures/ladder_sectioned_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__ladder_sectioned_01\\textures\\ladder_sectioned_01_nor_gl_1k.jpg",
+      "name": "ladder_sectioned_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__metal_jerrycan/textures/metal_jerrycan_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__metal_jerrycan\\textures\\metal_jerrycan_diff_1k.jpg",
+      "name": "metal_jerrycan_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__metal_jerrycan/textures/metal_jerrycan_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__metal_jerrycan\\textures\\metal_jerrycan_arm_1k.jpg",
+      "name": "metal_jerrycan_metal-metal_jerrycan_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__metal_jerrycan/textures/metal_jerrycan_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__metal_jerrycan\\textures\\metal_jerrycan_nor_gl_1k.jpg",
+      "name": "metal_jerrycan_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_office_desk/textures/metal_office_desk_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_office_desk\\textures\\metal_office_desk_diff_1k.jpg",
+      "name": "metal_office_desk_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_office_desk/textures/metal_office_desk_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_office_desk\\textures\\metal_office_desk_arm_1k.jpg",
+      "name": "metal_office_desk_metal-metal_office_desk_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_office_desk/textures/metal_office_desk_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_office_desk\\textures\\metal_office_desk_nor_gl_1k.jpg",
+      "name": "metal_office_desk_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_stool_01/textures/metal_stool_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_stool_01\\textures\\metal_stool_01_diff_1k.jpg",
+      "name": "metal_stool_01_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_stool_01/textures/metal_stool_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_stool_01\\textures\\metal_stool_01_arm_1k.jpg",
+      "name": "metal_stool_01_metal-metal_stool_01_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_stool_01/textures/metal_stool_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_stool_01\\textures\\metal_stool_01_nor_gl_1k.jpg",
+      "name": "metal_stool_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_tool_chest/textures/metal_tool_chest_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_tool_chest\\textures\\metal_tool_chest_diff_1k.jpg",
+      "name": "metal_tool_chest_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_tool_chest/textures/metal_tool_chest_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_tool_chest\\textures\\metal_tool_chest_arm_1k.jpg",
+      "name": "metal_tool_chest_metal-metal_tool_chest_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_tool_chest/textures/metal_tool_chest_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_tool_chest\\textures\\metal_tool_chest_nor_gl_1k.jpg",
+      "name": "metal_tool_chest_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_toolbox/textures/metal_toolbox_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_toolbox\\textures\\metal_toolbox_diff_1k.jpg",
+      "name": "metal_toolbox_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_toolbox/textures/metal_toolbox_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_toolbox\\textures\\metal_toolbox_arm_1k.jpg",
+      "name": "metal_toolbox_metal-metal_toolbox_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_toolbox/textures/metal_toolbox_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_toolbox\\textures\\metal_toolbox_nor_gl_1k.jpg",
+      "name": "metal_toolbox_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_trash_can/textures/metal_trash_can_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_trash_can\\textures\\metal_trash_can_diff_1k.jpg",
+      "name": "metal_trash_can_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_trash_can/textures/metal_trash_can_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_trash_can\\textures\\metal_trash_can_arm_1k.jpg",
+      "name": "metal_trash_can_metal-metal_trash_can_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_trash_can/textures/metal_trash_can_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_trash_can\\textures\\metal_trash_can_nor_gl_1k.jpg",
+      "name": "metal_trash_can_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_trash_can/textures/metal_trash_can_rust_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_trash_can\\textures\\metal_trash_can_rust_diff_1k.jpg",
+      "name": "metal_trash_can_rust_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_trash_can/textures/metal_trash_can_rust_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_trash_can\\textures\\metal_trash_can_rust_arm_1k.jpg",
+      "name": "metal_trash_can_rust_metal-metal_trash_can_rust_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__metal_trash_can/textures/metal_trash_can_rust_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__metal_trash_can\\textures\\metal_trash_can_rust_nor_gl_1k.jpg",
+      "name": "metal_trash_can_rust_nor_gl"
+    },
+    {
+      "after": "//../distractors/road/ph__modular_chainlink_fence/textures/modular_chainlink_fence_posts_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__modular_chainlink_fence\\textures\\modular_chainlink_fence_posts_diff_1k.jpg",
+      "name": "modular_chainlink_fence_posts_diff"
+    },
+    {
+      "after": "//../distractors/road/ph__modular_chainlink_fence/textures/modular_chainlink_fence_posts_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__modular_chainlink_fence\\textures\\modular_chainlink_fence_posts_arm_1k.jpg",
+      "name": "modular_chainlink_fence_posts_metal-modular_chainlink_fence_posts_rough"
+    },
+    {
+      "after": "//../distractors/road/ph__modular_chainlink_fence/textures/modular_chainlink_fence_posts_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__modular_chainlink_fence\\textures\\modular_chainlink_fence_posts_nor_gl_1k.jpg",
+      "name": "modular_chainlink_fence_posts_nor_gl"
+    },
+    {
+      "after": "//../distractors/road/ph__modular_chainlink_fence/textures/modular_chainlink_fence_wire_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__modular_chainlink_fence\\textures\\modular_chainlink_fence_wire_diff_1k.jpg",
+      "name": "modular_chainlink_fence_wire_diff-modular_chainlink_fence_wire_opacity"
+    },
+    {
+      "after": "//../distractors/road/ph__modular_chainlink_fence/textures/modular_chainlink_fence_wire_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__modular_chainlink_fence\\textures\\modular_chainlink_fence_wire_arm_1k.jpg",
+      "name": "modular_chainlink_fence_wire_metal-modular_chainlink_fence_wire_rough"
+    },
+    {
+      "after": "//../distractors/road/ph__modular_chainlink_fence/textures/modular_chainlink_fence_wire_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__modular_chainlink_fence\\textures\\modular_chainlink_fence_wire_nor_gl_1k.jpg",
+      "name": "modular_chainlink_fence_wire_nor_gl"
+    },
+    {
+      "after": "//../distractors/indoor/ph__multi_cleaner_5_litre/textures/multi_cleaner_5_litre_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__multi_cleaner_5_litre\\textures\\multi_cleaner_5_litre_diff_1k.jpg",
+      "name": "multi_cleaner_5_litre_diff"
+    },
+    {
+      "after": "//../distractors/indoor/ph__multi_cleaner_5_litre/textures/multi_cleaner_5_litre_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__multi_cleaner_5_litre\\textures\\multi_cleaner_5_litre_nor_gl_1k.jpg",
+      "name": "multi_cleaner_5_litre_nor_gl"
+    },
+    {
+      "after": "//../distractors/indoor/ph__multi_cleaner_5_litre/textures/multi_cleaner_5_litre_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__multi_cleaner_5_litre\\textures\\multi_cleaner_5_litre_arm_1k.jpg",
+      "name": "multi_cleaner_5_litre_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__oil_tin/textures/oil_tin_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__oil_tin\\textures\\oil_tin_diff_1k.jpg",
+      "name": "oil_tin_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__oil_tin/textures/oil_tin_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__oil_tin\\textures\\oil_tin_arm_1k.jpg",
+      "name": "oil_tin_metal-oil_tin_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__oil_tin/textures/oil_tin_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__oil_tin\\textures\\oil_tin_nor_gl_1k.jpg",
+      "name": "oil_tin_nor_gl"
+    },
+    {
+      "after": "//../distractors/large/ph__old_military_compressor/textures/old_military_compressor_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__old_military_compressor\\textures\\old_military_compressor_diff_1k.jpg",
+      "name": "old_military_compressor_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__old_military_compressor/textures/old_military_compressor_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__old_military_compressor\\textures\\old_military_compressor_arm_1k.jpg",
+      "name": "old_military_compressor_metal-old_military_compressor_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__old_military_compressor/textures/old_military_compressor_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__old_military_compressor\\textures\\old_military_compressor_nor_gl_1k.jpg",
+      "name": "old_military_compressor_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__old_military_crate/textures/old_military_crate_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__old_military_crate\\textures\\old_military_crate_diff_1k.jpg",
+      "name": "old_military_crate_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__old_military_crate/textures/old_military_crate_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__old_military_crate\\textures\\old_military_crate_arm_1k.jpg",
+      "name": "old_military_crate_metal-old_military_crate_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__old_military_crate/textures/old_military_crate_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__old_military_crate\\textures\\old_military_crate_nor_gl_1k.jpg",
+      "name": "old_military_crate_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__old_tyre/textures/old_tyre_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__old_tyre\\textures\\old_tyre_diff_1k.jpg",
+      "name": "old_tyre_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__old_tyre/textures/old_tyre_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__old_tyre\\textures\\old_tyre_nor_gl_1k.jpg",
+      "name": "old_tyre_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__old_tyre/textures/old_tyre_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__old_tyre\\textures\\old_tyre_arm_1k.jpg",
+      "name": "old_tyre_rough"
+    },
+    {
+      "after": "//../distractors/indoor/ph__painted_wooden_cabinet/textures/painted_wooden_cabinet_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__painted_wooden_cabinet\\textures\\painted_wooden_cabinet_diff_1k.jpg",
+      "name": "painted_wooden_cabinet_diff"
+    },
+    {
+      "after": "//../distractors/indoor/ph__painted_wooden_cabinet/textures/painted_wooden_cabinet_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__painted_wooden_cabinet\\textures\\painted_wooden_cabinet_arm_1k.jpg",
+      "name": "painted_wooden_cabinet_metal-painted_wooden_cabinet_rough"
+    },
+    {
+      "after": "//../distractors/indoor/ph__painted_wooden_cabinet/textures/painted_wooden_cabinet_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__painted_wooden_cabinet\\textures\\painted_wooden_cabinet_nor_gl_1k.jpg",
+      "name": "painted_wooden_cabinet_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__planter_box_01/textures/planter_box_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__planter_box_01\\textures\\planter_box_01_diff_1k.jpg",
+      "name": "planter_box_01_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__planter_box_01/textures/planter_box_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__planter_box_01\\textures\\planter_box_01_arm_1k.jpg",
+      "name": "planter_box_01_metal-planter_box_01_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__planter_box_01/textures/planter_box_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__planter_box_01\\textures\\planter_box_01_nor_gl_1k.jpg",
+      "name": "planter_box_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__plastic_bottle_gallon/textures/plastic_bottle_gallon_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__plastic_bottle_gallon\\textures\\plastic_bottle_gallon_diff_1k.jpg",
+      "name": "plastic_bottle_gallon_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__plastic_bottle_gallon/textures/plastic_bottle_gallon_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__plastic_bottle_gallon\\textures\\plastic_bottle_gallon_nor_gl_1k.jpg",
+      "name": "plastic_bottle_gallon_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__plastic_bottle_gallon/textures/plastic_bottle_gallon_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__plastic_bottle_gallon\\textures\\plastic_bottle_gallon_arm_1k.jpg",
+      "name": "plastic_bottle_gallon_rough"
+    },
+    {
+      "after": "//../distractors/indoor/ph__plastic_broom/textures/plastic_broom_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__plastic_broom\\textures\\plastic_broom_diff_1k.jpg",
+      "name": "plastic_broom_diff"
+    },
+    {
+      "after": "//../distractors/indoor/ph__plastic_broom/textures/plastic_broom_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__plastic_broom\\textures\\plastic_broom_arm_1k.jpg",
+      "name": "plastic_broom_metal-plastic_broom_rough"
+    },
+    {
+      "after": "//../distractors/indoor/ph__plastic_broom/textures/plastic_broom_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__plastic_broom\\textures\\plastic_broom_nor_gl_1k.jpg",
+      "name": "plastic_broom_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__plastic_crate_01/textures/plastic_crate_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__plastic_crate_01\\textures\\plastic_crate_01_diff_1k.jpg",
+      "name": "plastic_crate_01_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__plastic_crate_01/textures/plastic_crate_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__plastic_crate_01\\textures\\plastic_crate_01_arm_1k.jpg",
+      "name": "plastic_crate_01_metal-plastic_crate_01_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__plastic_crate_01/textures/plastic_crate_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__plastic_crate_01\\textures\\plastic_crate_01_nor_gl_1k.jpg",
+      "name": "plastic_crate_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__plastic_crate_03/textures/plastic_crate_03_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__plastic_crate_03\\textures\\plastic_crate_03_diff_1k.jpg",
+      "name": "plastic_crate_03_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__plastic_crate_03/textures/plastic_crate_03_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__plastic_crate_03\\textures\\plastic_crate_03_nor_gl_1k.jpg",
+      "name": "plastic_crate_03_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__plastic_crate_03/textures/plastic_crate_03_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__plastic_crate_03\\textures\\plastic_crate_03_arm_1k.jpg",
+      "name": "plastic_crate_03_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__plastic_monobloc_chair_01/textures/plastic_monobloc_chair_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__plastic_monobloc_chair_01\\textures\\plastic_monobloc_chair_01_diff_1k.jpg",
+      "name": "plastic_monobloc_chair_01_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__plastic_monobloc_chair_01/textures/plastic_monobloc_chair_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__plastic_monobloc_chair_01\\textures\\plastic_monobloc_chair_01_arm_1k.jpg",
+      "name": "plastic_monobloc_chair_01_metal-plastic_monobloc_chair_01_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__plastic_monobloc_chair_01/textures/plastic_monobloc_chair_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__plastic_monobloc_chair_01\\textures\\plastic_monobloc_chair_01_nor_gl_1k.jpg",
+      "name": "plastic_monobloc_chair_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/large/ph__portable_generator/textures/portable_generator_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__portable_generator\\textures\\portable_generator_diff_1k.jpg",
+      "name": "portable_generator_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__portable_generator/textures/portable_generator_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__portable_generator\\textures\\portable_generator_arm_1k.jpg",
+      "name": "portable_generator_metal-portable_generator_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__portable_generator/textures/portable_generator_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__portable_generator\\textures\\portable_generator_nor_gl_1k.jpg",
+      "name": "portable_generator_nor_gl"
+    },
+    {
+      "after": "//../distractors/large/ph__portable_generator/textures/portable_generator_spec_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__portable_generator\\textures\\portable_generator_spec_1k.jpg",
+      "name": "portable_generator_spec"
+    },
+    {
+      "after": "//../distractors/large/ph__portable_welding_cart/textures/portable_welding_cart_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__portable_welding_cart\\textures\\portable_welding_cart_diff_1k.jpg",
+      "name": "portable_welding_cart_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__portable_welding_cart/textures/portable_welding_cart_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__portable_welding_cart\\textures\\portable_welding_cart_arm_1k.jpg",
+      "name": "portable_welding_cart_metal-portable_welding_cart_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__portable_welding_cart/textures/portable_welding_cart_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__portable_welding_cart\\textures\\portable_welding_cart_nor_gl_1k.jpg",
+      "name": "portable_welding_cart_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__potted_plant_01/textures/potted_plant_01_leaves_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__potted_plant_01\\textures\\potted_plant_01_leaves_diff_1k.jpg",
+      "name": "potted_plant_01_leaves_diff.png"
+    },
+    {
+      "after": "//../distractors/medium/ph__potted_plant_01/textures/potted_plant_01_leaves_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__potted_plant_01\\textures\\potted_plant_01_leaves_nor_gl_1k.jpg",
+      "name": "potted_plant_01_leaves_nor_gl.png"
+    },
+    {
+      "after": "//../distractors/medium/ph__potted_plant_01/textures/potted_plant_01_leaves_rough_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__potted_plant_01\\textures\\potted_plant_01_leaves_rough_1k.jpg",
+      "name": "potted_plant_01_leaves_rough.png"
+    },
+    {
+      "after": "//../distractors/medium/ph__potted_plant_01/textures/potted_plant_01_pot_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__potted_plant_01\\textures\\potted_plant_01_pot_diff_1k.jpg",
+      "name": "potted_plant_01_pot_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__potted_plant_01/textures/potted_plant_01_pot_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__potted_plant_01\\textures\\potted_plant_01_pot_nor_gl_1k.jpg",
+      "name": "potted_plant_01_pot_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__potted_plant_01/textures/potted_plant_01_pot_rough_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__potted_plant_01\\textures\\potted_plant_01_pot_rough_1k.jpg",
+      "name": "potted_plant_01_pot_rough"
+    },
+    {
+      "after": "//../distractors/road/ph__power_box_01/textures/power_box_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__power_box_01\\textures\\power_box_01_diff_1k.jpg",
+      "name": "power_box_01_diff"
+    },
+    {
+      "after": "//../distractors/road/ph__power_box_01/textures/power_box_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__power_box_01\\textures\\power_box_01_arm_1k.jpg",
+      "name": "power_box_01_metal-power_box_01_rough"
+    },
+    {
+      "after": "//../distractors/road/ph__power_box_01/textures/power_box_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__power_box_01\\textures\\power_box_01_nor_gl_1k.jpg",
+      "name": "power_box_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__propane_tank/textures/propane_tank_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__propane_tank\\textures\\propane_tank_diff_1k.jpg",
+      "name": "propane_tank_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__propane_tank/textures/propane_tank_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__propane_tank\\textures\\propane_tank_arm_1k.jpg",
+      "name": "propane_tank_metal-propane_tank_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__propane_tank/textures/propane_tank_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__propane_tank\\textures\\propane_tank_nor_gl_1k.jpg",
+      "name": "propane_tank_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__russian_food_cans_01/textures/russian_food_cans_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__russian_food_cans_01\\textures\\russian_food_cans_01_diff_1k.jpg",
+      "name": "russian_food_cans_01_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__russian_food_cans_01/textures/russian_food_cans_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__russian_food_cans_01\\textures\\russian_food_cans_01_arm_1k.jpg",
+      "name": "russian_food_cans_01_metallic-russian_food_cans_01_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__russian_food_cans_01/textures/russian_food_cans_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__russian_food_cans_01\\textures\\russian_food_cans_01_nor_gl_1k.jpg",
+      "name": "russian_food_cans_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__sledgehammer_01/textures/sledgehammer_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__sledgehammer_01\\textures\\sledgehammer_01_diff_1k.jpg",
+      "name": "sledgehammer_01_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__sledgehammer_01/textures/sledgehammer_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__sledgehammer_01\\textures\\sledgehammer_01_arm_1k.jpg",
+      "name": "sledgehammer_01_metal-sledgehammer_01_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__sledgehammer_01/textures/sledgehammer_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__sledgehammer_01\\textures\\sledgehammer_01_nor_gl_1k.jpg",
+      "name": "sledgehammer_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/large/ph__steel_frame_shelves_01/textures/steel_frame_shelves_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__steel_frame_shelves_01\\textures\\steel_frame_shelves_01_diff_1k.jpg",
+      "name": "steel_frame_shelves_01_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__steel_frame_shelves_01/textures/steel_frame_shelves_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__steel_frame_shelves_01\\textures\\steel_frame_shelves_01_arm_1k.jpg",
+      "name": "steel_frame_shelves_01_metal-steel_frame_shelves_01_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__steel_frame_shelves_01/textures/steel_frame_shelves_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__steel_frame_shelves_01\\textures\\steel_frame_shelves_01_nor_gl_1k.jpg",
+      "name": "steel_frame_shelves_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/indoor/ph__steel_frame_shelves_02/textures/steel_frame_shelves_02_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__steel_frame_shelves_02\\textures\\steel_frame_shelves_02_diff_1k.jpg",
+      "name": "steel_frame_shelves_02_diff"
+    },
+    {
+      "after": "//../distractors/indoor/ph__steel_frame_shelves_02/textures/steel_frame_shelves_02_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__steel_frame_shelves_02\\textures\\steel_frame_shelves_02_arm_1k.jpg",
+      "name": "steel_frame_shelves_02_metal-steel_frame_shelves_02_rough"
+    },
+    {
+      "after": "//../distractors/indoor/ph__steel_frame_shelves_02/textures/steel_frame_shelves_02_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__steel_frame_shelves_02\\textures\\steel_frame_shelves_02_nor_gl_1k.jpg",
+      "name": "steel_frame_shelves_02_nor_gl"
+    },
+    {
+      "after": "//../distractors/large/ph__steel_frame_shelves_03/textures/steel_frame_shelves_03_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__steel_frame_shelves_03\\textures\\steel_frame_shelves_03_diff_1k.jpg",
+      "name": "steel_frame_shelves_03_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__steel_frame_shelves_03/textures/steel_frame_shelves_03_drawers_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__steel_frame_shelves_03\\textures\\steel_frame_shelves_03_drawers_diff_1k.jpg",
+      "name": "steel_frame_shelves_03_drawers_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__steel_frame_shelves_03/textures/steel_frame_shelves_03_drawers_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__steel_frame_shelves_03\\textures\\steel_frame_shelves_03_drawers_nor_gl_1k.jpg",
+      "name": "steel_frame_shelves_03_drawers_nor_gl"
+    },
+    {
+      "after": "//../distractors/large/ph__steel_frame_shelves_03/textures/steel_frame_shelves_03_drawers_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__steel_frame_shelves_03\\textures\\steel_frame_shelves_03_drawers_arm_1k.jpg",
+      "name": "steel_frame_shelves_03_drawers_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__steel_frame_shelves_03/textures/steel_frame_shelves_03_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__steel_frame_shelves_03\\textures\\steel_frame_shelves_03_arm_1k.jpg",
+      "name": "steel_frame_shelves_03_metal-steel_frame_shelves_03_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__steel_frame_shelves_03/textures/steel_frame_shelves_03_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__steel_frame_shelves_03\\textures\\steel_frame_shelves_03_nor_gl_1k.jpg",
+      "name": "steel_frame_shelves_03_nor_gl"
+    },
+    {
+      "after": "//../distractors/road/ph__street_lamp_01/textures/street_lamp_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__street_lamp_01\\textures\\street_lamp_01_diff_1k.jpg",
+      "name": "street_lamp_01_diff"
+    },
+    {
+      "after": "//../distractors/road/ph__street_lamp_01/textures/street_lamp_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__street_lamp_01\\textures\\street_lamp_01_arm_1k.jpg",
+      "name": "street_lamp_01_metal-street_lamp_01_rough"
+    },
+    {
+      "after": "//../distractors/road/ph__street_lamp_01/textures/street_lamp_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__street_lamp_01\\textures\\street_lamp_01_nor_gl_1k.jpg",
+      "name": "street_lamp_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/medium/ph__tool_cart/textures/tool_cart_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__tool_cart\\textures\\tool_cart_diff_1k.jpg",
+      "name": "tool_cart_diff"
+    },
+    {
+      "after": "//../distractors/medium/ph__tool_cart/textures/tool_cart_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__tool_cart\\textures\\tool_cart_arm_1k.jpg",
+      "name": "tool_cart_metal-tool_cart_rough"
+    },
+    {
+      "after": "//../distractors/medium/ph__tool_cart/textures/tool_cart_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\medium\\ph__tool_cart\\textures\\tool_cart_nor_gl_1k.jpg",
+      "name": "tool_cart_nor_gl"
+    },
+    {
+      "after": "//../distractors/road/ph__utility_box_01/textures/utility_box_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__utility_box_01\\textures\\utility_box_01_diff_1k.jpg",
+      "name": "utility_box_01_diff"
+    },
+    {
+      "after": "//../distractors/road/ph__utility_box_01/textures/utility_box_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__utility_box_01\\textures\\utility_box_01_arm_1k.jpg",
+      "name": "utility_box_01_metal-utility_box_01_rough"
+    },
+    {
+      "after": "//../distractors/road/ph__utility_box_01/textures/utility_box_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\road\\ph__utility_box_01\\textures\\utility_box_01_nor_gl_1k.jpg",
+      "name": "utility_box_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/indoor/ph__watering_can_metal_01/textures/watering_can_metal_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__watering_can_metal_01\\textures\\watering_can_metal_01_diff_1k.jpg",
+      "name": "watering_can_metal_01_diff"
+    },
+    {
+      "after": "//../distractors/indoor/ph__watering_can_metal_01/textures/watering_can_metal_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__watering_can_metal_01\\textures\\watering_can_metal_01_arm_1k.jpg",
+      "name": "watering_can_metal_01_metal-watering_can_metal_01_rough"
+    },
+    {
+      "after": "//../distractors/indoor/ph__watering_can_metal_01/textures/watering_can_metal_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__watering_can_metal_01\\textures\\watering_can_metal_01_nor_gl_1k.jpg",
+      "name": "watering_can_metal_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__wicker_basket_01/textures/wicker_basket_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wicker_basket_01\\textures\\wicker_basket_01_diff_1k.jpg",
+      "name": "wicker_basket_01_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__wicker_basket_01/textures/wicker_basket_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wicker_basket_01\\textures\\wicker_basket_01_nor_gl_1k.jpg",
+      "name": "wicker_basket_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__wicker_basket_01/textures/wicker_basket_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wicker_basket_01\\textures\\wicker_basket_01_arm_1k.jpg",
+      "name": "wicker_basket_01_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__wine_barrel_01/textures/wine_barrel_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__wine_barrel_01\\textures\\wine_barrel_01_diff_1k.jpg",
+      "name": "wine_barrel_01_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__wine_barrel_01/textures/wine_barrel_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__wine_barrel_01\\textures\\wine_barrel_01_arm_1k.jpg",
+      "name": "wine_barrel_01_metal-wine_barrel_01_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__wine_barrel_01/textures/wine_barrel_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__wine_barrel_01\\textures\\wine_barrel_01_nor_gl_1k.jpg",
+      "name": "wine_barrel_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__wine_bottles_01/textures/wine_bottles_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wine_bottles_01\\textures\\wine_bottles_01_diff_1k.jpg",
+      "name": "wine_bottles_01_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__wine_bottles_01/textures/wine_bottles_01_label_clearwater_crystals_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wine_bottles_01\\textures\\wine_bottles_01_label_clearwater_crystals_01_diff_1k.jpg",
+      "name": "wine_bottles_01_label_clearwater_crystals_01_diff-wine_bottles_01_label_clearwater_crystals_01_alpha"
+    },
+    {
+      "after": "//../distractors/small/ph__wine_bottles_01/textures/wine_bottles_01_label_clearwater_crystals_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wine_bottles_01\\textures\\wine_bottles_01_label_clearwater_crystals_01_arm_1k.jpg",
+      "name": "wine_bottles_01_label_clearwater_crystals_01_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__wine_bottles_01/textures/wine_bottles_01_label_ftero_vinea_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wine_bottles_01\\textures\\wine_bottles_01_label_ftero_vinea_01_diff_1k.jpg",
+      "name": "wine_bottles_01_label_ftero_vinea_01_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__wine_bottles_01/textures/wine_bottles_01_label_ftero_vinea_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wine_bottles_01\\textures\\wine_bottles_01_label_ftero_vinea_01_arm_1k.jpg",
+      "name": "wine_bottles_01_label_ftero_vinea_01_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__wine_bottles_01/textures/wine_bottles_01_label_ftero_vinea_02_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wine_bottles_01\\textures\\wine_bottles_01_label_ftero_vinea_02_diff_1k.jpg",
+      "name": "wine_bottles_01_label_ftero_vinea_02_diff-wine_bottles_01_label_ftero_vinea_02_alpha"
+    },
+    {
+      "after": "//../distractors/small/ph__wine_bottles_01/textures/wine_bottles_01_label_ftero_vinea_02_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wine_bottles_01\\textures\\wine_bottles_01_label_ftero_vinea_02_arm_1k.jpg",
+      "name": "wine_bottles_01_label_ftero_vinea_02_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__wine_bottles_01/textures/wine_bottles_01_label_intertwine_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wine_bottles_01\\textures\\wine_bottles_01_label_intertwine_01_diff_1k.jpg",
+      "name": "wine_bottles_01_label_intertwine_01_diff-wine_bottles_01_label_intertwine_01_alpha"
+    },
+    {
+      "after": "//../distractors/small/ph__wine_bottles_01/textures/wine_bottles_01_label_intertwine_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wine_bottles_01\\textures\\wine_bottles_01_label_intertwine_01_arm_1k.jpg",
+      "name": "wine_bottles_01_label_intertwine_01_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__wine_bottles_01/textures/wine_bottles_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wine_bottles_01\\textures\\wine_bottles_01_arm_1k.jpg",
+      "name": "wine_bottles_01_metal-wine_bottles_01_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__wine_bottles_01/textures/wine_bottles_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wine_bottles_01\\textures\\wine_bottles_01_nor_gl_1k.jpg",
+      "name": "wine_bottles_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__wine_bottles_01/textures/wine_bottles_01_paper_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wine_bottles_01\\textures\\wine_bottles_01_paper_nor_gl_1k.jpg",
+      "name": "wine_bottles_01_paper_nor_gl"
+    },
+    {
+      "after": "//../distractors/indoor/ph__wooden_bookshelf_worn/textures/wooden_bookshelf_worn_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__wooden_bookshelf_worn\\textures\\wooden_bookshelf_worn_diff_1k.jpg",
+      "name": "wooden_bookshelf_worn_diff"
+    },
+    {
+      "after": "//../distractors/indoor/ph__wooden_bookshelf_worn/textures/wooden_bookshelf_worn_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__wooden_bookshelf_worn\\textures\\wooden_bookshelf_worn_arm_1k.jpg",
+      "name": "wooden_bookshelf_worn_metal-wooden_bookshelf_worn_rough"
+    },
+    {
+      "after": "//../distractors/indoor/ph__wooden_bookshelf_worn/textures/wooden_bookshelf_worn_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__wooden_bookshelf_worn\\textures\\wooden_bookshelf_worn_nor_gl_1k.jpg",
+      "name": "wooden_bookshelf_worn_nor_gl"
+    },
+    {
+      "after": "//../distractors/indoor/ph__wooden_broom/textures/wooden_broom_bristles_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__wooden_broom\\textures\\wooden_broom_bristles_diff_1k.jpg",
+      "name": "wooden_broom_bristles_diff-wooden_broom_bristles_alpha"
+    },
+    {
+      "after": "//../distractors/indoor/ph__wooden_broom/textures/wooden_broom_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__wooden_broom\\textures\\wooden_broom_diff_1k.jpg",
+      "name": "wooden_broom_diff"
+    },
+    {
+      "after": "//../distractors/indoor/ph__wooden_broom/textures/wooden_broom_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__wooden_broom\\textures\\wooden_broom_arm_1k.jpg",
+      "name": "wooden_broom_metal-wooden_broom_rough"
+    },
+    {
+      "after": "//../distractors/indoor/ph__wooden_broom/textures/wooden_broom_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\indoor\\ph__wooden_broom\\textures\\wooden_broom_nor_gl_1k.jpg",
+      "name": "wooden_broom_nor_gl"
+    },
+    {
+      "after": "//../distractors/small/ph__wooden_crate_01/textures/wooden_crate_01_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wooden_crate_01\\textures\\wooden_crate_01_diff_1k.jpg",
+      "name": "wooden_crate_01_diff"
+    },
+    {
+      "after": "//../distractors/small/ph__wooden_crate_01/textures/wooden_crate_01_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wooden_crate_01\\textures\\wooden_crate_01_arm_1k.jpg",
+      "name": "wooden_crate_01_metal-wooden_crate_01_rough"
+    },
+    {
+      "after": "//../distractors/small/ph__wooden_crate_01/textures/wooden_crate_01_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\small\\ph__wooden_crate_01\\textures\\wooden_crate_01_nor_gl_1k.jpg",
+      "name": "wooden_crate_01_nor_gl"
+    },
+    {
+      "after": "//../distractors/large/ph__wooden_ladder/textures/wooden_ladder_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__wooden_ladder\\textures\\wooden_ladder_diff_1k.jpg",
+      "name": "wooden_ladder_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__wooden_ladder/textures/wooden_ladder_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__wooden_ladder\\textures\\wooden_ladder_arm_1k.jpg",
+      "name": "wooden_ladder_metal-wooden_ladder_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__wooden_ladder/textures/wooden_ladder_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__wooden_ladder\\textures\\wooden_ladder_nor_gl_1k.jpg",
+      "name": "wooden_ladder_nor_gl"
+    },
+    {
+      "after": "//../distractors/large/ph__worn_metal_rack/textures/worn_metal_rack_diff_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__worn_metal_rack\\textures\\worn_metal_rack_diff_1k.jpg",
+      "name": "worn_metal_rack_diff"
+    },
+    {
+      "after": "//../distractors/large/ph__worn_metal_rack/textures/worn_metal_rack_arm_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__worn_metal_rack\\textures\\worn_metal_rack_arm_1k.jpg",
+      "name": "worn_metal_rack_metal-worn_metal_rack_rough"
+    },
+    {
+      "after": "//../distractors/large/ph__worn_metal_rack/textures/worn_metal_rack_nor_gl_1k.jpg",
+      "before": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\distractors\\large\\ph__worn_metal_rack\\textures\\worn_metal_rack_nor_gl_1k.jpg",
+      "name": "worn_metal_rack_nor_gl"
+    }
+  ],
+  "applied_count": 228,
+  "blender_version": "5.1.1",
+  "candidate": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\blender_scene\\synth_data_scene_portable_candidate_20260729.blend",
+  "candidate_sha256_after_save": "5cad94e59d678b01517bfa83e4247f96c234af60654c411c32ff1a1ad9c3e668",
+  "compress": true,
+  "counts_after": {
+    "SAFE_PACKED_OR_GENERATED": 88,
+    "SAFE_RELATIVE": 515
+  },
+  "gate": {
+    "absolute_remaining": 0,
+    "mapping_sha256_mismatch": 0,
+    "missing_remaining": 0,
+    "opened_is_candidate": true,
+    "removed_images": [],
+    "repointed": [
+      "factory_yard_2k.hdr"
+    ],
+    "unplanned_changes": 0,
+    "unresolved_relative": 0,
+    "user_specific_remaining": 0
+  },
+  "removed_images": [],
+  "repointed": [
+    {
+      "after": "//../assets/lighting/hdri/library/factory_yard_2k.hdr",
+      "before": "C:\\Users\\User\\Documents\\GitHub\\FoundationPose\\data\\pallet\\hdri\\factory_yard_2k.hdr",
+      "name": "factory_yard_2k.hdr",
+      "target_sha256": "71d5b32c0e179f5b59f652c59cc4eac18b390e0639e3de2e6049de6bae95caf4"
+    }
+  ],
+  "source": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\blender_scene\\synth_data_scene.blend",
+  "source_sha256_after": "46f436dc8d9302a6f857c62c1abcaf4e6fefdc10042ee646e9ef3dc3acbb7fb9",
+  "source_sha256_before": "46f436dc8d9302a6f857c62c1abcaf4e6fefdc10042ee646e9ef3dc3acbb7fb9"
+}

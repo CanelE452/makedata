@@ -14,7 +14,9 @@
   "pallet_data_root": "data/pallet",
 
   "// 씬": "프로덕션 blend 는 동반 textures/ 와 같은 폴더에 있어야 한다",
-  "production_scene": "data/pallet/blender_scene/synth_data_scene.blend",
+  "// 씬 (Stage 2-C1)": "active = portable(외부경로 전부 상대). 원본은 보존용 rollback source 로 남긴다",
+  "production_scene": "data/pallet/blender_scene/synth_data_scene_portable.blend",
+  "production_scene_rollback_source": "data/pallet/blender_scene/synth_data_scene.blend",
   "production_scene_textures": "data/pallet/blender_scene/textures",
   "experimental_scene": "data/pallet/blender_scene/_sandbox_palletobj_production.blend",
 

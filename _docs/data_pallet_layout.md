@@ -79,7 +79,9 @@ legacy 생성기(`gen_dataset_v4.py`, `gen_4pallet_mask.py`, `gen_trunc_addon.py
 ```
 registry key                current path                                              비고
 ───────────────────────────────────────────────────────────────────────────────────────────────────
-production_scene            data/pallet/blender_scene/synth_data_scene.blend           ✋ 이동 보류
+production_scene            data/pallet/blender_scene/synth_data_scene_portable.blend  ★ active (Stage 2-C1)
+production_scene_rollback_source
+                            data/pallet/blender_scene/synth_data_scene.blend           보존용 원본(수정 금지)
 production_scene_textures   data/pallet/blender_scene/textures                         ✋ blend //textures
 experimental_scene          data/pallet/blender_scene/_sandbox_palletobj_production.blend  ✋
 background_root             data/pallet/background                                     ✋ 이동 보류(ZIP)
@@ -107,14 +109,29 @@ runs_root                   data/pallet/runs
 ```
 경로                        보류 사유
 ──────────────────────────────────────────────────────────────────────────────────────
-distractors/                production .blend 안의 이미지 356개가 이 폴더를 **절대경로**로
-                            참조한다(`E:\...\data\pallet\distractors\...`). 옮기면 씬 텍스처가
-                            끊기고, .blend rewrite 는 이번 단계에서 금지되어 있다.
+distractors/                Stage 2-C1 에서 절대참조는 해소됐다(active 씬 기준 absolute 0).
+                            다만 active 씬이 이 폴더를 `//../distractors/...` **상대경로 356건**으로
+                            참조하므로, 폴더를 옮기면 그 상대경로를 다시 rebase 해야 한다.
+                            → Stage 2-C2 에서 이동 + rebase 를 함께 한다.
 background/                 원본 다운로드 ZIP 3개(157MB)를 품고 있어 "ZIP 이동 금지" 규칙에 걸린다.
                             ZIP 을 archive/packages/ 로 먼저 분리해야 폴더째 옮길 수 있다.
-blender_scene/              .blend 감사에서 BLOCKED_ABSOLUTE=356 · MISSING_CURRENT=1
-                            (factory_yard_2k.hdr 가 다른 워크스페이스 경로를 가리킨다).
-                            §3 이동 조건(둘 다 0)을 채우지 못했다.
+blender_scene/              active 씬(portable)은 `//textures/` 158 + `//../distractors/` 356 을
+                            자기 위치 기준 상대경로로 참조한다. 폴더를 옮기면 두 그룹 모두
+                            rebase 대상 → Stage 2-C2.
+```
+
+**2026-07-29 Stage 2-C1**: production `.blend` 의 절대경로를 **원본을 건드리지 않고** 해소했다.
+`synth_data_scene.blend`(sha256 `46f436dc…`) 는 그대로 두고, 같은 폴더에
+`synth_data_scene_portable.blend` 를 새로 만들어 registry 의 `production_scene` 을 그쪽으로 옮겼다.
+
+```
+                          원본(rollback source)   portable(active)
+────────────────────────────────────────────────────────────────────
+절대 외부경로                229                    0
+그중 data/pallet 안          228                    0  -> //../distractors/ 로 변환
+누락 경로                     1                     0  -> factory_yard_2k.hdr repoint
+image datablock             603                   603  (구조 diff 0)
+sha256                 46f436dc…              5cad94e5…
 ```
 
 ### TARGET — 최종 구조 (Stage 2-A 에서 뼈대만 생성)

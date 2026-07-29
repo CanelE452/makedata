@@ -1,0 +1,34 @@
+{
+  "entries_pre": 603,
+  "entries_post": 603,
+  "post_verdict": {
+    "SAFE_PACKED_OR_GENERATED": 88,
+    "SAFE_RELATIVE": 515
+  },
+  "post_absolute_raw": 0,
+  "post_user_specific": 17,
+  "post_missing": 0,
+  "post_rel_textures": 158,
+  "post_rel_distractors": 356,
+  "post_rel_distractors_backslash_form": 356,
+  "post_rel_distractors_forwardslash_form": 0,
+  "mapping_checked": 228,
+  "mapping_total": 228,
+  "mapping_sha256_mismatch": 0,
+  "mapping_path_mismatch": 0,
+  "mapping_not_found": [],
+  "mapping_all_exist": true,
+  "factory_yard": {
+    "present": true,
+    "raw": "//..\\assets\\lighting\\hdri\\library\\factory_yard_2k.hdr",
+    "exists": "True",
+    "users": "1",
+    "resolved_sha256": "71d5b32c0e179f5b59f652c59cc4eac18b390e0639e3de2e6049de6bae95caf4",
+    "expected_sha256": "71d5b32c0e179f5b59f652c59cc4eac18b390e0639e3de2e6049de6bae95caf4",
+    "sha_match": true
+  },
+  "image_name_set_identical": true,
+  "changed_count": 229,
+  "unplanned_changed": [],
+  "planned_not_changed": []
+}

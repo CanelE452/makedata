@@ -1,0 +1,42 @@
+{
+  "allowed_root": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet",
+  "blender_version": "5.1.1",
+  "counts": {
+    "BLOCKED_ABSOLUTE": 228,
+    "MISSING_CURRENT": 1,
+    "SAFE_PACKED_OR_GENERATED": 88,
+    "SAFE_RELATIVE": 286
+  },
+  "dist_all": 209,
+  "dist_roots": 209,
+  "mode": "apply-pre",
+  "opened_blend": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\blender_scene\\synth_data_scene_portable_candidate_20260729.blend",
+  "opened_blend_sha256": "46f436dc8d9302a6f857c62c1abcaf4e6fefdc10042ee646e9ef3dc3acbb7fb9",
+  "packed_total": 86,
+  "pallets": [
+    "Pallet_0",
+    "Pallet_1",
+    "Pallet_2",
+    "Pallet_3"
+  ],
+  "raw_absolute_total": 229,
+  "raw_empty_total": 4,
+  "raw_relative_total": 370,
+  "relative_distractors": 128,
+  "relative_textures": 158,
+  "structure_counts": {
+    "cameras": 1,
+    "collections": 2,
+    "images": 603,
+    "lights": 1,
+    "materials": 350,
+    "meshes": 597,
+    "node_groups": 1,
+    "objects": 1122,
+    "scenes": 1,
+    "textures": 0,
+    "view_layers": 1,
+    "worlds": 1
+  },
+  "total_entries": 603
+}

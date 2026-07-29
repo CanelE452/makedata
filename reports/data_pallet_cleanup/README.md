@@ -475,3 +475,24 @@ LEGACY_ASSET              BLOCKED_BY_LICENSE          0.001      3    0  archive
 
 건별 상세는 `proposed_moves.csv` (move_id, source, destination, reason, evidence, license_risk,
 rollback_source/destination, approval_required, status 포함).
+
+
+---
+
+## Stage 2-C1 (2026-07-29) — production .blend portable 화
+
+원본 `synth_data_scene.blend`(sha256 46f436dc…) 를 **한 바이트도 건드리지 않고** 같은 폴더에
+`synth_data_scene_portable.blend`(5cad94e5…) 를 만들어 registry `production_scene` 을 승격했다.
+
+```
+절대 외부경로   229 -> 0      (228 은 //../distractors/ 로 변환, 1 은 factory_yard repoint)
+missing path     1 -> 0
+image datablock 603 -> 603   (구조 diff 0)
+데이터 폴더 이동   0          (distractors / blender_scene / background 전부 그대로)
+```
+
+★ Stage 2-B 가 보고한 `BLOCKED_ABSOLUTE=356` 은 과다계상이었다 — 그중 128건은 이미
+`//..\distractors\` 상대경로였다(Stage 2-B 자신의 CSV 로 확인). 실제 재작성 대상은 228건.
+
+보고서: `stage2c1/final_report.md` · 도구: `scripts/data_prep/blender/`
+(`blend_path_utils.py` · `manage_blend_external_paths.py` · `audit_blend_assets.py`)

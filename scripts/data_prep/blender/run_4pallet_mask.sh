@@ -38,7 +38,8 @@ done
 
 ROOT="E:/CODING/GitHub/FoundationPose"
 BLENDER="/c/Program Files/Blender Foundation/Blender 5.1/blender.exe"
-SCENE="${ROOT}/data/pallet/blender_scene/synth_data_scene.blend"
+# Stage 2-C1: 씬 경로는 리터럴 대신 registry(config/synthetic/pallet_paths.yaml)에 물어본다.
+SCENE="$(python "${ROOT}/scripts/data_prep/blender/pallet_data_paths.py" --key production_scene)"
 SCRIPT="${ROOT}/scripts/data_prep/blender/gen_4pallet_mask.py"
 case "$OUT_DIR" in
   /*|[A-Za-z]:*) ABS_OUT="$OUT_DIR";;          # already absolute

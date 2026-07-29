@@ -1,0 +1,25 @@
+{
+  "datablock": "factory_yard_2k.hdr",
+  "type": "images",
+  "stored_filepath_raw": "C:\\Users\\User\\Documents\\GitHub\\FoundationPose\\data\\pallet\\hdri\\factory_yard_2k.hdr",
+  "resolves_to_existing_file": false,
+  "users": 1,
+  "fake_user": false,
+  "referenced_by": "world:World/환경 텍스처",
+  "world_is_active_scene_world": true,
+  "pipeline_usage": {
+    "v2_constrained (run_v2_scene_logic -> v2_realize._prepare_constrained_hdri_pool)": "EXCLUDED by name via v2_realize.CONSTRAINED_HDRI_EXCLUDE = {factory_yard_2k.hdr, mall_parking_lot_2k.hdr}; pool = 28",
+    "legacy v4 generators (gen_dataset_v4 / gen_4pallet_mask / gen_topview_test / gen_preview10)": "EXCLUDED by name via _DROP = ('mall_parking_lot','factory_yard')",
+    "randomizers.randomize_hdri (generic path)": "would pick from randomizers._hdri_cache; v2 pre-populates that cache, so the generic path is not used by the constrained pipeline"
+  },
+  "candidates_found": 1,
+  "decision": "REPOINT_EXACT",
+  "decision_reasons": [
+    "동일 basename 정상 파일이 저장소 전체에서 정확히 1개",
+    "SHA256 71d5b32c… 가 Stage1 인벤토리의 이동 전 원본(data/pallet/hdri/factory_yard_2k.hdr)과 동일",
+    "SOURCES.txt/LICENSE.txt 에 출처(polyhaven factory_yard, Sergej Majboroda)와 CC0 기록",
+    "Blender 5.1.1 decode 성공 (hdri_root 30/30)",
+    "용도 일치 — world environment texture 용 HDRI"
+  ],
+  "render_behaviour_change": "none — 양쪽 파이프라인 모두 이름으로 제외하므로 constrained pool 은 28 로 불변"
+}

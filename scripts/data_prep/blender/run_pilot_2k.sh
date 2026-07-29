@@ -7,10 +7,12 @@ TOTAL=${1:-2000}
 CHUNK=${2:-200}
 SEED=${3:-7000}
 
+ROOT="E:/CODING/GitHub/FoundationPose"
 BLENDER="/c/Program Files/Blender Foundation/Blender 5.1/blender.exe"
-SCENE="E:/CODING/GitHub/FoundationPose/data/pallet/blender_scene/synth_data_scene.blend"
-SCRIPT="E:/CODING/GitHub/FoundationPose/scripts/data_prep/blender/_v2_pilot_2k.py"
-OUT="E:/CODING/GitHub/FoundationPose/data/pallet/_v2_pilot_2k"
+# Stage 2-C1: 씬 경로는 리터럴 대신 registry(config/synthetic/pallet_paths.yaml)에 물어본다.
+SCENE="$(python "${ROOT}/scripts/data_prep/blender/pallet_data_paths.py" --key production_scene)"
+SCRIPT="${ROOT}/scripts/data_prep/blender/_v2_pilot_2k.py"
+OUT="${ROOT}/data/pallet/_v2_pilot_2k"
 LOGDIR="${OUT}/logs"
 mkdir -p "$LOGDIR" "${OUT}/rgb"
 

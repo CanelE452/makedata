@@ -1,0 +1,46 @@
+{
+  "stage": "2-C1",
+  "branch": "chore/data-pallet-stage2c1-portable-blend",
+  "base_commit": "e72a719689d60e149563b3b5e558fa800254ff67",
+  "source_blend": {
+    "path": "data/pallet/blender_scene/synth_data_scene.blend",
+    "size_bytes": 358917479,
+    "mtime": "2026-07-24 19:39:00",
+    "sha256": "46f436dc8d9302a6f857c62c1abcaf4e6fefdc10042ee646e9ef3dc3acbb7fb9"
+  },
+  "companion_textures": {
+    "path": "data/pallet/blender_scene/textures",
+    "files": 158,
+    "bytes": 64033891
+  },
+  "distractors": {
+    "path": "data/pallet/distractors",
+    "files": 1161,
+    "bytes": 1958754064
+  },
+  "registry_ok": 21,
+  "registry_missing": 0,
+  "registry_absent_optional": 0,
+  "unit_tests": 568,
+  "integration_tests": 23,
+  "golden_overlay_tests": 51,
+  "stage2a_ledger_sha256": "fe1adc266bd91963c7be98779ed4c114b90b0b811fabdd60471a807aeb56d101",
+  "stage2a_moves": 146,
+  "stage2a_files": 6921,
+  "stage2a_failures": 0,
+  "stage2b_b1_moves": 4,
+  "stage2b_b1_files": 3220,
+  "stage2b_b2_moves": 3,
+  "stage2b_b2_files": 68,
+  "stage2b_failures": 0,
+  "stage2b_unhashed": 0,
+  "framespec_sha256": "938f387dd65258e0ee869d58b0f4f69046bddc5e8f56921fbb666ecf13d82a39",
+  "framespec_lines": 5000,
+  "accepted": 4313,
+  "rejected": 687,
+  "distractors_pool": 209,
+  "nan_inf": 0,
+  "proposals_digest": "3cd365eec96d1009428879f6a2636569c8d5bdb5e8d6e1488a1cda76c5bd30cd",
+  "proposals_accepted": 4439,
+  "proposals_checks_passed": "12/12"
+}

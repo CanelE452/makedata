@@ -70,6 +70,32 @@ class RegistryResolvesToRealFiles(unittest.TestCase):
                          os.path.normcase(os.path.dirname(textures)))
         self.assertTrue(os.listdir(textures), "textures 폴더가 비어 있습니다")
 
+    def test_production_scene_is_the_portable_blend_not_the_original(self):
+        """Stage 2-C1: active 씬은 portable stable 파일이고, 원본은 rollback source 로 남는다."""
+        scene = self.paths.get("production_scene")
+        rollback = self.paths.get("production_scene_rollback_source")
+        self.assertEqual(os.path.basename(scene), "synth_data_scene_portable.blend")
+        self.assertEqual(os.path.basename(rollback), "synth_data_scene.blend")
+        self.assertNotEqual(os.path.normcase(scene), os.path.normcase(rollback))
+        self.assertTrue(os.path.isfile(rollback), "rollback source 가 사라졌습니다: " + rollback)
+
+    def test_production_scene_is_not_a_dated_candidate_file(self):
+        self.assertNotIn("_candidate_", self.paths.get("production_scene"))
+
+    def test_the_original_scene_is_preserved_byte_for_byte(self):
+        """원본은 Stage 2-C1 전후로 한 바이트도 바뀌지 않아야 한다."""
+        import hashlib
+
+        rollback = self.paths.get("production_scene_rollback_source")
+        h = hashlib.sha256()
+        with open(rollback, "rb") as f:
+            for block in iter(lambda: f.read(1 << 20), b""):
+                h.update(block)
+        self.assertEqual(
+            h.hexdigest(),
+            "46f436dc8d9302a6f857c62c1abcaf4e6fefdc10042ee646e9ef3dc3acbb7fb9",
+            "보존 대상 원본 .blend 가 수정되었습니다: " + rollback)
+
     def test_background_root_exists(self):
         self.assertTrue(os.path.isdir(self.paths.get("background_root")))
 

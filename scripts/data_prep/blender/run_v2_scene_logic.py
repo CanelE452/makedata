@@ -10,7 +10,7 @@ Two completion modes:
     diagnostic pilot).  Every proposal produces one record whether it renders,
     fails to realize, or fails a gate.
 
-  blender -b data/pallet/blender_scene/synth_data_scene.blend \
+  blender -b "$(python scripts/data_prep/blender/pallet_data_paths.py --key production_scene)" \
     --python scripts/data_prep/blender/run_v2_scene_logic.py -- \
     --out data/pallet/_v2_scene_logic_500_seed7500 \
     --seed 7500 --n 500 --start 0 --count 100
@@ -22,7 +22,7 @@ Two completion modes:
     ``records_rejected.jsonl`` and their images are removed, so the delivered
     set is exactly ``--n`` contiguous ids 0..n-1.
 
-  blender -b data/pallet/blender_scene/synth_data_scene.blend \
+  blender -b "$(python scripts/data_prep/blender/pallet_data_paths.py --key production_scene)" \
     --python scripts/data_prep/blender/run_v2_scene_logic.py -- \
     --out data/pallet/_v2_usable50 --seed 7600 --n 50 \
     --completion-mode usable --render-profile dataset-quality

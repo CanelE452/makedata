@@ -1,0 +1,2 @@
+candidate_path,size_bytes,sha256,license,source_record,in_active_hdri_manifest,blender_decode,matches_premove_original
+data/pallet/assets/lighting/hdri/library/factory_yard_2k.hdr,6393026,71d5b32c0e179f5b59f652c59cc4eac18b390e0639e3de2e6049de6bae95caf4,"CC0 1.0 (LICENSE.txt, Poly Haven)",SOURCES.txt: asset_id=factory_yard | https://polyhaven.com/a/factory_yard | Sergej Majboroda,"yes (hdri_root, 30 HDRI)","OK (Blender 5.1.1, 30/30)",yes (Stage1 _inventory_raw.csv: data/pallet/hdri/factory_yard_2k.hdr sha256 identical)

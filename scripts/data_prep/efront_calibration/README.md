@@ -12,7 +12,7 @@ Blender 5.1로 P0~P3 × 앞면 2종의 개구부 기하 8레코드를 측정:
 - efront_kp12.py의 build_ratio_table_from_json()과 대조 시 mismatch 0 이어야 함
 
 실행:
-  blender -b data/pallet/blender_scene/synth_data_scene.blend \
+  blender -b "$(python scripts/data_prep/blender/pallet_data_paths.py --key production_scene)" \
     --python scripts/data_prep/efront_calibration/measure_efront.py
 
 ## 관련

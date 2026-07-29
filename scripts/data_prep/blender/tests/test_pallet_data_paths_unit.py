@@ -382,6 +382,27 @@ class RegistryContentRules(unittest.TestCase):
         self.assertEqual(str(self.raw["floor_material_root"]).replace("\\", "/"),
                          "data/pallet/assets/materials/floor/textures_floor")
 
+    def test_shipped_registry_production_scene_is_the_portable_blend(self):
+        # [확인] Stage 2-C1. active 프로덕션 씬은 외부경로가 전부 상대인 portable blend 다.
+        # 원본(synth_data_scene.blend)은 이 머신의 절대경로 228건이 박혀 있어 active 가 될 수 없다.
+        self.assertEqual(str(self.raw["production_scene"]).replace("\\", "/"),
+                         "data/pallet/blender_scene/synth_data_scene_portable.blend")
+
+    def test_shipped_registry_keeps_the_original_as_rollback_source(self):
+        self.assertEqual(str(self.raw["production_scene_rollback_source"]).replace("\\", "/"),
+                         "data/pallet/blender_scene/synth_data_scene.blend")
+        self.assertNotEqual(self.raw["production_scene"],
+                            self.raw["production_scene_rollback_source"])
+
+    def test_shipped_registry_never_names_a_dated_candidate_blend(self):
+        """candidate 는 승격 후 stable 이름으로만 남는다. 날짜 붙은 임시 이름이 registry 에
+        들어가면 다음 단계에서 그 파일을 지우지도 옮기지도 못한다."""
+        for key, value in self.raw.items():
+            if key.startswith("//"):
+                continue
+            for v in (value if isinstance(value, list) else [value]):
+                self.assertNotIn("_candidate_", str(v), "%s -> %s" % (key, v))
+
     def test_shipped_registry_parses_without_pyyaml(self):
         """Blender 내장 Python 에는 PyYAML 이 없다. 같은 파일이 json 경로로도 읽혀야 한다.
 

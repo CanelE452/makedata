@@ -1,0 +1,94 @@
+{
+  "background_root": {
+    "configured_assets": [
+      "industrial",
+      "parking_lot"
+    ],
+    "configured_files_present": {
+      "parking_lot": true
+    },
+    "exists": true,
+    "path": "data/pallet/background"
+  },
+  "blend": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\blender_scene\\synth_data_scene.blend",
+  "blender_version": "5.1.1",
+  "distractor_manifest": {
+    "path": "data/pallet/distractors/distractors_manifest.csv",
+    "rows": 209
+  },
+  "floor_textures": {
+    "failed": [],
+    "ok": 42,
+    "total": 42
+  },
+  "hdri": {
+    "failed": [],
+    "ok": 30,
+    "root": "data/pallet/assets/lighting/hdri/library",
+    "total": 30,
+    "v2_constrained_exclude": [
+      "factory_yard_2k.hdr",
+      "mall_parking_lot_2k.hdr"
+    ],
+    "v2_constrained_pool_size": 28
+  },
+  "images": {
+    "absolute": 229,
+    "generated": 2,
+    "missing": [
+      {
+        "filepath_raw": "C:\\Users\\User\\Documents\\GitHub\\FoundationPose\\data\\pallet\\hdri\\factory_yard_2k.hdr",
+        "name": "factory_yard_2k.hdr",
+        "users": 1
+      }
+    ],
+    "missing_count": 1,
+    "packed": 86,
+    "relative_distractors": 128,
+    "relative_textures": 158,
+    "total": 603
+  },
+  "imports": {
+    "blender_config": true,
+    "pallet_data_paths": true,
+    "v2_realize": true
+  },
+  "node_image_missing": {
+    "count": 1,
+    "entries": [
+      {
+        "filepath_raw": "C:\\Users\\User\\Documents\\GitHub\\FoundationPose\\data\\pallet\\hdri\\factory_yard_2k.hdr",
+        "image": "factory_yard_2k.hdr",
+        "node": "환경 텍스처",
+        "owner": "world:World",
+        "reason": "file_missing"
+      }
+    ]
+  },
+  "registry": {
+    "absent_optional": 0,
+    "missing": [],
+    "ok": 21
+  },
+  "scene": {
+    "active_camera": "RenderCamera",
+    "cameras": [
+      "RenderCamera"
+    ],
+    "dist_all": 209,
+    "dist_roots": 209,
+    "distractors_v2_collection": true,
+    "pallets": [
+      "Pallet_0",
+      "Pallet_1",
+      "Pallet_2",
+      "Pallet_3"
+    ]
+  },
+  "tag": "source",
+  "wood_textures": {
+    "failed": [],
+    "ok": 27,
+    "total": 27
+  }
+}

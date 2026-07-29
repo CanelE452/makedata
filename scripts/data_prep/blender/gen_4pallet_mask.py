@@ -26,7 +26,7 @@ avoids the known memory-leak crash). The bash wrapper run_dataset_v4.sh drives t
 chunks for train then val. Resume = count existing PNGs in the split dir.
 
 Run (one chunk, headless):
-    blender -b data/pallet/blender_scene/synth_data_scene.blend \
+    blender -b "$(python scripts/data_prep/blender/pallet_data_paths.py --key production_scene)" \
         --python scripts/data_prep/blender/gen_dataset_v4.py -- \
         --split train --start_idx 0 --num_frames 100 --seed 7000 \
         --out_dir data/pallet/training_data_v4 --overlay_every 1

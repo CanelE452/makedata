@@ -16,7 +16,7 @@
 
 - **목표**: 팔레트를 감싸는 **9-point cuboid keypoint**(8 코너 + centroid)를 라벨로 하는 DOPE keypoint 학습셋을 Blender로 렌더한다. 추가로 **12kp E-단면**(앞면 개구부) 라벨과 **holdout mask**(full-audit 5-stage 또는 public 2-stage, §3.1.1)를 함께 생성한다.
 - **아키텍처**: v2 파이프라인은 **3-layer**. `sample_frame`(순수, bpy-free) → `solve_placement`(순수 해석기하) → `realize/measure/render/label`(Blender측). 앞 2개는 Blender 없이 dry-run 감사가 가능하다.
-- **프로덕션 씬**: `data/pallet/blender_scene/synth_data_scene.blend` (342MB, NoAI 목재 제거 재-bake 완료, distractor 209 내장).
+- **프로덕션 씬**: `data/pallet/blender_scene/synth_data_scene_portable.blend` (342MB, NoAI 목재 제거 재-bake 완료, distractor 209 내장). **경로는 리터럴로 쓰지 말고 registry 키 `production_scene` 으로 조회한다.** 원본 `synth_data_scene.blend` 는 절대경로 228건이 박혀 있어 이 머신 전용이며, 이제 **보존용 rollback source** 로만 남는다(수정 금지, Stage 2-C1).
 - **실행 2경로**: MCP 세션이 살아있으면 MCP로, 아니면 **Blender CLI standalone**(`blender -b <blend> --python <script>`)로. 대량/헤드리스 렌더는 항상 CLI.
 - **환경 함정 3종**: 콘솔 cp949 → `PYTHONUTF8=1` 필수 / base conda에 **cv2 없음**(PIL+numpy만) / `conda run` libmamba 에러 → **직접 python.exe 경로** 사용.
 - **★ 생성 후 "완료" 선언 전 반드시**: **전수 오버레이**를 눈으로 확인한다(샘플만 보면 magenta 배경 오염을 놓친다 — 이번 세션 실제 사고).
@@ -137,7 +137,7 @@ scripts/data_prep/blender/pallet_data_paths.py   resolver (bpy import 없음)
 
 ```python
 import pallet_data_paths as pdp
-scene = pdp.get("production_scene")      # data/pallet/blender_scene/synth_data_scene.blend
+scene = pdp.get("production_scene")      # data/pallet/blender_scene/synth_data_scene_portable.blend
 hdri  = pdp.get("hdri_root")             # data/pallet/assets/lighting/hdri/library
 ```
 
@@ -153,9 +153,15 @@ PALLET_DATA_ROOT=/mnt/data/pallet python ...                     # root 만 over
 **★ 2026-07-29 Stage 2-B**: 이름은 `archive/` 인데 현역이던 자산 3종
 (`archive/textures_wood` · `archive/textures_floor` · `archive/trunc_addon_v1_pilot`)을
 `assets/materials/{pallet,floor}/` 와 `reference/golden_overlay/` 로 **이동 완료**했다.
-아직 원위치인 것: `distractors/`(production .blend 가 절대경로로 참조) ·
-`background/`(원본 ZIP 포함) · `blender_scene/`(.blend 감사 미통과). 상세는
+아직 원위치인 것: `distractors/` · `background/`(원본 ZIP 포함) · `blender_scene/`. 상세는
 `reports/data_pallet_cleanup/stage2b/final_report.md`.
+**★ 2026-07-29 Stage 2-C1**: production `.blend` 의 절대경로 228건을 `//../distractors/...`
+상대경로로 바꾼 **portable 사본**을 만들고 registry `production_scene` 을 그쪽으로 옮겼다.
+원본 `synth_data_scene.blend` 는 한 바이트도 바뀌지 않았고 rollback source 로 보존된다.
+`factory_yard_2k.hdr` 의 깨진 다른-워크스페이스 경로 1건도 정확한 파일로 repoint 했다
+(sha256 대조 확인, 렌더 pool 은 여전히 이름으로 제외되어 28 로 불변).
+`distractors/` 이동은 여전히 남아 있다 — 이제 사유가 "절대참조"가 아니라
+"상대참조 356건 rebase 필요"다. 상세: `reports/data_pallet_cleanup/stage2c1/final_report.md`.
 
 ### 2.5 재현 커맨드 (파이프라인 단계별)
 ```bash
@@ -166,12 +172,12 @@ C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/audit_v2_dryrun.py
 
 # (c) B3 자산체크 (첫 실렌더 5프레임 + magenta 서브테스트) -> data/pallet/_v2_b3_check/
 "/c/Program Files/Blender Foundation/Blender 5.1/blender.exe" -b \
-  data/pallet/blender_scene/synth_data_scene.blend \
+  "$(python scripts/data_prep/blender/pallet_data_paths.py --key production_scene)" \
   --python scripts/data_prep/blender/_b3_asset_check.py -- \
   --out data/pallet/_v2_b3_check --seed 7000 --n 5
 
 # (d) 200장 캘리브 (target vs actual 6종 분석) -> data/pallet/_v2_calib_200/
-"/c/.../blender.exe" -b data/pallet/blender_scene/synth_data_scene.blend \
+"/c/.../blender.exe" -b "$(python scripts/data_prep/blender/pallet_data_paths.py --key production_scene)" \
   --python scripts/data_prep/blender/_v2_calib_200.py -- --seed 7000 --n 200
 C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/_v2_calib_200_analyze.py  # matplotlib(base)
 
