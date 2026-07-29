@@ -1,0 +1,87 @@
+{
+  "stage": "2-C2",
+  "branch": "chore/data-pallet-stage2c2-final-layout",
+  "base_commit": "26f21942b5ea38bf34af2659a6955a481a2c97b8",
+  "sources": {
+    "background": {
+      "files": 77,
+      "bytes": 291054721
+    },
+    "distractors": {
+      "files": 1161,
+      "bytes": 1958754064
+    },
+    "blender_scene": {
+      "files": 173,
+      "bytes": 3836556170
+    }
+  },
+  "total_files": 1411,
+  "total_bytes": 6086364955,
+  "blend_sha256": {
+    "original": "46f436dc8d9302a6f857c62c1abcaf4e6fefdc10042ee646e9ef3dc3acbb7fb9",
+    "stage2c1_portable": "5cad94e59d678b01517bfa83e4247f96c234af60654c411c32ff1a1ad9c3e668"
+  },
+  "registry_ok": 22,
+  "registry_missing": 0,
+  "unit_tests": 614,
+  "integration_tests": 26,
+  "golden_overlay_tests": 51,
+  "stage2a": {
+    "moves": 146,
+    "files": 6921,
+    "failures": 0,
+    "ledger_sha256": "fe1adc266bd91963c7be98779ed4c114b90b0b811fabdd60471a807aeb56d101"
+  },
+  "stage2b": {
+    "b1_moves": 4,
+    "b1_files": 3220,
+    "b2_moves": 3,
+    "b2_files": 68,
+    "failures": 0,
+    "unhashed": 0,
+    "b1_ledger_sha256": "43461e47498985294c25317d38fee664d6adc94143dba0185d5afd18e6b369ad",
+    "b2_ledger_sha256": "0d0c06a849fcf20125c4af6c97ebafdb2d12d7b6fa5e5f7a7add139799c78bd4"
+  },
+  "blend_audit_before": {
+    "entries": 603,
+    "absolute": 0,
+    "missing": 0,
+    "textures": 158,
+    "distractors": 356,
+    "dist_roots": 209,
+    "hdri_decode": "30/30",
+    "floor_decode": "42/42",
+    "wood_decode": "27/27"
+  },
+  "framespec_5k": {
+    "sha256": "938f387dd65258e0ee869d58b0f4f69046bddc5e8f56921fbb666ecf13d82a39",
+    "accepted": 4313,
+    "rejected": 687
+  },
+  "proposals_5k": {
+    "digest": "3cd365eec96d1009428879f6a2636569c8d5bdb5e8d6e1488a1cda76c5bd30cd",
+    "accepted": 4439,
+    "checks": "12/12"
+  },
+  "background_archives": [
+    {
+      "name": "parking_lot.zip",
+      "bytes": 101186943,
+      "sha256": "b5d36f5fd413e3bdc0f681e120ebd5d10581f770e140b8d7c92cee3afb88ef8a",
+      "entries": 45
+    },
+    {
+      "name": "modular_buildings_industrial_area.zip",
+      "bytes": 28110712,
+      "sha256": "3f233a6be04a71ef28128f0a1c6597d004bfadf93e28d9d919886a8ccb44cb56",
+      "entries": 30
+    },
+    {
+      "name": "modular_buildings_industrial_area..zip",
+      "bytes": 28110712,
+      "sha256": "3f233a6be04a71ef28128f0a1c6597d004bfadf93e28d9d919886a8ccb44cb56",
+      "entries": 30
+    }
+  ]
+}

@@ -113,22 +113,35 @@ def main():
         if not os.path.isfile(abs_path):
             missing_images.append({"name": img.name, "filepath_raw": raw,
                                    "users": img.users})
+    # Stage 2-C2: 참조 수를 상대경로 **문자열 형태**로 세면 폴더가 옮겨질 때마다 0 이 된다.
+    # 대신 resolve 된 절대경로가 registry root 안인지로 센다 (위치 비의존).
+    def _under(root):
+        root_n = os.path.normcase(os.path.abspath(root))
+        n = 0
+        for img in bpy.data.images:
+            raw = img.filepath_raw
+            if not raw or getattr(img, "packed_file", None) is not None:
+                continue
+            p = os.path.normcase(os.path.abspath(bpy.path.abspath(raw)))
+            if p == root_n or p.startswith(root_n + os.sep):
+                n += 1
+        return n
+
+    scene_dir = os.path.dirname(os.path.abspath(bpy.data.filepath))
     result["images"] = {
         "total": len(bpy.data.images),
         "packed": packed,
         "generated": generated,
         "missing": missing_images,
         "missing_count": len(missing_images),
-        "relative_textures": sum(
-            1 for i in bpy.data.images
-            if i.filepath_raw.replace("\\", "/").startswith("//textures/")),
-        "relative_distractors": sum(
-            1 for i in bpy.data.images
-            if i.filepath_raw.replace("\\", "/").startswith("//../distractors/")),
+        "relative_textures": _under(os.path.join(scene_dir, "textures")),
+        "relative_distractors": _under(paths.get("distractor_root")),
+        "relative_hdri": _under(paths.get("hdri_root")),
         "absolute": sum(1 for i in bpy.data.images
                         if i.filepath_raw and not i.filepath_raw.startswith("//")
                         and (os.path.isabs(i.filepath_raw)
-                             or (len(i.filepath_raw) > 1 and i.filepath_raw[1] == ":"))),
+                             or (len(i.filepath_raw) > 1 and i.filepath_raw[1] == ":")
+                             or i.filepath_raw[0] in ("/", "\\"))),
     }
 
     # --- material / world node 의 이미지 경로 누락 ---
@@ -208,10 +221,11 @@ def main():
     print("[audit] pallets=%s Distractors_v2=%s Dist_roots=%d"
           % (result["scene"]["pallets"], result["scene"]["distractors_v2_collection"],
              result["scene"]["dist_roots"]))
-    print("[audit] images total=%d missing=%d absolute=%d //textures=%d //../distractors=%d"
+    print("[audit] images total=%d missing=%d absolute=%d "
+          "textures=%d distractors=%d hdri=%d  (resolve 기준, 문자열 형태 무관)"
           % (result["images"]["total"], result["images"]["missing_count"],
              result["images"]["absolute"], result["images"]["relative_textures"],
-             result["images"]["relative_distractors"]))
+             result["images"]["relative_distractors"], result["images"]["relative_hdri"]))
     print("[audit] node image missing=%d" % result["node_image_missing"]["count"])
     print("[audit] HDRI %d/%d decode ok (v2 constrained pool=%d)"
           % (result["hdri"]["ok"], result["hdri"]["total"],

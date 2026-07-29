@@ -95,8 +95,13 @@ def audit(data_root, exclude_path, release_root=None):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--csv", default="reports/data_pallet_cleanup/stage2b/"
-                                     "distribution_exclusion_audit.csv")
+    # 기본 출력은 stage 중립 경로다. Stage 2-B 스냅샷 폴더를 기본값으로 두면 이 검증기를
+    # 돌릴 때마다 **과거 스냅샷이 덮어써진다**(Stage 2-C2 에서 실제로 발생, git diff 로 발견).
+    # 스냅샷은 그 단계의 증거이므로 재작성 대상이 아니다.
+    ap.add_argument("--csv",
+                    default="reports/data_pallet_cleanup/distribution_exclusion_audit.csv",
+                    help="현재 상태 audit CSV 출력 경로. 단계별 보고서에 남기려면 "
+                         "그 단계 폴더를 명시적으로 지정한다.")
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args(argv)
 

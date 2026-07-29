@@ -1,0 +1,44 @@
+[
+  {
+    "source_path": "data/pallet/background/modular_buildings_industrial_area..zip",
+    "destination_path": "data/pallet/archive/packages/background_sources/modular_buildings_industrial_area..zip",
+    "size_bytes": 28110712,
+    "sha256": "3f233a6be04a71ef28128f0a1c6597d004bfadf93e28d9d919886a8ccb44cb56",
+    "archive_openable": "yes",
+    "open_error": "",
+    "entry_count": 30,
+    "uncompressed_bytes": 29569627,
+    "runtime_reference_count": "",
+    "gltf_mtl_dependency": "",
+    "is_download_package": "",
+    "contains_license": ""
+  },
+  {
+    "source_path": "data/pallet/background/modular_buildings_industrial_area.zip",
+    "destination_path": "data/pallet/archive/packages/background_sources/modular_buildings_industrial_area.zip",
+    "size_bytes": 28110712,
+    "sha256": "3f233a6be04a71ef28128f0a1c6597d004bfadf93e28d9d919886a8ccb44cb56",
+    "archive_openable": "yes",
+    "open_error": "",
+    "entry_count": 30,
+    "uncompressed_bytes": 29569627,
+    "runtime_reference_count": "",
+    "gltf_mtl_dependency": "",
+    "is_download_package": "",
+    "contains_license": ""
+  },
+  {
+    "source_path": "data/pallet/background/parking_lot.zip",
+    "destination_path": "data/pallet/archive/packages/background_sources/parking_lot.zip",
+    "size_bytes": 101186943,
+    "sha256": "b5d36f5fd413e3bdc0f681e120ebd5d10581f770e140b8d7c92cee3afb88ef8a",
+    "archive_openable": "yes",
+    "open_error": "",
+    "entry_count": 45,
+    "uncompressed_bytes": 103254269,
+    "runtime_reference_count": "",
+    "gltf_mtl_dependency": "",
+    "is_download_package": "",
+    "contains_license": ""
+  }
+]

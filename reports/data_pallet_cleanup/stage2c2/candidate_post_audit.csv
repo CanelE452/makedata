@@ -1,0 +1,23 @@
+﻿check,value
+entries_pre,603
+entries_post,603
+post_verdict,"{""SAFE_PACKED_OR_GENERATED"": 88, ""SAFE_RELATIVE"": 515}"
+post_absolute_raw,0
+post_user_specific_absolute,0
+post_missing,0
+post_rel_textures,158
+post_rel_distractor_library,356
+post_rel_hdri,1
+post_packed,86
+pre_packed,86
+target_rows_checked,515
+target_path_mismatch,0
+target_sha256_mismatch,0
+target_datablock_missing,0
+target_action_counts,"{""SKIP_PACKED_OR_GENERATED"": 88, ""KEEP_RELATIVE"": 158, ""REBASE"": 357}"
+image_name_set_identical,True
+changed_count,357
+unplanned_changed,[]
+unplanned_changed_count,0
+planned_not_changed_count,0
+factory_yard,"{""raw"": ""//..\\..\\..\\lighting\\hdri\\library\\factory_yard_2k.hdr"", ""exists"": ""True"", ""resolved_sha256"": ""71d5b32c0e179f5b"", ""expected_sha256"": ""71d5b32c0e179f5b"", ""sha_match"": true}"

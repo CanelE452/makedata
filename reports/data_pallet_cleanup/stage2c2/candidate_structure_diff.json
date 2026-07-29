@@ -1,0 +1,31 @@
+{
+  "after_counts": {
+    "cameras": 1,
+    "collections": 2,
+    "images": 603,
+    "lights": 1,
+    "materials": 350,
+    "meshes": 597,
+    "node_groups": 1,
+    "objects": 1122,
+    "scenes": 1,
+    "textures": 0,
+    "view_layers": 1,
+    "worlds": 1
+  },
+  "before_counts": {
+    "cameras": 1,
+    "collections": 2,
+    "images": 603,
+    "lights": 1,
+    "materials": 350,
+    "meshes": 597,
+    "node_groups": 1,
+    "objects": 1122,
+    "scenes": 1,
+    "textures": 0,
+    "view_layers": 1,
+    "worlds": 1
+  },
+  "diffs": []
+}

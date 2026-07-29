@@ -11,6 +11,13 @@ Blender 내장 Python 에서 돈다:
   --plan              audit + 절대경로 -> 상대경로 매핑 계획 + 누락 datablock 판정. 저장하지 않는다.
   --apply-candidate   **candidate 를 연 상태에서만** 계획을 적용하고 저장한다.
   --verify            현재 열린 blend 를 감사하고 기준 structure 와 비교한다. 저장하지 않는다.
+  --emit-target-manifest
+                      이동 **전에** 실행한다. 상대경로 문자열이 아니라 그것이 지금 가리키는
+                      **실제 파일의 정체(절대경로 + SHA256)** 를 고정해 CSV 로 남긴다.
+                      폴더가 옮겨지면 문자열은 의미를 잃지만 파일 정체는 남는다.
+  --rebase-candidate  이동 **후에** candidate 를 연 상태에서 실행한다. target manifest 의
+                      파일 정체를 --root-map 으로 새 위치에 재대응시키고, candidate 디렉토리
+                      기준 상대경로를 다시 계산해 적용한다. 문자열을 하드코딩하지 않는다.
 
 안전 규약 (코드로 강제)
   - source 와 candidate 가 같은 경로면 즉시 실패.
@@ -598,6 +605,243 @@ def do_apply_candidate(args):
     return log
 
 
+TARGET_FIELDS = ("datablock_type", "datablock_name", "users", "filepath_raw",
+                 "current_blend_dir", "current_resolved_absolute", "current_size",
+                 "current_sha256", "is_packed", "is_generated", "current_allowed_root",
+                 "target_allowed_root", "target_absolute", "target_relative_filepath",
+                 "action", "blocker")
+
+
+def _parse_root_map(specs):
+    """--root-map OLD=NEW 를 (old_abs, new_abs) 리스트로. 긴 root 를 먼저 매칭한다."""
+    pairs = []
+    for spec in specs or []:
+        if "=" not in spec:
+            raise U.PlanError("--root-map 형식은 OLD=NEW 입니다: %s" % spec)
+        old, new = spec.split("=", 1)
+        pairs.append((os.path.abspath(old), os.path.abspath(new)))
+    # 긴 경로 우선: blender_scene/textures 가 blender_scene 보다 먼저 매칭돼야 한다.
+    pairs.sort(key=lambda p: len(p[0]), reverse=True)
+    return pairs
+
+
+def _remap(abs_path, root_pairs):
+    """abs_path 가 속한 current root 를 찾아 target root 로 옮긴 절대경로를 돌려준다."""
+    for old, new in root_pairs:
+        if U.is_within(abs_path, old):
+            rel = os.path.relpath(abs_path, old)
+            return old, new, os.path.abspath(os.path.join(new, rel))
+    return None, None, None
+
+
+def do_emit_target_manifest(args):
+    """이동 전: 각 datablock 이 지금 가리키는 파일의 정체를 고정한다."""
+    entries = collect_external_paths()
+    summarize(entries, args.allowed_root)
+    blend_dir = _blend_dir()
+    root_pairs = _parse_root_map(args.root_map)
+
+    rows = []
+    for e in entries:
+        generated = e["source_kind"] in ("GENERATED", "VIEWER")
+        row = {
+            "datablock_type": e["type"],
+            "datablock_name": e["name"],
+            "users": e["users"],
+            "filepath_raw": e["filepath_raw"],
+            "current_blend_dir": blend_dir,
+            "current_resolved_absolute": e["filepath_absolute"],
+            "current_size": "",
+            "current_sha256": "",
+            "is_packed": e["is_packed"],
+            "is_generated": generated,
+            "current_allowed_root": "",
+            "target_allowed_root": "",
+            "target_absolute": "",
+            "target_relative_filepath": "",
+            "action": "",
+            "blocker": "",
+        }
+        if e["is_packed"] or generated or not e["filepath_raw"]:
+            row["action"] = "SKIP_PACKED_OR_GENERATED"
+            rows.append(row)
+            continue
+        abs_path = e["filepath_absolute"]
+        if not abs_path or not os.path.isfile(abs_path):
+            row["action"] = "BLOCKED"
+            row["blocker"] = "current_target_missing"
+            rows.append(row)
+            continue
+        row["current_size"] = os.path.getsize(abs_path)
+        row["current_sha256"] = U.sha256_file(abs_path)
+        old_root, new_root, target_abs = _remap(abs_path, root_pairs)
+        if old_root is None:
+            row["action"] = "BLOCKED"
+            row["blocker"] = "unknown_current_root"
+            rows.append(row)
+            continue
+        row["current_allowed_root"] = old_root
+        row["target_allowed_root"] = new_root
+        row["target_absolute"] = target_abs
+
+        # action 은 root 가 움직였는지가 아니라 **상대경로 문자열이 그대로 유효한지**로 정한다.
+        # textures 는 blend 와 함께 옮겨지므로 root 는 바뀌어도 `//textures/...` 는 그대로 맞고,
+        # HDRI 는 root 가 그대로여도 blend 디렉토리가 옮겨져 문자열이 달라진다.
+        target_dir = args.target_blend_dir or blend_dir
+        new_rel = U.to_blend_relative(target_abs, target_dir)
+        if new_rel is None:
+            row["action"] = "BLOCKED"
+            row["blocker"] = "different_drive"
+            rows.append(row)
+            continue
+        row["target_relative_filepath"] = new_rel
+        same = e["filepath_raw"].replace("\\", "/") == new_rel
+        row["action"] = "KEEP_RELATIVE" if same else "REBASE"
+        rows.append(row)
+
+    path = args.target_manifest or os.path.join(args.report_dir,
+                                                "blend_rebase_target_manifest.csv")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=TARGET_FIELDS, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(rows)
+
+    counts = {}
+    for r in rows:
+        counts[r["action"]] = counts.get(r["action"], 0) + 1
+    blocked = [r for r in rows if r["action"] == "BLOCKED"]
+    print("[target-manifest] %s" % json.dumps(counts, ensure_ascii=False))
+    print("[target-manifest] blocked=%d -> %s" % (len(blocked), path))
+    for r in blocked[:10]:
+        print("   BLOCKED %s : %s (%s)" % (r["datablock_name"], r["blocker"],
+                                           r["filepath_raw"][:80]))
+    return rows
+
+
+def do_rebase_candidate(args):
+    """이동 후: candidate 안에서 target manifest 기준으로 상대경로를 다시 계산·적용."""
+    opened = os.path.abspath(bpy.data.filepath)
+    candidate = os.path.abspath(args.candidate_blend)
+    source = os.path.abspath(args.source_blend)
+
+    U.assert_distinct_files(source, candidate)
+    if U.norm(opened) != U.norm(candidate):
+        raise U.PlanError("열린 파일이 candidate 가 아닙니다. 저장을 거부합니다.\n"
+                          "  opened    %s\n  candidate %s" % (opened, candidate))
+    source_sha_before = U.assert_source_unchanged(source, args.expect_source_sha256)
+
+    with open(args.target_manifest, "r", encoding="utf-8") as f:
+        manifest = list(csv.DictReader(f))
+    blocked_in_manifest = [r for r in manifest if r["action"] == "BLOCKED"]
+    if blocked_in_manifest:
+        raise U.PlanError("target manifest 에 BLOCKED 가 %d 건 있습니다."
+                          % len(blocked_in_manifest))
+
+    root_pairs = _parse_root_map(args.root_map)
+    blend_dir = _blend_dir()
+    applied, kept, mismatches = [], [], []
+
+    for row in manifest:
+        if row["action"] == "SKIP_PACKED_OR_GENERATED":
+            continue
+        name = row["datablock_name"]
+        db = bpy.data.images.get(name)
+        if db is None:
+            raise U.PlanError("manifest 의 image datablock 이 없습니다: %s" % name)
+
+        # target manifest 가 기록해 둔 "옛 절대경로" 를 root-map 으로 새 위치에 대응시킨다.
+        old_abs = row["current_resolved_absolute"]
+        _o, _n, target_abs = _remap(old_abs, root_pairs)
+        if target_abs is None:
+            raise U.PlanError("root-map 으로 해석할 수 없는 경로: %s" % old_abs)
+        if not os.path.isfile(target_abs):
+            mismatches.append((name, "target_missing", target_abs))
+            continue
+        got = U.sha256_file(target_abs)
+        if got != row["current_sha256"]:
+            mismatches.append((name, "sha256_mismatch", target_abs))
+            continue
+
+        new_rel = U.to_blend_relative(target_abs, blend_dir)
+        if new_rel is None:
+            mismatches.append((name, "different_drive", target_abs))
+            continue
+        if U.escapes_root(new_rel, blend_dir, args.allowed_root):
+            mismatches.append((name, "escapes_allowed_root", new_rel))
+            continue
+        if U.has_user_specific_prefix(new_rel):
+            mismatches.append((name, "user_specific_prefix", new_rel))
+            continue
+
+        before = db.filepath_raw
+        db.filepath = new_rel
+        after = db.filepath_raw
+        if after.replace("\\", "/") != new_rel:
+            raise U.PlanError("filepath 설정 결과가 계획과 다릅니다: %s -> %s (기대 %s)"
+                              % (name, after, new_rel))
+        record = {"name": name, "before": before, "after": after,
+                  "target_absolute": target_abs, "sha256": got}
+        (kept if before.replace("\\", "/") == new_rel else applied).append(record)
+
+    if mismatches:
+        write_json(os.path.join(args.report_dir, "rebase_mismatches.json"), mismatches)
+        raise U.PlanError("rebase 검증 실패 %d 건 (rebase_mismatches.json 참조)" % len(mismatches))
+
+    # --- 저장 전 게이트 ---
+    entries_after = collect_external_paths()
+    counts_after = summarize(entries_after, args.allowed_root)
+    residual_abs = [e for e in entries_after if e["is_absolute"] and not e["is_packed"]]
+    residual_user = [e for e in entries_after if U.has_user_specific_prefix(e["filepath_raw"])]
+    residual_missing = [e for e in entries_after if e.get("verdict") == "MISSING_CURRENT"]
+    unresolved = [e for e in entries_after
+                  if e["is_relative"] and not e["is_packed"] and not e["exists"]]
+    gate = {
+        "absolute_remaining": len(residual_abs),
+        "user_specific_remaining": len(residual_user),
+        "missing_remaining": len(residual_missing),
+        "unresolved_relative": len(unresolved),
+        "mapping_mismatch": len(mismatches),
+        "rebased": len(applied),
+        "kept_relative": len(kept),
+    }
+    fail = [k for k in ("absolute_remaining", "user_specific_remaining", "missing_remaining",
+                        "unresolved_relative", "mapping_mismatch") if gate[k]]
+    if fail and args.strict:
+        write_json(os.path.join(args.report_dir, "candidate_apply_log.json"),
+                   {"gate": gate, "counts_after": counts_after,
+                    "residual_missing": residual_missing[:50]})
+        raise U.PlanError("저장 전 게이트 실패: %s" % ", ".join(fail))
+
+    compress = _blend_is_compressed(source)
+    bpy.ops.wm.save_as_mainfile(filepath=candidate, compress=compress,
+                                relative_remap=False, copy=False)
+    saved_sha = U.sha256_file(candidate)
+    source_sha_after = U.sha256_file(source)
+    if source_sha_after != source_sha_before:
+        raise U.PlanError("저장 후 source SHA256 이 변했습니다.")
+
+    log = {
+        "mode": "rebase-candidate",
+        "source": source, "source_sha256_before": source_sha_before,
+        "source_sha256_after": source_sha_after,
+        "candidate": candidate, "candidate_sha256_after_save": saved_sha,
+        "compress": compress, "blend_dir": blend_dir,
+        "root_map": ["%s=%s" % (o, n) for o, n in root_pairs],
+        "rebased_count": len(applied), "kept_relative_count": len(kept),
+        "rebased": applied, "kept_relative": kept[:20],
+        "gate": gate, "counts_after": counts_after,
+        "blender_version": bpy.app.version_string,
+    }
+    write_json(os.path.join(args.report_dir, "candidate_apply_log.json"), log)
+    print("[rebase] rebased=%d kept_relative=%d compress=%s"
+          % (len(applied), len(kept), compress))
+    print("[rebase] gate %s" % json.dumps(gate, ensure_ascii=False))
+    print("[rebase] source sha256 unchanged: %s" % (source_sha_after == source_sha_before))
+    print("[rebase] candidate sha256 %s" % saved_sha)
+    return log
+
+
 def do_verify(args):
     entries, struct, summary = do_audit(args, "verify")
     result = {"summary": summary}
@@ -648,6 +892,8 @@ def parse_args(argv=None):
     mode.add_argument("--plan", action="store_true")
     mode.add_argument("--apply-candidate", action="store_true")
     mode.add_argument("--verify", action="store_true")
+    mode.add_argument("--emit-target-manifest", action="store_true")
+    mode.add_argument("--rebase-candidate", action="store_true")
 
     ap.add_argument("--source-blend", required=True)
     ap.add_argument("--candidate-blend", default=None)
@@ -660,6 +906,13 @@ def parse_args(argv=None):
                     help="candidate 에서만 제거할 미사용 image datablock 이름")
     ap.add_argument("--repoint", nargs="*", default=None, metavar="NAME=PATH",
                     help="REPOINT_EXACT 판정을 받은 누락 datablock 을 정확한 파일로 다시 연결")
+    ap.add_argument("--target-manifest", default=None,
+                    help="--emit-target-manifest 출력 / --rebase-candidate 입력 CSV")
+    ap.add_argument("--root-map", nargs="*", default=None, metavar="OLD=NEW",
+                    help="current asset root -> target asset root (긴 root 우선 매칭)")
+    ap.add_argument("--target-blend-dir", default=None,
+                    help="--emit-target-manifest 전용: 이동 후 blend 가 있을 디렉토리. "
+                         "상대경로 문자열이 그대로 유효한지 여기서 미리 계산한다.")
     ap.add_argument("--expect-source-sha256", default=None)
     ap.add_argument("--baseline-structure", default=None)
     ap.add_argument("--strict", action="store_true")
@@ -707,6 +960,17 @@ def main():
         do_apply_candidate(args)
         return
 
+    if args.rebase_candidate:
+        for need, why in (("candidate_blend", "--candidate-blend"),
+                          ("expect_source_sha256", "--expect-source-sha256"),
+                          ("target_manifest", "--target-manifest")):
+            if not getattr(args, need):
+                raise U.PlanError("--rebase-candidate 에는 %s 가 필요합니다" % why)
+        if not args.root_map:
+            raise U.PlanError("--rebase-candidate 에는 --root-map 이 필요합니다")
+        do_rebase_candidate(args)
+        return
+
     # audit / plan / verify 는 저장하지 않는다. 열린 파일이 source 여도 안전하다.
     with open(os.path.join(args.report_dir, args.sha_name), "w",
               encoding="utf-8") as f:
@@ -718,6 +982,10 @@ def main():
         do_plan(args)
     elif args.verify:
         do_verify(args)
+    elif args.emit_target_manifest:
+        if not args.root_map:
+            raise U.PlanError("--emit-target-manifest 에는 --root-map 이 필요합니다")
+        do_emit_target_manifest(args)
 
 
 if __name__ == "__main__":

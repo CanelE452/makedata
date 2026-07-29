@@ -16,7 +16,7 @@
 
 - **목표**: 팔레트를 감싸는 **9-point cuboid keypoint**(8 코너 + centroid)를 라벨로 하는 DOPE keypoint 학습셋을 Blender로 렌더한다. 추가로 **12kp E-단면**(앞면 개구부) 라벨과 **holdout mask**(full-audit 5-stage 또는 public 2-stage, §3.1.1)를 함께 생성한다.
 - **아키텍처**: v2 파이프라인은 **3-layer**. `sample_frame`(순수, bpy-free) → `solve_placement`(순수 해석기하) → `realize/measure/render/label`(Blender측). 앞 2개는 Blender 없이 dry-run 감사가 가능하다.
-- **프로덕션 씬**: `data/pallet/blender_scene/synth_data_scene_portable.blend` (342MB, NoAI 목재 제거 재-bake 완료, distractor 209 내장). **경로는 리터럴로 쓰지 말고 registry 키 `production_scene` 으로 조회한다.** 원본 `synth_data_scene.blend` 는 절대경로 228건이 박혀 있어 이 머신 전용이며, 이제 **보존용 rollback source** 로만 남는다(수정 금지, Stage 2-C1).
+- **프로덕션 씬**: `data/pallet/assets/scenes/production/blender_scene/synth_data_scene_portable_stage2c2.blend` (342MB, NoAI 목재 제거 재-bake 완료, distractor 209 내장). **경로는 리터럴로 쓰지 말고 registry 키 `production_scene` 으로 조회한다.** 같은 폴더의 `synth_data_scene_portable.blend`(Stage 2-C1)와 `synth_data_scene.blend`(원본)는 **rollback source 로만 보존**한다 — 전자는 옛 폴더 배치를 전제한 상대경로라, 후자는 이 머신 절대경로 228건 때문에 지금 위치에서 active 로 쓸 수 없다 (둘 다 수정 금지, Stage 2-C2).
 - **실행 2경로**: MCP 세션이 살아있으면 MCP로, 아니면 **Blender CLI standalone**(`blender -b <blend> --python <script>`)로. 대량/헤드리스 렌더는 항상 CLI.
 - **환경 함정 3종**: 콘솔 cp949 → `PYTHONUTF8=1` 필수 / base conda에 **cv2 없음**(PIL+numpy만) / `conda run` libmamba 에러 → **직접 python.exe 경로** 사용.
 - **★ 생성 후 "완료" 선언 전 반드시**: **전수 오버레이**를 눈으로 확인한다(샘플만 보면 magenta 배경 오염을 놓친다 — 이번 세션 실제 사고).
@@ -137,7 +137,7 @@ scripts/data_prep/blender/pallet_data_paths.py   resolver (bpy import 없음)
 
 ```python
 import pallet_data_paths as pdp
-scene = pdp.get("production_scene")      # data/pallet/blender_scene/synth_data_scene_portable.blend
+scene = pdp.get("production_scene")      # assets/scenes/production/blender_scene/synth_data_scene_portable_stage2c2.blend
 hdri  = pdp.get("hdri_root")             # data/pallet/assets/lighting/hdri/library
 ```
 
@@ -162,6 +162,14 @@ PALLET_DATA_ROOT=/mnt/data/pallet python ...                     # root 만 over
 (sha256 대조 확인, 렌더 pool 은 여전히 이름으로 제외되어 28 로 불변).
 `distractors/` 이동은 여전히 남아 있다 — 이제 사유가 "절대참조"가 아니라
 "상대참조 356건 rebase 필요"다. 상세: `reports/data_pallet_cleanup/stage2c1/final_report.md`.
+
+**★ 2026-07-29 Stage 2-C2**: `distractors/` · `blender_scene/` · `background/` 를 최종
+`assets/` 구조로 옮기고(1,411 파일 / 6.09GB, SHA256 전수, 삭제 0), 옮긴 뒤 blend 의 상대경로
+357건을 rebase 한 새 씬 `synth_data_scene_portable_stage2c2.blend` 를 승격했다.
+`data/pallet` 루트에 남은 자산군은 없다. background 원본 ZIP 3개는
+`archive/packages/background_sources/` 로 먼저 분리하고 `_DISTRIBUTION_EXCLUDE` 에 등록했다.
+distractor 참조는 이제 `//../../../distractors/library/...` 다.
+상세: `reports/data_pallet_cleanup/stage2c2/final_report.md`.
 
 ### 2.5 재현 커맨드 (파이프라인 단계별)
 ```bash

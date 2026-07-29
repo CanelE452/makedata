@@ -141,7 +141,13 @@ BOX_SHAPE_PROFILES = [
 BACKGROUND_ASSETS = {}
 for key, asset_cfg in _BACKGROUND["assets"].items():
     item = dict(asset_cfg)
-    if "filepath" in item:
+    # Stage 2-C2: 배경 자산 경로는 registry 의 background_root 기준 상대경로("relpath")로
+    # 적는다. 폴더가 옮겨지면 registry 한 줄만 바꾸면 되고, yaml 마다 새 절대경로를 다시
+    # 하드코딩할 필요가 없다. 옛 "filepath"(프로젝트 루트 기준)도 계속 읽는다.
+    if "relpath" in item:
+        item["filepath"] = os.path.join(_PALLET_PATHS.get("background_root"),
+                                        str(item["relpath"]).replace("/", os.sep))
+    elif "filepath" in item:
         item["filepath"] = _resolve_project_path(item["filepath"])
     item["weight"] = float(item.get("weight", 1.0))
     BACKGROUND_ASSETS[str(key)] = item

@@ -382,17 +382,44 @@ class RegistryContentRules(unittest.TestCase):
         self.assertEqual(str(self.raw["floor_material_root"]).replace("\\", "/"),
                          "data/pallet/assets/materials/floor/textures_floor")
 
-    def test_shipped_registry_production_scene_is_the_portable_blend(self):
-        # [확인] Stage 2-C1. active 프로덕션 씬은 외부경로가 전부 상대인 portable blend 다.
-        # 원본(synth_data_scene.blend)은 이 머신의 절대경로 228건이 박혀 있어 active 가 될 수 없다.
-        self.assertEqual(str(self.raw["production_scene"]).replace("\\", "/"),
-                         "data/pallet/blender_scene/synth_data_scene_portable.blend")
+    def test_shipped_registry_production_scene_is_the_stage2c2_portable_blend(self):
+        # [확인] Stage 2-C2. active 프로덕션 씬은 최종 위치에서 상대경로를 rebase 한 blend 다.
+        # 원본은 이 머신의 절대경로 228건이 박혀 있고, Stage 2-C1 portable 은 옛 폴더 배치를
+        # 전제한 상대경로를 갖고 있어 둘 다 active 가 될 수 없다.
+        self.assertEqual(
+            str(self.raw["production_scene"]).replace("\\", "/"),
+            "data/pallet/assets/scenes/production/blender_scene/"
+            "synth_data_scene_portable_stage2c2.blend")
 
-    def test_shipped_registry_keeps_the_original_as_rollback_source(self):
+    def test_shipped_registry_keeps_both_earlier_scenes_as_rollback_sources(self):
+        base = "data/pallet/assets/scenes/production/blender_scene/"
+        self.assertEqual(str(self.raw["production_scene_stage2c1_rollback"]).replace("\\", "/"),
+                         base + "synth_data_scene_portable.blend")
         self.assertEqual(str(self.raw["production_scene_rollback_source"]).replace("\\", "/"),
-                         "data/pallet/blender_scene/synth_data_scene.blend")
-        self.assertNotEqual(self.raw["production_scene"],
-                            self.raw["production_scene_rollback_source"])
+                         base + "synth_data_scene.blend")
+        chain = {self.raw["production_scene"],
+                 self.raw["production_scene_stage2c1_rollback"],
+                 self.raw["production_scene_rollback_source"]}
+        self.assertEqual(len(chain), 3, "rollback 사슬 3개가 서로 달라야 한다")
+
+    def test_shipped_registry_moved_the_stage2c2_roots_under_assets(self):
+        self.assertEqual(str(self.raw["distractor_root"]).replace("\\", "/"),
+                         "data/pallet/assets/distractors/library")
+        self.assertEqual(str(self.raw["background_root"]).replace("\\", "/"),
+                         "data/pallet/assets/scenes/backgrounds/background")
+        self.assertEqual(str(self.raw["background_package_archive"]).replace("\\", "/"),
+                         "data/pallet/archive/packages/background_sources")
+
+    def test_shipped_registry_never_points_a_runtime_key_at_the_old_roots(self):
+        old = ("data/pallet/blender_scene", "data/pallet/distractors", "data/pallet/background")
+        for key, value in self.raw.items():
+            if key.startswith("//") or key == "optional_keys":
+                continue
+            for v in (value if isinstance(value, list) else [value]):
+                text = str(v).replace("\\", "/")
+                for o in old:
+                    self.assertFalse(text == o or text.startswith(o + "/"),
+                                     "%s 가 Stage 2-C2 이전 경로를 가리킵니다: %s" % (key, v))
 
     def test_shipped_registry_never_names_a_dated_candidate_blend(self):
         """candidate 는 승격 후 stable 이름으로만 남는다. 날짜 붙은 임시 이름이 registry 에

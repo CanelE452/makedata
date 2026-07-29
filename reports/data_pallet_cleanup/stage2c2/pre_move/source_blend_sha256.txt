@@ -1,0 +1,1 @@
+5cad94e59d678b01517bfa83e4247f96c234af60654c411c32ff1a1ad9c3e668  E:\CODING\GitHub\FoundationPose\data\pallet\blender_scene\synth_data_scene_portable.blend

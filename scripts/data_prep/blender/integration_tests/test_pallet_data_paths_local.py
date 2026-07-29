@@ -70,14 +70,65 @@ class RegistryResolvesToRealFiles(unittest.TestCase):
                          os.path.normcase(os.path.dirname(textures)))
         self.assertTrue(os.listdir(textures), "textures 폴더가 비어 있습니다")
 
-    def test_production_scene_is_the_portable_blend_not_the_original(self):
-        """Stage 2-C1: active 씬은 portable stable 파일이고, 원본은 rollback source 로 남는다."""
+    def test_production_scene_is_the_stage2c2_blend_not_an_earlier_one(self):
+        """Stage 2-C2: active 씬은 rebase 된 stage2c2 파일이고, 앞선 두 개는 rollback 이다."""
         scene = self.paths.get("production_scene")
-        rollback = self.paths.get("production_scene_rollback_source")
-        self.assertEqual(os.path.basename(scene), "synth_data_scene_portable.blend")
-        self.assertEqual(os.path.basename(rollback), "synth_data_scene.blend")
-        self.assertNotEqual(os.path.normcase(scene), os.path.normcase(rollback))
-        self.assertTrue(os.path.isfile(rollback), "rollback source 가 사라졌습니다: " + rollback)
+        c1 = self.paths.get("production_scene_stage2c1_rollback")
+        orig = self.paths.get("production_scene_rollback_source")
+        self.assertEqual(os.path.basename(scene), "synth_data_scene_portable_stage2c2.blend")
+        self.assertEqual(os.path.basename(c1), "synth_data_scene_portable.blend")
+        self.assertEqual(os.path.basename(orig), "synth_data_scene.blend")
+        self.assertEqual(len({os.path.normcase(p) for p in (scene, c1, orig)}), 3)
+        for p in (c1, orig):
+            self.assertTrue(os.path.isfile(p), "rollback scene 이 사라졌습니다: " + p)
+
+    def test_the_whole_scene_chain_lives_under_assets_scenes_production(self):
+        expected = os.path.join(self.paths.get("assets_root"), "scenes", "production",
+                                "blender_scene")
+        for key in ("production_scene", "production_scene_stage2c1_rollback",
+                    "production_scene_rollback_source", "production_scene_textures",
+                    "experimental_scene"):
+            self.assertEqual(os.path.normcase(os.path.dirname(self.paths.get(key))),
+                             os.path.normcase(expected), key)
+
+    def test_stage2c1_portable_is_preserved_byte_for_byte(self):
+        import hashlib
+
+        p = self.paths.get("production_scene_stage2c1_rollback")
+        h = hashlib.sha256()
+        with open(p, "rb") as f:
+            for block in iter(lambda: f.read(1 << 20), b""):
+                h.update(block)
+        self.assertEqual(
+            h.hexdigest(),
+            "5cad94e59d678b01517bfa83e4247f96c234af60654c411c32ff1a1ad9c3e668",
+            "Stage 2-C1 portable 이 수정되었습니다: " + p)
+
+    def test_distractor_and_background_roots_are_at_their_final_location(self):
+        assets_root = os.path.normcase(self.paths.get("assets_root"))
+        for key, tail in (("distractor_root", os.path.join("distractors", "library")),
+                          ("background_root",
+                           os.path.join("scenes", "backgrounds", "background"))):
+            p = self.paths.get(key)
+            self.assertTrue(os.path.normcase(p).startswith(assets_root + os.sep), p)
+            self.assertTrue(os.path.normcase(p).endswith(os.path.normcase(tail)), p)
+            self.assertTrue(os.listdir(p), "%s 가 비어 있습니다: %s" % (key, p))
+
+    def test_background_holds_no_download_archive_anymore(self):
+        """원본 ZIP 은 archive/packages/background_sources 로 분리됐다."""
+        root = self.paths.get("background_root")
+        found = [f for _dp, _dn, fn in os.walk(root) for f in fn
+                 if os.path.splitext(f)[1].lower() in (".zip", ".7z", ".tar", ".gz", ".rar")]
+        self.assertEqual(found, [], "background asset 에 archive 가 남아 있습니다")
+        pkg = self.paths.get("background_package_archive")
+        self.assertTrue(os.path.isdir(pkg))
+        zips = sorted(f for f in os.listdir(pkg) if f.lower().endswith(".zip"))
+        self.assertEqual(len(zips), 3, zips)
+
+    def test_the_stage2c2_source_locations_are_gone(self):
+        for rel in ("distractors", "blender_scene", "background"):
+            p = os.path.join(self.paths.get("pallet_data_root"), rel)
+            self.assertFalse(os.path.exists(p), "이동했는데 원본이 남아 있습니다: " + p)
 
     def test_production_scene_is_not_a_dated_candidate_file(self):
         self.assertNotIn("_candidate_", self.paths.get("production_scene"))

@@ -1,0 +1,12 @@
+﻿source_root,referencing_file,line,kind,classification,action
+data/pallet/background,config/synthetic/blender.yaml,69,config_literal,CURRENT_RUNTIME,registry 주도로 변경 — filepath 리터럴 -> relpath('parking_lot/scene.gltf') + background_root 조인
+data/pallet/background,config/synthetic/blender_train_4000.yaml,69,config_literal,CURRENT_RUNTIME,동일
+data/pallet/background,config/synthetic/pallet_paths.yaml,24,registry,CURRENT_RUNTIME,background_root -> assets/scenes/backgrounds/background
+data/pallet/distractors,config/synthetic/pallet_paths.yaml,27-28,registry,CURRENT_RUNTIME,distractor_root/_manifest -> assets/distractors/library
+data/pallet/blender_scene,config/synthetic/pallet_paths.yaml,18-21,registry,CURRENT_RUNTIME,production_scene 3종 + textures + experimental -> assets/scenes/production/blender_scene
+data/pallet/distractors,scripts/data_prep/blender/distractor_pool_v2.py,33,registry_lookup,CURRENT_RUNTIME,변경 불필요 — 이미 pallet_data_paths.get('distractor_manifest') 조회
+data/pallet/distractors,data/pallet/assets/distractors/library/distractors_manifest.csv,mesh 컬럼,data_relative_path,CURRENT_RUNTIME,변경 불필요 — distractor_root 기준 상대경로 (결측 0 확인)
+data/pallet/blender_scene,"scripts/data_prep/blender/run_*.sh, gen_*.py",-,resolver_lookup,CURRENT_RUNTIME,변경 불필요 — Stage 2-C1 에서 이미 --key production_scene 조회로 전환
+all,reports/data_pallet_cleanup/stage2a/_raw_refs_before.json,다수,report_snapshot,REPORT_SNAPSHOT,수정하지 않음
+all,_docs/history/*.md,다수,history,HISTORY,수정하지 않음
+all,data/pallet/manifests/path_map.csv (original_path),-,original_path_record,ORIGINAL_PATH_RECORD,"original_path 는 보존, current_path 만 갱신"

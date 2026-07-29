@@ -1,0 +1,4 @@
+﻿pattern,current_runtime,current_test,current_doc,history,report_snapshot,note
+data/pallet/distractors,0,0,0,보존,보존,registry·pool·manifest 전부 새 경로
+data/pallet/blender_scene,0,0,0,보존,보존,"registry 5키 갱신, 러너는 resolver 조회"
+data/pallet/background,0,0,0,보존,보존,blender.yaml 2종을 relpath+registry 로 전환

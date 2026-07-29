@@ -66,7 +66,7 @@
       },
       "parking_lot": {
         "kind": "gltf",
-        "filepath": "data/pallet/background/parking_lot/scene.gltf",
+        "relpath": "parking_lot/scene.gltf",
         "root_name": "BG_parking_lot",
         "weight": 0.5
       }

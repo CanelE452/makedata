@@ -79,14 +79,19 @@ legacy 생성기(`gen_dataset_v4.py`, `gen_4pallet_mask.py`, `gen_trunc_addon.py
 ```
 registry key                current path                                              비고
 ───────────────────────────────────────────────────────────────────────────────────────────────────
-production_scene            data/pallet/blender_scene/synth_data_scene_portable.blend  ★ active (Stage 2-C1)
+production_scene            assets/scenes/production/blender_scene/
+                              synth_data_scene_portable_stage2c2.blend                 ★ active (Stage 2-C2)
+production_scene_stage2c1_rollback
+                            assets/scenes/production/blender_scene/
+                              synth_data_scene_portable.blend                          rollback 2 (수정 금지)
 production_scene_rollback_source
-                            data/pallet/blender_scene/synth_data_scene.blend           보존용 원본(수정 금지)
-production_scene_textures   data/pallet/blender_scene/textures                         ✋ blend //textures
-experimental_scene          data/pallet/blender_scene/_sandbox_palletobj_production.blend  ✋
-background_root             data/pallet/background                                     ✋ 이동 보류(ZIP)
-distractor_root             data/pallet/distractors                                    ✋ 이동 보류(blend 절대참조)
-distractor_manifest         data/pallet/distractors/distractors_manifest.csv           ✋ 209종
+                            assets/scenes/production/blender_scene/synth_data_scene.blend  rollback 3 (수정 금지)
+production_scene_textures   assets/scenes/production/blender_scene/textures            blend //textures 158
+experimental_scene          assets/scenes/production/blender_scene/_sandbox_palletobj_production.blend
+background_root             assets/scenes/backgrounds/background                       Stage 2-C2 이동 완료
+background_package_archive  archive/packages/background_sources                        원본 ZIP 3개 보존
+distractor_root             assets/distractors/library                                 Stage 2-C2 이동 완료
+distractor_manifest         assets/distractors/library/distractors_manifest.csv        209종
 hdri_root                   data/pallet/assets/lighting/hdri/library                   Poly Haven CC0 30
 pallet_material_root        data/pallet/assets/materials/pallet/textures_wood
 floor_material_root         data/pallet/assets/materials/floor/textures_floor
@@ -102,22 +107,19 @@ runs_root                   data/pallet/runs
 (`archive/textures_wood` · `archive/textures_floor` · `archive/trunc_addon_v1_pilot`)을
 정상 위치로 **이동 완료**했다. 더 이상 archive 아래에 현역 자산은 없다.
 
-✋ = 아직 원위치. 이유는 아래 "이동 보류" 절 참조.
-
-### 이동 보류 (Stage 2-C 대상)
+### 이동 보류 → **Stage 2-C2 에서 전부 해소** [확인]
 
 ```
-경로                        보류 사유
-──────────────────────────────────────────────────────────────────────────────────────
-distractors/                Stage 2-C1 에서 절대참조는 해소됐다(active 씬 기준 absolute 0).
-                            다만 active 씬이 이 폴더를 `//../distractors/...` **상대경로 356건**으로
-                            참조하므로, 폴더를 옮기면 그 상대경로를 다시 rebase 해야 한다.
-                            → Stage 2-C2 에서 이동 + rebase 를 함께 한다.
-background/                 원본 다운로드 ZIP 3개(157MB)를 품고 있어 "ZIP 이동 금지" 규칙에 걸린다.
-                            ZIP 을 archive/packages/ 로 먼저 분리해야 폴더째 옮길 수 있다.
-blender_scene/              active 씬(portable)은 `//textures/` 158 + `//../distractors/` 356 을
-                            자기 위치 기준 상대경로로 참조한다. 폴더를 옮기면 두 그룹 모두
-                            rebase 대상 → Stage 2-C2.
+경로                        Stage 2-C1 시점 보류 사유            Stage 2-C2 결과
+──────────────────────────────────────────────────────────────────────────────────────────────
+distractors/                상대참조 356건 rebase 필요            assets/distractors/library 로 이동 +
+                                                                //../../../distractors/library/ 로 rebase
+background/                 원본 ZIP 3개(157MB) 포함             ZIP 을 archive/packages/background_sources/
+                                                                로 먼저 분리 후 폴더 이동
+blender_scene/              //textures 158 + //../distractors    폴더째 이동. textures 는 동반 이동이라
+                            356 둘 다 rebase 대상                 //textures/ 문자열 그대로 유효(158)
+──────────────────────────────────────────────────────────────────────────────────────────────
+data/pallet 루트에 남은 자산군: 없음
 ```
 
 **2026-07-29 Stage 2-C1**: production `.blend` 의 절대경로를 **원본을 건드리지 않고** 해소했다.
@@ -125,7 +127,7 @@ blender_scene/              active 씬(portable)은 `//textures/` 158 + `//../di
 `synth_data_scene_portable.blend` 를 새로 만들어 registry 의 `production_scene` 을 그쪽으로 옮겼다.
 
 ```
-                          원본(rollback source)   portable(active)
+                          원본(rollback 3)   C1 portable(rollback 2)
 ────────────────────────────────────────────────────────────────────
 절대 외부경로                229                    0
 그중 data/pallet 안          228                    0  -> //../distractors/ 로 변환
@@ -133,6 +135,32 @@ blender_scene/              active 씬(portable)은 `//textures/` 158 + `//../di
 image datablock             603                   603  (구조 diff 0)
 sha256                 46f436dc…              5cad94e5…
 ```
+
+**2026-07-29 Stage 2-C2**: 세 자산군을 최종 위치로 옮기고, 옮긴 뒤 상대경로를 rebase 한
+새 씬을 만들어 승격했다. 앞선 두 blend 는 수정하지 않고 rollback source 로 함께 보존한다.
+
+```
+이동 (같은 볼륨 rename, SHA256 전수, 삭제 0, overwrite 0)
+  C2A  background/*.zip 3          -> archive/packages/background_sources/   157,408,367 B
+  C2B  background/ 74              -> assets/scenes/backgrounds/background/  133,646,354 B
+  C2C  distractors/ 1,161          -> assets/distractors/library/          1,958,754,064 B  ┐ 같은
+       blender_scene/ 173          -> assets/scenes/production/blender_scene/3,836,556,170 B ┘ group
+  합계 1,411 파일 / 6,086,364,955 B / SHA256 mismatch 0
+
+blend 상대경로 rebase (Stage 2-C1 portable 을 byte 복사 후)
+                          C1 portable(rollback 2)   C2 stable(active)
+  ────────────────────────────────────────────────────────────────────────────
+  //textures/                    158                 158   문자열 그대로 유효 (동반 이동)
+  distractor 참조                356                 356   -> //../../../distractors/library/
+  HDRI 외부 상대참조                1                   1   -> //../../../lighting/hdri/library/
+  절대 외부경로                     0                   0
+  누락 경로                        0                   0
+  image datablock                603                 603   구조 diff 0 · packed 86 불변
+  sha256                    5cad94e5…           8cb4109a…
+```
+
+`//textures` 는 문자열이 그대로 맞고 나머지 357건만 바뀌었다 — 이 판정은 root 이동 여부가
+아니라 **이동 후 디렉토리 기준으로 상대경로를 실제 계산해** 기존 문자열과 비교해서 내렸다.
 
 ### TARGET — 최종 구조 (Stage 2-A 에서 뼈대만 생성)
 
