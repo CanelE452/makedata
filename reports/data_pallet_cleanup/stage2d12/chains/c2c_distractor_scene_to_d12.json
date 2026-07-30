@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "generated_by": "Stage 2-D1.2 — prior/successor 원장에서 읽어 생성",
+  "prior_manifest": {
+    "path": "reports/data_pallet_cleanup/stage2c2/transactions/c2c_distractor_scene.jsonl",
+    "sha256": "241f5c569d2be92488a2f653fece287ac213886373292f28fd4a23a30ebce2c7"
+  },
+  "successor_manifests": [
+    {
+      "path": "reports/data_pallet_cleanup/stage2d12/transactions/d12b_reference_move.jsonl",
+      "sha256": "d3bc64251a80c52dec236c7920deaecbf5baf6cb2dfb213919f023b427bb76d8",
+      "policy": "stage2d12-final-moves"
+    }
+  ],
+  "mappings": [
+    {
+      "prior_move_id": "S2C2002",
+      "prior_relative_path": "_sandbox_parking_lot_check.blend",
+      "prior_destination_path": "data/pallet/assets/scenes/production/blender_scene",
+      "size": 137789005,
+      "sha256": "d0b13149285cc050228b3c54b60f84e52fd2be4932163861d3780e3ac101c529",
+      "successor_manifest": "reports/data_pallet_cleanup/stage2d12/transactions/d12b_reference_move.jsonl",
+      "successor_move_id": "D1-003",
+      "successor_source_path": "data/pallet/assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend",
+      "successor_destination_path": "data/pallet/archive/legacy_scenes/snapshots/_sandbox_parking_lot_check.blend",
+      "role": "stage2d12_final_move"
+    }
+  ]
+}

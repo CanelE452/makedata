@@ -393,7 +393,8 @@ C2C 검증   chain 없이 failures 11  ->  exact additions + chain 으로 failur
 
 ### D11C — provenance 판정 완료, 이동 미실행
 
-v4 파생 4종 **전부 PROVEN_NOAI** (라벨 13,122 프레임 전수 스캔). ledger B8 해소.
+v4 파생 4종 **전부 PROVEN_NOAI** (라벨 JSON 13,122개 = 프레임 13,120 전수 스캔,
+NoAI 사용 9,634 = 73.4%). ledger B8 해소.
 
 ### ★ 중단 사유 — hash read 예산
 
@@ -409,3 +410,99 @@ cohort = transaction_group 원자성을 지키려고 쪼개지 않았다. 예산
 순차 실행하면 이동이 끝난다.
 
 상세: `reports/data_pallet_cleanup/stage2d11/`
+
+## 10. Stage 2-D1.2 실행 결과 (2026-07-31) — D11 범위 종료
+
+승인 예산(D12B 36 + D12C 34 = 70 GiB)으로 §9 의 잔여 2 cohort 를 실제로 옮겼다.
+
+```
+cohort                  row  files     bytes            hash read(pre+post)   failures
+──────────────────────────────────────────────────────────────────────────────────────
+D12B_REFERENCE_MOVE      4   92,429   17,334,010,020   16.14 + 16.14 GiB        0
+D12C_PROVEN_NOAI_MOVE    4   39,620   15,588,789,193   14.52 + 14.52 GiB        0
+──────────────────────────────────────────────────────────────────────────────────────
+                         8  132,049   32,922,799,213   61.32 / 70 GiB           0
+```
+
+hash-mode all · workers 1 · same-volume rename · 삭제 0 · overwrite 0 · unhashed 0 ·
+`data/pallet` 파일수 **363,090 불변**.
+
+### 이동 결과
+
+```
+D1-003  assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend
+                                            -> archive/legacy_scenes/snapshots/
+D1-033  archive/train_palletobj_v3          -> archive/legacy_datasets/redistributable/
+D1-038  archive/training_data               -> archive/legacy_datasets/noai_baked/
+D1-053  archive/train_palletobj_v3_post_v1  -> archive/legacy_datasets/redistributable/
+D1-041  archive/training_data_v4_split_GREYBUG -> archive/legacy_datasets/noai_baked/
+D1-042  archive/training_data_v4_split_bg1bak  -> archive/legacy_datasets/noai_baked/
+D1-043  archive/training_data_v4_emptywood     -> archive/legacy_datasets/noai_baked/
+D1-049  archive/training_data_v4_pilotA        -> archive/legacy_datasets/noai_baked/
+```
+
+NoAI baked **8종이 `archive/legacy_datasets/noai_baked/` 한곳에** 모였다
+(training_data · training_data_v4 · training_data_v4_split · train_4pallet_mask_v1 +
+v4 파생 4종). 전부 `_DISTRIBUTION_EXCLUDE.txt` 등재, `release_allowed = NO`.
+
+### archive/ 최종 구조
+
+```
+archive/packages/
+├── background_sources/        3     150.12 MiB   2-C2 C2A
+├── dataset_bundles/          14  77,020.15 MiB   2-D1 D1A
+└── corrupt/                   1   4,319.60 MiB   2-D1 D1B (BadZipFile 보존)
+archive/legacy_datasets/
+├── redistributable/      193,564  44,668.03 MiB   2-D1 D1C + ★2-D1.2 D12B (+2)
+├── noai_baked/           129,746  38,456.79 MiB   2-D1 D1C + ★2-D1.2 D12B/D12C (+5)
+└── partial/                 241      62.07 MiB   2-D1 D1C
+archive/legacy_scenes/
+├── snapshots/                 7   1,567.30 MiB   2-D1.1 D11A + ★2-D1.2 D12B (+1)
+└── blender_backups/           4     853.86 MiB   2-D1.1 D11A
+```
+
+`.blend` 는 `snapshots/`, `.blend1`(autosave)은 `blender_backups/` — 확장자 규칙.
+
+### registry 전환의 효과
+
+D11B 4건은 D1.1 이 깔아 둔 registry 덕분에 **실행 표면을 한 줄도 고치지 않고**
+`config/synthetic/pallet_paths.yaml` 의 값 4줄만 바꿔 이동했다 (`--audit` ok=28 missing=0).
+
+★ live reference 는 D1.1 CSV 값을 복사하지 않고 **다시 쟀다**. 복사했으면 registry 전환
+이전 값이라 4건 전부 LIVE_REF 오탐이다. 재측정 결과 3건 0, 1건(`generate_all.sh:42`
+낡은 주석)은 진짜라서 갱신했다.
+
+### ★ chain 은 자기 mapping 만 책임진다
+
+C2C 원장에서 D1.1 이 10개, D1.2 가 1개를 빼냈다 → 재검증 시 11 MISSING.
+
+```
+D11A chain 만 -> failures 2 · D12 chain 만 -> failures 11 · 둘 다 -> failures 0
+   (successor chain: 11 file(s) from 2 chain(s) / 인정된 이관 11)
+```
+
+`--successor-ledger-chain` 을 반복 지정 가능하게 고쳤고, 여러 chain 이 같은 prior key 를
+중복 주장하면 exit 2 로 거부한다. D1.1 chain 파일은 수정하지 않았다.
+
+### 세 판정
+
+```
+D11_SCOPE_COMPLETE                        ✅  residual_scope 18행 전부 해소
+FULL_DATA_PALLET_LAYOUT_POLICY_COMPLETE   ❌  권장 구조 밖 200개(5.47 GiB) 잔존
+FULL_PHYSICAL_MINIMAL_TREE                ❌  빈 폴더 7 유지 + 위 200개
+```
+
+성격 미상은 0 이다 — UNKNOWN 0 · 미분류 0 · broken ref 0 · leak 0 · BLOCKED 0.
+남은 200개는 "뭔지 모르는 것"이 아니라 "아직 제자리로 안 옮긴 것"이며 전부 Stage 2-A
+`archive.csv` 에 계획이 있다(`executed = no`).
+
+```
+위치                    n     크기       내용
+────────────────────────────────────────────────────────────────────
+data/pallet/ depth 1   65   4.27 GiB   _v2_* 진단 run · 로그 40 · 일회성 스크립트 11
+archive/ depth 2      135   1.20 GiB   test_blender_v* 과거 렌더 · _efront_12kp_check 등
+────────────────────────────────────────────────────────────────────
+                      200   5.47 GiB
+```
+
+상세: `reports/data_pallet_cleanup/stage2d12/` (final_report.md 가 45항목 순서 + 마감 수치)

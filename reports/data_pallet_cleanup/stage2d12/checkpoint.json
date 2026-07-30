@@ -1,0 +1,45 @@
+{
+  "stage": "2-D1.2",
+  "base_commit": "3a6ade5313d89ccb976cd35fc154d1e7388daa13",
+  "cohort_order": [
+    "D12B_REFERENCE_MOVE",
+    "D12C_PROVEN_NOAI_MOVE"
+  ],
+  "checkpoints": [
+    {
+      "cohort": "D12B_REFERENCE_MOVE",
+      "manifest": "reports/data_pallet_cleanup/stage2d12/transactions/d12b_reference_move.jsonl",
+      "rows": 4,
+      "files": 92429,
+      "bytes": 17334010020,
+      "all_moved": true,
+      "all_verified": true,
+      "hash_mode": [
+        "all"
+      ],
+      "unhashed_files": 0,
+      "pre_hash_read_bytes": 17334010020,
+      "post_hash_read_bytes": 17334010020,
+      "verify_failures": 0,
+      "state": "COMPLETE"
+    },
+    {
+      "cohort": "D12C_PROVEN_NOAI_MOVE",
+      "manifest": "reports/data_pallet_cleanup/stage2d12/transactions/d12c_noai_move.jsonl",
+      "rows": 4,
+      "files": 39620,
+      "bytes": 15588789193,
+      "all_moved": true,
+      "all_verified": true,
+      "hash_mode": [
+        "all"
+      ],
+      "unhashed_files": 0,
+      "pre_hash_read_bytes": 15588789193,
+      "post_hash_read_bytes": 15588789193,
+      "verify_failures": 0,
+      "state": "COMPLETE"
+    }
+  ],
+  "all_complete": true
+}

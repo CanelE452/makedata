@@ -1,0 +1,5 @@
+﻿registry_key,value_before,value_after,move_id,cohort,source_exists_now,destination_exists_now,audit_status
+legacy_sandbox_parking_lot_scene,data/pallet/assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend,data/pallet/archive/legacy_scenes/snapshots/_sandbox_parking_lot_check.blend,D1-003,D12B_REFERENCE_MOVE,False,True,OK
+legacy_train_palletobj_v3_root,data/pallet/archive/train_palletobj_v3,data/pallet/archive/legacy_datasets/redistributable/train_palletobj_v3,D1-033,D12B_REFERENCE_MOVE,False,True,OK
+legacy_training_data_root,data/pallet/archive/training_data,data/pallet/archive/legacy_datasets/noai_baked/training_data,D1-038,D12B_REFERENCE_MOVE,False,True,OK
+legacy_train_palletobj_v3_post_v1_root,data/pallet/archive/train_palletobj_v3_post_v1,data/pallet/archive/legacy_datasets/redistributable/train_palletobj_v3_post_v1,D1-053,D12B_REFERENCE_MOVE,False,True,OK

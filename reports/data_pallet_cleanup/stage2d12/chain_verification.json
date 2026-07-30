@@ -1,0 +1,40 @@
+{
+  "stage": "2-D1.2",
+  "chains": [
+    {
+      "chain": "reports/data_pallet_cleanup/stage2d12/chains/c2c_distractor_scene_to_d12.json",
+      "sha256": "3e3fe9d4771ae601165ff0327f9ce920906222675053334849afa68bf5375a81",
+      "prior_manifest": "reports/data_pallet_cleanup/stage2c2/transactions/c2c_distractor_scene.jsonl",
+      "prior_manifest_sha256": "241f5c569d2be92488a2f653fece287ac213886373292f28fd4a23a30ebce2c7",
+      "successor_manifests": [
+        "reports/data_pallet_cleanup/stage2d12/transactions/d12b_reference_move.jsonl"
+      ],
+      "mappings": 1,
+      "mapped_files": [
+        "_sandbox_parking_lot_check.blend"
+      ]
+    }
+  ],
+  "combined_verification": {
+    "command": "python scripts/data_prep/manage_pallet_data_layout.py --verify --manifest .../c2c_distractor_scene.jsonl --expected-destination-additions .../c2c_expected_additions.json --successor-ledger-chain .../stage2d11/c2c_successor_chain.json --successor-ledger-chain .../stage2d12/chains/c2c_distractor_scene_to_d12.json",
+    "result": "successor chain: 11 file(s) from 2 chain(s) / 인정된 이관 11",
+    "failures": 0,
+    "why_two_chains": "chain 은 자기 mapping 만 책임진다. D11A chain 만 주면 D1.2 가 옮긴 1개가 MISSING(실패 2), D12 chain 만 주면 D1.1 이 옮긴 10개가 MISSING(실패 11) 이다. 둘 다 줘야 0."
+  },
+  "prior_ledger_membership_check": {
+    "method": "MPL.find_prior_ledger_conflict 로 8개 source 를 직접 조회",
+    "d12b": {
+      "D1-003": "c2c_distractor_scene/S2C2002",
+      "D1-033": "none",
+      "D1-038": "none",
+      "D1-053": "none"
+    },
+    "d12c": {
+      "D1-041": "none",
+      "D1-042": "none",
+      "D1-043": "none",
+      "D1-049": "none"
+    },
+    "chains_needed": 1
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "MANAGEMENT_FILE": {
+    "n": 2,
+    "files": 2,
+    "bytes": 15294
+  },
+  "RESIDUAL_LOG": {
+    "n": 40,
+    "files": 40,
+    "bytes": 8700122
+  },
+  "RESIDUAL_ONE_OFF_SCRIPT": {
+    "n": 11,
+    "files": 11,
+    "bytes": 34448
+  },
+  "RESIDUAL_DIAGNOSTIC_IMAGE": {
+    "n": 1,
+    "files": 1,
+    "bytes": 999776
+  },
+  "RESIDUAL_DIAGNOSTIC_RUN": {
+    "n": 44,
+    "files": 20187,
+    "bytes": 5042373182
+  },
+  "EXPECTED_ROOT": {
+    "n": 6,
+    "files": 339353,
+    "bytes": 183534391050
+  },
+  "RESIDUAL_OUTPUT_DIR": {
+    "n": 3,
+    "files": 160,
+    "bytes": 12731355
+  },
+  "KEEP_QUARANTINE": {
+    "n": 1,
+    "files": 4543,
+    "bytes": 4350676768
+  },
+  "RESIDUAL_FILE": {
+    "n": 1,
+    "files": 1,
+    "bytes": 5289
+  },
+  "PLAN_ROW_KEEP_QUARANTINE": {
+    "n": 1,
+    "files": 3,
+    "bytes": 738082
+  },
+  "SEMANTIC_CONTAINER": {
+    "n": 9,
+    "files": 323581,
+    "bytes": 179744301624
+  },
+  "RESIDUAL_DATASET_DIR": {
+    "n": 107,
+    "files": 326464,
+    "bytes": 171496937771
+  },
+  "MOVED_BY_LEDGER": {
+    "n": 51,
+    "files": 323580,
+    "bytes": 175214870450
+  }
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "registry_key": "legacy_sandbox_parking_lot_scene",
+    "value_before": "data/pallet/assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend",
+    "value_after": "data/pallet/archive/legacy_scenes/snapshots/_sandbox_parking_lot_check.blend",
+    "move_id": "D1-003"
+  },
+  {
+    "registry_key": "legacy_train_palletobj_v3_root",
+    "value_before": "data/pallet/archive/train_palletobj_v3",
+    "value_after": "data/pallet/archive/legacy_datasets/redistributable/train_palletobj_v3",
+    "move_id": "D1-033"
+  },
+  {
+    "registry_key": "legacy_training_data_root",
+    "value_before": "data/pallet/archive/training_data",
+    "value_after": "data/pallet/archive/legacy_datasets/noai_baked/training_data",
+    "move_id": "D1-038"
+  },
+  {
+    "registry_key": "legacy_train_palletobj_v3_post_v1_root",
+    "value_before": "data/pallet/archive/train_palletobj_v3_post_v1",
+    "value_after": "data/pallet/archive/legacy_datasets/redistributable/train_palletobj_v3_post_v1",
+    "move_id": "D1-053"
+  }
+]

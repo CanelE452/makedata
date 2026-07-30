@@ -108,6 +108,21 @@ D11_SCHEMA_VERSION = "stage2d11.1"
 D11_COHORTS = ("D11A_BLEND_BACKUPS", "D11B_REFERENCE_TRANSITION",
                "D11C_LICENSE_RESOLUTION")
 
+#   stage2d12-final-moves
+#     Stage 2-D1.1 이 준비만 해 둔 두 cohort 의 실이동. D11 policy 와 다른 점:
+#       (a) scope CSV 스키마가 다르다 — 목적지·registry key 전환·provenance 판정이
+#           이미 CSV 에 확정돼 있다 (D11 은 scope 열로 분류만 했다)
+#       (b) PROVEN_NOAI row 는 noai_baked/ 목적지만 허용하고 redistributable·packages·
+#           unidentified·release 로는 절대 보내지 않는다
+#     기존 policy 4개 동작은 바꾸지 않는다.
+POLICY_STAGE2D12 = "stage2d12-final-moves"
+D12_SCHEMA_VERSION = "stage2d12.1"
+D12_COHORTS = ("D12B_REFERENCE_MOVE", "D12C_PROVEN_NOAI_MOVE")
+D12_NOAI_DEST_ROOT = "data/pallet/archive/legacy_datasets/noai_baked"
+# PROVEN_NOAI 자료가 절대 가면 안 되는 목적지 조각
+D12_FORBIDDEN_NOAI_DEST = ("/redistributable/", "/packages/", "/unidentified/",
+                           "/release/", "/partial/")
+
 # entry_kind: Stage 2-A/2-B 는 directory 만 옮겼다. Stage 2-C2 는 background 안의
 # 원본 다운로드 ZIP 을 **파일 단위**로 먼저 떼어내야 하므로 file entry 가 필요하다.
 ENTRY_DIRECTORY = "directory"
@@ -246,6 +261,19 @@ POLICIES = {
         "max_total_bytes": 40 * 1024 ** 3,      # 범위 합계 32.90 GiB
         "require_hash_mode": HASH_MODE_ALL,
         "move_id_prefix": "S2D11",
+    },
+    POLICY_STAGE2D12: {
+        "allowed_dest_prefixes": ("archive/",),
+        "allowlist": None,                      # frozen_scope.csv 가 allowlist 다
+        "forbidden_ext": {".pt", ".pth", ".ckpt", ".onnx", ".engine", ".trt",
+                          ".safetensors"},
+        # dataset 안에 딸려 가는 ZIP 은 D1/D1.1 과 같은 규칙으로 허용한다.
+        "archive_allowed_cohorts": D12_COHORTS,
+        "license_is_blocker": False,
+        "max_single_bytes": 32 * 1024 ** 3,
+        "max_total_bytes": 40 * 1024 ** 3,      # cohort 최대 16.14 GiB
+        "require_hash_mode": HASH_MODE_ALL,
+        "move_id_prefix": "S2D12",
     },
 }
 
@@ -899,6 +927,114 @@ def _stage2d11_candidates(args, policy, paths):
             _prior_move_id=conflict[1] if conflict else "")
 
 
+def _stage2d12_candidates(args, policy, paths):
+    """Stage 2-D1.2: frozen_scope.csv 의 지정 cohort row.
+
+    목적지·registry key 전환·provenance 판정이 이미 CSV 에 확정돼 있다.
+    CSV 를 그대로 믿지 않고 여기서 다시 검사한다.
+    """
+    scope, scope_sha = load_frozen_scope(args.d12_scope, args.d12_scope_sha256)
+    csv_rel = scope.get("scope_csv")
+    csv_abs = os.path.join(paths.project_root, csv_rel.replace("/", os.sep))
+    if scope.get("scope_csv_sha256") and _sha256(csv_abs) != scope["scope_csv_sha256"]:
+        raise PlanBindingError("frozen_scope.csv 가 동결 이후 변경되었습니다")
+    if scope.get("problems"):
+        raise PlanBindingError("frozen scope 에 미해결 문제가 %d 건 있습니다: %s"
+                               % (len(scope["problems"]), scope["problems"][:3]))
+    if not scope.get("within_all_limits"):
+        raise PlanBindingError("frozen scope 가 hash 예산 한도를 넘습니다")
+    with open(csv_abs, encoding="utf-8-sig") as fh:
+        rows = list(csv.DictReader(fh))
+
+    wanted = set(x.strip() for x in (args.cohort or "").split(",") if x.strip())
+    ids = set(x.strip() for x in (args.move_ids or "").split(",") if x.strip())
+    owned = prior_ledger_members(paths.project_root)
+    allow_chain = bool(getattr(args, "d12_allow_prior_ledger_with_chain", False))
+    all_sources = {r["source"] for r in rows}
+
+    selected = []
+    for row in rows:
+        cohort = row["cohort"]
+        if cohort not in D12_COHORTS:
+            raise PlanBindingError("알 수 없는 cohort: %s" % cohort)
+        if wanted and cohort not in wanted:
+            continue
+        if ids and row["move_id"] not in ids:
+            continue
+        selected.append(row)
+
+    # cohort 임의 분할 금지 — 선택한 cohort 의 row 를 전부 가져와야 한다.
+    for c in (wanted or set(r["cohort"] for r in selected)):
+        want_n = sum(1 for r in rows if r["cohort"] == c)
+        got_n = sum(1 for r in selected if r["cohort"] == c)
+        if want_n != got_n and not ids:
+            raise PlanBindingError(
+                "cohort 를 임의 분할할 수 없습니다: %s (%d/%d)" % (c, got_n, want_n))
+
+    for row in selected:
+        cohort = row["cohort"]
+        src = row["source"]
+        dst = row["destination"]
+        if not dst.startswith("data/pallet/archive/"):
+            raise PlanBindingError("목적지가 archive/ 밖입니다: %s" % row["move_id"])
+        arch_root = os.path.normpath("data/pallet/archive")
+        if os.path.commonpath([os.path.normpath(dst), arch_root]) != arch_root:
+            raise PlanBindingError("목적지가 archive/ 를 벗어납니다: %s" % dst)
+        if ".." in dst.split("/") or ".." in src.split("/"):
+            raise PlanBindingError("경로에 .. 가 있습니다: %s" % row["move_id"])
+        if int(row["current_runtime_test_refs"] or 0):
+            raise PlanBindingError(
+                "CURRENT 참조가 살아있습니다: %s (%s)"
+                % (row["move_id"], row["reference_locations"]))
+        decision = (row.get("provenance_decision") or "").strip()
+        if cohort == "D12C_PROVEN_NOAI_MOVE":
+            if decision != "PROVEN_NOAI":
+                raise PlanBindingError(
+                    "D12C 는 PROVEN_NOAI 만 허용합니다: %s (%r)"
+                    % (row["move_id"], decision))
+            if not dst.startswith(D12_NOAI_DEST_ROOT + "/"):
+                raise PlanBindingError(
+                    "PROVEN_NOAI 목적지가 noai_baked 아래가 아닙니다: %s" % dst)
+            for bad in D12_FORBIDDEN_NOAI_DEST:
+                if bad in dst:
+                    raise PlanBindingError(
+                        "NoAI 자료를 금지 목적지로 보낼 수 없습니다: %s (%s)" % (dst, bad))
+        if cohort == "D12B_REFERENCE_MOVE":
+            key = (row.get("registry_key") or "").strip()
+            if not key:
+                raise PlanBindingError("registry key 없이 이동할 수 없습니다: %s"
+                                       % row["move_id"])
+            try:
+                cur = _posix(os.path.relpath(paths.get(key), paths.project_root))
+            except KeyError:
+                raise PlanBindingError("registry key 가 없습니다: %s" % key)
+            if cur != src:
+                raise PlanBindingError(
+                    "registry key 가 아직 source 를 가리켜야 합니다: %s (%s != %s)"
+                    % (key, cur, src))
+            if _posix(row.get("registry_final_value") or "") != dst:
+                raise PlanBindingError("registry_final_value 가 목적지와 다릅니다: %s"
+                                       % row["move_id"])
+        kind = row["entry_kind"] if row["entry_kind"] in ENTRY_KINDS else ENTRY_DIRECTORY
+        if kind == ENTRY_DIRECTORY:
+            src_abs = os.path.join(paths.project_root, src.replace("/", os.sep))
+            for inner in (archive_files_under(src_abs)
+                          if os.path.isdir(src_abs) else []):
+                if "%s/%s" % (src, inner) in all_sources:
+                    raise PlanBindingError(
+                        "dataset 안의 package 가 별도 row 로도 계획돼 있습니다: %s/%s"
+                        % (src, inner))
+        conflict = find_prior_ledger_conflict(src, owned)
+        if conflict and not allow_chain:
+            raise PlanBindingError(
+                "앞선 원장 구성원입니다 — successor chain 계획 없이 옮기지 않습니다: "
+                "%s (%s / %s)" % (row["move_id"], conflict[0], conflict[1]))
+        yield src, dst, [], cohort, kind, cohort, dict(
+            row, _scope_sha=scope_sha,
+            _prior_ledger=conflict[0] if conflict else "",
+            _prior_move_id=conflict[1] if conflict else "")
+
+
 def cmd_plan(args, paths):
     policy_name = getattr(args, "policy", POLICY_STAGE2A)
     policy = get_policy(policy_name)
@@ -933,6 +1069,17 @@ def cmd_plan(args, paths):
             print("범위 결속 실패: %s" % exc, file=sys.stderr)
             return 2
         gen = lambda a, p: _stage2d11_candidates(a, p, paths)   # noqa: E731
+    elif policy_name == POLICY_STAGE2D12:
+        if not args.d12_scope:
+            print("정책 %s 는 --d12-scope <json> 을 요구합니다." % policy_name,
+                  file=sys.stderr)
+            return 2
+        try:
+            _, plan_sha_actual = load_frozen_scope(args.d12_scope, args.d12_scope_sha256)
+        except PlanBindingError as exc:
+            print("범위 결속 실패: %s" % exc, file=sys.stderr)
+            return 2
+        gen = lambda a, p: _stage2d12_candidates(a, p, paths)   # noqa: E731
     elif policy_name == POLICY_STAGE2C2:
         gen = lambda a, p: ((s, d, b, c, k, g, None)           # noqa: E731
                             for s, d, b, c, k, g in _stage2c2_candidates(a, p, paths))
@@ -1051,7 +1198,42 @@ def cmd_plan(args, paths):
                 "rollback_destination": dst_rel,         # 되돌릴 때의 출발지
                 "plan_row_status": plan_row["status"],
             })
-        if policy_name == POLICY_STAGE2D11:
+        if policy_name == POLICY_STAGE2D12:
+            # §4 가 요구한 Stage 2-D1.2 결속 필드
+            planned[-1].update({
+                "schema_version": D12_SCHEMA_VERSION,
+                "frozen_scope_path": _posix(os.path.relpath(args.d12_scope,
+                                                            paths.project_root)),
+                "frozen_scope_sha256": plan_row["_scope_sha"],
+                "move_id": plan_row["move_id"],
+                "classification": plan_row.get("license_status", ""),
+                "registry_key": plan_row.get("registry_key", ""),
+                "registry_value_before": plan_row.get("registry_current_value", ""),
+                "registry_value_after": plan_row.get("registry_final_value", ""),
+                "registry_transition_applied": False,
+                "provenance_decision": plan_row.get("provenance_decision", ""),
+                "provenance_evidence": plan_row.get("noai_evidence", ""),
+                "license_status": plan_row.get("license_status", ""),
+                "exclusion_before": plan_row.get("exclusion_before", ""),
+                "exclusion_after": "",
+                "source_file_count": snap["file_count"],
+                "source_total_bytes": snap["total_bytes"],
+                "source_sha256": snap["sha256"],
+                "hash_read_bytes_pre": snap.get("hash_read_bytes", 0),
+                "hash_read_bytes_post": None,
+                "applied_at": None, "verified_at": None,
+                "rollback_source": src_rel, "rollback_destination": dst_rel,
+                "prior_ledger_members": plan_row.get("_prior_ledger", ""),
+                "prior_manifest_path": plan_row.get("_prior_ledger", ""),
+                "prior_manifest_sha256": (
+                    _sha256(os.path.join(paths.project_root,
+                                         plan_row["_prior_ledger"].replace("/", os.sep)))
+                    if plan_row.get("_prior_ledger") else ""),
+                "prior_move_id": plan_row.get("_prior_move_id", ""),
+                "successor_chain_required": bool(plan_row.get("_prior_ledger")),
+                "hash_budget_gib": getattr(args, "max_hash_read_gib", None),
+            })
+        elif policy_name == POLICY_STAGE2D11:
             # §5 가 요구한 Stage 2-D1.1 전용 필드
             planned[-1].update({
                 "schema_version": D11_SCHEMA_VERSION,
@@ -1494,7 +1676,8 @@ def cmd_apply(args, paths):
             os.rename(src, dst)          # 같은 볼륨 rename. 복사/삭제 없음.
             row["status"] = "MOVED"
             row["completed_at"] = _now()
-            if row.get("schema_version") in (D1_SCHEMA_VERSION, D11_SCHEMA_VERSION):
+            if row.get("schema_version") in (D1_SCHEMA_VERSION, D11_SCHEMA_VERSION,
+                                            D12_SCHEMA_VERSION):
                 row["applied_at"] = row["completed_at"]
             if group:
                 applied_in_group.setdefault(group, []).append(row)
@@ -1575,7 +1758,8 @@ def cmd_verify(args, paths):
     touched = False
     post_budget = None
     if getattr(args, "max_hash_read_bytes", None) is not None and any(
-            r.get("schema_version") in (D1_SCHEMA_VERSION, D11_SCHEMA_VERSION)
+            r.get("schema_version") in (D1_SCHEMA_VERSION, D11_SCHEMA_VERSION,
+                                        D12_SCHEMA_VERSION)
             for r in rows):
         post_budget = HashBudget(args.max_hash_read_bytes, label="verify")
     # destination additions 정책. 기본은 엄격(둘 다 없음 -> extra 는 곧 실패).
@@ -1595,15 +1779,28 @@ def cmd_verify(args, paths):
     # successor ledger chain: prior 에서 없어진 파일을 후속 원장이 SHA256 identity 로
     # 이어받았음을 증명할 때만 missing 에서 제외한다.
     chain_map = None
-    chain_path = getattr(args, "successor_ledger_chain", None)
+    chain_paths = getattr(args, "successor_ledger_chain", None) or []
+    if isinstance(chain_paths, str):          # 하위호환 (단일 값)
+        chain_paths = [chain_paths]
     chain_used = []
-    if chain_path:
-        try:
-            chain_map = load_successor_chain(chain_path, args.manifest, rows,
-                                             paths.project_root)
-        except SuccessorChainError as exc:
-            print("successor chain 오류: %s" % exc, file=sys.stderr)
-            return 2
+    if chain_paths:
+        # 여러 chain 을 병합한다. 이관이 여러 단계·여러 후속 원장으로 갈라지면 chain 도
+        # 여러 개가 되고, prior 원장 하나를 검증하려면 그것들을 **모두** 봐야 한다.
+        # 같은 prior file 을 두 chain 이 각각 주장하면 모순이므로 실패시킨다.
+        chain_map = {}
+        for cp in chain_paths:
+            try:
+                part = load_successor_chain(cp, args.manifest, rows,
+                                            paths.project_root)
+            except SuccessorChainError as exc:
+                print("successor chain 오류 (%s): %s" % (cp, exc), file=sys.stderr)
+                return 2
+            dup = set(part) & set(chain_map)
+            if dup:
+                print("successor chain 충돌 — 같은 prior file 을 여러 chain 이 주장합니다: "
+                      "%s" % sorted(dup)[:3], file=sys.stderr)
+                return 2
+            chain_map.update(part)
     checked_files = checked_bytes = checked_hashes = checked_licenses = 0
     modes = {}
     for row in rows:
@@ -1619,8 +1816,8 @@ def cmd_verify(args, paths):
         src = os.path.join(paths.project_root, row["source"].replace("/", os.sep))
         pre = row["pre_hash_manifest"]
         kind = _entry_kind(row)
-        is_d1 = row.get("schema_version") in (D1_SCHEMA_VERSION,
-                                              D11_SCHEMA_VERSION)
+        is_d1 = row.get("schema_version") in (D1_SCHEMA_VERSION, D11_SCHEMA_VERSION,
+                                              D12_SCHEMA_VERSION)
         if kind == ENTRY_FILE:
             if not os.path.isfile(dst):
                 failures.append((row["move_id"], "DEST_FILE_MISSING %s" % row["destination"]))
@@ -1745,8 +1942,8 @@ def cmd_verify(args, paths):
                       % (move_id, a["relative_path"],
                          (a["sha256"] or "")[:16] or "(미검증)", a["role"]))
     if chain_map is not None:
-        print("successor chain: %d mapping(s) / 인정된 이관 %d"
-              % (len(chain_map), len(chain_used)))
+        print("successor chain: %d file(s) from %d chain(s) / 인정된 이관 %d"
+              % (len(chain_map), len(chain_paths), len(chain_used)))
         for move_id, rel, m in chain_used:
             print("   %s  ~>%-52s %s  role=%s"
                   % (move_id, rel, m["sha256"][:16], m.get("role", "")))
@@ -1861,8 +2058,18 @@ def main(argv=None):
                     help="stage2d11 전용: 이동 후 이 자료를 가리키는 registry key")
     ap.add_argument("--d11-exclusion-after", default=None,
                     help="stage2d11 전용: 이동 후 exclusion 경로")
+    ap.add_argument("--d12-scope", default=None, metavar="JSON",
+                    help="stage2d12 전용: frozen_scope.json (목적지·registry 전환·"
+                         "provenance 판정이 확정된 범위)")
+    ap.add_argument("--d12-scope-sha256", default=None, metavar="HEX",
+                    help="stage2d12 전용: frozen scope 의 기대 SHA256")
+    ap.add_argument("--d12-allow-prior-ledger-with-chain", action="store_true",
+                    help="stage2d12 전용: prior ledger 구성원 이동 허용. successor chain 을 "
+                         "만들 계획이 있을 때만 쓴다 — 이동 후 --successor-ledger-chain 으로 "
+                         "prior 원장 검증을 반드시 통과시켜야 한다.")
     ap.add_argument("--successor-ledger-chain", default=None, metavar="JSON",
-                    help="--verify: prior 원장에서 없어진 파일을 후속 원장이 이어받았음을 "
+                    action="append",
+                    help="--verify: (반복 가능) prior 원장에서 없어진 파일을 후속 원장이 이어받았음을 "
                          "**파일 단위 SHA256 identity** 로 증명하는 chain 명세. "
                          "prior/successor manifest SHA256 결속 + prior 원장의 size·sha256 · "
                          "successor source==prior destination · successor VERIFIED · "
@@ -1887,6 +2094,8 @@ def main(argv=None):
         ap.error("정책 %s 는 --d1-plan <csv> 가 필요합니다." % POLICY_STAGE2D1)
     if args.policy == POLICY_STAGE2D11 and args.plan and not args.d11_scope:
         ap.error("정책 %s 는 --d11-scope <json> 이 필요합니다." % POLICY_STAGE2D11)
+    if args.policy == POLICY_STAGE2D12 and args.plan and not args.d12_scope:
+        ap.error("정책 %s 는 --d12-scope <json> 이 필요합니다." % POLICY_STAGE2D12)
 
     paths = PDP.load()
     if args.plan:

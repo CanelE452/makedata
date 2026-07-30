@@ -52,7 +52,7 @@ B4   해소            floor 14/14 Poly Haven CC0 확정(미검증 5종 CC0 교�
 B5   미해결 MEDIUM   CC-BY 저작자표시 의무 미이행 시 위반(첨부 attribution 필수)        Sketchfab/GSO/CC-BY 전부
 B6   미해결 LOW      isaac_assets/(NVIDIA 창고 USD) 트리에 존재 — 배포물서 제외 필요     소스 에셋(렌더 산출물 아님)
 B7   해소            NoAI dataset 압축본이 exclusion 에서 빠져 ZIP 경로로 누출 가능     train_4pallet_mask_v1.zip
-B8   미해결 MEDIUM   v4 계열 파생 4종의 NoAI 상속 미확정 — 보수적 제외 유지중           GREYBUG·bg1bak·emptywood·pilotA
+B8   해소            v4 계열 파생 4종 = PROVEN_NOAI 확정 (라벨 전수) + noai_baked 격리   GREYBUG·bg1bak·emptywood·pilotA
 ```
 
 **B7 (해소 2026-07-30, Stage 2-D0.1)** — `archive/train_4pallet_mask_v1/`(NoAI baked)은
@@ -63,13 +63,58 @@ B8   미해결 MEDIUM   v4 계열 파생 4종의 NoAI 상속 미확정 — 보�
 `pallet.zip`(15.5GB)은 central directory 실측 결과 구성이 `train_palletobj_v1`+`v2` 뿐이고
 둘 다 redistributable 이므로 **제외 대상이 아니다**(B5 attribution 만 필요). [확인]
 
-**B8 (신규 2026-07-30, Stage 2-D0.1)** — `archive/` 아래 v4 계열 파생 4종
-(`training_data_v4_split_GREYBUG` · `_bg1bak` · `training_data_v4_emptywood` ·
-`training_data_v4_pilotA`, 합 14.2GB)은 이름상 `training_data_v4*` 파생이고 그 본체는
-NoAI baked 로 제외돼 있다. 그러나 **파생본이 같은 blend 로 렌더됐는지는 라벨 metadata 로
-확인하지 않았다** — 이름 유사성만으로 NoAI 를 단정하지 않는다.
-UNKNOWN_LICENSE 로 두고 **보수적으로 exclusion 유지**한다(잘못 배포하면 되돌릴 수 없다).
-해소 조건: 각 dataset 라벨의 generator/blend 지문을 읽어 NoAI 목재 사용 여부를 확정.
+**B8 (신규 2026-07-30 Stage 2-D0.1 → 해소 2026-07-30 Stage 2-D1.1/D1.2)**
+
+*제기 (D0.1)* — `archive/` 아래 v4 계열 파생 4종(`training_data_v4_split_GREYBUG` ·
+`_bg1bak` · `training_data_v4_emptywood` · `training_data_v4_pilotA`)은 이름상
+`training_data_v4*` 파생이고 그 본체는 NoAI baked 로 제외돼 있다. 그러나 **파생본이 같은
+blend 로 렌더됐는지는 라벨 metadata 로 확인하지 않았다** — 이름 유사성만으로 NoAI 를
+단정하지 않는다. UNKNOWN_LICENSE 로 두고 보수적으로 exclusion 유지했다.
+
+*확정 (D1.1 §provenance)* — 이름이 아니라 **라벨을 읽어** 판정했다. 라벨 JSON
+**13,122개(= 프레임 13,120) 전수** 스캔, 표본 아님, 읽기 실패 0.
+
+```
+move_id  dataset                        프레임   NoAI 프레임      %    mtime       재-bake 이전
+──────────────────────────────────────────────────────────────────────────────────────────────
+D1-041   training_data_v4_split_GREYBUG  5,000      3,286      65.7%  2026-06-17   yes
+D1-042   training_data_v4_split_bg1bak   5,000      3,272      65.4%  2026-06-16   yes
+D1-043   training_data_v4_emptywood      3,000      3,000     100.0%  2026-06-18   yes
+D1-049   training_data_v4_pilotA           120         76      63.3%  2026-06-16   yes
+──────────────────────────────────────────────────────────────────────────────────────────────
+합계                                     13,120      9,634      73.4%
+```
+
+근거 3단:
+- **적극적 사용 증거** — 각 dataset 의 `objects[].name` 에 `Pallet_2`/`Pallet_3` 가 직접
+  기록돼 있다. "NoAI 표식이 없다"는 소극적 근거가 아니다. `emptywood` 는 `Pallet_1` 이
+  아예 없고 100% 가 NoAI 목재다.
+- **자산 동일성** — `Pallet_2`/`Pallet_3` = `scene_2.usd`/`scene_3.usd` = "Old Wooden
+  Pallet"(Luka Feric, Standard+NoAI, B1). 해당 USD 는 `archive/_noai_quarantine_usd/`
+  에 실물로 남아 있다.
+- **시점** — mtime 2026-06-16~18 로, NoAI 목재를 제거한 2026-07-24 blend 재-bake **이전**
+  이다. 즉 NoAI 가 baked 된 blend 로 렌더됐다.
+
+*조치 (D1.2 D12C)* — PROVEN_NOAI 4종(39,620 파일 / 15,588,789,193 B = 14.52 GiB)을
+`archive/legacy_datasets/noai_baked/` 로 이동해 다른 7종 NoAI baked 산출물과 한곳에 모았다.
+same-volume rename, hash-mode=all, pre/post SHA256 전수, failures 0.
+
+```
+최종 경로 (릴리스 제외)
+  archive/legacy_datasets/noai_baked/training_data_v4_split_GREYBUG    15,051 파일  4.93 GiB
+  archive/legacy_datasets/noai_baked/training_data_v4_split_bg1bak     15,056 파일  4.93 GiB
+  archive/legacy_datasets/noai_baked/training_data_v4_emptywood         9,031 파일  4.49 GiB
+  archive/legacy_datasets/noai_baked/training_data_v4_pilotA              482 파일  0.18 GiB
+```
+
+`release_allowed = NO` (4/4). `_DISTRIBUTION_EXCLUDE.txt` 를 새 경로로 갱신했다
+(entries 16 / problems 0 / leaks 0 / stale 0). ⚠️ 이 exclusion 파일은 **gitignored** 라
+저장소에 커밋되지 않는다 — 릴리스 패키징을 다른 머신에서 하면 이 파일이 없다. 배포 스크립트를
+쓸 때 이 원장(B8·B7·B6·B1)이 근거 정본이다.
+
+**해소 판정**: UNKNOWN_LICENSE → PROVEN_NOAI 확정 + 물리 격리 + exclusion 반영 완료.
+"확정되지 않아 보수적으로 제외"가 아니라 **확정돼서 제외**다. 재생성 필요 계열
+(v4/v4_split/4pallet_mask)에 이 4종도 포함된다.
 
 **B1 (CRITICAL → 해소 2026-07-24)** — 시드 감사에서 확인된 4번째 팔레트 "Old Wooden Pallet"(Luka Feric) =
 Sketchfab **Free Standard License + NoAI 태그**(Standard=재배포 금지 + NoAI=AI/ML 학습·데이터셋 사용 금지).

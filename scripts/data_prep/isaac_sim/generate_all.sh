@@ -39,7 +39,9 @@ cd "$PROJECT_ROOT"
 PYTHON_EXE="C:/Users/minjae/anaconda3/envs/pallet-pose/python.exe"
 SCRIPT="scripts/data_prep/isaac_sim/gen_replicator_data.py"
 # Stage 2-D0.1: 두 경로가 Stage 2-A/2-B 이동 후 깨져 있었다.
-#   training_data -> archive/training_data (NoAI baked, 릴리스 제외 — 재생성 대상)
+#   training_data -> registry legacy_training_data_root (NoAI baked, 릴리스 제외 —
+#     재생성 대상). Stage 2-D1.2 에서 실제 위치가 archive/legacy_datasets/noai_baked/
+#     아래로 이동했고, 이 스크립트는 registry 조회라 경로를 다시 적지 않는다.
 #   hdri          -> registry hdri_root
 TRAIN_BASE="${TRAIN_BASE:-"$(python scripts/data_prep/blender/pallet_data_paths.py --key legacy_training_data_root)"}"
 BATCH_SIZE=64

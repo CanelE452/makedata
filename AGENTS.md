@@ -40,7 +40,7 @@ Python + PyTorch + Isaac Sim + DOPE.
 - 합성 데이터: Isaac Sim 4.5.0 + Omniverse Replicator, NDDS 포맷 JSON annotation
 - USD 모델: `data/pallet/assets/pallets/models/models_usd/` — `scene.usd`(P0) / `scene_1.usd`(P1) / `scene_noemit.usd`(P0 무발광) + v2 목재 2종 `.glb`. 구 P2/P3(`scene_2/3.usd`)는 NoAI라 `data/pallet/archive/_noai_quarantine_usd/`로 격리됨
 - 데이터 경로 registry: `config/synthetic/pallet_paths.yaml` + `scripts/data_prep/blender/pallet_data_paths.py` (경로 리터럴 대신 registry 키 사용)
-- `data/pallet/archive/` 는 2026-07-30 Stage 2-D1 에서 semantic 하위폴더로 정리했다 (30건/130GiB: `packages/{dataset_bundles,corrupt}` · `legacy_datasets/{redistributable,noai_baked,partial}`). 루트 ZIP 0개. 잔여·미이동 사유는 `_docs/data_pallet_layout.md` §8
+- `data/pallet/archive/` 는 Stage 2-D1(2026-07-30) ~ 2-D1.2(2026-07-31)에서 semantic 하위폴더로 정리했다 — 총 48건/약 163GiB: `packages/{dataset_bundles,corrupt,background_sources}` · `legacy_datasets/{redistributable,noai_baked,partial}` · `legacy_scenes/{snapshots,blender_backups}`. 루트 ZIP 0개, NoAI baked 8종은 전부 `legacy_datasets/noai_baked/`(릴리스 제외). 잔여·미이동 사유는 `_docs/data_pallet_layout.md` §8
 - Geometric Filter: 3단계 (A: Augmentation Consistency, B: 변 길이 일관성, C: 규격 비율)
 - Keypoint convention: Y=UP, 8 cuboid corners + centroid (memory 참조)
 - **평가**: PCK@3/5/10px + PnP Reproj (val) / ADD, 5cm5° (real test, camera extrinsic 필요) — `scripts/data_prep/evaluate_on_val.py`

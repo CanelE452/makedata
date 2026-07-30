@@ -1,0 +1,136 @@
+{
+  "data_pallet_before": {
+    "files": 363090,
+    "bytes": 192468097791,
+    "dirs": 2567
+  },
+  "data_pallet_after": {
+    "files": 363090,
+    "bytes": 192468109581,
+    "dirs": 2567
+  },
+  "data_pallet_delta": {
+    "dirs": 0,
+    "files": 0,
+    "bytes": 11790
+  },
+  "top_level_removed": [],
+  "top_level_added": [],
+  "archive_depth1_removed": [
+    "train_palletobj_v3",
+    "train_palletobj_v3_post_v1",
+    "training_data",
+    "training_data_v4_emptywood",
+    "training_data_v4_pilotA",
+    "training_data_v4_split_GREYBUG",
+    "training_data_v4_split_bg1bak"
+  ],
+  "archive_depth1_added": [],
+  "archive_before_entries": 151,
+  "archive_after_entries": 144,
+  "ledger_rows": [
+    {
+      "manifest": "d12b_reference_move.jsonl",
+      "move_id": "D1-003",
+      "cohort": "D12B_REFERENCE_MOVE",
+      "status": "MOVED",
+      "source": "data/pallet/assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend",
+      "destination": "data/pallet/archive/legacy_scenes/snapshots/_sandbox_parking_lot_check.blend",
+      "file_count": 1,
+      "total_bytes": 137789005,
+      "registry_key": "legacy_sandbox_parking_lot_scene"
+    },
+    {
+      "manifest": "d12b_reference_move.jsonl",
+      "move_id": "D1-033",
+      "cohort": "D12B_REFERENCE_MOVE",
+      "status": "MOVED",
+      "source": "data/pallet/archive/train_palletobj_v3",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/train_palletobj_v3",
+      "file_count": 40002,
+      "total_bytes": 10682796255,
+      "registry_key": "legacy_train_palletobj_v3_root"
+    },
+    {
+      "manifest": "d12b_reference_move.jsonl",
+      "move_id": "D1-038",
+      "cohort": "D12B_REFERENCE_MOVE",
+      "status": "MOVED",
+      "source": "data/pallet/archive/training_data",
+      "destination": "data/pallet/archive/legacy_datasets/noai_baked/training_data",
+      "file_count": 34704,
+      "total_bytes": 6435540124,
+      "registry_key": "legacy_training_data_root"
+    },
+    {
+      "manifest": "d12b_reference_move.jsonl",
+      "move_id": "D1-053",
+      "cohort": "D12B_REFERENCE_MOVE",
+      "status": "MOVED",
+      "source": "data/pallet/archive/train_palletobj_v3_post_v1",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/train_palletobj_v3_post_v1",
+      "file_count": 17722,
+      "total_bytes": 77884636,
+      "registry_key": "legacy_train_palletobj_v3_post_v1_root"
+    },
+    {
+      "manifest": "d12c_noai_move.jsonl",
+      "move_id": "D1-041",
+      "cohort": "D12C_PROVEN_NOAI_MOVE",
+      "status": "MOVED",
+      "source": "data/pallet/archive/training_data_v4_split_GREYBUG",
+      "destination": "data/pallet/archive/legacy_datasets/noai_baked/training_data_v4_split_GREYBUG",
+      "file_count": 15051,
+      "total_bytes": 5291018327,
+      "registry_key": ""
+    },
+    {
+      "manifest": "d12c_noai_move.jsonl",
+      "move_id": "D1-042",
+      "cohort": "D12C_PROVEN_NOAI_MOVE",
+      "status": "MOVED",
+      "source": "data/pallet/archive/training_data_v4_split_bg1bak",
+      "destination": "data/pallet/archive/legacy_datasets/noai_baked/training_data_v4_split_bg1bak",
+      "file_count": 15056,
+      "total_bytes": 5288678749,
+      "registry_key": ""
+    },
+    {
+      "manifest": "d12c_noai_move.jsonl",
+      "move_id": "D1-043",
+      "cohort": "D12C_PROVEN_NOAI_MOVE",
+      "status": "MOVED",
+      "source": "data/pallet/archive/training_data_v4_emptywood",
+      "destination": "data/pallet/archive/legacy_datasets/noai_baked/training_data_v4_emptywood",
+      "file_count": 9031,
+      "total_bytes": 4820265222,
+      "registry_key": ""
+    },
+    {
+      "manifest": "d12c_noai_move.jsonl",
+      "move_id": "D1-049",
+      "cohort": "D12C_PROVEN_NOAI_MOVE",
+      "status": "MOVED",
+      "source": "data/pallet/archive/training_data_v4_pilotA",
+      "destination": "data/pallet/archive/legacy_datasets/noai_baked/training_data_v4_pilotA",
+      "file_count": 482,
+      "total_bytes": 188826895,
+      "registry_key": ""
+    }
+  ],
+  "reconstruction_check": {
+    "method": "after 의 archive/ depth1 집계에서 D1.2 이동 8건을 역산해 D1.1 filesystem_after.json 과 대조한다",
+    "entries_prev": 151,
+    "entries_reconstructed": 151,
+    "mismatches": [],
+    "match": true
+  },
+  "protected_invariance": {
+    "blend_diffs": [],
+    "weight_diffs": [],
+    "package_diffs": [],
+    "dataset_diffs": [],
+    "hash_read_bytes": 10179365481,
+    "total_problems": 0
+  }
+}

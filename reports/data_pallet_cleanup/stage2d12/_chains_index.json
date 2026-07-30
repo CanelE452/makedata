@@ -1,0 +1,7 @@
+[
+  {
+    "chain": "c2c_distractor_scene_to_d12.json",
+    "prior_manifest": "reports/data_pallet_cleanup/stage2c2/transactions/c2c_distractor_scene.jsonl",
+    "mappings": 1
+  }
+]

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "stage": "2-D1.2",
+  "base_commit": "3a6ade5313d89ccb976cd35fc154d1e7388daa13",
+  "scope_csv": "reports/data_pallet_cleanup/stage2d12/frozen_scope.csv",
+  "scope_csv_sha256": "5f5a1b718c0bfcb1577e040e16d7b70f6d8a2af6f9fc71c70925400db506d8de",
+  "recomputed_from_filesystem": true,
+  "cohorts": {
+    "D12B_REFERENCE_MOVE": {
+      "rows": 4,
+      "files": 92429,
+      "bytes": 17334010020
+    },
+    "D12C_PROVEN_NOAI_MOVE": {
+      "rows": 4,
+      "files": 39620,
+      "bytes": 15588789193
+    }
+  },
+  "hash_budget": {
+    "D12B_REFERENCE_MOVE": {
+      "bytes": 17334010020,
+      "estimated_read": 34668020040,
+      "estimated_read_gib": 32.287,
+      "limit_gib": 36,
+      "within": true
+    },
+    "D12C_PROVEN_NOAI_MOVE": {
+      "bytes": 15588789193,
+      "estimated_read": 31177578386,
+      "estimated_read_gib": 29.036,
+      "limit_gib": 34,
+      "within": true
+    }
+  },
+  "total_estimated_read_bytes": 65845598426,
+  "total_estimated_read_gib": 61.323,
+  "total_limit_gib": 70,
+  "within_all_limits": true,
+  "problems": [],
+  "cohort_order": [
+    "D12B_REFERENCE_MOVE",
+    "D12C_PROVEN_NOAI_MOVE"
+  ]
+}
