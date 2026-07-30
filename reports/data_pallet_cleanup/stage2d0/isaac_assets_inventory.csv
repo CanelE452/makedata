@@ -1,0 +1,2 @@
+﻿path,file_count,total_bytes,extensions,license_files,registry_reference,classification,evidence
+isaac_assets,4543,4350676768,"{"".png"": 2375, "".usd"": 1857, "".jpg"": 200, "".hdr"": 73, "".mdl"": 30, "".last_generated"": 5, "".exr"": 2, "".txt"": 1}",Assets/Isaac/4.5/Isaac/Materials/Textures/Skies/PolyHaven/license.txt,0 (registry 어느 키도 가리키지 않음),LICENSE_QUARANTINE,NVIDIA Isaac Sim EULA 재배포 제한. _DISTRIBUTION_EXCLUDE:14 isaac_assets/

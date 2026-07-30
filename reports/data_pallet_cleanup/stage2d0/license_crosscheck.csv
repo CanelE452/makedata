@@ -1,0 +1,14 @@
+﻿item,kind,bytes,ledger,exclusion,tree_exists,verdict,issue,action
+isaac_assets,directory,4350676768,B6 미해결 LOW (ledger:53),isaac_assets/ (line 14),yes,LICENSE_QUARANTINE,,이동 시 exclusion 경로 동시 갱신
+archive/_noai_quarantine_usd,directory,738082,B1 해소 (ledger:48),archive/_noai_quarantine_usd/ (line 18),yes,LICENSE_QUARANTINE,,이동하지 않음 — 격리 경로가 provenance
+archive/training_data,directory,6435000000,"NoAI baked (ledger:25,70)",archive/training_data/ 등록,yes,NOAI_BAKED_DATASET,,legacy_datasets/noai_baked/ 로 정리 제안
+archive/training_data_v4,directory,133000000,NoAI baked,등록,yes,NOAI_BAKED_DATASET,,동일
+archive/training_data_v4_split,directory,8321000000,NoAI baked,등록,yes,NOAI_BAKED_DATASET,,동일
+archive/train_4pallet_mask_v1,directory,9845000000,NoAI baked,등록,yes,NOAI_BAKED_DATASET,,동일
+train_4pallet_mask_v1.zip,file,9675000000,NoAI baked dataset 의 압축본,★ 미등록,yes,NOAI_BAKED_DATASET (package),추출본은 exclusion 되어 있으나 ZIP 은 안 됨 -> 릴리스 누출 경로,D1A 로 archive/packages/dataset_bundles/ 이동 후 폴더째 exclusion
+pallet.zip,file,16636000000,train_palletobj_v1+v2 bundle,★ 미등록,yes,PACKAGE_BUNDLE,bundle 이라 단일 dataset 라이선스로 판정 불가,D1A 이동 + 구성 dataset 별 attribution 확인
+archive/training_data_v4_split_GREYBUG,directory,5291000000,미기재,★ 미등록,yes,COMPLETE_LEGACY_DATASET,v4_split 파생 추정이나 NoAI 상속을 파일 근거로 확인 안 함,라벨 metadata 의 generator/blend 지문 확인 후 분류
+archive/training_data_v4_split_bg1bak,directory,5288000000,미기재,★ 미등록,yes,COMPLETE_LEGACY_DATASET,동일,동일
+archive/training_data_v4_emptywood,directory,4820000000,미기재,★ 미등록,yes,COMPLETE_LEGACY_DATASET,동일,동일
+archive/packages/background_sources,directory,157408367,Sketchfab CC-BY 4.0 (ledger:191-192),등록 (Stage 2-C2),yes,PACKAGE (원본 다운로드),,유지
+archive/train_palletobj_v1..v3 / addon / trunc_addon,directory,35000000000,palletobj 계열 — attribution 후 사용 가능 (ledger:29),미등록 (의도적),yes,COMPLETE_LEGACY_DATASET,,legacy_datasets/redistributable/ 로 정리 제안 + B5 attribution

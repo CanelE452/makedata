@@ -1,0 +1,104 @@
+{
+  "stage": "2-D0",
+  "branch": "chore/data-pallet-stage2d0-archive-audit",
+  "base_commit": "75a3f71c22a7eee4b689cb4ef59c38d1c3420e5d",
+  "data_pallet_before": {
+    "dirs": 2560,
+    "files": 363090,
+    "bytes": 192468045942
+  },
+  "data_pallet_after": {
+    "dirs": 2560,
+    "files": 363090,
+    "bytes": 192468045942
+  },
+  "delta": {
+    "dirs": 0,
+    "files": 0,
+    "bytes": 0
+  },
+  "registry_ok": 24,
+  "registry_missing": 0,
+  "unit_tests": 646,
+  "integration_tests": 31,
+  "golden_overlay_tests": 51,
+  "ledgers": {
+    "stage2a": {
+      "moves": 146,
+      "files": 6921,
+      "failures": 0,
+      "sha256": "fe1adc266bd91963c7be98779ed4c114b90b0b811fabdd60471a807aeb56d101"
+    },
+    "stage2b_b1": {
+      "moves": 4,
+      "files": 3220,
+      "failures": 0,
+      "sha256": "43461e47498985294c25317d38fee664d6adc94143dba0185d5afd18e6b369ad"
+    },
+    "stage2b_b2": {
+      "moves": 3,
+      "files": 68,
+      "failures": 0,
+      "sha256": "0d0c06a849fcf20125c4af6c97ebafdb2d12d7b6fa5e5f7a7add139799c78bd4"
+    },
+    "stage2c2_c2a": {
+      "moves": 3,
+      "files": 3,
+      "failures": 0
+    },
+    "stage2c2_c2b": {
+      "moves": 1,
+      "files": 74,
+      "failures": 0
+    },
+    "stage2c2_c2c": {
+      "moves": 2,
+      "files": 1336,
+      "failures_strict": 3,
+      "failures_with_additions_allowed": 0,
+      "missing": 0,
+      "sha256_checked": 1334,
+      "sha256_mismatch": 0,
+      "note": "extra 2 = Stage 2-C2 가 정상 생성한 stable + Blender 자동 백업",
+      "sha256": "241f5c569d2be92488a2f653fece287ac213886373292f28fd4a23a30ebce2c7"
+    }
+  },
+  "blends": 17,
+  "active_scene_audit": {
+    "absolute": 0,
+    "missing": 0,
+    "textures": 158,
+    "distractors": 356,
+    "hdri": 1,
+    "dist_roots": 209,
+    "hdri_decode": "30/30",
+    "floor_decode": "42/42",
+    "wood_decode": "27/27",
+    "node_image_missing": 0
+  },
+  "audit_scope_bytes": 182859000000,
+  "hash_read_bytes": {
+    "inventory": 0,
+    "package_signature": 0,
+    "weights": 5686135448,
+    "blend_and_noai": 4491000000,
+    "crc_divergence": 3489000,
+    "total_gb": 9.5
+  },
+  "hash_budget_bytes": 21474836480,
+  "archives": 20,
+  "corrupt_archives": 1,
+  "legacy_datasets": 120,
+  "weights": 29,
+  "weights_unique_sha256": 29,
+  "weights_duplicate_groups": 0,
+  "proposed_stage2d1_rows": 60,
+  "proposed_move_candidates": 48,
+  "data_moved": 0,
+  "data_deleted": 0,
+  "data_renamed": 0,
+  "zip_modified": 0,
+  "blender_renders": 0,
+  "commits": 0,
+  "pushes": 0
+}

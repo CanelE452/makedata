@@ -1,0 +1,12 @@
+{
+  "budget_limit_bytes": 21474836480,
+  "elapsed_s": 0.53,
+  "hash_mode": "selective",
+  "modes": [
+    "weight-inventory"
+  ],
+  "read_bytes": 0,
+  "refused": [],
+  "repo_root": "E:\\CODING\\GitHub\\FoundationPose",
+  "root": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet"
+}

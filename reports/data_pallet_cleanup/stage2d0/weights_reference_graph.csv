@@ -1,0 +1,3 @@
+﻿weight,referencing_file,line,reference_kind,text
+weights/pallet_category/net_pallet_best.pth,config/stage3_selftrain.yaml,83,CURRENT_RUNTIME,pretrained_weights -> 파일 없음 (BROKEN_REFERENCE)
+data/pallet/ndds3_pallet.pth,scripts/dope/run_dope_live.py,160,CURRENT_RUNTIME,--weights 기본값 -> 파일 없음 (BROKEN_REFERENCE)

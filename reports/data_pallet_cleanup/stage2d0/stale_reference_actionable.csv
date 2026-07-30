@@ -1,0 +1,9 @@
+﻿referencing_file,line,form,target,now,broken_by,kind,fix,severity
+scripts/data_prep/compute_distractor_fill_ratio.py,49,os.path.join,data/pallet/distractors,assets/distractors/library (registry distractor_root),Stage 2-C2 (이번 세션 이동),CURRENT_RUNTIME,registry 조회로 교체,HIGH
+scripts/data_prep/isaac_sim/debug_pallet_orientation.py,10,os.path.join,data/pallet/models_usd,assets/pallets/models/models_usd (registry pallet_model_roots[0]),Stage 2-B,CURRENT_RUNTIME,registry 조회로 교체,HIGH
+scripts/data_prep/merge_and_validate.py,13-19,os.path.join,data/pallet/training_data,"archive/training_data (NoAI baked, 릴리스 제외)",archive 이동(Stage 2-A 이전),CURRENT_RUNTIME,registry 키 신설 또는 archive 경로 명시,MED
+config/default.yaml,53,literal,data/pallet/training_data/train,archive/training_data (NoAI baked),archive 이동,CURRENT_RUNTIME,별도 학습 머신 config — 경로 재지정,MED
+config/stage3_selftrain.yaml,81-83,literal,training_data/train · real_unlabeled · weights/.../net_pallet_best.pth,"training_data=archive/, real_unlabeled=부재, net_pallet_best.pth=부재",archive 이동 + weight 미생성,CURRENT_RUNTIME,self-training 실행 전 경로·weight 확인,MED
+config/synthetic/blender_train_4000.yaml,20,literal,data/pallet/training_data,archive/training_data,archive 이동,CURRENT_RUNTIME,output base 재지정,LOW
+config/synthetic/isaac_sim.yaml,"3,6,9",literal,pallet_scene · training_data · _procedural_textures,"pallet_scene=부재, training_data=archive/, _procedural_textures=archive/",archive 이동 / 미생성,CURRENT_RUNTIME,Isaac 파이프라인 현재 미사용 — 정정 또는 legacy 표기,LOW
+scripts/dope/run_dope_live.py,160,literal,data/pallet/ndds3_pallet.pth,부재 (weight 없음),원본 미보존,CURRENT_RUNTIME,--weights 기본값을 실재 weight 로 교체,MED

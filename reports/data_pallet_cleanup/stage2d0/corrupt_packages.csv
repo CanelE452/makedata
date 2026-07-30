@@ -1,0 +1,2 @@
+﻿path,size_bytes,archive_type,open_status,open_error,entry_count
+train_palletobj_v1.zip,4529431174,zip,NO,BadZipFile: File is not a zip file,0

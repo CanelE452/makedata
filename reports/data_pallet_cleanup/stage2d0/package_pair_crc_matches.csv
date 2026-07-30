@@ -1,0 +1,6 @@
+﻿package_a,package_b,entries,path_match,size_match,crc_match,evidence_level,evidence_label,classification,read_bytes
+archive/packages/background_sources/modular_buildings_industrial_area..zip,archive/packages/background_sources/modular_buildings_industrial_area.zip,29,True,True,True,4,CONTENT_VERIFIED_BY_CRC,PACKAGE_CONTENT_VERIFIED,0
+test_blender_v68.zip,test_blender_v70.zip,3000,True,False,False,1,POSSIBLE_MATCH,PACKAGE_STRUCTURAL_MATCH,0
+test_blender_v68.zip,test_indoor_v1.zip,3000,True,False,False,1,POSSIBLE_MATCH,PACKAGE_STRUCTURAL_MATCH,0
+test_blender_v70.zip,test_indoor_v1.zip,3000,True,False,False,1,POSSIBLE_MATCH,PACKAGE_STRUCTURAL_MATCH,0
+train_palletobj_v2 (2).zip,train_palletobj_v2.zip,30010,True,True,False,3,STRUCTURAL_MATCH,PACKAGE_STRUCTURAL_MATCH,0

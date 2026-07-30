@@ -496,3 +496,21 @@ image datablock 603 -> 603   (구조 diff 0)
 
 보고서: `stage2c1/final_report.md` · 도구: `scripts/data_prep/blender/`
 (`blend_path_utils.py` · `manage_blend_external_paths.py` · `audit_blend_assets.py`)
+
+
+---
+
+## Stage 2-D0 (2026-07-30) — 잔여 대용량 자료 비파괴 감사
+
+**데이터 이동·삭제·rename 0건.** 파일시스템 delta dirs+0 / files+0 / bytes+0 으로 170.34GB 를
+분류하고 Stage 2-D1 계획만 작성했다. hash read 9.48GB / 예산 20GB.
+
+```
+archive/ semantic 하위폴더 7개가 전부 비어 있다 -> Stage 2-D1 이 채울 곳
+ZIP 20개 / 84.92GB · 손상 1건(truncated) · 중복 확정 0건 (CRC 로 보니 사본들이 서로 다름)
+blend 17개 · weight 29개(전부 고유 SHA256) · quarantine 2 · legacy dataset 120
+Stage 2-D1 계획 60행 / 이동 후보 48건 163.03GB
+```
+
+보고서: `stage2d0/final_report.md`
+도구: `scripts/data_prep/audit_pallet_archives.py`

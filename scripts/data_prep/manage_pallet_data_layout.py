@@ -784,6 +784,7 @@ def manifest_hash_mode(row):
 def cmd_verify(args, paths):
     rows = _read_manifest(args.manifest)
     failures = []
+    added_notes = []
     checked_files = checked_bytes = checked_hashes = checked_licenses = 0
     modes = {}
     for row in rows:
@@ -810,17 +811,28 @@ def cmd_verify(args, paths):
             post = snapshot(dst, set())
             dst_dir = dst
         # 사후 해시는 사전에 해시한 것과 같은 집합만 비교한다.
-        if post["file_count"] != row["file_count"]:
+        # destination 에 **나중에 정상적으로 추가된** 파일과 **없어진/틀어진** 파일을 구분한다.
+        # 이동 후 그 폴더에서 계속 작업하면(예: Stage 2-C2 가 blender_scene 안에 새 씬을 만듦)
+        # count/bytes/relpath 는 당연히 달라진다. 원장 verify 가 지켜야 하는 불변식은
+        # "옮긴 파일이 하나도 없어지지 않고 바이트가 그대로다" 이지 "폴더가 얼어 있다" 가 아니다.
+        # 기본 동작은 엄격(strict) 그대로 두고, --allow-destination-additions 로만 완화한다.
+        missing = sorted(set(row["relative_files"]) - set(post["files"]))
+        extra = sorted(set(post["files"]) - set(row["relative_files"]))
+        additions_only = bool(extra) and not missing
+        allow_add = getattr(args, "allow_destination_additions", False)
+        if missing:
+            failures.append((row["move_id"], "RELPATH_SET_MISSING %s" % missing[:5]))
+        if extra:
+            if allow_add and additions_only:
+                added_notes.append((row["move_id"], len(extra), extra[:5]))
+            else:
+                failures.append((row["move_id"], "RELPATH_SET extra=%s" % extra[:5]))
+        if post["file_count"] != row["file_count"] and not (allow_add and additions_only):
             failures.append((row["move_id"], "FILE_COUNT %d != %d"
                              % (post["file_count"], row["file_count"])))
-        if post["total_bytes"] != row["total_bytes"]:
+        if post["total_bytes"] != row["total_bytes"] and not (allow_add and additions_only):
             failures.append((row["move_id"], "TOTAL_BYTES %d != %d"
                              % (post["total_bytes"], row["total_bytes"])))
-        if sorted(post["files"]) != sorted(row["relative_files"]):
-            missing = sorted(set(row["relative_files"]) - set(post["files"]))
-            extra = sorted(set(post["files"]) - set(row["relative_files"]))
-            failures.append((row["move_id"], "RELPATH_SET missing=%s extra=%s"
-                             % (missing[:3], extra[:3])))
         for rel, want in pre["sha256"].items():
             abs_path = os.path.join(dst_dir, rel.replace("/", os.sep))
             if not os.path.isfile(abs_path):
@@ -848,6 +860,11 @@ def cmd_verify(args, paths):
     print("hash modes     : %s" % (", ".join("%s=%d" % kv for kv in sorted(modes.items()))
                                    or "(none)"))
     print("license files  : %d verified" % checked_licenses)
+    if added_notes:
+        print("dest additions : %d move(s) — 이동 후 정상적으로 추가된 파일 (없어진 것 0)"
+              % len(added_notes))
+        for move_id, n, sample in added_notes:
+            print("   %s  +%d  %s" % (move_id, n, sample))
     print("failures       : %d" % len(failures))
     for move_id, msg in failures[:40]:
         print("   %s  %s" % (move_id, msg))
@@ -901,6 +918,10 @@ def main(argv=None):
                     help="이동 정책. 생략하면 stage2a-runs (하위호환)")
     ap.add_argument("--cohort", default=None,
                     help="stage2b 전용: 이 cohort 만 계획 (예: B1_REFERENCE_MATERIALS)")
+    ap.add_argument("--allow-destination-additions", action="store_true",
+                    help="--verify: destination 에 **추가된** 파일은 실패로 보지 않는다 "
+                         "(없어진 파일과 SHA256 불일치는 그대로 실패). 이동 후 그 폴더에서 "
+                         "정상 작업이 이어진 경우에만 쓴다. 기본은 엄격 비교.")
     ap.add_argument("--only-source", default=None,
                     help="stage2b 전용: 이 source 만 계획 (쉼표 구분, allowlist 안이어야 함)")
     args = ap.parse_args(argv)

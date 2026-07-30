@@ -1,0 +1,20 @@
+[
+  {
+    "path": "README.md",
+    "size_bytes": 1505,
+    "sha256": "d211f0a125b69250711556703a88b32d11a2f0d98072d3136a17779f7bf055d9",
+    "mtime": "2026-07-24 10:43:51"
+  },
+  {
+    "path": "scene_2.usd",
+    "size_bytes": 169812,
+    "sha256": "f32217c308f974beb1edd29569ab7119b07d4226cb44ebd5fdbc25bdf6b00aef",
+    "mtime": "2026-03-04 09:54:42"
+  },
+  {
+    "path": "scene_3.usd",
+    "size_bytes": 566765,
+    "sha256": "de838fb1d1d4ac3570ae7c828d544a3429c03dc447fe7d09e1275e748b215a7e",
+    "mtime": "2026-03-04 09:54:42"
+  }
+]

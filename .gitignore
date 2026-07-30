@@ -172,3 +172,10 @@ reports/data_pallet_cleanup/_raw_refs.json
 # Stage 2-B 참조 스캔 원본 (5.4MB, 99.4%가 자기 리포트 CSV를 스캔한 자기참조 노이즈)
 # 실제로 조치가 필요한 184행은 active_asset_references_actionable.csv 로 커밋한다.
 reports/data_pallet_cleanup/stage2b/active_asset_references.csv
+
+# Stage 2-D0: ZIP central-directory 전체 entry 덤프 (package 서명 raw).
+# 20개 42MB. `audit_pallet_archives.py --package-signature` 로 **data 를 0바이트 읽고**
+# 언제든 재생성된다(압축 해제 없음, central directory 만 읽음). 결론은 요약본에 있다:
+#   packages.csv · package_entries_summary.csv · package_dataset_matches.csv
+#   package_pair_crc_matches.csv · package_crc_divergence.csv
+reports/data_pallet_cleanup/stage2d0/_raw_pkg_*.json

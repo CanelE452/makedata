@@ -1,0 +1,4 @@
+﻿blend_a,blend_b,sha256,relation,evidence,action
+assets/scenes/production/blender_scene/synth_data_scene.POSTBAKE_CLEAN_20260724_191902.blend,assets/scenes/production/blender_scene/synth_data_scene.REBAKE_WIP.blend,0acddbf5864bb4da158d636bedd47edc23138be324dcb552baa969722c7dd219,DUPLICATE_FILE_EXACT,SHA256 동일 (파일 자체가 같은 바이트),둘 다 보존. 역할이 다르면 이름만으로 삭제 판단 금지
+assets/scenes/production/blender_scene/synth_data_scene.blend,assets/scenes/production/blender_scene/synth_data_scene_portable_candidate_20260729.blend1,46f436dc8d9302a6f857c62c1abcaf4e6fefdc10042ee646e9ef3dc3acbb7fb9,DUPLICATE_FILE_EXACT,SHA256 동일 (파일 자체가 같은 바이트),둘 다 보존. 역할이 다르면 이름만으로 삭제 판단 금지
+assets/scenes/production/blender_scene/synth_data_scene_portable.blend,assets/scenes/production/blender_scene/synth_data_scene_portable_stage2c2_candidate.blend1,5cad94e59d678b01517bfa83e4247f96c234af60654c411c32ff1a1ad9c3e668,DUPLICATE_FILE_EXACT,SHA256 동일 (파일 자체가 같은 바이트),둘 다 보존. 역할이 다르면 이름만으로 삭제 판단 금지
