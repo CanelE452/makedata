@@ -1,0 +1,167 @@
+{
+  "stage": "2-D0.1",
+  "branch": "chore/data-pallet-stage2d01-stabilization",
+  "base_commit": "60e0860840fbacf4da8233e4adb33bcaed1c2b75",
+  "base_commit_message": "chore: data/pallet Stage 2-D0 — 잔여 대용량 자료 비파괴 감사 (이동 0)",
+  "data_pallet_before": {
+    "dirs": 2560,
+    "files": 363090,
+    "bytes": 192468045942
+  },
+  "data_pallet_after": {
+    "dirs": 2560,
+    "files": 363090,
+    "bytes": 192468047026
+  },
+  "delta": {
+    "dirs": 0,
+    "files": 0,
+    "bytes": 1084,
+    "explained": "data/pallet/_DISTRIBUTION_EXCLUDE.txt 2502 -> 3586 (허용 변경). asset/dataset/package/blend/weight 는 전수 불변."
+  },
+  "registry": {
+    "ok_before": 24,
+    "missing_before": 0,
+    "ok_after": 24,
+    "missing_after": 0,
+    "absent_optional_after": 0
+  },
+  "tests": {
+    "unit_before": 646,
+    "unit_after": 664,
+    "unit_skipped": 0,
+    "unit_failed": 0,
+    "integration_before": 31,
+    "integration_after": 31,
+    "golden_overlay_before": 51,
+    "golden_overlay_after": 51,
+    "new_tests_this_stage": 18,
+    "new_test_file": "scripts/data_prep/blender/tests/test_destination_additions.py"
+  },
+  "canonical_broken_current_references": {
+    "before": 44,
+    "before_unique_file_line_path": 39,
+    "before_files": 23,
+    "after": 0,
+    "measured_with": "동일 검출기(YAML plain scalar + join-form 포함)를 기준 커밋 트리(git grep 60e0860)와 현재 트리에 각각 적용",
+    "artifacts": [
+      "current_reference_audit_base.csv",
+      "current_reference_audit.csv"
+    ]
+  },
+  "distribution_exclusion": {
+    "entries_before": 11,
+    "entries_after": 16,
+    "problems_after": 0,
+    "release_leaks_before": 5,
+    "release_leaks_after": 0,
+    "stale_after": 0,
+    "duplicate_after": 0
+  },
+  "ledgers": {
+    "stage2a": {
+      "moves": 146,
+      "files": 6921,
+      "failures": 0,
+      "sha256": "fe1adc266bd91963c7be98779ed4c114b90b0b811fabdd60471a807aeb56d101",
+      "unchanged": true
+    },
+    "stage2b_b1": {
+      "moves": 4,
+      "files": 3220,
+      "failures": 0,
+      "sha256": "43461e47498985294c25317d38fee664d6adc94143dba0185d5afd18e6b369ad",
+      "unchanged": true
+    },
+    "stage2b_b2": {
+      "moves": 3,
+      "files": 68,
+      "failures": 0,
+      "sha256": "0d0c06a849fcf20125c4af6c97ebafdb2d12d7b6fa5e5f7a7add139799c78bd4",
+      "unchanged": true
+    },
+    "stage2b_b3": {
+      "moves": 0,
+      "files": 0,
+      "failures": 0
+    },
+    "stage2c2_c2a": {
+      "moves": 3,
+      "files": 3,
+      "failures": 0
+    },
+    "stage2c2_c2b": {
+      "moves": 1,
+      "files": 74,
+      "failures": 0
+    },
+    "stage2c2_c2c": {
+      "moves": 2,
+      "files": 1336,
+      "failures_strict": 3,
+      "failures_exact_allowlist": 0,
+      "missing": 0,
+      "sha256_checked": 1334,
+      "sha256_mismatch": 0,
+      "sha256": "241f5c569d2be92488a2f653fece287ac213886373292f28fd4a23a30ebce2c7",
+      "unchanged": true
+    }
+  },
+  "active_scene": {
+    "registry_key": "production_scene",
+    "path": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene_portable_stage2c2.blend",
+    "sha256_before": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+    "sha256_after": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+    "unchanged": true,
+    "no_render_audit": {
+      "images_total": 603,
+      "absolute": 0,
+      "missing": 0,
+      "textures": 158,
+      "distractors": 356,
+      "hdri": 1,
+      "dist_roots": 209,
+      "node_image_missing": 0,
+      "hdri_decode": "30/30",
+      "floor_decode": "42/42",
+      "wood_decode": "27/27",
+      "distractor_manifest_rows": 209
+    }
+  },
+  "dryrun_5k": {
+    "framespec": {
+      "n": 5000,
+      "seed": 7000,
+      "accepted": 4313,
+      "rejected": 687,
+      "sha256": "938f387dd65258e0ee869d58b0f4f69046bddc5e8f56921fbb666ecf13d82a39",
+      "unchanged": true
+    },
+    "proposals": {
+      "proposals": 5000,
+      "seed": 7000,
+      "accepted": 4439,
+      "digest_prefix": "3cd365ee",
+      "checks": "12/12 PASS",
+      "unchanged": true
+    }
+  },
+  "proposed_stage2d1": {
+    "rows": 60,
+    "ready": 40,
+    "ready_bytes": 142134662870,
+    "ready_files": 191528,
+    "blocked": 8,
+    "keep": 12
+  },
+  "data_moved": 0,
+  "data_deleted": 0,
+  "data_renamed": 0,
+  "zip_modified": 0,
+  "blend_saved": 0,
+  "blender_renders": 0,
+  "d1_apply": 0,
+  "d1_rollback": 0,
+  "commits": 0,
+  "pushes": 0
+}

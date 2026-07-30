@@ -1,0 +1,59 @@
+{
+  "manifest": "reports/data_pallet_cleanup/stage2c2/transactions/c2c_distractor_scene.jsonl",
+  "manifest_sha256": "241f5c569d2be92488a2f653fece287ac213886373292f28fd4a23a30ebce2c7",
+  "moves": [
+    {
+      "move_id": "S2C2001",
+      "source": "data/pallet/distractors",
+      "destination": "data/pallet/assets/distractors/library",
+      "planned_file_count": 1161,
+      "actual_file_count": 1161,
+      "count_delta": 0,
+      "planned_bytes": 1958754064,
+      "actual_bytes": 1958754064,
+      "byte_delta": 0,
+      "missing": [],
+      "missing_count": 0,
+      "extra_count": 0,
+      "moved_file_sha_mismatch": [],
+      "moved_file_sha_mismatch_count": 0,
+      "sha256_checked": 1161,
+      "extras": []
+    },
+    {
+      "move_id": "S2C2002",
+      "source": "data/pallet/blender_scene",
+      "destination": "data/pallet/assets/scenes/production/blender_scene",
+      "planned_file_count": 173,
+      "actual_file_count": 175,
+      "count_delta": 2,
+      "planned_bytes": 3836556170,
+      "actual_bytes": 4554353915,
+      "byte_delta": 717797745,
+      "missing": [],
+      "missing_count": 0,
+      "extra_count": 2,
+      "moved_file_sha_mismatch": [],
+      "moved_file_sha_mismatch_count": 0,
+      "sha256_checked": 173,
+      "extras": [
+        {
+          "relative_path": "synth_data_scene_portable_stage2c2.blend",
+          "size": 358898838,
+          "sha256": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+          "mtime": "2026-07-29 18:29:24",
+          "registry_keys": [
+            "production_scene"
+          ]
+        },
+        {
+          "relative_path": "synth_data_scene_portable_stage2c2_candidate.blend1",
+          "size": 358898907,
+          "sha256": "5cad94e59d678b01517bfa83e4247f96c234af60654c411c32ff1a1ad9c3e668",
+          "mtime": "2026-07-29 16:56:38",
+          "registry_keys": []
+        }
+      ]
+    }
+  ]
+}

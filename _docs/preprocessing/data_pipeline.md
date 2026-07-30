@@ -61,7 +61,7 @@ batch_01/
 python scripts/data_prep/verify_keypoints.py
 
 # Annotation overlay 시각화
-python scripts/data_prep/visualize_annotations.py --data_dir data/pallet/training_data/train
+python scripts/data_prep/visualize_annotations.py --data_dir data/pallet/archive/training_data/train
 ```
 
 ### 검증 항목
@@ -79,7 +79,7 @@ python scripts/data_prep/visualize_annotations.py --data_dir data/pallet/trainin
 
 Isaac Sim 외에 Blender + glTF 배경으로 추가 합성 데이터를 생성한다.
 
-### 배경 에셋 (`data/pallet/background/`)
+### 배경 에셋 (`data/pallet/assets/scenes/backgrounds/background/`)
 
 | 배경 | 파일 | 스케일 | 적합도 |
 |------|------|--------|--------|
@@ -116,7 +116,7 @@ python scripts/data_prep/merge_and_validate.py
 ## 7. 최종 데이터 구성
 
 ```
-data/pallet/training_data/
+data/pallet/archive/training_data/
 ├── train/          # ~2,000 프레임 (10 배치 × 200)
 │   ├── 000000.png
 │   ├── 000000.json

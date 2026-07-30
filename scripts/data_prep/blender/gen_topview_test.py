@@ -15,7 +15,7 @@ Differences vs gen_preview10.py (which is LEFT UNTOUCHED):
   - N target = 24, outputs to data/pallet/_test_topview/ (does NOT touch _preview10).
 
 Run (headless):
-    blender -b data/pallet/blender_scene/synth_data_scene.blend \
+    blender -b "$(python scripts/data_prep/blender/pallet_data_paths.py --key production_scene)" \
         --python scripts/data_prep/blender/gen_topview_test.py
 """
 

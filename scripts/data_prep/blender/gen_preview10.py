@@ -2,7 +2,7 @@
 camera-dynamic 0123 keypoint IDs (compute_perm_v4).
 
 Run (headless):
-    blender -b data/pallet/blender_scene/synth_data_scene.blend \
+    blender -b "$(python scripts/data_prep/blender/pallet_data_paths.py --key production_scene)" \
         --python scripts/data_prep/blender/gen_preview10.py
 Outputs:
     data/pallet/_preview10/{images,json,overlay}/

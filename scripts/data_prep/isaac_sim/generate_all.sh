@@ -38,10 +38,13 @@ cd "$PROJECT_ROOT"
 
 PYTHON_EXE="C:/Users/minjae/anaconda3/envs/pallet-pose/python.exe"
 SCRIPT="scripts/data_prep/isaac_sim/gen_replicator_data.py"
-TRAIN_BASE="data/pallet/training_data"
+# Stage 2-D0.1: 두 경로가 Stage 2-A/2-B 이동 후 깨져 있었다.
+#   training_data -> archive/training_data (NoAI baked, 릴리스 제외 — 재생성 대상)
+#   hdri          -> registry hdri_root
+TRAIN_BASE="${TRAIN_BASE:-data/pallet/archive/training_data}"
 BATCH_SIZE=64
 RENDERER="PathTracing"
-HDRI_DIR="data/pallet/hdri"
+HDRI_DIR="$(python scripts/data_prep/blender/pallet_data_paths.py --key hdri_root)"
 
 # v11: 출력 디렉토리 접두사 (기존 train_batch_* 보존)
 BATCH_PREFIX="${BATCH_PREFIX:-train_v11_batch}"

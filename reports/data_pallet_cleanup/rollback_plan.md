@@ -56,7 +56,7 @@ manifest_sha256 = 위 텍스트(UTF-8, LF)의 SHA256
 - 크기가 8 MB 를 넘어도 **표본 추출된 파일**(디렉토리당 최대 20개, 최소 3개)
 - 이동 대상이 단일 파일인 경우(`*.blend`, `*.zip`)는 **크기 무관 전량 해시**
 
-> Stage 1 인벤토리에서 이미 3,000개 파일의 SHA256 을 계산해 `inventory.csv` 에 넣어 두었다
+> Stage 1 인벤토리에서 이미 3,000개 파일의 SHA256 을 계산해 `grouped_inventory.csv` 에 넣어 두었다
 > (`hash_status` = OK / SKIPPED_LARGE). Stage 2 의 pre-hash 는 이 값과 먼저 대조한다.
 
 ## 3. 이동 1건의 표준 순서
@@ -125,7 +125,7 @@ G7 blend 텍스처 무결            blender -b <blend> --python-expr
 3) 각 건마다 G1/G2 통과를 확인한 뒤 다음 건으로 진행
 4) 전부 되돌린 뒤 Stage 1 스냅샷과 최종 대조:
      - 디렉토리 2,489 / 파일 363,015 / 191,023,311,090 bytes
-     - reports/data_pallet_cleanup/inventory.csv 의 sha256(hash_status=OK) 전량 재검증
+     - reports/data_pallet_cleanup/grouped_inventory.csv 의 sha256(hash_status=OK) 전량 재검증
 ```
 
 ## 6. Stage 1 기준선 (rollback 최종 대조값)
@@ -134,10 +134,10 @@ G7 blend 텍스처 무결            blender -b <blend> --python-expr
 항목                    값                     근거
 ──────────────────────────────────────────────────────────────────────────
 디렉토리 수             2,489                  directories.csv 행 수
-파일 수                 363,015                inventory.csv / os.walk 집계
+파일 수                 363,015                grouped_inventory.csv / os.walk 집계
 총 bytes                191,023,311,090        os.walk 집계 (191.02 GB)
-SHA256 계산 완료 파일    3,005                  inventory.csv hash_status=OK
-빈 디렉토리             400                    inventory.csv is_empty=true
+SHA256 계산 완료 파일    3,005                  grouped_inventory.csv hash_status=OK
+빈 디렉토리             400                    grouped_inventory.csv is_empty=true
 git 상태                clean (HEAD ff972c2)   git status --porcelain 무출력
 ```
 

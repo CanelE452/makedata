@@ -189,7 +189,8 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
 
     # Synthetic val
-    syn_imgs = sorted(glob.glob('data/pallet/training_data/val/*.png'))
+    # Stage 2-D0.1: training_data 는 archive/ 아래 (NoAI baked)
+    syn_imgs = sorted(glob.glob('data/pallet/archive/training_data/val/*.png'))
     syn_step = max(1, len(syn_imgs) // 5)
     syn_sel = syn_imgs[::syn_step][:5]
 

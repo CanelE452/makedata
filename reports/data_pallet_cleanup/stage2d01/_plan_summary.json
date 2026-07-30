@@ -1,0 +1,33 @@
+{
+  "rows": 60,
+  "ready": 40,
+  "ready_bytes": 142134662870,
+  "ready_files": 191528,
+  "blocked": 8,
+  "keep": 12,
+  "demoted_for_live_reference": 4,
+  "blocked_bytes": 32922799213,
+  "estimated_hash_read_bytes": 284269325740,
+  "cohorts": {
+    "D1B_CORRUPT": {
+      "ready": 1,
+      "bytes": 4529431174,
+      "files": 1
+    },
+    "D1D_BLEND_BACKUPS": {
+      "ready": 10,
+      "bytes": 2400984463,
+      "files": 10
+    },
+    "D1A_PACKAGES": {
+      "ready": 14,
+      "bytes": 80761480127,
+      "files": 14
+    },
+    "D1C_LEGACY_DATASETS": {
+      "ready": 15,
+      "bytes": 54442767106,
+      "files": 191503
+    }
+  }
+}

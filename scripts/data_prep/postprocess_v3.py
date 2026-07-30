@@ -195,8 +195,11 @@ def process_frame(jp, src_root, out_root, surface_obj=None, dry=False):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--source-root", default="data/pallet/train_palletobj_v3")
-    ap.add_argument("--output-root", default="data/pallet/train_palletobj_v3_post_v1")
+    ap.add_argument("--source-root",
+                    default="data/pallet/archive/train_palletobj_v3",
+                    help="Stage 2-D0.1: archive/ 아래로 내려간 실제 현재 위치")
+    ap.add_argument("--output-root",
+                    default="data/pallet/archive/train_palletobj_v3_post_v1")
     ap.add_argument("--batches", nargs="*", default=None, help="e.g. batch_000")
     ap.add_argument("--surface-fps", default=None, help="surface_fps_v1.json path")
     ap.add_argument("--dry-run", action="store_true")

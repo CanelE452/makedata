@@ -53,7 +53,9 @@ done
 
 ROOT="E:/CODING/GitHub/FoundationPose"
 BLENDER="/c/Program Files/Blender Foundation/Blender 5.1/blender.exe"
-SCENE="${ROOT}/data/pallet/blender_scene/_sandbox_palletobj_production.blend"
+# Stage 2-D0.1: blender_scene 이 assets/scenes/production/ 아래로 이동했다(Stage 2-C2).
+# 새 경로를 다시 리터럴로 박지 않고 registry 에 물어본다.
+SCENE="$(python "${ROOT}/scripts/data_prep/blender/pallet_data_paths.py" --key experimental_scene)"
 SCRIPT="${ROOT}/scripts/data_prep/blender/run_mass_10k.py"
 ABS_OUT="${ROOT}/${OUT}"
 LOG="${ROOT}/data/pallet/$(basename "$OUT")_gen.log"

@@ -1,0 +1,16 @@
+{
+  "10_ready_row_blocker": 0,
+  "10b_corrupt_note": [
+    "삭제 금지 — 보존 이동만"
+  ],
+  "11_ready_source_missing": 0,
+  "12_ready_dest_collision": 0,
+  "13_unknown_in_ready": 0,
+  "14_quarantine_in_ready": 0,
+  "15_rollback_critical_in_ready": 0,
+  "ready_runtime_refs_nonzero": 0,
+  "ready_test_refs_nonzero": 0,
+  "ready_cross_volume": 0,
+  "ready_count": 40,
+  "ready_bytes": 142134662870
+}

@@ -10,13 +10,18 @@ import os
 import shutil
 import sys
 
-BASE_DIR = os.path.join("data", "pallet", "training_data")
-TRAIN_DIRS = sorted([d for d in os.listdir(os.path.join("data", "pallet", "training_data"))
+# Stage 2-D0.1: training_data 는 archive/ 아래로 내려갔다(NoAI baked, 릴리스 제외 대상).
+# 같은 리터럴을 5번 반복하던 것을 상수 하나로 모으고 실제 현재 위치로 정정한다.
+# 환경변수로 다른 학습셋을 지정할 수 있게 해 두어 다음 이동 때 코드를 안 고쳐도 되게 한다.
+BASE_DIR = os.environ.get(
+    "PALLET_TRAINING_DATA_DIR",
+    os.path.join("data", "pallet", "archive", "training_data"))
+TRAIN_DIRS = sorted([d for d in os.listdir(BASE_DIR)
                      if (d.startswith("train_batch_") or d.startswith("train_v11_batch_"))
-                     and os.path.isdir(os.path.join("data", "pallet", "training_data", d))])
-VAL_BATCH_DIRS = sorted([d for d in os.listdir(os.path.join("data", "pallet", "training_data"))
+                     and os.path.isdir(os.path.join(BASE_DIR, d))])
+VAL_BATCH_DIRS = sorted([d for d in os.listdir(BASE_DIR)
                          if (d.startswith("val_batch_") or d.startswith("val_v11_batch_"))
-                         and os.path.isdir(os.path.join("data", "pallet", "training_data", d))])
+                         and os.path.isdir(os.path.join(BASE_DIR, d))])
 VAL_DIR = "val"
 MERGED_TRAIN = "train"
 

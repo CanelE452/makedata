@@ -1,7 +1,7 @@
 """Generate synthetic data for palletobj (data/palletobj/pallet_full.obj).
 
 Run with:
-  blender -b data/pallet/blender_scene/_sandbox_parking_lot_check.blend \
+  blender -b data/pallet/assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend \
           --python scripts/data_prep/blender/gen_palletobj_v1.py -- \
           --out data/pallet/test_palletobj_v1 --n 10 --seed 42
 """
@@ -566,7 +566,7 @@ def draw_overlay(img_path, ann, kp_proj, c_proj):
 # ---------- save baseline ----------
 print(f"[setup] saving sandbox backup before run...")
 try:
-    bpy.ops.wm.save_as_mainfile(filepath="data/pallet/blender_scene/_sandbox_parking_lot_check.blend", copy=True)
+    bpy.ops.wm.save_as_mainfile(filepath="data/pallet/assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend", copy=True)
 except Exception as e:
     print(f"[warn] could not save: {e}")
 

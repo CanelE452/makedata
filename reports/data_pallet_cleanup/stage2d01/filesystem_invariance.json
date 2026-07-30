@@ -1,0 +1,97 @@
+{
+  "stage": "2-D0.1",
+  "before_source": "reports/data_pallet_cleanup/stage2d0 (60e0860)",
+  "areas_after": {
+    "data/pallet/assets": {
+      "files": 1565,
+      "bytes": 7920176566,
+      "dirs": 701
+    },
+    "data/pallet/reference": {
+      "files": 3135,
+      "bytes": 437509283,
+      "dirs": 9
+    },
+    "data/pallet/archive": {
+      "files": 327650,
+      "bytes": 88679238171,
+      "dirs": 801
+    },
+    "data/pallet/isaac_assets": {
+      "files": 4543,
+      "bytes": 4350676768,
+      "dirs": 85
+    },
+    "data/pallet/manifests": {
+      "files": 5,
+      "bytes": 140975,
+      "dirs": 0
+    },
+    "data/pallet/release": {
+      "files": 1,
+      "bytes": 2512,
+      "dirs": 3
+    },
+    "data/pallet/runs": {
+      "files": 6982,
+      "bytes": 1206352337,
+      "dirs": 855
+    },
+    "weights": {
+      "files": 57,
+      "bytes": 5774254539,
+      "dirs": 8
+    }
+  },
+  "archive_entries_checked": 166,
+  "archive_diffs": [],
+  "packages_checked": 20,
+  "package_diffs": [],
+  "blends_checked": 17,
+  "blend_diffs": [],
+  "weights_checked": 29,
+  "weight_diffs": [],
+  "legacy_datasets_checked": 120,
+  "legacy_dataset_diffs": [],
+  "data_pallet_before": {
+    "dirs": 2560,
+    "files": 363090,
+    "bytes": 192468045942
+  },
+  "data_pallet_after": {
+    "dirs": 2560,
+    "files": 363090,
+    "bytes": 192468047026
+  },
+  "data_pallet_delta": {
+    "dirs": 0,
+    "files": 0,
+    "bytes": 1084
+  },
+  "hash_read_bytes": {
+    "blends": 4490320024,
+    "weights": 5689045457,
+    "total_gb": 9.48
+  },
+  "total_problems": 0,
+  "final": {
+    "asset_move": 0,
+    "dataset_move": 0,
+    "package_move": 0,
+    "blend_move": 0,
+    "weight_move": 0,
+    "delete": 0,
+    "d1_apply": 0,
+    "evidence": "이 단계에서 --apply / --rollback / mv / os.rename 을 실행하지 않았고, 위 전수 대조에서 path/size/SHA256 불일치 0"
+  },
+  "allowed_changes": [
+    {
+      "path": "data/pallet/_DISTRIBUTION_EXCLUDE.txt",
+      "before_bytes": 2502,
+      "after_bytes": 3586,
+      "delta_bytes": 1084,
+      "reason": "Stage 2-D0.1 §4 — exclusion entry 11 -> 16 (NoAI ZIP 1 + UNKNOWN_LICENSE 파생 4)"
+    }
+  ],
+  "data_pallet_delta_explained": "bytes +1084 = _DISTRIBUTION_EXCLUDE.txt 단독. asset/dataset/package/blend/weight 파일은 path/size/SHA256 전수 불일치 0 (전수 대조: archive depth-1 166 · package 20 · blend 17 · weight 29 · legacy dataset 120)"
+}

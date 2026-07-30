@@ -1,0 +1,17 @@
+{
+  "files": 20,
+  "checked": 67,
+  "old_active_path_resolution": 0,
+  "registry_key_error": 0,
+  "missing_input_path": 0,
+  "output_created_at_run": 8,
+  "pre_existing_missing": 4,
+  "registry_keys_used": [
+    "distractor_manifest",
+    "distractor_root",
+    "experimental_scene",
+    "hdri_root",
+    "pallet_model_roots",
+    "production_scene"
+  ]
+}

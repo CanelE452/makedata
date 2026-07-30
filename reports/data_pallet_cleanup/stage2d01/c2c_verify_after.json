@@ -1,0 +1,103 @@
+{
+  "stage": "2-D0.1",
+  "manifest": "reports/data_pallet_cleanup/stage2c2/transactions/c2c_distractor_scene.jsonl",
+  "manifest_sha256": "241f5c569d2be92488a2f653fece287ac213886373292f28fd4a23a30ebce2c7",
+  "manifest_unchanged": true,
+  "allowlist": "reports/data_pallet_cleanup/stage2d01/c2c_expected_additions.json",
+  "modes": {
+    "strict_no_allowlist": {
+      "verified_moves": 2,
+      "files": 1336,
+      "bytes": 6513107979,
+      "sha256_checked": 1334,
+      "moved_source_missing": 0,
+      "moved_file_sha_mismatch": 0,
+      "failures": 3,
+      "failure_detail": [
+        "S2C2002 RELPATH_SET extra=['synth_data_scene_portable_stage2c2.blend', 'synth_data_scene_portable_stage2c2_candidate.blend1']",
+        "S2C2002 FILE_COUNT 175 != 173",
+        "S2C2002 TOTAL_BYTES 4554353915 != 3836556170"
+      ],
+      "exit_code": 1,
+      "interpretation": "manifest 생성 이후 destination 에 정상 추가된 2개 파일 때문. 원래 옮긴 1334 파일은 SHA256 전수 일치, 누락 0."
+    },
+    "exact_expected_additions": {
+      "verified_moves": 2,
+      "files": 1336,
+      "bytes": 6513107979,
+      "sha256_checked": 1334,
+      "moved_source_missing": 0,
+      "moved_file_sha_mismatch": 0,
+      "unexpected_addition": 0,
+      "expected_addition_missing": 0,
+      "addition_size_mismatch": 0,
+      "addition_sha256_mismatch": 0,
+      "allowed_additions": [
+        {
+          "move_id": "S2C2002",
+          "relative_path": "synth_data_scene_portable_stage2c2.blend",
+          "sha256_prefix": "8cb4109adc6d3213",
+          "role": "active_stage2c2_scene"
+        },
+        {
+          "move_id": "S2C2002",
+          "relative_path": "synth_data_scene_portable_stage2c2_candidate.blend1",
+          "sha256_prefix": "5cad94e59d678b01",
+          "role": "blender_automatic_backup"
+        }
+      ],
+      "failures": 0,
+      "exit_code": 0
+    }
+  },
+  "negative_cases": [
+    {
+      "case": "allowlist 에서 extra 1개를 뺀 명세",
+      "spec": "neg_partial.json (expected_additions 2 -> 1)",
+      "expected": "실패",
+      "observed": "failures 3 — UNEXPECTED_ADDITION synth_data_scene_portable_stage2c2_candidate.blend1 + FILE_COUNT + TOTAL_BYTES",
+      "exit_code": 1,
+      "verdict": "PASS"
+    },
+    {
+      "case": "--allow-destination-additions 단독 사용",
+      "expected": "오류로 거부",
+      "observed": "argparse error — 무엇을 허용할지 명시하라는 메시지",
+      "exit_code": 2,
+      "verdict": "PASS"
+    },
+    {
+      "case": "manifest_sha256 를 0*64 로 위조",
+      "spec": "neg_wrongsha.json",
+      "expected": "결속 검사 실패",
+      "observed": "명세 오류 — actual 241f5c56... 와 불일치",
+      "exit_code": 2,
+      "verdict": "PASS"
+    },
+    {
+      "case": "expected addition 의 sha256 을 f*64 로 위조",
+      "spec": "neg_wronghash.json",
+      "expected": "ADDITION_SHA256 실패",
+      "observed": "failures — 해시 불일치로 addition 불인정, FILE_COUNT/TOTAL_BYTES 까지 실패",
+      "exit_code": 1,
+      "verdict": "PASS"
+    },
+    {
+      "case": "relative_path 가 destination 밖으로 나가는 명세 (../escape.txt)",
+      "spec": "neg_escape.json",
+      "expected": "escape 거부",
+      "observed": "명세 오류 — relative_path 가 destination 밖으로 나갑니다",
+      "exit_code": 2,
+      "verdict": "PASS"
+    }
+  ],
+  "stage2ab_behaviour_unchanged": {
+    "note": "Stage 2-A/2-B verify 는 allowlist 옵션 없이 그대로 통과. §11-F 참조.",
+    "stage2a_failures": 0,
+    "stage2b_b1_failures": 0,
+    "stage2b_b2_failures": 0,
+    "stage2b_b3_failures": 0,
+    "stage2c2_c2a_failures": 0,
+    "stage2c2_c2b_failures": 0
+  }
+}

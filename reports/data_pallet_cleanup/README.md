@@ -67,7 +67,7 @@ SHA256 미계산            large_files.csv 의 54개 등 — hash_status=SKIPPE
 
 확장자 상위: `.png` 245,653 / `.json` 111,249 / `.jpg` 2,478 / `.usd` 1,862 / `.log` 380 / `.jsonl` 139
 
-> **인벤토리 범위 규칙**: `inventory.csv` 는 *분류 단위*(최상위 전체 + `archive/`·`blender_scene/` 하위 + 개별 지정 파일)
+> **인벤토리 범위 규칙**: `grouped_inventory.csv` (구 `inventory.csv`, Stage 2-D0.1 개명) 는 *분류 단위*(최상위 전체 + `archive/`·`blender_scene/` 하위 + 개별 지정 파일)
 > **416행**을 담는다. 디렉토리는 `directories.csv` 에 **2,489행 전량**, 대용량 파일은 `large_files.csv` 에 **54행**.
 > 363,015개 파일 전체를 행으로 펴지 않은 이유는 정리 판단이 폴더 단위로 이뤄지고,
 > 개별 파일 지표(수·바이트·확장자 히스토그램)는 디렉토리 행에 재귀 집계로 이미 담겨 있기 때문이다.
@@ -390,7 +390,9 @@ reports/data_pallet_cleanup/
 ├── README.md                        이 문서 (최종 보고)
 ├── proposed_tree.md                 현재 구조 ↔ 제안 구조
 ├── rollback_plan.md                 Stage 2 rollback 절차 (삭제 명령 없음)
-├── inventory.csv                    416행 — 분류 단위 엔트리 (35 컬럼)
+├── grouped_inventory.csv            416행 — 분류 단위(디렉토리/그룹) 엔트리 (35 컬럼)
+│                                    ※ Stage 2-D0.1 에서 inventory.csv 를 개명. 전 파일
+│                                      manifest 가 아니라 그룹 집계임을 이름에 반영.
 ├── directories.csv                  2,489행 — 전체 디렉토리
 ├── large_files.csv                  54행 — 50MB 이상 파일
 ├── active_path_references.csv       556행 — 경로 참조 그래프

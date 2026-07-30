@@ -8,7 +8,7 @@ Canonical per-asset 출처는 각 폴더의 `SOURCES.txt` / `license.txt` 에도
 
 ## 1. Distractor — Sketchfab (16종, 전부 CC-BY 4.0)
 
-gap-fill로 추가(2026-07-24). 저장: `data/pallet/distractors/{tier}/sf__<name>/`.
+gap-fill로 추가(2026-07-24). 저장: `data/pallet/assets/distractors/library/{tier}/sf__<name>/`.
 
 ```
 name                     sketchfab title                     author            license      url
@@ -37,9 +37,9 @@ traffic_barricade_01     Traffic Barrier                     chamindu918       C
 
 ## 2. 그 외 표기 필요 CC-BY 에셋 (통합 릴리스 시 함께 포함)
 
-- **Distractor — Google Scanned Objects (128종, CC-BY 4.0)** — *2026-07-24 D 확장: 32 → 128 (+96)*. 저작자 = Google Research, via Gazebo Fuel(GoogleResearch). 확장분 96종 구성: box 39 · container 31 · office 14 · warehouse 10 · other 2. 개별 모델 URL·이름은 `data/pallet/distractors/distractors_manifest.csv`(`source=gso`, `url` 열 = `https://app.gazebosim.org/GoogleResearch/fuel/models/<name>`) 및 각 폴더 `SOURCES.txt` 참조. 표기: `Google Scanned Objects, Google Research, CC BY 4.0.`
+- **Distractor — Google Scanned Objects (128종, CC-BY 4.0)** — *2026-07-24 D 확장: 32 → 128 (+96)*. 저작자 = Google Research, via Gazebo Fuel(GoogleResearch). 확장분 96종 구성: box 39 · container 31 · office 14 · warehouse 10 · other 2. 개별 모델 URL·이름은 `data/pallet/assets/distractors/library/distractors_manifest.csv`(`source=gso`, `url` 열 = `https://app.gazebosim.org/GoogleResearch/fuel/models/<name>`) 및 각 폴더 `SOURCES.txt` 참조. 표기: `Google Scanned Objects, Google Research, CC BY 4.0.`
   - **우리가 가한 변경(고지 의무 — CC-BY §3(b) "indicate if changes were made")**: ① 접지 정규화(mesh min-z → 0), ② XY 중심 정규화, ③ (일부) glb/obj 재익스포트, ④ MTL `map_Kd` 텍스처 경로 재bind. 원본 지오메트리/텍스처 콘텐츠는 불변, 좌표/포맷/경로만 조정.
-- **배경 glTF (2종, CC-BY 4.0)**: `modular_buildings_industrial_area` (author BazukaliKartal), `parking_lot` (author Veterock) — 정확 URL은 `data/pallet/background/<name>/license.txt` 참조.
+- **배경 glTF (2종, CC-BY 4.0)**: `modular_buildings_industrial_area` (author BazukaliKartal), `parking_lot` (author Veterock) — 정확 URL은 `data/pallet/assets/scenes/backgrounds/background/<name>/license.txt` 참조.
 
 ## 3. 표기 불필요/제외 (참고)
 - CC0: Poly Haven HDRI 30, wood 텍스처 9, EUR-Pallet(BlenderKit), pallet_full.obj(본인 photogrammetry) → 표기 의무 없음(권장만).

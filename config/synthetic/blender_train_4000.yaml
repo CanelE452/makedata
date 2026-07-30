@@ -17,7 +17,7 @@
     "taa_render_samples": 64
   },
   "output": {
-    "base_dir": "data/pallet/training_data",
+    "base_dir": "data/pallet/training_data_v11",
     "version_prefix": "blender_train_v",
     "overlay_subdir": "overlay",
     "save_overlay": false

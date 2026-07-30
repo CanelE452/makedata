@@ -51,7 +51,25 @@ B3   해소            USD↔Sketchfab 매핑: 렌더로 P0/P1=플라스틱·P2/
 B4   해소            floor 14/14 Poly Haven CC0 확정(미검증 5종 CC0 교체)              floor 전부 CC0(표기 불요)
 B5   미해결 MEDIUM   CC-BY 저작자표시 의무 미이행 시 위반(첨부 attribution 필수)        Sketchfab/GSO/CC-BY 전부
 B6   미해결 LOW      isaac_assets/(NVIDIA 창고 USD) 트리에 존재 — 배포물서 제외 필요     소스 에셋(렌더 산출물 아님)
+B7   해소            NoAI dataset 압축본이 exclusion 에서 빠져 ZIP 경로로 누출 가능     train_4pallet_mask_v1.zip
+B8   미해결 MEDIUM   v4 계열 파생 4종의 NoAI 상속 미확정 — 보수적 제외 유지중           GREYBUG·bg1bak·emptywood·pilotA
 ```
+
+**B7 (해소 2026-07-30, Stage 2-D0.1)** — `archive/train_4pallet_mask_v1/`(NoAI baked)은
+`_DISTRIBUTION_EXCLUDE.txt` 에 있었는데 **대응 압축본 `train_4pallet_mask_v1.zip`(9.0GB)이
+빠져 있었다.** 추출본만 제외하면 같은 NoAI 산출물이 ZIP 경로로 릴리스에 들어갈 수 있다.
+→ ZIP 을 exclusion 에 추가했다(entries 11→16, problems 0, leaks 0).
+다른 NoAI 압축본(`training_data_v4_split.zip` 등)은 이미 제외된 디렉토리 **안**에 있어 덮인다.
+`pallet.zip`(15.5GB)은 central directory 실측 결과 구성이 `train_palletobj_v1`+`v2` 뿐이고
+둘 다 redistributable 이므로 **제외 대상이 아니다**(B5 attribution 만 필요). [확인]
+
+**B8 (신규 2026-07-30, Stage 2-D0.1)** — `archive/` 아래 v4 계열 파생 4종
+(`training_data_v4_split_GREYBUG` · `_bg1bak` · `training_data_v4_emptywood` ·
+`training_data_v4_pilotA`, 합 14.2GB)은 이름상 `training_data_v4*` 파생이고 그 본체는
+NoAI baked 로 제외돼 있다. 그러나 **파생본이 같은 blend 로 렌더됐는지는 라벨 metadata 로
+확인하지 않았다** — 이름 유사성만으로 NoAI 를 단정하지 않는다.
+UNKNOWN_LICENSE 로 두고 **보수적으로 exclusion 유지**한다(잘못 배포하면 되돌릴 수 없다).
+해소 조건: 각 dataset 라벨의 generator/blend 지문을 읽어 NoAI 목재 사용 여부를 확정.
 
 **B1 (CRITICAL → 해소 2026-07-24)** — 시드 감사에서 확인된 4번째 팔레트 "Old Wooden Pallet"(Luka Feric) =
 Sketchfab **Free Standard License + NoAI 태그**(Standard=재배포 금지 + NoAI=AI/ML 학습·데이터셋 사용 금지).
@@ -188,8 +206,8 @@ HDRI ×30 (.hdr)     data/pallet/assets/lighting/hdri/library/*.hdr Poly Haven  
 ```
 asset                            저장경로                                       출처       저작자           라이선스    공개  비고
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-modular_buildings_industrial_area data/pallet/background/modular_buildings.../   Sketchfab  BazukaliKartal   CC-BY 4.0   Y*    *표시 필수(B5)
-parking_lot                       data/pallet/background/parking_lot/            Sketchfab  Veterock         CC-BY 4.0   Y*    *표시 필수(B5)
+modular_buildings_industrial_area assets/.../background/modular_buildings.../     Sketchfab  BazukaliKartal   CC-BY 4.0   Y*    *표시 필수(B5)
+parking_lot                       assets/.../background/parking_lot/              Sketchfab  Veterock         CC-BY 4.0   Y*    *표시 필수(B5)
 (modern_city_block)               제거됨(scratchpad 격리)                        Sketchfab  -                Standard(비CC) N     사용 금지
 ```
 - 각 폴더 `license.txt`에 title/author/CC-BY4.0/credit 문구 명시 [확인].
@@ -209,9 +227,9 @@ parking_lot                       data/pallet/background/parking_lot/           
 ```
 group                     저장경로                                출처                   라이선스    공개  비고
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
-GSO ×128                  data/pallet/distractors/{tier}/(gso__*)  Google Scanned Objects CC-BY 4.0   Y*    *표시 필수(B5); 32→128(D확장)
-Poly Haven ×65            data/pallet/distractors/{tier}/(ph__*)   Poly Haven             CC0 1.0     Y     -
-Sketchfab ×16             data/pallet/distractors/{tier}/(sf__*)   Sketchfab              CC-BY 4.0   Y*    *표시 필수(B5)
+GSO ×128                  assets/distractors/library/{tier}/(gso__*)  Google Scanned Objects CC-BY 4.0   Y*    *표시 필수(B5); 32→128(D확장)
+Poly Haven ×65            assets/distractors/library/{tier}/(ph__*)   Poly Haven             CC0 1.0     Y     -
+Sketchfab ×16             assets/distractors/library/{tier}/(sf__*)   Sketchfab              CC-BY 4.0   Y*    *표시 필수(B5)
 ```
 - **GSO 32→128 확장(2026-07-24 D)**: +96종(box39·container31·office14·warehouse10·other2), 전부 CC-BY 4.0,
   저작자=Google Research(via Gazebo Fuel GoogleResearch). manifest 총 209행(+1.2GB). ⚠️일부 GSO OBJ의
@@ -315,7 +333,7 @@ cargo(배럴/카드보드)  production blend (baked, CARGO_SOURCES)            P
 ```
 dataset                          저장경로                                    상속 블로커
 ────────────────────────────────────────────────────────────────────────────────────────────
-train_palletobj_v1/v2/v3         data/pallet/train_palletobj_v{1,2,3}/       팔레트=자작 OBJ, floor=CC0, occluder=CC0/CC-BY → B5만
+train_palletobj_v1/v2/v3         archive/train_palletobj_v{1,2,3}/            팔레트=자작 OBJ, floor=CC0, occluder=CC0/CC-BY → B5만
 train_palletobj_addon_v1         data/pallet/archive/train_palletobj_addon_v1/       팔레트=자작 OBJ → B5(CC-BY occluder 표시)만
 train_4pallet_mask_v1            data/pallet/archive/train_4pallet_mask_v1/          B1(NoAI 목재 P2/P3 baked) [+ B5]
 trunc_addon_v1                   data/pallet/archive/trunc_addon_v1/                 팔레트=자작 OBJ → B5만

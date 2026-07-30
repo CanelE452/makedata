@@ -4,10 +4,17 @@ import sys
 import numpy as np
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", ".."))
+# Stage 2-D0.1: `..`/`..` 는 scripts/ 까지만 올라가서 PROJECT_ROOT 가 틀려 있었다
+# (scripts/data/pallet/models_usd 를 읽으려 했다). registry resolver 가 프로젝트 루트를
+# 스스로 찾으므로 그것을 정본으로 쓴다.
+sys.path.insert(0, os.path.join(SCRIPT_DIR, "..", "blender"))
+import pallet_data_paths as _pdp  # noqa: E402
+
+PROJECT_ROOT = _pdp.load().project_root
 sys.path.insert(0, PROJECT_ROOT)
 
-USD_DIR = os.path.join(PROJECT_ROOT, "data", "pallet", "models_usd")
+# Stage 2-B 에서 models_usd 가 assets/pallets/models/models_usd 로 옮겨졌다.
+USD_DIR = _pdp.get("pallet_model_roots")[0]
 usd_files = sorted([f for f in os.listdir(USD_DIR) if f.endswith(".usd")])
 
 print("=== Pallet Model Orientation Diagnosis ===\n")

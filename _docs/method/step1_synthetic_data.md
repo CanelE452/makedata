@@ -20,7 +20,7 @@ NVIDIA Developer 공식 자료에서 제시한 워크플로우를 기반으로 �
 
 ## 3.3 3D 모델
 
-4종 USD 팔레트 모델 사용 (`data/pallet/models_usd/scene*.usd`).
+4종 USD 팔레트 모델 사용 (`data/pallet/assets/pallets/models/models_usd/scene*.usd`).
 각 모델의 ORIENTATION_OVERRIDES와 좌표계 정규화 → [keypoint_definition.md](../preprocessing/keypoint_definition.md) 참조.
 
 ## 3.4 Domain Randomization 요약

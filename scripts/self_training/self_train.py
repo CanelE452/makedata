@@ -13,8 +13,8 @@ Pipeline per round:
 Usage:
     python scripts/self_training/self_train.py \\
         --config config/stage3_selftrain.yaml \\
-        --pretrained weights/pallet_category/net_pallet_best.pth \\
-        --synthetic_dir data/pallet/training_data/train \\
+        --pretrained weights/pallet_category/final_net_epoch_0060.pth \\
+        --synthetic_dir data/pallet/archive/training_data/train \\
         --real_dir data/pallet/real_unlabeled \\
         --output_dir output/stage3_selftrain
 

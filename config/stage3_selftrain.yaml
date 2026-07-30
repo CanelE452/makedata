@@ -78,11 +78,11 @@ augmentation:
 
 # --- Paths ---
 paths:
-  synthetic_data: data/pallet/training_data/train
+  synthetic_data: data/pallet/archive/training_data/train
   real_unlabeled: data/pallet/real_unlabeled
-  pretrained_weights: weights/pallet_category/net_pallet_best.pth
+  pretrained_weights: weights/pallet_category/final_net_epoch_0060.pth
   output_dir: output/stage3_selftrain
-  val_dir: data/pallet/training_data/val
+  val_dir: data/pallet/archive/training_data/val
 
 # --- Logging ---
 logging:

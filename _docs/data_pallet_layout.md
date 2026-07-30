@@ -241,11 +241,56 @@ data/pallet/manifests/path_map.csv   original -> current -> desired_final, refer
 data/pallet/manifests/archive.csv    archive 이동 계획 (Stage 2-A 실행 0건, executed=no)
 ```
 
-## 6. 다음 단계 (Stage 2-B 후보)
+## 6. 당시 "다음 단계 (Stage 2-B 후보)" — 현재 처리 상태
 
-1. `.blend` 내부 이미지 경로 덤프로 상대참조 확인 후 `assets/scenes/production/` 이동
-2. `archive/textures_{wood,floor}` → `assets/materials/{pallet,floor}` (registry 값만 바꾸면 코드 수정 불필요)
-3. `archive/trunc_addon_v1_pilot` → `reference/golden_overlay/` + 테스트 수정 + `pytest -rs` 로 skip 0 확인
-4. `hdri` / `models_usd` / `background` / `distractors` → `assets/` (registry + blender.yaml 동기화)
-5. `_DISTRIBUTION_EXCLUDE.txt` 갱신(현재 5/5 경로가 stale — 릴리스 게이트가 작동하지 않는 상태)
-6. archive 대상 이동(legacy_datasets 87.7GB, packages 80.8GB) — `manifests/archive.csv` 계획
+1. ✅ `.blend` 상대참조 확인 후 `assets/scenes/production/` 이동 — Stage 2-C1/C2
+2. ✅ `archive/textures_{wood,floor}` → `assets/materials/{pallet,floor}` — Stage 2-B
+3. ✅ `archive/trunc_addon_v1_pilot` → `reference/golden_overlay/` — Stage 2-B (golden 51 passed, skip 0)
+4. ✅ `hdri` / `models_usd` / `background` / `distractors` → `assets/` — Stage 2-B/C2
+5. ✅ `_DISTRIBUTION_EXCLUDE.txt` 갱신 — Stage 2-B(경로 정정) + Stage 2-D0.1(entry 11 → 16)
+6. ⏸ archive 대상 이동 — **Stage 2-D1. 계획만 확정, 미실행 (사용자 승인 대기)**
+
+## 7. archive 내부 정리 상태 (Stage 2-D0 / 2-D0.1)
+
+`data/pallet` 루트에 남은 **자산군은 없다.** 남은 일은 `archive/` **안**의 평면 배치를
+semantic 하위폴더로 정리하는 것이다.
+
+```
+현재 archive/          depth-1 entry 166개가 평평하게 놓여 있다
+Stage 2-A 가 만든        packages/ · legacy_datasets/ · legacy_scenes/ · … 7개 — 현재 **비어 있음**
+semantic 하위폴더        (Stage 2-D1 이 채울 곳)
+```
+
+Stage 2-D0(비파괴 감사, 이동 0)이 잔여 대용량을 분류하고 Stage 2-D0.1(안정화, 이동 0)이
+계획을 실행 가능한 상태로 고정했다. 계획 정본:
+
+```
+reports/data_pallet_cleanup/stage2d01/proposed_stage2d1_moves_final.csv
+reports/data_pallet_cleanup/stage2d01/stage2d1_readiness.md
+```
+
+```
+Stage 2-D1 계획 (Stage 2-D0.1 재계산 정본)
+──────────────────────────────────────────────────────────────
+row 60 = READY 40 (132.37 GiB · 191,528 파일) / BLOCKED 8 / KEEP 12
+
+cohort                READY   bytes        내용
+D1A_PACKAGES            14    75.21 GiB    원본 ZIP -> archive/packages/dataset_bundles/
+D1B_CORRUPT              1     4.22 GiB    열리지 않는 ZIP -> archive/packages/corrupt/ (삭제 아님)
+D1C_LEGACY_DATASETS     15    50.70 GiB    -> archive/legacy_datasets/{redistributable,partial,noai_baked}/
+D1D_BLEND_BACKUPS       10     2.24 GiB    cold blend/blend1 -> archive/legacy_scenes/{snapshots,blender_backups}/
+D1E_WEIGHTS              0        —        UNREFERENCED_WEIGHT 4개. data/pallet 밖 + 목적지 미정 -> 별도 승인
+D1F_QUARANTINE           0        —        isaac_assets(EULA) · NoAI USD -> 이동 금지
+```
+
+주의해서 읽을 것:
+
+- **package structural match 를 exact duplicate 라고 부르지 않는다.** ZIP 20개 중 어떤
+  쌍도 SHA256/CRC 로 동일 내용이 증명되지 않았다. `duplicates/` 목적지는 쓰지 않고
+  전부 보존 이동한다.
+- **weights exact duplicate 0** — 29개 전부 고유 SHA256. UNREFERENCED_WEIGHT 4개는
+  "참조가 없다"는 사실 기술이고 삭제 후보가 아니다.
+- **isaac_assets(4.05GB, NVIDIA EULA) · NoAI quarantine USD 3개는 이동 금지.**
+- BLOCKED 8 = 라이선스 미확정 4(v4 파생, ledger B8) + **CURRENT 경로 참조가 살아있는 4**
+  (`archive/training_data` 등). 후자는 이동 전에 registry 키 등록 + 참조 전환이 선행돼야
+  한다 — 지금 옮기면 방금 고친 참조가 다시 깨진다.

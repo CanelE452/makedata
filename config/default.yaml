@@ -50,8 +50,8 @@ loss:
 # --- Data ---
 data:
   object: pallet
-  train_dir: data/pallet/training_data/train
-  val_dir: data/pallet/training_data/val
+  train_dir: data/pallet/archive/training_data/train
+  val_dir: data/pallet/archive/training_data/val
   format: ndds                    # NDDS format ({i:06d}.png + {i:06d}.json)
   min_train_images: 100           # 최소 학습 이미지 수 (미만이면 에러)
   augmentation:

@@ -668,6 +668,95 @@ def _same_volume(a, b):
 # ---------------------------------------------------------------------------
 # --apply
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# destination additions (Stage 2-D0.1)
+#
+# 이동 후 destination 폴더에서 작업이 계속되면(예: Stage 2-C2 가 그 안에 새 씬을 만듦)
+# count/bytes/relpath 는 당연히 달라진다. 원장이 지켜야 하는 불변식은
+#   "옮긴 파일이 하나도 없어지지 않고 바이트가 그대로다"
+# 이지 "폴더가 얼어 있다" 가 아니다.
+#
+# 그러나 "없어진 게 없으면 추가는 아무거나 허용" 은 검증력이 없다 — 나중에 오염된 파일이
+# 섞여도 통과한다. 그래서 **예상한 파일만 exact 로 허용**한다(경로+크기+SHA256+역할).
+# ---------------------------------------------------------------------------
+class ExpectedAdditionsError(Exception):
+    """expected-additions 명세 자체가 성립하지 않는 경우 (verify 를 진행하지 않는다)."""
+
+
+def load_expected_additions(path, manifest_path, rows):
+    """expected-additions JSON 을 읽고 manifest 와 결속되는지 검사한다.
+
+    반환: {destination(str) -> {relative_path -> {"size","sha256","role"}}}
+    """
+    with open(path, encoding="utf-8") as fh:
+        spec = json.load(fh)
+
+    want_manifest_sha = spec.get("manifest_sha256")
+    actual_manifest_sha = _sha256(manifest_path)
+    if not want_manifest_sha:
+        raise ExpectedAdditionsError("manifest_sha256 가 없습니다 — 어느 트랜잭션의 명세인지 "
+                                     "결속되지 않으면 다른 원장에 잘못 적용될 수 있습니다")
+    if want_manifest_sha != actual_manifest_sha:
+        raise ExpectedAdditionsError(
+            "manifest_sha256 불일치 — 이 명세는 다른 transaction 을 가리킵니다.\n"
+            "  spec   %s\n  actual %s" % (want_manifest_sha, actual_manifest_sha))
+
+    moved_dests = {row["destination"] for row in rows}
+    default_dest = spec.get("destination_root")
+    out = {}
+    entries = spec.get("expected_additions") or []
+    if not isinstance(entries, list):
+        raise ExpectedAdditionsError("expected_additions 는 리스트여야 합니다")
+    for e in entries:
+        dest = e.get("destination") or default_dest
+        if not dest:
+            raise ExpectedAdditionsError("destination_root 또는 entry.destination 이 필요합니다")
+        dest = _posix(dest)
+        if dest not in moved_dests:
+            raise ExpectedAdditionsError(
+                "destination 이 이 manifest 의 이동 대상이 아닙니다: %s\n  허용: %s"
+                % (dest, sorted(moved_dests)))
+        rel = _posix(str(e.get("relative_path") or ""))
+        if not rel:
+            raise ExpectedAdditionsError("relative_path 가 비어 있습니다")
+        if os.path.isabs(rel) or rel.startswith("/") or ".." in rel.split("/"):
+            raise ExpectedAdditionsError("relative_path 가 destination 밖으로 나갑니다: %s" % rel)
+        if e.get("size") is None or not e.get("sha256"):
+            raise ExpectedAdditionsError("expected addition 에 size/sha256 이 필요합니다: %s" % rel)
+        bucket = out.setdefault(dest, {})
+        if rel in bucket:
+            raise ExpectedAdditionsError("expected addition 이 중복됩니다: %s" % rel)
+        bucket[rel] = {"size": int(e["size"]), "sha256": str(e["sha256"]),
+                       "role": e.get("role", "")}
+    return out
+
+
+def check_expected_additions(dest_rel, dest_abs, extra, allow_map):
+    """extra 파일 집합을 allowlist 와 exact 대조. (failures, accepted) 를 돌려준다."""
+    expected = allow_map.get(dest_rel, {})
+    failures, accepted = [], []
+    for rel in extra:
+        want = expected.get(rel)
+        if want is None:
+            failures.append("UNEXPECTED_ADDITION %s" % rel)
+            continue
+        ap = os.path.join(dest_abs, rel.replace("/", os.sep))
+        size = os.path.getsize(ap)
+        if size != want["size"]:
+            failures.append("ADDITION_SIZE %s (%d != %d)" % (rel, size, want["size"]))
+            continue
+        got = _sha256(ap)
+        if got != want["sha256"]:
+            failures.append("ADDITION_SHA256 %s" % rel)
+            continue
+        accepted.append({"relative_path": rel, "size": size, "sha256": got,
+                         "role": want["role"]})
+    for rel in expected:
+        if rel not in set(extra):
+            failures.append("EXPECTED_ADDITION_MISSING %s" % rel)
+    return failures, accepted
+
+
 def _entry_kind(row):
     """manifest row 의 entry_kind. Stage 2-A/2-B row 에는 필드가 없다(전부 directory)."""
     kind = row.get("entry_kind")
@@ -785,6 +874,20 @@ def cmd_verify(args, paths):
     rows = _read_manifest(args.manifest)
     failures = []
     added_notes = []
+    # destination additions 정책. 기본은 엄격(둘 다 없음 -> extra 는 곧 실패).
+    expected_map = None
+    allow_any = bool(getattr(args, "allow_any_destination_additions", False))
+    spec_path = getattr(args, "expected_destination_additions", None)
+    if spec_path:
+        try:
+            expected_map = load_expected_additions(spec_path, args.manifest, rows)
+        except ExpectedAdditionsError as exc:
+            print("expected-additions 명세 오류: %s" % exc, file=sys.stderr)
+            return 2
+    if allow_any:
+        print("경고: --allow-any-destination-additions 는 destination 의 모든 추가 파일을 "
+              "검증 없이 통과시킵니다. 실원장 검증에는 "
+              "--expected-destination-additions 를 쓰십시오.", file=sys.stderr)
     checked_files = checked_bytes = checked_hashes = checked_licenses = 0
     modes = {}
     for row in rows:
@@ -810,27 +913,39 @@ def cmd_verify(args, paths):
         else:
             post = snapshot(dst, set())
             dst_dir = dst
-        # 사후 해시는 사전에 해시한 것과 같은 집합만 비교한다.
-        # destination 에 **나중에 정상적으로 추가된** 파일과 **없어진/틀어진** 파일을 구분한다.
-        # 이동 후 그 폴더에서 계속 작업하면(예: Stage 2-C2 가 blender_scene 안에 새 씬을 만듦)
-        # count/bytes/relpath 는 당연히 달라진다. 원장 verify 가 지켜야 하는 불변식은
-        # "옮긴 파일이 하나도 없어지지 않고 바이트가 그대로다" 이지 "폴더가 얼어 있다" 가 아니다.
-        # 기본 동작은 엄격(strict) 그대로 두고, --allow-destination-additions 로만 완화한다.
+        # 옮긴 파일이 하나도 없어지지 않았는지(missing)와, destination 에 나중에 추가된
+        # 파일(extra)을 분리한다. extra 는 **exact allowlist 로만** 허용한다 — 경로·크기·
+        # SHA256 이 명세와 같아야 하고, 명세에 없는 extra 는 실패다.
         missing = sorted(set(row["relative_files"]) - set(post["files"]))
         extra = sorted(set(post["files"]) - set(row["relative_files"]))
-        additions_only = bool(extra) and not missing
-        allow_add = getattr(args, "allow_destination_additions", False)
         if missing:
             failures.append((row["move_id"], "RELPATH_SET_MISSING %s" % missing[:5]))
+
+        addition_ok = False
         if extra:
-            if allow_add and additions_only:
-                added_notes.append((row["move_id"], len(extra), extra[:5]))
+            if expected_map is not None:
+                fails, accepted = check_expected_additions(row["destination"], dst_dir, extra,
+                                                           expected_map)
+                for msg in fails:
+                    failures.append((row["move_id"], msg))
+                if not fails:
+                    addition_ok = True
+                    added_notes.append((row["move_id"], accepted))
+            elif allow_any:
+                addition_ok = True
+                added_notes.append((row["move_id"],
+                                    [{"relative_path": r, "size": None, "sha256": None,
+                                      "role": "(unverified — broad mode)"} for r in extra]))
             else:
                 failures.append((row["move_id"], "RELPATH_SET extra=%s" % extra[:5]))
-        if post["file_count"] != row["file_count"] and not (allow_add and additions_only):
+        elif expected_map is not None and expected_map.get(row["destination"]):
+            for rel in expected_map[row["destination"]]:
+                failures.append((row["move_id"], "EXPECTED_ADDITION_MISSING %s" % rel))
+
+        if post["file_count"] != row["file_count"] and not addition_ok:
             failures.append((row["move_id"], "FILE_COUNT %d != %d"
                              % (post["file_count"], row["file_count"])))
-        if post["total_bytes"] != row["total_bytes"] and not (allow_add and additions_only):
+        if post["total_bytes"] != row["total_bytes"] and not addition_ok:
             failures.append((row["move_id"], "TOTAL_BYTES %d != %d"
                              % (post["total_bytes"], row["total_bytes"])))
         for rel, want in pre["sha256"].items():
@@ -861,10 +976,14 @@ def cmd_verify(args, paths):
                                    or "(none)"))
     print("license files  : %d verified" % checked_licenses)
     if added_notes:
-        print("dest additions : %d move(s) — 이동 후 정상적으로 추가된 파일 (없어진 것 0)"
-              % len(added_notes))
-        for move_id, n, sample in added_notes:
-            print("   %s  +%d  %s" % (move_id, n, sample))
+        mode = "exact allowlist" if expected_map is not None else "BROAD (unverified)"
+        print("dest additions : %d move(s), %s"
+              % (len(added_notes), mode))
+        for move_id, accepted in added_notes:
+            for a in accepted:
+                print("   %s  +%-52s %s  role=%s"
+                      % (move_id, a["relative_path"],
+                         (a["sha256"] or "")[:16] or "(미검증)", a["role"]))
     print("failures       : %d" % len(failures))
     for move_id, msg in failures[:40]:
         print("   %s  %s" % (move_id, msg))
@@ -918,13 +1037,28 @@ def main(argv=None):
                     help="이동 정책. 생략하면 stage2a-runs (하위호환)")
     ap.add_argument("--cohort", default=None,
                     help="stage2b 전용: 이 cohort 만 계획 (예: B1_REFERENCE_MATERIALS)")
+    ap.add_argument("--expected-destination-additions", default=None, metavar="JSON",
+                    help="--verify: 이동 후 destination 에 추가된 파일을 **exact allowlist** 로만 "
+                         "허용한다. JSON 은 manifest_sha256 으로 이 원장에 결속되고, 각 항목의 "
+                         "relative_path/size/sha256 이 정확히 일치해야 한다. 명세에 없는 extra, "
+                         "명세에 있는데 없는 파일, 크기·해시 불일치는 전부 실패. "
+                         "옮긴 파일의 누락·해시 불일치는 이 옵션과 무관하게 항상 실패한다.")
+    ap.add_argument("--allow-any-destination-additions", action="store_true",
+                    help="[DEPRECATED · 실원장 검증에 쓰지 말 것] destination 의 모든 추가 파일을 "
+                         "검증 없이 통과시킨다. 오염된 파일이 섞여도 통과하므로 조사용으로만 쓴다.")
     ap.add_argument("--allow-destination-additions", action="store_true",
-                    help="--verify: destination 에 **추가된** 파일은 실패로 보지 않는다 "
-                         "(없어진 파일과 SHA256 불일치는 그대로 실패). 이동 후 그 폴더에서 "
-                         "정상 작업이 이어진 경우에만 쓴다. 기본은 엄격 비교.")
+                    help="[DEPRECATED] 단독 사용은 오류다. 무엇을 허용할지 명시해야 한다 — "
+                         "--expected-destination-additions(권장) 또는 "
+                         "--allow-any-destination-additions 를 쓰라.")
     ap.add_argument("--only-source", default=None,
                     help="stage2b 전용: 이 source 만 계획 (쉼표 구분, allowlist 안이어야 함)")
     args = ap.parse_args(argv)
+
+    if getattr(args, "allow_destination_additions", False) and not (
+            args.expected_destination_additions or args.allow_any_destination_additions):
+        ap.error("--allow-destination-additions 는 단독으로 쓸 수 없습니다. "
+                 "무엇을 허용할지 명시하십시오: --expected-destination-additions <json> (권장) "
+                 "또는 --allow-any-destination-additions")
 
     paths = PDP.load()
     if args.plan:

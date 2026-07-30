@@ -6,7 +6,7 @@ cuboid wireframe을 그려서 저장.
 사용법:
     python scripts/data_prep/visualize_inference.py \
         --weights weights/pallet_category/final_net_epoch_0060.pth \
-        --val_dir data/pallet/training_data/val \
+        --val_dir data/pallet/archive/training_data/val \
         --real_dir data/pallet/reference/real_images/real_data \
         --output_dir data/pallet/eval_results/vis \
         --num_syn 10 --num_real 10
@@ -182,7 +182,9 @@ def infer(model, img_bgr, device):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--weights", required=True)
-    parser.add_argument("--val_dir", default="data/pallet/training_data/val")
+    # Stage 2-D0.1: training_data 는 archive/ 아래 (NoAI baked, 재생성 대상)
+    parser.add_argument("--val_dir",
+                        default="data/pallet/archive/training_data/val")
     parser.add_argument("--real_dir", default="data/pallet/reference/real_images/real_data")
     parser.add_argument("--output_dir", default="data/pallet/eval_results/vis")
     parser.add_argument("--num_syn", type=int, default=10)

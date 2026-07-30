@@ -1,12 +1,15 @@
 {
   "paths": {
+    "// gltf_dir": "★ MISSING_ASSET — data/pallet/pallet_scene 은 이 저장소에 존재하지 않는다. Stage 1 인벤토리에도 없고 Stage 2-A/B/C2 어느 원장도 옮기지 않았다 = Stage 2 회귀가 아니라 원래부터 부재(다른 워크스테이션 자산). Isaac 파이프라인 실행 전 이 자산을 확보해야 한다.",
     "gltf_dir": "data/pallet/pallet_scene/Collected_World0/SubUSDs/textures",
     "gltf_files": ["scene.gltf", "scene_1.gltf", "scene_2.gltf", "scene_3.gltf"],
     "usd_cache_dir": "data/pallet/assets/pallets/models/models_usd",
-    "default_output_dir": "data/pallet/training_data",
+    "// default_output_dir": "Stage 2-D0.1: 출력 경로. training_data 는 archive/ 로 내려갔고 NoAI baked 라 릴리스 제외 대상 — 새 출력은 archive 밖으로 낸다.",
+    "default_output_dir": "data/pallet/training_data_isaac",
     "isaac_assets_root": "data/pallet/isaac_assets/Assets/Isaac/4.5/Isaac",
     "hdri_dir": "data/pallet/isaac_assets/Assets/Isaac/4.5/NVIDIA/Assets/Skies",
-    "procedural_texture_dir": "data/pallet/_procedural_textures"
+    "// procedural_texture_dir": "Stage 2-D0.1: archive/ 아래로 내려간 실제 현재 위치로 정정",
+    "procedural_texture_dir": "data/pallet/archive/_procedural_textures"
   },
   "render": {
     "image_width": 640,

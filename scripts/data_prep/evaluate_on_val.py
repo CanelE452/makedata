@@ -9,7 +9,7 @@
 사용법:
     python scripts/data_prep/evaluate_on_val.py \
         --weights weights/pallet_category/final_net_epoch_0060.pth \
-        --val_dir data/pallet/training_data/val \
+        --val_dir data/pallet/archive/training_data/val \
         --output_dir data/pallet/eval_results
 """
 

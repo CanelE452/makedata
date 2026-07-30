@@ -3,7 +3,7 @@ trunc_addon driver — low-elevation + truncation dataset with stratified V-reje
 
 Usage (CLI standalone):
   "/c/Program Files/Blender Foundation/Blender 5.1/blender.exe" -b \
-     data/pallet/blender_scene/_sandbox_palletobj_production.blend \
+     "$(python scripts/data_prep/blender/pallet_data_paths.py --key experimental_scene)" \
      --python scripts/data_prep/blender/run_trunc_addon.py -- \
      --num_frames 300 --out data/pallet/trunc_addon_v1 --seed 1234
 

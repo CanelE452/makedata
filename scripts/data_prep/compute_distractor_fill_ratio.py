@@ -38,6 +38,7 @@ Run:  python scripts/data_prep/compute_distractor_fill_ratio.py
 import argparse
 import csv
 import os
+import sys
 import time
 
 import numpy as np
@@ -46,8 +47,16 @@ from PIL import Image, ImageDraw
 
 _THIS = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(_THIS, "..", ".."))
-DISTRACTOR_DIR = os.path.join(PROJECT_ROOT, "data", "pallet", "distractors")
-MANIFEST = os.path.join(DISTRACTOR_DIR, "distractors_manifest.csv")
+
+# Stage 2-D0.1: 경로를 리터럴로 조립하지 않는다. Stage 2-C2 에서 distractors 가
+# assets/distractors/library 로 옮겨졌는데 여기 `os.path.join(..., "data", "pallet",
+# "distractors")` 가 남아 이 도구가 없는 경로를 읽고 있었다(Stage 2-D0 감사에서 발견).
+# registry 를 쓰면 다음 이동 때도 코드를 고칠 필요가 없다.
+sys.path.insert(0, os.path.join(_THIS, "blender"))
+import pallet_data_paths as _pdp  # noqa: E402
+
+DISTRACTOR_DIR = _pdp.get("distractor_root")
+MANIFEST = _pdp.get("distractor_manifest")
 
 N_AZIMUTHS = 8
 RASTER_RES = 512

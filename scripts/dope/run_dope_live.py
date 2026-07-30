@@ -157,7 +157,10 @@ def _noop(x):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--weights",   default="data/pallet/ndds3_pallet.pth")
+    # Stage 2-D0.1: data/pallet/ndds3_pallet.pth 는 이 저장소에 존재하지 않는다
+    # (Stage 2-D0 감사에서 broken reference 로 확인). 실재하는 ACTIVE weight 로 교체.
+    ap.add_argument("--weights",
+                    default="weights/pallet_category/final_net_epoch_0060.pth")
     ap.add_argument("--realsense", action="store_true")
     ap.add_argument("--no_depth",  action="store_true")
     ap.add_argument("--cam_id",    type=int, default=0)
