@@ -1,0 +1,167 @@
+{
+  "note": "d1c_legacy_datasets.jsonl 은 41.9MB 다 — 191,503 파일의 상대경로와 SHA256 을 담기 때문이다. §19 의 '5MB 초과 raw dump 는 commit 제외' 규칙은 **재생성 가능한** raw 결과에 대한 것이고, 이 파일은 재생성 불가한 **유일한 rollback 근거**라 commit 대상이다. 제외하면 15건(50.70 GiB)을 되돌릴 수 없다. 이 요약은 원장을 열지 않고 상태를 확인하기 위한 것이다.",
+  "manifest": "reports/data_pallet_cleanup/stage2d1/transactions/d1c_legacy_datasets.jsonl",
+  "rows": 15,
+  "status": {
+    "MOVED": 15
+  },
+  "files": 191503,
+  "bytes": 54442767106,
+  "hashed_file_count": 191503,
+  "unhashed_file_count": 0,
+  "hash_read_bytes_pre": 54442767106,
+  "hash_read_bytes_post": 54442767106,
+  "verified_rows": 15,
+  "moves": [
+    {
+      "move_id": "D1-034",
+      "source": "data/pallet/archive/train_4pallet_mask_v1",
+      "destination": "data/pallet/archive/legacy_datasets/noai_baked/train_4pallet_mask_v1",
+      "file_count": 40040,
+      "total_bytes": 9845542580,
+      "classification": "NOAI_BAKED_DATASET",
+      "license_status": "NoAI baked (릴리스 제외 유지)",
+      "verified_at": "2026-07-30T15:59:17"
+    },
+    {
+      "move_id": "D1-035",
+      "source": "data/pallet/archive/train_palletobj_v2",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/train_palletobj_v2",
+      "file_count": 30010,
+      "total_bytes": 8341960347,
+      "classification": "COMPLETE_LEGACY_DATASET",
+      "license_status": "redistributable (attribution 필요)",
+      "verified_at": "2026-07-30T16:02:04"
+    },
+    {
+      "move_id": "D1-036",
+      "source": "data/pallet/archive/train_palletobj_v1",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/train_palletobj_v1",
+      "file_count": 30012,
+      "total_bytes": 8337383185,
+      "classification": "COMPLETE_LEGACY_DATASET",
+      "license_status": "redistributable (attribution 필요)",
+      "verified_at": "2026-07-30T16:04:49"
+    },
+    {
+      "move_id": "D1-037",
+      "source": "data/pallet/archive/training_data_v4_split",
+      "destination": "data/pallet/archive/legacy_datasets/noai_baked/training_data_v4_split",
+      "file_count": 15053,
+      "total_bytes": 8321688089,
+      "classification": "NOAI_BAKED_DATASET",
+      "license_status": "NoAI baked (릴리스 제외 유지)",
+      "verified_at": "2026-07-30T16:06:14"
+    },
+    {
+      "move_id": "D1-039",
+      "source": "data/pallet/archive/train_palletobj_addon_v1",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/train_palletobj_addon_v1",
+      "file_count": 24002,
+      "total_bytes": 5752182582,
+      "classification": "COMPLETE_LEGACY_DATASET",
+      "license_status": "redistributable (attribution 필요)",
+      "verified_at": "2026-07-30T16:08:29"
+    },
+    {
+      "move_id": "D1-040",
+      "source": "data/pallet/archive/trunc_addon_v1",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/trunc_addon_v1",
+      "file_count": 24015,
+      "total_bytes": 5546660278,
+      "classification": "COMPLETE_LEGACY_DATASET",
+      "license_status": "redistributable (attribution 필요)",
+      "verified_at": "2026-07-30T16:10:42"
+    },
+    {
+      "move_id": "D1-044",
+      "source": "data/pallet/archive/test_blender_v69",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_blender_v69",
+      "file_count": 12000,
+      "total_bytes": 3662471008,
+      "classification": "COMPLETE_LEGACY_DATASET",
+      "license_status": "redistributable (attribution 필요)",
+      "verified_at": "2026-07-30T16:11:50"
+    },
+    {
+      "move_id": "D1-045",
+      "source": "data/pallet/archive/test_blender_v64",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_blender_v64",
+      "file_count": 6000,
+      "total_bytes": 1786012650,
+      "classification": "COMPLETE_LEGACY_DATASET",
+      "license_status": "redistributable (attribution 필요)",
+      "verified_at": "2026-07-30T16:12:24"
+    },
+    {
+      "move_id": "D1-046",
+      "source": "data/pallet/archive/test_blender_v70",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_blender_v70",
+      "file_count": 3000,
+      "total_bytes": 915545347,
+      "classification": "COMPLETE_LEGACY_DATASET",
+      "license_status": "redistributable (attribution 필요)",
+      "verified_at": "2026-07-30T16:12:41"
+    },
+    {
+      "move_id": "D1-047",
+      "source": "data/pallet/archive/test_blender_v68",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_blender_v68",
+      "file_count": 3000,
+      "total_bytes": 909147448,
+      "classification": "COMPLETE_LEGACY_DATASET",
+      "license_status": "redistributable (attribution 필요)",
+      "verified_at": "2026-07-30T16:12:58"
+    },
+    {
+      "move_id": "D1-048",
+      "source": "data/pallet/archive/test_indoor_v1",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_indoor_v1",
+      "file_count": 3000,
+      "total_bytes": 588469993,
+      "classification": "COMPLETE_LEGACY_DATASET",
+      "license_status": "redistributable (attribution 필요)",
+      "verified_at": "2026-07-30T16:13:14"
+    },
+    {
+      "move_id": "D1-050",
+      "source": "data/pallet/archive/test_blender_v67",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_blender_v67",
+      "file_count": 501,
+      "total_bytes": 150369725,
+      "classification": "COMPLETE_LEGACY_DATASET",
+      "license_status": "redistributable (attribution 필요)",
+      "verified_at": "2026-07-30T16:13:16"
+    },
+    {
+      "move_id": "D1-051",
+      "source": "data/pallet/archive/training_data_v4",
+      "destination": "data/pallet/archive/legacy_datasets/noai_baked/training_data_v4",
+      "file_count": 329,
+      "total_bytes": 133302744,
+      "classification": "NOAI_BAKED_DATASET",
+      "license_status": "NoAI baked (릴리스 제외 유지)",
+      "verified_at": "2026-07-30T16:13:18"
+    },
+    {
+      "move_id": "D1-052",
+      "source": "data/pallet/archive/test_blender_v65",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_blender_v65",
+      "file_count": 300,
+      "total_bytes": 86945235,
+      "classification": "COMPLETE_LEGACY_DATASET",
+      "license_status": "redistributable (attribution 필요)",
+      "verified_at": "2026-07-30T16:13:20"
+    },
+    {
+      "move_id": "D1-054",
+      "source": "data/pallet/archive/_mask_test60",
+      "destination": "data/pallet/archive/legacy_datasets/partial/_mask_test60",
+      "file_count": 241,
+      "total_bytes": 65085895,
+      "classification": "PARTIAL_DATASET",
+      "license_status": "redistributable (attribution 필요)",
+      "verified_at": "2026-07-30T16:13:21"
+    }
+  ]
+}

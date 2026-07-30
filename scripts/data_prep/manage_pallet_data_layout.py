@@ -78,6 +78,25 @@ EXPLICIT_EXCLUSIONS = {
 POLICY_STAGE2A = "stage2a-runs"
 POLICY_STAGE2B = "stage2b-active-assets"
 POLICY_STAGE2C2 = "stage2c2-final-layout"
+#   stage2d1-archive-finalization
+#     archive/ **안**의 평면 배치를 의미별 하위폴더로 정리한다. 앞선 정책들과 달리
+#     allowlist 가 코드 상수가 아니라 **동결된 계획 CSV** 다 — Stage 2-D0.1 이
+#     40행을 확정했고 그 파일의 SHA256 으로 결속한다. 계획이 한 바이트라도 바뀌면
+#     plan/apply 가 거부된다.
+POLICY_STAGE2D1 = "stage2d1-archive-finalization"
+
+# Stage 2-D1 계획에서 이동 대상으로 허용하는 status. 그 외는 전부 거부한다.
+D1_MOVE_STATUS = ("READY", "CORRUPT_MOVE_READY")
+# 계획에 들어오면 안 되는 status (들어오면 계획 자체를 거부한다).
+D1_FORBIDDEN_STATUS = (
+    "BLOCKED_REFERENCE", "BLOCKED_ACTIVE", "BLOCKED_ROLLBACK", "BLOCKED_LICENSE",
+    "BLOCKED_UNKNOWN", "KEEP_ACTIVE", "KEEP_ROLLBACK", "KEEP_QUARANTINE",
+    "KEEP_CURRENT", "NEEDS_CRC",
+)
+# ZIP 을 옮길 수 있는 cohort. corrupt package 는 D1B 만.
+D1_ARCHIVE_COHORTS = ("D1A_PACKAGES", "D1B_CORRUPT")
+D1_CORRUPT_COHORT = "D1B_CORRUPT"
+D1_SCHEMA_VERSION = "stage2d1.1"
 
 # entry_kind: Stage 2-A/2-B 는 directory 만 옮겼다. Stage 2-C2 는 background 안의
 # 원본 다운로드 ZIP 을 **파일 단위**로 먼저 떼어내야 하므로 file entry 가 필요하다.
@@ -180,6 +199,29 @@ POLICIES = {
         "require_hash_mode": HASH_MODE_ALL,
         "move_id_prefix": "S2C2",
     },
+    POLICY_STAGE2D1: {
+        # archive/ 안으로만 옮긴다. assets/ · reference/ · runs/ · release/ 는 목적지가 아니다.
+        "allowed_dest_prefixes": ("archive/",),
+        "allowlist": None,                      # 동결된 계획 CSV 가 allowlist 다
+        # weight 만 절대 금지. ZIP 은 D1A/D1B cohort 에서만 허용(cohort 검사로 따로 막는다).
+        "forbidden_ext": {".pt", ".pth", ".ckpt", ".onnx", ".engine", ".trt",
+                          ".safetensors"},
+        # ZIP 규칙은 두 층으로 나눈다.
+        #   (a) **entry** 로서의 ZIP  -> D1A/D1B cohort 만 (generator 의 row 단위 검사)
+        #   (b) dataset 안에 들어 있어 **딸려 가는** ZIP -> 허용하되, 그 ZIP 이 같은 계획에
+        #       별도 row 로도 잡혀 있으면 거부 (한 파일을 두 경로로 옮기려는 모순)
+        # C2C 때의 blanket 금지는 "background 의 ZIP 을 C2A 가 먼저 분리한다" 는 별개
+        # 요구였다. D1C 의 archive/training_data_v4_split/training_data_v4_split.zip 은
+        # 별도 계획 row 가 없는 dataset 내용물이라 함께 가는 것이 맞다.
+        "archive_allowed_cohorts": ("D1A_PACKAGES", "D1B_CORRUPT",
+                                    "D1C_LEGACY_DATASETS", "D1D_BLEND_BACKUPS"),
+        "license_is_blocker": False,            # 라이선스 파일은 dataset 과 함께 보존한다
+        # D1A 의 pallet.zip 은 15.5 GiB, D1C 의 dataset 은 최대 10 GiB 수준이다.
+        "max_single_bytes": 32 * 1024 ** 3,
+        "max_total_bytes": 140 * 1024 ** 3,     # 계획 합계 132.37 GiB
+        "require_hash_mode": HASH_MODE_ALL,     # 전수 SHA256 강제 (selective 강등 금지)
+        "move_id_prefix": "S2D1",
+    },
 }
 
 
@@ -193,11 +235,52 @@ def _now():
     return datetime.datetime.now().isoformat(timespec="seconds")
 
 
-def _sha256(path):
+class HashBudgetExceeded(RuntimeError):
+    """해시 read 예산 초과. selective 로 강등하지 않고 중단한다."""
+
+
+class HashBudget:
+    """SHA256 read 예산. 실제 읽은 바이트를 세고, 넘으면 즉시 예외.
+
+    Stage 2-D1 은 파일을 이동 전·후로 두 번 읽는다(132 GiB × 2 ≈ 265 GiB). 예산 없이
+    돌리면 어디까지 읽었는지 모르는 상태로 디스크를 몇 시간 점유한다. 그래서
+      - 해시를 **시작하기 전에** stat 으로 예상 read 를 계산해 초과면 거부하고
+      - 읽는 중에도 누적치를 검사한다.
+    limit_bytes=None 이면 무제한(기존 정책 동작과 동일 — 옵션을 생략하면 영향 없음).
+    """
+
+    def __init__(self, limit_bytes=None, label=""):
+        self.limit = limit_bytes
+        self.label = label
+        self.read_bytes = 0
+
+    def precheck(self, expected_bytes):
+        if self.limit is None:
+            return
+        if self.read_bytes + expected_bytes > self.limit:
+            raise HashBudgetExceeded(
+                "%s 해시 예산 초과 예상: 이미 %d + 예상 %d > 한도 %d "
+                "(%.2f GiB > %.2f GiB). 해시를 시작하지 않습니다."
+                % (self.label, self.read_bytes, expected_bytes, self.limit,
+                   (self.read_bytes + expected_bytes) / 1024 ** 3,
+                   self.limit / 1024 ** 3))
+
+    def add(self, n):
+        self.read_bytes += n
+        if self.limit is not None and self.read_bytes > self.limit:
+            raise HashBudgetExceeded(
+                "%s 해시 예산 초과: %d > %d (%.2f GiB > %.2f GiB)"
+                % (self.label, self.read_bytes, self.limit,
+                   self.read_bytes / 1024 ** 3, self.limit / 1024 ** 3))
+
+
+def _sha256(path, budget=None):
     h = hashlib.sha256()
     with open(path, "rb") as fh:
         for block in iter(lambda: fh.read(1 << 20), b""):
             h.update(block)
+            if budget is not None:
+                budget.add(len(block))
     return h.hexdigest()
 
 
@@ -227,7 +310,7 @@ def is_within(candidate, root):
 # ---------------------------------------------------------------------------
 # snapshot
 # ---------------------------------------------------------------------------
-def snapshot(root, hash_all_sizes=None, hash_mode=HASH_MODE_SELECTIVE):
+def snapshot(root, hash_all_sizes=None, hash_mode=HASH_MODE_SELECTIVE, budget=None):
     """폴더의 (상대경로 -> 크기) 와 정책에 따른 SHA256 을 모은다.
 
     hash_all_sizes: 이 크기 집합에 속하면 크기 무관 해시 (동일 크기 중복 후보).
@@ -244,24 +327,33 @@ def snapshot(root, hash_all_sizes=None, hash_mode=HASH_MODE_SELECTIVE):
     hashes = {}
     hashed_large = []
     total = 0
-    started = _now()
+    # 1단계: stat 만으로 전체 크기를 먼저 잰다. hash-mode=all 이면 그게 곧 예상 read 량
+    # 이므로 **한 바이트도 읽기 전에** 예산을 검사할 수 있다.
+    entries = []
     for dirpath, _dirnames, filenames in os.walk(root):
         for name in filenames:
             abs_path = os.path.join(dirpath, name)
             rel = _posix(os.path.relpath(abs_path, root))
             size = os.path.getsize(abs_path)
+            entries.append((abs_path, rel, name, size))
             files[rel] = size
             total += size
-            ext = os.path.splitext(name)[1].lower()
-            want = hash_mode == HASH_MODE_ALL or (
-                size <= HASH_SIZE_LIMIT
-                or ext in HASH_ALWAYS_EXT
-                or "manifest" in name.lower()
-                or size in hash_all_sizes)
-            if want:
-                hashes[rel] = _sha256(abs_path)
-                if size > HASH_SIZE_LIMIT:
-                    hashed_large.append(rel)
+    if budget is not None and hash_mode == HASH_MODE_ALL:
+        budget.precheck(total)
+    started = _now()
+    # 2단계: 실제 해시. worker=1 (순차) — 여러 cohort 를 동시에 읽지 않는다는 규율과
+    # 디스크 thrashing 방지가 목적이다.
+    for abs_path, rel, name, size in entries:
+        ext = os.path.splitext(name)[1].lower()
+        want = hash_mode == HASH_MODE_ALL or (
+            size <= HASH_SIZE_LIMIT
+            or ext in HASH_ALWAYS_EXT
+            or "manifest" in name.lower()
+            or size in hash_all_sizes)
+        if want:
+            hashes[rel] = _sha256(abs_path, budget=budget)
+            if size > HASH_SIZE_LIMIT:
+                hashed_large.append(rel)
     unhashed = sorted(set(files) - set(hashes))
     if hash_mode == HASH_MODE_ALL and unhashed:
         # 여기 걸리면 정책이 깨진 것이다. 조용히 넘기지 않는다.
@@ -280,10 +372,33 @@ def snapshot(root, hash_all_sizes=None, hash_mode=HASH_MODE_SELECTIVE):
         "unhashed_file_count": len(unhashed),
         "hash_started_at": started,
         "hash_completed_at": _now(),
+        "hash_read_bytes": (sum(files[r] for r in hashes) if hashes else 0),
     }
 
 
-def snapshot_file(path, hash_mode=HASH_MODE_ALL):
+def stat_only_snapshot(root):
+    """해시 없이 (상대경로 -> 크기) 만. verify 의 count/bytes/relpath 대조 전용.
+
+    Stage 2-D1 이 필요해서 넣었다. 기존 verify 는 post snapshot 을 selective 로 떠서
+    8MB 이하 파일을 **다시** 읽는데, 그 뒤 pre["sha256"] 루프가 같은 파일을 또 읽는다.
+    D1C 처럼 191,503개가 대부분 작은 파일이면 post read 가 두 배가 되어 예산을 날린다.
+    해시는 pre["sha256"] 루프가 전담하므로 여기서는 stat 만 한다.
+    """
+    files = {}
+    total = 0
+    for dirpath, _d, filenames in os.walk(root):
+        for name in filenames:
+            abs_path = os.path.join(dirpath, name)
+            rel = _posix(os.path.relpath(abs_path, root))
+            size = os.path.getsize(abs_path)
+            files[rel] = size
+            total += size
+    return {"file_count": len(files), "total_bytes": total, "files": files,
+            "sha256": {}, "hash_mode": "stat-only", "hashed_file_count": 0,
+            "unhashed_file_count": len(files), "hash_read_bytes": 0}
+
+
+def snapshot_file(path, hash_mode=HASH_MODE_ALL, budget=None):
     """단일 파일 entry 의 snapshot. directory snapshot 과 같은 스키마를 돌려준다.
 
     상대경로 키는 basename 하나뿐이다. 이렇게 두면 verify/rollback 이 directory 와
@@ -293,8 +408,10 @@ def snapshot_file(path, hash_mode=HASH_MODE_ALL):
         raise ValueError("file entry 는 hash-mode=all 만 허용한다 (받은 값: %r)" % hash_mode)
     name = os.path.basename(path)
     size = os.path.getsize(path)
+    if budget is not None:
+        budget.precheck(size)
     started = _now()
-    digest = _sha256(path)
+    digest = _sha256(path, budget=budget)
     return {
         "file_count": 1,
         "total_bytes": size,
@@ -307,6 +424,7 @@ def snapshot_file(path, hash_mode=HASH_MODE_ALL):
         "unhashed_file_count": 0,
         "hash_started_at": started,
         "hash_completed_at": _now(),
+        "hash_read_bytes": size,
     }
 
 
@@ -514,6 +632,171 @@ def _stage2c2_candidates(args, policy, paths):
         yield src_rel, dst_rel, [], cohort, kind, group
 
 
+class PlanBindingError(Exception):
+    """동결 계획 CSV 가 기대한 SHA256 과 다르거나 금지된 row 를 담고 있다."""
+
+
+# 앞선 트랜잭션 원장. 여기서 옮긴 파일을 그 destination 밖으로 다시 빼면 **그 원장의
+# verify 가 MISSING 으로 실패한다.** Stage 2-D1 실행 중 실제로 발생했다:
+# D1D 가 blend backup 10개를 assets/scenes/production/blender_scene 밖으로 옮겼고
+# 그건 Stage 2-C2 C2C 이동(S2C2002)의 구성원이라 C2C exact verify 가 11건 실패했다.
+# 데이터는 안전했지만(새 원장이 위치를 기록) 검증 사슬이 끊겼다. 그래서 계획 단계에서 막는다.
+PRIOR_LEDGERS = (
+    "reports/data_pallet_cleanup/stage2a/move_transaction.jsonl",
+    "reports/data_pallet_cleanup/stage2b/transactions/b1_reference_materials.jsonl",
+    "reports/data_pallet_cleanup/stage2b/transactions/b2_lighting_models.jsonl",
+    "reports/data_pallet_cleanup/stage2b/transactions/b3_scene_assets.jsonl",
+    "reports/data_pallet_cleanup/stage2c2/transactions/c2a_background_packages.jsonl",
+    "reports/data_pallet_cleanup/stage2c2/transactions/c2b_background_asset.jsonl",
+    "reports/data_pallet_cleanup/stage2c2/transactions/c2c_distractor_scene.jsonl",
+)
+
+
+def prior_ledger_members(project_root, ledger_rels=PRIOR_LEDGERS):
+    """앞선 원장이 "지금 여기 있어야 한다"고 주장하는 (destination, 상대경로) 목록."""
+    owned = []
+    for rel in ledger_rels:
+        p = os.path.join(project_root, rel.replace("/", os.sep))
+        if not os.path.isfile(p):
+            continue
+        for line in open(p, encoding="utf-8"):
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            if row.get("status") != "MOVED":
+                continue
+            owned.append((rel, row["move_id"], row["destination"],
+                          set(row.get("relative_files") or ())))
+    return owned
+
+
+def find_prior_ledger_conflict(source_rel, owned):
+    """source 가 앞선 원장 destination 의 구성원이면 (원장, move_id, 설명) 을 돌려준다."""
+    for rel, move_id, dest, members in owned:
+        if source_rel == dest:
+            return rel, move_id, "source 가 그 원장의 destination 자체"
+        if source_rel.startswith(dest + "/"):
+            inner = source_rel[len(dest) + 1:]
+            if inner in members or any(m.startswith(inner + "/") for m in members):
+                return rel, move_id, "그 원장이 옮긴 파일: %s" % inner
+    return None
+
+
+def load_frozen_plan(plan_path, expected_sha256):
+    """Stage 2-D1 동결 계획을 읽고 SHA256 으로 결속한다.
+
+    계획 파일이 바뀌면(한 바이트라도) 여기서 멈춘다. Stage 2-B/2-C2 는 allowlist 가
+    코드 상수여서 이런 결속이 필요 없었지만, D1 은 40행이 외부 CSV 라 결속이 유일한
+    "계획대로 옮긴다" 보장이다.
+    """
+    if not os.path.isfile(plan_path):
+        raise PlanBindingError("계획 CSV 가 없습니다: %s" % plan_path)
+    actual = _sha256(plan_path)
+    if expected_sha256 and actual != expected_sha256:
+        raise PlanBindingError(
+            "계획 CSV SHA256 불일치 — 계획이 변경되었습니다.\n  expected %s\n  actual   %s"
+            % (expected_sha256, actual))
+    with open(plan_path, encoding="utf-8-sig") as fh:
+        rows = list(csv.DictReader(fh))
+    return rows, actual
+
+
+def _stage2d1_candidates(args, policy, paths):
+    """Stage 2-D1: 동결 계획 CSV 의 READY/CORRUPT_MOVE_READY row 만.
+
+    금지 status 가 하나라도 선택되면 계획을 만들지 않고 예외를 던진다.
+    """
+    rows, actual = load_frozen_plan(args.d1_plan, args.d1_plan_sha256)
+    wanted = set(x.strip() for x in (args.cohort or "").split(",") if x.strip())
+    only = set(x.strip() for x in (args.only_source or "").split(",") if x.strip())
+    ids = set(x.strip() for x in (args.move_ids or "").split(",") if x.strip())
+    owned = prior_ledger_members(paths.project_root)
+    # 계획 전체의 source 집합 — dataset 안에 딸려 가는 ZIP 이 별도 row 로도 잡혀 있는지
+    # 보는 데 쓴다 (한 파일을 두 경로로 옮기려는 모순 차단).
+    all_plan_sources = {r["source"] for r in rows
+                        if r["status"] in D1_MOVE_STATUS}
+
+    for row in rows:
+        status = row["status"]
+        cohort = row["cohort"]
+        if wanted and cohort not in wanted:
+            continue
+        if ids and row["move_id"] not in ids:
+            continue
+        if only and row["source"] not in only:
+            continue
+        if status not in D1_MOVE_STATUS:
+            # cohort 는 원래 섞여 있다 — 예를 들어 D1D_BLEND_BACKUPS 17행 중 READY 는
+            # 10행이고 나머지 7행은 active/rollback blend 라 KEEP 이다. 같은 cohort 에
+            # 있다는 것 자체는 오류가 아니고, **선택되지 않으면** 된다.
+            # 다만 호출자가 --move-ids / --only-source 로 금지 row 를 콕 집어 요구했다면
+            # 조용히 건너뛰지 않고 거부한다.
+            if (ids or only) and status in D1_FORBIDDEN_STATUS:
+                raise PlanBindingError(
+                    "이동 금지 status 를 명시적으로 요청했습니다: %s %s (%s)"
+                    % (row["move_id"], status, row["source"]))
+            continue
+        # 계획 CSV 를 그대로 믿지 않고 여기서 다시 확인한다.
+        if row["rollback_role"]:
+            raise PlanBindingError("rollback/active role row: %s (%s)"
+                                   % (row["move_id"], row["rollback_role"]))
+        if "UNKNOWN" in row["license_status"]:
+            raise PlanBindingError("UNKNOWN license row: %s" % row["move_id"])
+        if row["classification"] == "LICENSE_QUARANTINE":
+            raise PlanBindingError("quarantine row: %s" % row["move_id"])
+        if row["source"].startswith("weights/"):
+            raise PlanBindingError("weight source row: %s" % row["move_id"])
+        if int(row["current_runtime_refs"] or 0) or int(row["current_test_refs"] or 0):
+            raise PlanBindingError(
+                "CURRENT 참조가 살아있는 row: %s (runtime %s / test %s)"
+                % (row["move_id"], row["current_runtime_refs"], row["current_test_refs"]))
+        dest = row["destination"]
+        if not dest.startswith("data/pallet/archive/"):
+            raise PlanBindingError("목적지가 archive/ 밖입니다: %s -> %s"
+                                   % (row["move_id"], dest))
+        # prefix 검사만으로는 escape 를 막을 수 없다:
+        # "data/pallet/archive/../../../escaped" 도 prefix 를 통과한다.
+        # 정규화 후 archive/ 안에 남는지 본다. escape 는 skip 이 아니라 **계획 거부**다 —
+        # 동결된 계획에 escape 가 있다는 것은 계획 자체가 신뢰할 수 없다는 뜻이다.
+        arch_root = os.path.normpath("data/pallet/archive")
+        if os.path.commonpath([os.path.normpath(dest), arch_root]) != arch_root:
+            raise PlanBindingError("목적지가 archive/ 밖으로 나갑니다(escape): %s -> %s"
+                                   % (row["move_id"], dest))
+        if ".." in dest.split("/") or ".." in row["source"].split("/"):
+            raise PlanBindingError("경로에 .. 가 있습니다: %s" % row["move_id"])
+        kind = row["entry_kind"] if row["entry_kind"] in ENTRY_KINDS else ENTRY_DIRECTORY
+        # ZIP 은 D1A/D1B 만. corrupt package 는 D1B 만.
+        if os.path.splitext(row["source"])[1].lower() in ARCHIVE_EXT:
+            if cohort not in D1_ARCHIVE_COHORTS:
+                raise PlanBindingError("ZIP 은 %s cohort 에서만 허용: %s (%s)"
+                                       % (", ".join(D1_ARCHIVE_COHORTS),
+                                          row["move_id"], cohort))
+        if row["classification"] == "CORRUPT_PACKAGE" and cohort != D1_CORRUPT_COHORT:
+            raise PlanBindingError("corrupt package 는 %s 에서만 허용: %s (%s)"
+                                   % (D1_CORRUPT_COHORT, row["move_id"], cohort))
+        if kind == ENTRY_DIRECTORY:
+            src_abs = os.path.join(paths.project_root,
+                                   row["source"].replace("/", os.sep))
+            for inner in (archive_files_under(src_abs)
+                          if os.path.isdir(src_abs) else []):
+                inner_rel = "%s/%s" % (row["source"], inner)
+                if inner_rel in all_plan_sources:
+                    raise PlanBindingError(
+                        "dataset 안의 package 가 별도 row 로도 계획돼 있습니다 — 한 파일을 "
+                        "두 경로로 옮길 수 없습니다: %s 안의 %s"
+                        % (row["move_id"], inner_rel))
+        conflict = find_prior_ledger_conflict(row["source"], owned)
+        if conflict:
+            raise PlanBindingError(
+                "앞선 트랜잭션 원장의 구성원을 그 destination 밖으로 옮기려 합니다: "
+                "%s (%s)\n  원장 %s / %s — %s\n"
+                "  옮기면 그 원장의 verify 가 MISSING 으로 실패합니다(검증 사슬 끊김). "
+                "원장 연쇄(chained ledger) 없이는 이동하지 않습니다."
+                % (row["move_id"], row["source"], conflict[0], conflict[1], conflict[2]))
+        # cohort 를 transaction_group 으로 쓴다 -> 한 건 실패 시 cohort 전체 역순 rollback.
+        yield row["source"], dest, [], cohort, kind, cohort, row
+
+
 def cmd_plan(args, paths):
     policy_name = getattr(args, "policy", POLICY_STAGE2A)
     policy = get_policy(policy_name)
@@ -525,18 +808,41 @@ def cmd_plan(args, paths):
 
     data_root = paths.get("pallet_data_root")
     allow_empty = args.allow_empty_dirs
-    if policy_name == POLICY_STAGE2C2:
-        gen = lambda a, p: _stage2c2_candidates(a, p, paths)   # noqa: E731
+    plan_sha_actual = None
+    if policy_name == POLICY_STAGE2D1:
+        if not args.d1_plan:
+            print("정책 %s 는 --d1-plan <csv> 를 요구합니다." % policy_name,
+                  file=sys.stderr)
+            return 2
+        try:
+            _, plan_sha_actual = load_frozen_plan(args.d1_plan, args.d1_plan_sha256)
+        except PlanBindingError as exc:
+            print("계획 결속 실패: %s" % exc, file=sys.stderr)
+            return 2
+        gen = lambda a, p: _stage2d1_candidates(a, p, paths)   # noqa: E731
+    elif policy_name == POLICY_STAGE2C2:
+        gen = lambda a, p: ((s, d, b, c, k, g, None)           # noqa: E731
+                            for s, d, b, c, k, g in _stage2c2_candidates(a, p, paths))
     elif policy["allowlist"]:
-        gen = lambda a, p: ((s, d, b, c, ENTRY_DIRECTORY, c)   # noqa: E731
+        gen = lambda a, p: ((s, d, b, c, ENTRY_DIRECTORY, c, None)   # noqa: E731
                             for s, d, b, c in _stage2b_candidates(a, p))
     else:
-        gen = lambda a, p: ((s, d, b, c, ENTRY_DIRECTORY, c)   # noqa: E731
+        gen = lambda a, p: ((s, d, b, c, ENTRY_DIRECTORY, c, None)   # noqa: E731
                             for s, d, b, c in _stage2a_candidates(a, p))
+
+    budget = None
+    if policy_name == POLICY_STAGE2D1 and args.max_hash_read_bytes is not None:
+        budget = HashBudget(args.max_hash_read_bytes,
+                            label="plan/%s" % (args.cohort or "all"))
 
     planned, skipped = [], []
     running_total = 0
-    for src_rel, dst_rel, blocking, cohort, entry_kind, group in gen(args, policy):
+    try:
+        candidates = list(gen(args, policy))
+    except PlanBindingError as exc:
+        print("계획 거부: %s" % exc, file=sys.stderr)
+        return 2
+    for src_rel, dst_rel, blocking, cohort, entry_kind, group, plan_row in candidates:
         if not src_rel.startswith("data/pallet/"):
             skipped.append((src_rel, "SOURCE_NOT_UNDER_DATA_PALLET"))
             continue
@@ -566,12 +872,19 @@ def cmd_plan(args, paths):
             continue
         running_total += stats["total_bytes"]
 
-        if entry_kind == ENTRY_FILE:
-            snap = snapshot_file(src_abs, hash_mode=args.hash_mode)
-        else:
-            dup_sizes = (duplicate_size_set(src_abs)
-                         if args.hash_mode == HASH_MODE_SELECTIVE else set())
-            snap = snapshot(src_abs, dup_sizes, hash_mode=args.hash_mode)
+        try:
+            if entry_kind == ENTRY_FILE:
+                snap = snapshot_file(src_abs, hash_mode=args.hash_mode, budget=budget)
+            else:
+                dup_sizes = (duplicate_size_set(src_abs)
+                             if args.hash_mode == HASH_MODE_SELECTIVE else set())
+                snap = snapshot(src_abs, dup_sizes, hash_mode=args.hash_mode,
+                                budget=budget)
+        except HashBudgetExceeded as exc:
+            print("해시 예산 초과로 계획을 중단합니다: %s" % exc, file=sys.stderr)
+            print("  selective 로 강등하지 않습니다. --max-hash-read-gib 를 조정하거나 "
+                  "cohort 를 나누십시오.", file=sys.stderr)
+            return 2
         planned.append({
             "move_id": "%s%03d" % (args.move_id_prefix or policy["move_id_prefix"],
                                    len(planned) + 1),
@@ -602,6 +915,28 @@ def cmd_plan(args, paths):
             "error": None,
             "rollback_status": None,
         })
+        if policy_name == POLICY_STAGE2D1:
+            # §3 이 요구하는 Stage 2-D1 전용 필드. 기존 스키마 필드는 건드리지 않고 덧붙인다.
+            planned[-1].update({
+                "schema_version": D1_SCHEMA_VERSION,
+                "plan_path": _posix(os.path.relpath(args.d1_plan, paths.project_root)),
+                "plan_sha256": plan_sha_actual,
+                "move_id": plan_row["move_id"],          # 계획의 move_id 를 그대로 쓴다
+                "classification": plan_row["classification"],
+                "evidence_level": plan_row["evidence_level"],
+                "license_status": plan_row["license_status"],
+                "exclusion_status": plan_row["exclusion_status"],
+                "source_file_count": snap["file_count"],
+                "source_total_bytes": snap["total_bytes"],
+                "source_sha256": snap["sha256"],
+                "hash_read_bytes_pre": snap.get("hash_read_bytes", 0),
+                "hash_read_bytes_post": None,            # verify 에서 채운다
+                "applied_at": None,
+                "verified_at": None,
+                "rollback_source": src_rel,              # 되돌릴 때의 목적지
+                "rollback_destination": dst_rel,         # 되돌릴 때의 출발지
+                "plan_row_status": plan_row["status"],
+            })
 
     # 그룹 완전성: C2C 처럼 함께 가야 하는 source 가 한쪽만 계획되면 계획 자체를 거부한다.
     planned_sources = {p["source"] for p in planned}
@@ -640,6 +975,12 @@ def cmd_plan(args, paths):
     print("license  : %d files preserved"
           % sum(len(p.get("license_files", [])) for p in planned))
     print("skipped  : %d  -> %s" % (len(skipped), skip_path))
+    if budget is not None:
+        print("hash read: %d bytes (%.2f GiB) / 한도 %.2f GiB"
+              % (budget.read_bytes, budget.read_bytes / 1024 ** 3,
+                 budget.limit / 1024 ** 3))
+    if plan_sha_actual:
+        print("plan sha : %s" % plan_sha_actual)
     print("manifest : %s" % args.manifest)
     return 0
 
@@ -807,6 +1148,8 @@ def cmd_apply(args, paths):
             os.rename(src, dst)          # 같은 볼륨 rename. 복사/삭제 없음.
             row["status"] = "MOVED"
             row["completed_at"] = _now()
+            if row.get("schema_version") == D1_SCHEMA_VERSION:
+                row["applied_at"] = row["completed_at"]
             if group:
                 applied_in_group.setdefault(group, []).append(row)
             done += 1
@@ -870,10 +1213,24 @@ def manifest_hash_mode(row):
     return HASH_MODE_LEGACY
 
 
+def _finish_d1_rows(manifest_path, rows, touched):
+    """D1 row 에 채운 verified_at / hash_read_bytes_post 를 원장에 반영한다.
+
+    D1 이 아닌 원장은 건드리지 않는다 (Stage 2-A/B/C2 원장 rewrite 금지).
+    """
+    if touched:
+        _write_manifest(manifest_path, rows)
+
+
 def cmd_verify(args, paths):
     rows = _read_manifest(args.manifest)
     failures = []
     added_notes = []
+    touched = False
+    post_budget = None
+    if getattr(args, "max_hash_read_bytes", None) is not None and any(
+            r.get("schema_version") == D1_SCHEMA_VERSION for r in rows):
+        post_budget = HashBudget(args.max_hash_read_bytes, label="verify")
     # destination additions 정책. 기본은 엄격(둘 다 없음 -> extra 는 곧 실패).
     expected_map = None
     allow_any = bool(getattr(args, "allow_any_destination_additions", False))
@@ -903,15 +1260,19 @@ def cmd_verify(args, paths):
         src = os.path.join(paths.project_root, row["source"].replace("/", os.sep))
         pre = row["pre_hash_manifest"]
         kind = _entry_kind(row)
+        is_d1 = row.get("schema_version") == D1_SCHEMA_VERSION
         if kind == ENTRY_FILE:
             if not os.path.isfile(dst):
                 failures.append((row["move_id"], "DEST_FILE_MISSING %s" % row["destination"]))
                 continue
-            post = snapshot_file(dst, hash_mode=HASH_MODE_ALL)
+            # D1 은 아래 pre["sha256"] 루프가 같은 파일을 다시 해시한다 -> 여기서는 stat 만.
+            post = ({"file_count": 1, "total_bytes": os.path.getsize(dst),
+                     "files": {os.path.basename(dst): os.path.getsize(dst)}}
+                    if is_d1 else snapshot_file(dst, hash_mode=HASH_MODE_ALL))
             # 파일 entry 는 destination 자체가 파일이므로 해시 대조 기준 디렉토리를 바꾼다.
             dst_dir = os.path.dirname(dst)
         else:
-            post = snapshot(dst, set())
+            post = stat_only_snapshot(dst) if is_d1 else snapshot(dst, set())
             dst_dir = dst
         # 옮긴 파일이 하나도 없어지지 않았는지(missing)와, destination 에 나중에 추가된
         # 파일(extra)을 분리한다. extra 는 **exact allowlist 로만** 허용한다 — 경로·크기·
@@ -948,15 +1309,31 @@ def cmd_verify(args, paths):
         if post["total_bytes"] != row["total_bytes"] and not addition_ok:
             failures.append((row["move_id"], "TOTAL_BYTES %d != %d"
                              % (post["total_bytes"], row["total_bytes"])))
+        if is_d1 and post_budget is not None:
+            post_budget.precheck(row.get("source_total_bytes") or row["total_bytes"])
+        row_post_read = 0
         for rel, want in pre["sha256"].items():
             abs_path = os.path.join(dst_dir, rel.replace("/", os.sep))
             if not os.path.isfile(abs_path):
                 failures.append((row["move_id"], "MISSING %s" % rel))
                 continue
-            got = _sha256(abs_path)
+            try:
+                got = _sha256(abs_path, budget=post_budget if is_d1 else None)
+            except HashBudgetExceeded as exc:
+                print("post-hash 예산 초과로 verify 를 중단합니다: %s" % exc,
+                      file=sys.stderr)
+                failures.append((row["move_id"], "HASH_BUDGET_EXCEEDED"))
+                _finish_d1_rows(args.manifest, rows, touched)
+                print("failures       : %d" % len(failures))
+                return 1
+            row_post_read += os.path.getsize(abs_path)
             checked_hashes += 1
             if got != want:
                 failures.append((row["move_id"], "SHA256 %s" % rel))
+        if is_d1:
+            row["hash_read_bytes_post"] = row_post_read
+            row["verified_at"] = _now()
+            touched = True
         # 라이선스 파일은 자산과 함께 살아 있어야 한다. 하나라도 빠지면 실패.
         for rel in row.get("license_files", []):
             if not os.path.isfile(os.path.join(dst_dir, rel.replace("/", os.sep))):
@@ -984,6 +1361,11 @@ def cmd_verify(args, paths):
                 print("   %s  +%-52s %s  role=%s"
                       % (move_id, a["relative_path"],
                          (a["sha256"] or "")[:16] or "(미검증)", a["role"]))
+    if post_budget is not None:
+        print("post hash read : %d bytes (%.2f GiB) / 한도 %.2f GiB"
+              % (post_budget.read_bytes, post_budget.read_bytes / 1024 ** 3,
+                 post_budget.limit / 1024 ** 3))
+    _finish_d1_rows(args.manifest, rows, touched)
     print("failures       : %d" % len(failures))
     for move_id, msg in failures[:40]:
         print("   %s  %s" % (move_id, msg))
@@ -1037,6 +1419,22 @@ def main(argv=None):
                     help="이동 정책. 생략하면 stage2a-runs (하위호환)")
     ap.add_argument("--cohort", default=None,
                     help="stage2b 전용: 이 cohort 만 계획 (예: B1_REFERENCE_MATERIALS)")
+    ap.add_argument("--d1-plan", default=None, metavar="CSV",
+                    help="stage2d1 전용: 동결된 이동계획 CSV "
+                         "(reports/data_pallet_cleanup/stage2d01/"
+                         "proposed_stage2d1_moves_final.csv). READY/CORRUPT_MOVE_READY "
+                         "row 만 선택하고 금지 status 가 선택 범위에 있으면 거부한다.")
+    ap.add_argument("--d1-plan-sha256", default=None, metavar="HEX",
+                    help="stage2d1 전용: 계획 CSV 의 기대 SHA256. 불일치하면 계획·적용을 "
+                         "거부한다(계획 변조·갱신 방지).")
+    ap.add_argument("--move-ids", default=None, metavar="ID,ID",
+                    help="stage2d1 전용: 이 move_id 만 계획 (cohort 안에서 일부만 다룰 때)")
+    ap.add_argument("--max-hash-read-gib", type=float, default=None, metavar="GIB",
+                    help="SHA256 read 예산(GiB). 예상 read 가 한도를 넘으면 해시를 "
+                         "시작하기 전에 거부하고, 읽는 중 넘으면 중단한다. selective 로 "
+                         "자동 강등하지 않는다. 생략하면 무제한(기존 동작과 동일).")
+    ap.add_argument("--max-hash-read-bytes", type=int, default=None, metavar="BYTES",
+                    help="--max-hash-read-gib 의 바이트 단위 형태. 둘 다 주면 이 값이 이긴다.")
     ap.add_argument("--expected-destination-additions", default=None, metavar="JSON",
                     help="--verify: 이동 후 destination 에 추가된 파일을 **exact allowlist** 로만 "
                          "허용한다. JSON 은 manifest_sha256 으로 이 원장에 결속되고, 각 항목의 "
@@ -1059,6 +1457,13 @@ def main(argv=None):
         ap.error("--allow-destination-additions 는 단독으로 쓸 수 없습니다. "
                  "무엇을 허용할지 명시하십시오: --expected-destination-additions <json> (권장) "
                  "또는 --allow-any-destination-additions")
+
+    # GiB 편의 옵션을 바이트로 접는다. 둘 다 없으면 None(무제한) 그대로 둔다.
+    if args.max_hash_read_bytes is None and args.max_hash_read_gib is not None:
+        args.max_hash_read_bytes = int(args.max_hash_read_gib * 1024 ** 3)
+
+    if args.policy == POLICY_STAGE2D1 and args.plan and not args.d1_plan:
+        ap.error("정책 %s 는 --d1-plan <csv> 가 필요합니다." % POLICY_STAGE2D1)
 
     paths = PDP.load()
     if args.plan:

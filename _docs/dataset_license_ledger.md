@@ -333,11 +333,11 @@ cargo(배럴/카드보드)  production blend (baked, CARGO_SOURCES)            P
 ```
 dataset                          저장경로                                    상속 블로커
 ────────────────────────────────────────────────────────────────────────────────────────────
-train_palletobj_v1/v2/v3         archive/train_palletobj_v{1,2,3}/            팔레트=자작 OBJ, floor=CC0, occluder=CC0/CC-BY → B5만
-train_palletobj_addon_v1         data/pallet/archive/train_palletobj_addon_v1/       팔레트=자작 OBJ → B5(CC-BY occluder 표시)만
-train_4pallet_mask_v1            data/pallet/archive/train_4pallet_mask_v1/          B1(NoAI 목재 P2/P3 baked) [+ B5]
+train_palletobj_v1/v2/v3         archive/legacy_datasets/redistributable/  ★v3는 미이동            팔레트=자작 OBJ, floor=CC0, occluder=CC0/CC-BY → B5만
+train_palletobj_addon_v1         archive/legacy_datasets/redistributable/train_palletobj_addon_v1/       팔레트=자작 OBJ → B5(CC-BY occluder 표시)만
+train_4pallet_mask_v1            archive/legacy_datasets/noai_baked/train_4pallet_mask_v1/          B1(NoAI 목재 P2/P3 baked) [+ B5]
 trunc_addon_v1                   data/pallet/archive/trunc_addon_v1/                 팔레트=자작 OBJ → B5만
-training_data_v4 / _v4_split     data/pallet/archive/training_data_v4*/              B1(NoAI 목재 P2/P3 baked) [+ B5]
+training_data_v4 / _v4_split     archive/legacy_datasets/noai_baked/training_data_v4*/              B1(NoAI 목재 P2/P3 baked) [+ B5]
 training_data (구)               data/pallet/archive/training_data/                  B1 가능 [+구 BG]
 real_data (실촬영)                data/pallet/reference/real_images/real_data/*.jpg                 본인 촬영(D435i) → 본인 IP, Y
 ```
@@ -428,3 +428,30 @@ phase**: occlusion 선택 배선(`DISTRACTOR_NAMES`→209, Placement). **보류(
 (2) "occluder=Isaac" 우려는 **오탐으로 종료**(occluder=Poly Haven CC0). (3) **★현 occlusion 선택에 라이선스 불명
 `Sketchfab_model`×3 잔존** → 209 CC0/CC-BY 풀 재배선 전까지 실 가림 렌더가 unknown-license 오염 = **릴리스/v2
 재생성 전 필수 처리**. 실질 남은 것 = **B5·B6 + occlusion 재배선**.
+
+---
+
+### 2026-07-30 Stage 2-D1 — 경로 이동 반영
+
+`archive/` 내부 정리로 restricted 자산의 경로가 바뀌었다. 위 표의 저장경로 열은
+갱신했고, `data/pallet/_DISTRIBUTION_EXCLUDE.txt` 도 같이 정정했다
+(entries 16 / problems 0 / leaks 0 / stale 0 [확인]).
+
+```
+restricted 자산                   현재 경로
+──────────────────────────────────────────────────────────────────────────────────
+train_4pallet_mask_v1.zip        archive/packages/dataset_bundles/train_4pallet_mask_v1.zip
+train_4pallet_mask_v1/           archive/legacy_datasets/noai_baked/train_4pallet_mask_v1/
+training_data_v4/                archive/legacy_datasets/noai_baked/training_data_v4/
+training_data_v4_split/          archive/legacy_datasets/noai_baked/training_data_v4_split/
+training_data/                   archive/training_data/          ← 미이동 (runtime 참조 살아있음)
+train_palletobj_v1.zip (손상본)   archive/packages/corrupt/train_palletobj_v1.zip
+isaac_assets/ · _noai_quarantine_usd/   변경 없음 (이동 금지)
+```
+
+**B8(v4 파생 4종 NoAI 상속 미확정)은 여전히 미해결이다** — 그 4종은 Stage 2-D1 에서
+`BLOCKED_UNKNOWN` 으로 이동하지 않았고 `archive/` depth-1 에 옛 경로 그대로 있다.
+배포 제외도 옛 경로로 유지된다.
+
+`data/pallet/_DISTRIBUTION_EXCLUDE.txt` 는 **gitignored** 다 — 이 tracked ledger 가
+경로 기록의 정본이다.

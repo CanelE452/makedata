@@ -1,0 +1,102 @@
+{
+  "plan_path": "reports/data_pallet_cleanup/stage2d01/proposed_stage2d1_moves_final.csv",
+  "plan_sha256": "c343b807a0e3b5df8b8f6ee8843344b11511564c7046be55810c631cdc3b8e8b",
+  "total_rows": 60,
+  "selected_rows": 40,
+  "selected_bytes": 142134662870,
+  "selected_files": 191528,
+  "excluded_status_counts": {
+    "KEEP_ACTIVE": 6,
+    "BLOCKED_REFERENCE": 4,
+    "KEEP_ROLLBACK": 4,
+    "BLOCKED_UNKNOWN": 4,
+    "KEEP_QUARANTINE": 2
+  },
+  "all_status_counts": {
+    "CORRUPT_MOVE_READY": 1,
+    "KEEP_ACTIVE": 6,
+    "BLOCKED_REFERENCE": 4,
+    "READY": 39,
+    "KEEP_ROLLBACK": 4,
+    "BLOCKED_UNKNOWN": 4,
+    "KEEP_QUARANTINE": 2
+  },
+  "cohort_summary": {
+    "D1B_CORRUPT": {
+      "rows": 1,
+      "bytes": 4529431174,
+      "files": 1,
+      "move_ids": [
+        "D1-001"
+      ]
+    },
+    "D1D_BLEND_BACKUPS": {
+      "rows": 10,
+      "bytes": 2400984463,
+      "files": 10,
+      "move_ids": [
+        "D1-004",
+        "D1-005",
+        "D1-006",
+        "D1-007",
+        "D1-008",
+        "D1-010",
+        "D1-011",
+        "D1-012",
+        "D1-013",
+        "D1-014"
+      ]
+    },
+    "D1A_PACKAGES": {
+      "rows": 14,
+      "bytes": 80761480127,
+      "files": 14,
+      "move_ids": [
+        "D1-019",
+        "D1-020",
+        "D1-021",
+        "D1-022",
+        "D1-023",
+        "D1-024",
+        "D1-025",
+        "D1-026",
+        "D1-027",
+        "D1-028",
+        "D1-029",
+        "D1-030",
+        "D1-031",
+        "D1-032"
+      ]
+    },
+    "D1C_LEGACY_DATASETS": {
+      "rows": 15,
+      "bytes": 54442767106,
+      "files": 191503,
+      "move_ids": [
+        "D1-034",
+        "D1-035",
+        "D1-036",
+        "D1-037",
+        "D1-039",
+        "D1-040",
+        "D1-044",
+        "D1-045",
+        "D1-046",
+        "D1-047",
+        "D1-048",
+        "D1-050",
+        "D1-051",
+        "D1-052",
+        "D1-054"
+      ]
+    }
+  },
+  "cohort_order": [
+    "D1B_CORRUPT",
+    "D1D_BLEND_BACKUPS",
+    "D1A_PACKAGES",
+    "D1C_LEGACY_DATASETS"
+  ],
+  "revalidation_problems": [],
+  "created_at": "2026-07-30"
+}

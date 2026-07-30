@@ -390,7 +390,10 @@ reports/data_pallet_cleanup/
 ├── README.md                        이 문서 (최종 보고)
 ├── proposed_tree.md                 현재 구조 ↔ 제안 구조
 ├── rollback_plan.md                 Stage 2 rollback 절차 (삭제 명령 없음)
-├── grouped_inventory.csv            416행 — 분류 단위(디렉토리/그룹) 엔트리 (35 컬럼)
+├── grouped_inventory.csv            266행 — 분류 단위(디렉토리/그룹) 엔트리 (35 컬럼)
+│                                    Stage 2-D1 에서 최종 tree 로 재생성 (416 -> 266).
+│                                    사라진 206행은 Stage 2-A/B/C2/D1 이동분 —
+│                                    목록은 stage2d1/grouped_inventory_diff.md
 │                                    ※ Stage 2-D0.1 에서 inventory.csv 를 개명. 전 파일
 │                                      manifest 가 아니라 그룹 집계임을 이름에 반영.
 ├── directories.csv                  2,489행 — 전체 디렉토리
@@ -516,3 +519,48 @@ Stage 2-D1 계획 60행 / 이동 후보 48건 163.03GB
 
 보고서: `stage2d0/final_report.md`
 도구: `scripts/data_prep/audit_pallet_archives.py`
+
+---
+
+## stage2d1/ — Stage 2-D1 archive 정리 (2026-07-30, 실이동 30건)
+
+```
+[판정] D1_PARTIAL — READY 40건 중 30건 VERIFIED (130.14 GiB / 191,518 파일)
+       10건(D1D)은 앞선 원장 충돌로 rollback. FULL layout 완료 아님.
+```
+
+Stage 2-D0.1 이 동결한 계획(SHA256 `c343b807…`)을 정본으로 써서 cohort 순서
+D1B → D1D → D1A → D1C 로 실행했다.
+
+```
+파일                              내용
+────────────────────────────────────────────────────────────────────────────────
+preflight.md                      기준선 A~H (전부 기대치 일치)
+baseline_checksums.json           registry·test·원장 SHA256·active scene·5k digest
+ledger_checksums_before.json      앞선 원장 7 + 참조문서 6 의 SHA256
+filesystem_before.json            이동 전 영역·top-level·archive depth1
+frozen_plan.json                  계획 동결 (40행 / cohort별 재검증 문제 0)
+transaction_policy.md             stage2d1-archive-finalization 정책 설계
+hash_budget.md                    cohort별 read 예산과 실사용 (257.78 / 286 GiB)
+checkpoint.json                   cohort 상태 + D1D incident 기록
+transactions/d1b_corrupt.jsonl         1행  이동 원장 (rollback 근거)
+transactions/d1d_blend_backups.jsonl  10행  ROLLED_BACK
+transactions/d1a_packages.jsonl       14행
+transactions/d1c_legacy_datasets.jsonl 15행  (relative_files 191,503 경로)
+cohort_d1b_report.md              손상 ZIP 보존 이동 — 이동 후에도 BadZipFile 확인
+cohort_d1d_report.md              ★ 실패 분석: C2C 원장 구성원을 옮겨 MISSING 11건
+cohort_d1a_report.md              package 14건 — structural match 도 전부 보존
+cohort_d1c_report.md              dataset 15건 — NoAI/PARTIAL 재분류 안 함
+exclusion_before.csv              entries 16 / problems 0
+exclusion_after_d1a.csv           ZIP 새 경로 반영
+exclusion_after_d1c.csv           NoAI 3건 새 경로 반영
+exclusion_final.csv               problems 0 / leaks 0 / stale 0
+current_reference_final.csv        canonical broken CURRENT ref 0
+grouped_inventory_diff.md         416 -> 266 행, 사라진 206 / 새로 생긴 56
+final_tree.md                     최종 구조 감사 + 판정 근거 + 잔여 목록
+regression_results.md             §16 전체 검증 (unit 714 · 5k digest 동일)
+filesystem_after.json             이동 후 실측
+filesystem_diff.json              delta + 보호 영역 전수 불변 (문제 0)
+rollback_plan.md                  cohort별·전체 rollback 절차 + exclusion 수동 복구
+final_report.md                   38항목 최종 보고
+```

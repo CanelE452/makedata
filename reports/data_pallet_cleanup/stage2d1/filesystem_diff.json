@@ -1,0 +1,479 @@
+{
+  "data_pallet_before": {
+    "files": 363090,
+    "bytes": 192468047026,
+    "dirs": 2560
+  },
+  "data_pallet_after": {
+    "files": 363090,
+    "bytes": 192468081042,
+    "dirs": 2567
+  },
+  "data_pallet_delta": {
+    "dirs": 7,
+    "files": 0,
+    "bytes": 34016,
+    "explained": "bytes +34,016 은 **허용 파일만**의 변경이다: data/pallet/README.md (+1,611) · _DISTRIBUTION_EXCLUDE.txt (+1,708) · manifests/{archive,path_map,assets}.csv · manifests/README.md · archive/README.md (§13·§14 갱신). asset·dataset·package·blend·weight 는 path/size/SHA256 전수 대조 불일치 0 (blend 17 · weight 29 · package 20 · dataset 120). files delta 0 = 삭제·생성 0."
+  },
+  "top_level_removed": [
+    "pallet.zip",
+    "test_blender_v64.zip",
+    "test_blender_v65.zip",
+    "test_blender_v68.zip",
+    "test_blender_v69.zip",
+    "test_blender_v70.zip",
+    "test_indoor_v1.zip",
+    "train_4pallet_mask_v1.zip",
+    "train_palletobj_addon_v1.zip",
+    "train_palletobj_v1 (2).zip",
+    "train_palletobj_v1.zip",
+    "train_palletobj_v2 (2).zip",
+    "train_palletobj_v2.zip",
+    "train_palletobj_v3.zip",
+    "trunc_addon_v1.zip"
+  ],
+  "top_level_added": [],
+  "archive_depth1_removed": [
+    "_mask_test60",
+    "test_blender_v64",
+    "test_blender_v65",
+    "test_blender_v67",
+    "test_blender_v68",
+    "test_blender_v69",
+    "test_blender_v70",
+    "test_indoor_v1",
+    "train_4pallet_mask_v1",
+    "train_palletobj_addon_v1",
+    "train_palletobj_v1",
+    "train_palletobj_v2",
+    "training_data_v4",
+    "training_data_v4_split",
+    "trunc_addon_v1"
+  ],
+  "archive_depth1_added": [],
+  "archive_before_entries": 166,
+  "archive_after_entries": 151,
+  "ledger_rows": [
+    {
+      "manifest": "d1b_corrupt.jsonl",
+      "move_id": "D1-001",
+      "cohort": "D1B_CORRUPT",
+      "status": "MOVED",
+      "source": "data/pallet/train_palletobj_v1.zip",
+      "destination": "data/pallet/archive/packages/corrupt/train_palletobj_v1.zip",
+      "file_count": 1,
+      "total_bytes": 4529431174
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-019",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/pallet.zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/pallet.zip",
+      "file_count": 1,
+      "total_bytes": 16637698137
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-020",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/test_blender_v64.zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/test_blender_v64.zip",
+      "file_count": 1,
+      "total_bytes": 1781592200
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-021",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/test_blender_v65.zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/test_blender_v65.zip",
+      "file_count": 1,
+      "total_bytes": 86723195
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-022",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/test_blender_v68.zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/test_blender_v68.zip",
+      "file_count": 1,
+      "total_bytes": 906940260
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-023",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/test_blender_v69.zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/test_blender_v69.zip",
+      "file_count": 1,
+      "total_bytes": 3653659280
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-024",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/test_blender_v70.zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/test_blender_v70.zip",
+      "file_count": 1,
+      "total_bytes": 913350083
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-025",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/test_indoor_v1.zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/test_indoor_v1.zip",
+      "file_count": 1,
+      "total_bytes": 587372076
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-026",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/train_4pallet_mask_v1.zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/train_4pallet_mask_v1.zip",
+      "file_count": 1,
+      "total_bytes": 9675248635
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-027",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/train_palletobj_addon_v1.zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/train_palletobj_addon_v1.zip",
+      "file_count": 1,
+      "total_bytes": 5648950621
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-028",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/train_palletobj_v1 (2).zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/train_palletobj_v1 (2).zip",
+      "file_count": 1,
+      "total_bytes": 8316876455
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-029",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/train_palletobj_v2 (2).zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/train_palletobj_v2 (2).zip",
+      "file_count": 1,
+      "total_bytes": 8321314846
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-030",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/train_palletobj_v2.zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/train_palletobj_v2.zip",
+      "file_count": 1,
+      "total_bytes": 8346416419
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-031",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/train_palletobj_v3.zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/train_palletobj_v3.zip",
+      "file_count": 1,
+      "total_bytes": 10449502513
+    },
+    {
+      "manifest": "d1a_packages.jsonl",
+      "move_id": "D1-032",
+      "cohort": "D1A_PACKAGES",
+      "status": "MOVED",
+      "source": "data/pallet/trunc_addon_v1.zip",
+      "destination": "data/pallet/archive/packages/dataset_bundles/trunc_addon_v1.zip",
+      "file_count": 1,
+      "total_bytes": 5435835407
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-034",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/train_4pallet_mask_v1",
+      "destination": "data/pallet/archive/legacy_datasets/noai_baked/train_4pallet_mask_v1",
+      "file_count": 40040,
+      "total_bytes": 9845542580
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-035",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/train_palletobj_v2",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/train_palletobj_v2",
+      "file_count": 30010,
+      "total_bytes": 8341960347
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-036",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/train_palletobj_v1",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/train_palletobj_v1",
+      "file_count": 30012,
+      "total_bytes": 8337383185
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-037",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/training_data_v4_split",
+      "destination": "data/pallet/archive/legacy_datasets/noai_baked/training_data_v4_split",
+      "file_count": 15053,
+      "total_bytes": 8321688089
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-039",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/train_palletobj_addon_v1",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/train_palletobj_addon_v1",
+      "file_count": 24002,
+      "total_bytes": 5752182582
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-040",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/trunc_addon_v1",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/trunc_addon_v1",
+      "file_count": 24015,
+      "total_bytes": 5546660278
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-044",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/test_blender_v69",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_blender_v69",
+      "file_count": 12000,
+      "total_bytes": 3662471008
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-045",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/test_blender_v64",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_blender_v64",
+      "file_count": 6000,
+      "total_bytes": 1786012650
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-046",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/test_blender_v70",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_blender_v70",
+      "file_count": 3000,
+      "total_bytes": 915545347
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-047",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/test_blender_v68",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_blender_v68",
+      "file_count": 3000,
+      "total_bytes": 909147448
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-048",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/test_indoor_v1",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_indoor_v1",
+      "file_count": 3000,
+      "total_bytes": 588469993
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-050",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/test_blender_v67",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_blender_v67",
+      "file_count": 501,
+      "total_bytes": 150369725
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-051",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/training_data_v4",
+      "destination": "data/pallet/archive/legacy_datasets/noai_baked/training_data_v4",
+      "file_count": 329,
+      "total_bytes": 133302744
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-052",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/test_blender_v65",
+      "destination": "data/pallet/archive/legacy_datasets/redistributable/test_blender_v65",
+      "file_count": 300,
+      "total_bytes": 86945235
+    },
+    {
+      "manifest": "d1c_legacy_datasets.jsonl",
+      "move_id": "D1-054",
+      "cohort": "D1C_LEGACY_DATASETS",
+      "status": "MOVED",
+      "source": "data/pallet/archive/_mask_test60",
+      "destination": "data/pallet/archive/legacy_datasets/partial/_mask_test60",
+      "file_count": 241,
+      "total_bytes": 65085895
+    },
+    {
+      "manifest": "d1d_blend_backups.jsonl",
+      "move_id": "D1-004",
+      "cohort": "D1D_BLEND_BACKUPS",
+      "status": "ROLLED_BACK",
+      "source": "data/pallet/assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend1",
+      "destination": "data/pallet/archive/legacy_scenes/blender_backups/_sandbox_parking_lot_check.blend1",
+      "file_count": 1,
+      "total_bytes": 137789046
+    },
+    {
+      "manifest": "d1d_blend_backups.jsonl",
+      "move_id": "D1-005",
+      "cohort": "D1D_BLEND_BACKUPS",
+      "status": "ROLLED_BACK",
+      "source": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene.POSTBAKE_CLEAN_20260724_191902.blend",
+      "destination": "data/pallet/archive/legacy_scenes/snapshots/synth_data_scene.POSTBAKE_CLEAN_20260724_191902.blend",
+      "file_count": 1,
+      "total_bytes": 245967843
+    },
+    {
+      "manifest": "d1d_blend_backups.jsonl",
+      "move_id": "D1-006",
+      "cohort": "D1D_BLEND_BACKUPS",
+      "status": "ROLLED_BACK",
+      "source": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene.PREBAKE_BACKUP_20260724_181050.blend",
+      "destination": "data/pallet/archive/legacy_scenes/snapshots/synth_data_scene.PREBAKE_BACKUP_20260724_181050.blend",
+      "file_count": 1,
+      "total_bytes": 245475973
+    },
+    {
+      "manifest": "d1d_blend_backups.jsonl",
+      "move_id": "D1-007",
+      "cohort": "D1D_BLEND_BACKUPS",
+      "status": "ROLLED_BACK",
+      "source": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene.REBAKE_WIP.blend",
+      "destination": "data/pallet/archive/legacy_scenes/snapshots/synth_data_scene.REBAKE_WIP.blend",
+      "file_count": 1,
+      "total_bytes": 245967843
+    },
+    {
+      "manifest": "d1d_blend_backups.jsonl",
+      "move_id": "D1-008",
+      "cohort": "D1D_BLEND_BACKUPS",
+      "status": "ROLLED_BACK",
+      "source": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene.REBAKE_WIP.blend1",
+      "destination": "data/pallet/archive/legacy_scenes/blender_backups/synth_data_scene.REBAKE_WIP.blend1",
+      "file_count": 1,
+      "total_bytes": 246594559
+    },
+    {
+      "manifest": "d1d_blend_backups.jsonl",
+      "move_id": "D1-010",
+      "cohort": "D1D_BLEND_BACKUPS",
+      "status": "ROLLED_BACK",
+      "source": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene.blend1",
+      "destination": "data/pallet/archive/legacy_scenes/blender_backups/synth_data_scene.blend1",
+      "file_count": 1,
+      "total_bytes": 245862236
+    },
+    {
+      "manifest": "d1d_blend_backups.jsonl",
+      "move_id": "D1-011",
+      "cohort": "D1D_BLEND_BACKUPS",
+      "status": "ROLLED_BACK",
+      "source": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene12.blend",
+      "destination": "data/pallet/archive/legacy_scenes/snapshots/synth_data_scene12.blend",
+      "file_count": 1,
+      "total_bytes": 257666344
+    },
+    {
+      "manifest": "d1d_blend_backups.jsonl",
+      "move_id": "D1-012",
+      "cohort": "D1D_BLEND_BACKUPS",
+      "status": "ROLLED_BACK",
+      "source": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene12.blend1",
+      "destination": "data/pallet/archive/legacy_scenes/blender_backups/synth_data_scene12.blend1",
+      "file_count": 1,
+      "total_bytes": 265089900
+    },
+    {
+      "manifest": "d1d_blend_backups.jsonl",
+      "move_id": "D1-013",
+      "cohort": "D1D_BLEND_BACKUPS",
+      "status": "ROLLED_BACK",
+      "source": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene121.blend",
+      "destination": "data/pallet/archive/legacy_scenes/snapshots/synth_data_scene121.blend",
+      "file_count": 1,
+      "total_bytes": 265089901
+    },
+    {
+      "manifest": "d1d_blend_backups.jsonl",
+      "move_id": "D1-014",
+      "cohort": "D1D_BLEND_BACKUPS",
+      "status": "ROLLED_BACK",
+      "source": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene_indoor.blend",
+      "destination": "data/pallet/archive/legacy_scenes/snapshots/synth_data_scene_indoor.blend",
+      "file_count": 1,
+      "total_bytes": 245480818
+    }
+  ],
+  "protected_invariance": {
+    "blend_diffs": [],
+    "weight_diffs": [],
+    "package_diffs": [],
+    "dataset_diffs": [],
+    "hash_read_bytes": 10179365481,
+    "total_problems": 0
+  },
+  "allowed_file_changes": {
+    "depth1": {
+      "README.md": 1611,
+      "_DISTRIBUTION_EXCLUDE.txt": 1708
+    },
+    "depth2_current_sizes": {
+      "manifests/archive.csv": 59530,
+      "manifests/path_map.csv": 55866,
+      "manifests/assets.csv": 12676,
+      "manifests/README.md": 4313,
+      "archive/README.md": 5289
+    }
+  }
+}

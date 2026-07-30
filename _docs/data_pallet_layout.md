@@ -248,7 +248,7 @@ data/pallet/manifests/archive.csv    archive 이동 계획 (Stage 2-A 실행 0�
 3. ✅ `archive/trunc_addon_v1_pilot` → `reference/golden_overlay/` — Stage 2-B (golden 51 passed, skip 0)
 4. ✅ `hdri` / `models_usd` / `background` / `distractors` → `assets/` — Stage 2-B/C2
 5. ✅ `_DISTRIBUTION_EXCLUDE.txt` 갱신 — Stage 2-B(경로 정정) + Stage 2-D0.1(entry 11 → 16)
-6. ⏸ archive 대상 이동 — **Stage 2-D1. 계획만 확정, 미실행 (사용자 승인 대기)**
+6. ◐ archive 대상 이동 — **Stage 2-D1 부분 실행: 30/40 VERIFIED, 10건 rollback**
 
 ## 7. archive 내부 정리 상태 (Stage 2-D0 / 2-D0.1)
 
@@ -294,3 +294,63 @@ D1F_QUARANTINE           0        —        isaac_assets(EULA) · NoAI USD -> �
 - BLOCKED 8 = 라이선스 미확정 4(v4 파생, ledger B8) + **CURRENT 경로 참조가 살아있는 4**
   (`archive/training_data` 등). 후자는 이동 전에 registry 키 등록 + 참조 전환이 선행돼야
   한다 — 지금 옮기면 방금 고친 참조가 다시 깨진다.
+
+## 8. Stage 2-D1 실행 결과 (2026-07-30) — archive/ 내부 정리
+
+```
+[판정] D1_PARTIAL — READY 40건 중 30건 VERIFIED (130.14 GiB), 10건 rollback
+       FULL_DATA_PALLET_LAYOUT_COMPLETE 아님 (아래 잔여 참조)
+```
+
+```
+cohort                결과        건수   bytes        목적지
+──────────────────────────────────────────────────────────────────────────────────────
+D1B_CORRUPT           VERIFIED      1     4.22 GiB   archive/packages/corrupt/
+D1A_PACKAGES          VERIFIED     14    75.21 GiB   archive/packages/dataset_bundles/
+D1C_LEGACY_DATASETS   VERIFIED     15    50.70 GiB   archive/legacy_datasets/
+                                                       redistributable 11 · noai_baked 3 · partial 1
+D1D_BLEND_BACKUPS     ROLLED_BACK  10     2.24 GiB   ★ 앞선 원장 충돌 — 아래
+──────────────────────────────────────────────────────────────────────────────────────
+이동 완료                           30   130.14 GiB   191,518 파일
+```
+
+검증: 전 파일 SHA256 을 이동 전·후 두 번 (read 260.27 GiB) — mismatch 0 · unhashed 0 ·
+file count/bytes/relpath 전부 일치 · source 잔존 0. `data/pallet` 파일 수 363,090 불변
+(삭제 0 · 생성 0), bytes +624 = `_DISTRIBUTION_EXCLUDE.txt` 단독.
+
+### ★ D1D 가 드러낸 구조적 제약 — 원장 연쇄가 없다
+
+cold blend 10개는 **Stage 2-C2 C2C 이동의 구성원**이었다. C2C destination
+(`assets/scenes/production/blender_scene/`) 밖으로 빼내자 C2C 원장의 verify 가
+`MISSING` 11건으로 실패했다. 데이터는 안전했지만(D1D 원장이 새 위치·해시 기록,
+verify 통과) **검증 사슬**이 끊겼다.
+
+"예상된 제거"를 허용하는 옵션을 만들면 통과하지만 그건 검증 완화다. rollback 했고,
+대신 계획 단계 guard 를 코드에 넣었다:
+
+```
+manage_pallet_data_layout.py
+  PRIOR_LEDGERS · prior_ledger_members() · find_prior_ledger_conflict()
+  -> 앞선 원장이 옮긴 파일을 그 destination 밖으로 옮기려 하면 plan 이 exit 2
+```
+
+계획 40건 전수 재검사 결과 충돌은 **D1D 10건에만** 있었다 (D1A/D1B/D1C 는 0).
+
+이 10건을 옮기려면 원장 연쇄(chained ledger — verify 가 "이 파일은 원장 X 가
+이어받았다"를 SHA256 까지 따라가는 것) 도입이 선행돼야 한다. 범위 밖이라 하지 않았다.
+
+### 잔여 (전체 정리 미완)
+
+```
+BLOCKED_REFERENCE     4건   16.13 GiB   registry 키 등록 + 참조 전환 선행 필요
+BLOCKED_UNKNOWN       4건   14.53 GiB   v4 파생 NoAI 상속 확정 필요 (ledger B8)
+KEEP_ACTIVE/ROLLBACK  6건               registry blend — 이동 대상 아님
+UNREFERENCED_WEIGHT   4건               weights/ 밖 · 삭제 후보 아님 · 별도 승인
+KEEP_QUARANTINE       2건               isaac_assets(EULA) · NoAI USD
+D1D                  10건    2.24 GiB   원장 연쇄 선행 필요
+data/pallet top-level 잔여 65건 4.27 GiB log 40 · script 11 · 진단 dir 10 · 출력 3 · 이미지 1
+archive/ depth-1 잔여 136건            진단·중간 산출물 (Stage 2-A 계획 미실행분)
+```
+
+상세: `reports/data_pallet_cleanup/stage2d1/` (final_report.md · final_tree.md ·
+cohort_d1*_report.md · regression_results.md · rollback_plan.md)

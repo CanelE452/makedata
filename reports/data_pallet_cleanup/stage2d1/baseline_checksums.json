@@ -1,0 +1,213 @@
+{
+  "stage": "2-D1",
+  "branch": "chore/data-pallet-stage2d1-archive-finalization",
+  "base_commit": "01290786b978cdaa2b70fcb99bb48625dbfe3b39",
+  "base_commit_message": "chore: data/pallet Stage 2-D0.1 안정화 — 참조 44→0 · C2C exact allowlist · D1 계획 확정 (이동 0)",
+  "verdict": "D1_PARTIAL",
+  "verdict_detail": "READY 40건 중 30건 VERIFIED (130.14 GiB). 10건(D1D)은 앞선 원장 충돌로 ROLLED_BACK. D1_READY_SCOPE_COMPLETE 아님. FULL_DATA_PALLET_LAYOUT_COMPLETE 아님.",
+  "frozen_plan": {
+    "path": "reports/data_pallet_cleanup/stage2d01/proposed_stage2d1_moves_final.csv",
+    "sha256": "c343b807a0e3b5df8b8f6ee8843344b11511564c7046be55810c631cdc3b8e8b",
+    "total_rows": 60,
+    "selected_rows": 40,
+    "selected_bytes": 142134662870,
+    "selected_files": 191528,
+    "revalidation_problems": 0
+  },
+  "data_pallet_before": {
+    "files": 363090,
+    "bytes": 192468047026,
+    "dirs": 2560
+  },
+  "data_pallet_after": {
+    "files": 363090,
+    "bytes": 192468047650,
+    "dirs": 2567
+  },
+  "delta": {
+    "dirs": 7,
+    "files": 0,
+    "bytes": 624,
+    "explained": "bytes +34,016 은 **허용 파일만**의 변경이다: data/pallet/README.md (+1,611) · _DISTRIBUTION_EXCLUDE.txt (+1,708) · manifests/{archive,path_map,assets}.csv · manifests/README.md · archive/README.md (§13·§14 갱신). asset·dataset·package·blend·weight 는 path/size/SHA256 전수 대조 불일치 0 (blend 17 · weight 29 · package 20 · dataset 120). files delta 0 = 삭제·생성 0."
+  },
+  "cohorts": {
+    "D1B_CORRUPT": {
+      "state": "VERIFIED",
+      "planned_rows": 1,
+      "files": 1,
+      "bytes": 4529431174,
+      "hashed": 1,
+      "unhashed": 0,
+      "pre_hash_read_bytes": 4529431174,
+      "budget_gib": 10,
+      "plan_seconds": 3.2,
+      "moved": 1,
+      "apply_seconds": 0.1,
+      "post_hash_read_bytes": 4529431174,
+      "total_hash_read_bytes": 9058862348,
+      "budget_bytes": 10737418240,
+      "budget_used_ratio": 0.8437,
+      "verify_seconds": 3.5,
+      "sha256_checked": 1
+    },
+    "D1D_BLEND_BACKUPS": {
+      "state": "ROLLED_BACK",
+      "blocked": true,
+      "planned_rows": 10,
+      "moved": 10,
+      "verified": true,
+      "rolled_back": 10
+    },
+    "D1A_PACKAGES": {
+      "state": "VERIFIED",
+      "planned_rows": 14,
+      "files": 14,
+      "bytes": 80761480127,
+      "hashed": 14,
+      "unhashed": 0,
+      "pre_hash_read_bytes": 80761480127,
+      "budget_gib": 160,
+      "plan_seconds": 66.5,
+      "moved": 14,
+      "apply_seconds": 0.1,
+      "post_hash_read_bytes": 80761480127,
+      "total_hash_read_bytes": 161522960254,
+      "budget_bytes": 171798691840,
+      "budget_used_ratio": 0.9402,
+      "verify_seconds": 66.5,
+      "sha256_checked": 14
+    },
+    "D1C_LEGACY_DATASETS": {
+      "state": "VERIFIED",
+      "planned_rows": 15,
+      "files": 191503,
+      "bytes": 54442767106,
+      "hashed": 191503,
+      "unhashed": 0,
+      "pre_hash_read_bytes": 54442767106,
+      "budget_gib": 110,
+      "plan_seconds": 1186.7,
+      "moved": 15,
+      "apply_seconds": 0.7,
+      "post_hash_read_bytes": 54442767106,
+      "total_hash_read_bytes": 108885534212,
+      "budget_bytes": 118111600640,
+      "budget_used_ratio": 0.9219,
+      "verify_seconds": 1082.3,
+      "sha256_checked": 191503
+    }
+  },
+  "moved_total": {
+    "rows": 30,
+    "files": 191518,
+    "bytes": 139733678407,
+    "gib": 130.14
+  },
+  "hash": {
+    "mode": "all",
+    "unhashed": 0,
+    "sha256_mismatch": 0,
+    "pre_read_bytes": 139733678407,
+    "post_read_bytes": 139733678407,
+    "total_read_gib": 260.27,
+    "budget_total_gib": 286,
+    "budget_used_gib": 257.78
+  },
+  "registry": {
+    "ok": 24,
+    "missing": 0,
+    "absent_optional": 0
+  },
+  "tests": {
+    "unit_before": 664,
+    "unit_after": 714,
+    "unit_skipped": 0,
+    "unit_failed": 0,
+    "integration": 31,
+    "golden_overlay": 51,
+    "new_tests": 50,
+    "new_test_file": "scripts/data_prep/blender/tests/test_stage2d1_archive_finalization.py"
+  },
+  "exclusion": {
+    "entries": 16,
+    "problems": 0,
+    "leaks": 0,
+    "stale": 0,
+    "stale_caught_before_d1c_fix": 3
+  },
+  "prior_ledgers_unchanged": {
+    "stage2a": "fe1adc266bd91963c7be98779ed4c114b90b0b811fabdd60471a807aeb56d101",
+    "stage2b_b1": "43461e47498985294c25317d38fee664d6adc94143dba0185d5afd18e6b369ad",
+    "stage2b_b2": "0d0c06a849fcf20125c4af6c97ebafdb2d12d7b6fa5e5f7a7add139799c78bd4",
+    "stage2c2_c2c": "241f5c569d2be92488a2f653fece287ac213886373292f28fd4a23a30ebce2c7",
+    "failures": 0
+  },
+  "active_scene": {
+    "path": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene_portable_stage2c2.blend",
+    "sha256_prefix": "8cb4109adc6d3213",
+    "unchanged": true,
+    "no_render": {
+      "images": 603,
+      "absolute": 0,
+      "missing": 0,
+      "textures": 158,
+      "distractors": 356,
+      "hdri": 1,
+      "dist_roots": 209,
+      "node_image_missing": 0
+    }
+  },
+  "dryrun_5k": {
+    "framespec": {
+      "accepted": 4313,
+      "rejected": 687,
+      "sha256": "938f387dd65258e0ee869d58b0f4f69046bddc5e8f56921fbb666ecf13d82a39",
+      "unchanged": true
+    },
+    "proposals": {
+      "accepted": 4439,
+      "digest_prefix": "3cd365ee",
+      "checks": "12/12 PASS",
+      "unchanged": true
+    }
+  },
+  "protected_invariance": {
+    "blend_diffs": 0,
+    "weight_diffs": 0,
+    "package_diffs": 0,
+    "dataset_diffs": 0
+  },
+  "canonical_broken_current_refs": 0,
+  "remaining": {
+    "blocked": 8,
+    "keep": 12,
+    "d1d_rolled_back": 10,
+    "top_level_leftover": 65,
+    "archive_depth1_leftover": 136,
+    "unknown": 0
+  },
+  "data_deleted": 0,
+  "zip_deleted": 0,
+  "package_modified": 0,
+  "extracted": 0,
+  "weight_moved": 0,
+  "isaac_assets_moved": 0,
+  "noai_usd_moved": 0,
+  "blender_renders": 0,
+  "model_training": 0,
+  "commits": 0,
+  "pushes": 0,
+  "allowed_file_changes": {
+    "depth1": {
+      "README.md": 1611,
+      "_DISTRIBUTION_EXCLUDE.txt": 1708
+    },
+    "depth2_current_sizes": {
+      "manifests/archive.csv": 59530,
+      "manifests/path_map.csv": 55866,
+      "manifests/assets.csv": 12676,
+      "manifests/README.md": 4313,
+      "archive/README.md": 5289
+    }
+  }
+}

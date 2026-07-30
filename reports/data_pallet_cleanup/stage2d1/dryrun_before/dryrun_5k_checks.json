@@ -1,0 +1,78 @@
+{
+  "tag": "5k",
+  "proposals": 5000,
+  "seed": 7000,
+  "accepted": 4439,
+  "acceptance": 0.8878,
+  "digest": "3cd365eec96d1009428879f6a2636569c8d5bdb5e8d6e1488a1cda76c5bd30cd",
+  "digest_replay": "3cd365eec96d1009428879f6a2636569c8d5bdb5e8d6e1488a1cda76c5bd30cd",
+  "rejects": {
+    "d_occ_fail": 187,
+    "v_below_min": 185,
+    "C1": 188,
+    "penetration": 1
+  },
+  "checks": [
+    {
+      "check": "proposals run == requested",
+      "pass": true,
+      "detail": "5000 / 5000"
+    },
+    {
+      "check": "camera_distance_target_m > 10.0 m",
+      "pass": true,
+      "detail": "count=0 ; max=9.999785 m (cap 10.0)"
+    },
+    {
+      "check": "spec-implied distance > 10.0 m (incl. rejected)",
+      "pass": true,
+      "detail": "count=0 ; max=9.999785 m"
+    },
+    {
+      "check": "NaN / inf in spec or plan",
+      "pass": true,
+      "detail": "count=0"
+    },
+    {
+      "check": "empty feasible projected-size interval",
+      "pass": true,
+      "detail": "RuntimeError=None ; min feasible bins per draw=4"
+    },
+    {
+      "check": "reject camera_distance_out_of_range",
+      "pass": true,
+      "detail": "count=0"
+    },
+    {
+      "check": "same-seed determinism",
+      "pass": true,
+      "detail": "sha256 run1=3cd365eec96d1009\u2026 run2=3cd365eec96d1009\u2026 ; accepted 4439 vs 4439"
+    },
+    {
+      "check": "solve acceptance >= 70%",
+      "pass": true,
+      "detail": "4439/5000 = 0.8878 (88.78%)"
+    },
+    {
+      "check": "max-attempt exhaustion",
+      "pass": true,
+      "detail": "proposals needed per accepted frame = 1.126 <= budget factor 20"
+    },
+    {
+      "check": "quota starvation (prescribed cell with 0 accepted)",
+      "pass": true,
+      "detail": "count=0"
+    },
+    {
+      "check": "unrelated marginal error <= 0.01",
+      "pass": true,
+      "detail": "max=0.00063 (elev_bin=2)"
+    },
+    {
+      "check": "projected-size marginal error <= 0.01 (cap-related axis)",
+      "pass": true,
+      "detail": "max=0.00018"
+    }
+  ],
+  "elapsed_s": 24.819061040878296
+}

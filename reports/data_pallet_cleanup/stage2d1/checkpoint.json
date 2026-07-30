@@ -1,0 +1,101 @@
+{
+  "stage": "2-D1",
+  "plan_path": "reports/data_pallet_cleanup/stage2d01/proposed_stage2d1_moves_final.csv",
+  "plan_sha256": "c343b807a0e3b5df8b8f6ee8843344b11511564c7046be55810c631cdc3b8e8b",
+  "cohort_order": [
+    "D1B_CORRUPT",
+    "D1D_BLEND_BACKUPS",
+    "D1A_PACKAGES",
+    "D1C_LEGACY_DATASETS"
+  ],
+  "cohorts": {
+    "D1B_CORRUPT": {
+      "state": "VERIFIED",
+      "planned_rows": 1,
+      "files": 1,
+      "bytes": 4529431174,
+      "hashed": 1,
+      "unhashed": 0,
+      "pre_hash_read_bytes": 4529431174,
+      "budget_gib": 10,
+      "plan_seconds": 3.2,
+      "moved": 1,
+      "apply_seconds": 0.1,
+      "post_hash_read_bytes": 4529431174,
+      "total_hash_read_bytes": 9058862348,
+      "budget_bytes": 10737418240,
+      "budget_used_ratio": 0.8437,
+      "verify_seconds": 3.5,
+      "sha256_checked": 1
+    },
+    "D1D_BLEND_BACKUPS": {
+      "state": "ROLLED_BACK",
+      "blocked": true,
+      "planned_rows": 10,
+      "moved": 10,
+      "verified": true,
+      "rolled_back": 10,
+      "reason": "앞선 트랜잭션 원장 충돌 — 10개 blend 전부 Stage 2-C2 C2C 이동(S2C2002)의 구성원이고, C2C destination 밖으로 옮기면 C2C exact verify 가 MISSING 11건으로 실패한다(실측 확인). 데이터는 안전했으나(D1D 원장이 위치를 기록) 검증 사슬이 끊긴다. §18 중단 기준 -> D1D 만 rollback.",
+      "evidence": {
+        "c2c_failures_while_moved": 11,
+        "c2c_failures_after_rollback": 0,
+        "blend_files_back_in_place": 17,
+        "protected_blend_sha256_unchanged": 6,
+        "legacy_scenes_left_empty": true
+      },
+      "resolution": "manage_pallet_data_layout.py 에 prior-ledger 충돌 guard 를 추가해 계획 단계에서 거부하도록 고정(테스트 4개 신규). 이 10건을 옮기려면 원장 연쇄(chained ledger) 도입이 선행돼야 하고 그건 이 단계 범위 밖이다."
+    },
+    "D1A_PACKAGES": {
+      "state": "VERIFIED",
+      "planned_rows": 14,
+      "files": 14,
+      "bytes": 80761480127,
+      "hashed": 14,
+      "unhashed": 0,
+      "pre_hash_read_bytes": 80761480127,
+      "budget_gib": 160,
+      "plan_seconds": 66.5,
+      "moved": 14,
+      "apply_seconds": 0.1,
+      "post_hash_read_bytes": 80761480127,
+      "total_hash_read_bytes": 161522960254,
+      "budget_bytes": 171798691840,
+      "budget_used_ratio": 0.9402,
+      "verify_seconds": 66.5,
+      "sha256_checked": 14
+    },
+    "D1C_LEGACY_DATASETS": {
+      "state": "VERIFIED",
+      "planned_rows": 15,
+      "files": 191503,
+      "bytes": 54442767106,
+      "hashed": 191503,
+      "unhashed": 0,
+      "pre_hash_read_bytes": 54442767106,
+      "budget_gib": 110,
+      "plan_seconds": 1186.7,
+      "moved": 15,
+      "apply_seconds": 0.7,
+      "post_hash_read_bytes": 54442767106,
+      "total_hash_read_bytes": 108885534212,
+      "budget_bytes": 118111600640,
+      "budget_used_ratio": 0.9219,
+      "verify_seconds": 1082.3,
+      "sha256_checked": 191503
+    }
+  },
+  "incidents": [
+    {
+      "cohort": "D1D_BLEND_BACKUPS",
+      "state_at_failure": "FAILED",
+      "error": "plan exit 2",
+      "root_cause": "정책 판정이 과했다 — '금지 status 가 선택 범위에 있으면 거부' 로 구현했는데 D1D cohort 는 계획상 17행(READY 10 + KEEP/BLOCKED 7)이 섞여 있다. cohort 에 KEEP 행이 함께 있는 것은 오류가 아니고 선택되지 않으면 된다.",
+      "fix": "_stage2d1_candidates: 금지 status 는 조용히 건너뛰고, --move-ids/--only-source 로 명시 요청한 경우에만 거부. READY 인데 rollback_role/UNKNOWN/quarantine/weight/live-ref 가 붙어 있으면 여전히 거부(계획 모순).",
+      "data_moved_during_failure": 0,
+      "tests_added": [
+        "test_mixed_cohort_selects_only_ready_rows",
+        "test_ready_row_with_forbidden_attribute_is_still_refused"
+      ]
+    }
+  ]
+}
