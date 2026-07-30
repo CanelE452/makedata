@@ -6,7 +6,7 @@ cuboid wireframe을 그려서 저장.
 사용법:
     python scripts/data_prep/visualize_inference.py \
         --weights weights/pallet_category/final_net_epoch_0060.pth \
-        --val_dir data/pallet/archive/training_data/val \
+        --val_dir "$(python scripts/data_prep/blender/pallet_data_paths.py --resolve registry:legacy_training_data_root/val)" \
         --real_dir data/pallet/reference/real_images/real_data \
         --output_dir data/pallet/eval_results/vis \
         --num_syn 10 --num_real 10
@@ -22,6 +22,12 @@ import cv2
 import numpy as np
 import torch
 from scipy.ndimage import gaussian_filter
+# Stage 2-D1.1: 경로 정본은 config/synthetic/pallet_paths.yaml 이다.
+#   리터럴을 다시 적지 않고 registry 로 조회한다.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "blender"))
+import pallet_data_paths as _pdp  # noqa: E402
+
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "Deep_Object_Pose", "common"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "Deep_Object_Pose", "train"))
@@ -184,7 +190,8 @@ def main():
     parser.add_argument("--weights", required=True)
     # Stage 2-D0.1: training_data 는 archive/ 아래 (NoAI baked, 재생성 대상)
     parser.add_argument("--val_dir",
-                        default="data/pallet/archive/training_data/val")
+                        default=os.path.join(
+                            _pdp.get("legacy_training_data_root"), "val"))
     parser.add_argument("--real_dir", default="data/pallet/reference/real_images/real_data")
     parser.add_argument("--output_dir", default="data/pallet/eval_results/vis")
     parser.add_argument("--num_syn", type=int, default=10)

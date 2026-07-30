@@ -7,6 +7,12 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
+# Stage 2-D1.1: 경로 정본은 config/synthetic/pallet_paths.yaml 이다.
+#   리터럴을 다시 적지 않고 registry 로 조회한다.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "blender"))
+import pallet_data_paths as _pdp  # noqa: E402
+
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'Deep_Object_Pose', 'common'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'Deep_Object_Pose', 'train'))
@@ -190,7 +196,8 @@ def main():
 
     # Synthetic val
     # Stage 2-D0.1: training_data 는 archive/ 아래 (NoAI baked)
-    syn_imgs = sorted(glob.glob('data/pallet/archive/training_data/val/*.png'))
+    syn_imgs = sorted(glob.glob(os.path.join(
+        _pdp.get('legacy_training_data_root'), 'val', '*.png')))
     syn_step = max(1, len(syn_imgs) // 5)
     syn_sel = syn_imgs[::syn_step][:5]
 

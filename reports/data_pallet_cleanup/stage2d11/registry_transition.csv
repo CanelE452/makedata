@@ -1,0 +1,28 @@
+﻿file,registry_key,old,new,occurrences,status,reason
+config/default.yaml,legacy_training_data_root,train_dir: data/pallet/archive/training_data/train,"# Stage 2-D1.1: registry 참조. 자료가 archive/ 안에서 움직여도 이 값은 그대로다
+  #   (정본 = config/synthetic/pallet_paths.yaml:legacy_training_data_root)
+  train_dir: registry:legacy_training_data_ro",1,FIXED,config 값을 registry 참조로
+config/default.yaml,legacy_training_data_root,val_dir: data/pallet/archive/training_data/val,val_dir: registry:legacy_training_data_root/val,1,FIXED,config 값을 registry 참조로
+config/stage3_selftrain.yaml,legacy_training_data_root,synthetic_data: data/pallet/archive/training_data/train,"# Stage 2-D1.1: registry 참조 (정본 = pallet_paths.yaml:legacy_training_data_root)
+  synthetic_data: registry:legacy_training_data_root/train",1,FIXED,config 값을 registry 참조로
+config/stage3_selftrain.yaml,legacy_training_data_root,val_dir: data/pallet/archive/training_data/val,val_dir: registry:legacy_training_data_root/val,1,FIXED,config 값을 registry 참조로
+scripts/data_prep/postprocess_v3.py,legacy_train_palletobj_v3_root,"ap.add_argument(""--source-root"",
+                    default=""data/pallet/archive/train_palletobj_v3"",
+                    help=""Stage 2-D0.1: archive/ 아래로 내려간 실제 현재 위치"")","ap.add_argument(""--source-root"",
+                    default=_pdp.get(""legacy_train_palletobj_v3_root""),
+                    help=""Stage 2-D1.1: registry legacy_train_palletobj_v3_",1,FIXED,argparse default -> registry
+scripts/data_prep/postprocess_v3.py,legacy_train_palletobj_v3_post_v1_root,"ap.add_argument(""--output-root"",
+                    default=""data/pallet/archive/train_palletobj_v3_post_v1"")","ap.add_argument(""--output-root"",
+                    default=_pdp.get(""legacy_train_palletobj_v3_post_v1_root""))",1,FIXED,argparse default -> registry
+scripts/data_prep/visualize_pretrain.py,legacy_training_data_root,syn_imgs = sorted(glob.glob('data/pallet/archive/training_data/val/*.png')),"syn_imgs = sorted(glob.glob(os.path.join(
+        _pdp.get('legacy_training_data_root'), 'val', '*.png')))",1,FIXED,glob 경로 -> registry
+scripts/data_prep/visualize_inference.py,legacy_training_data_root,"default=""data/pallet/archive/training_data/val"")","default=os.path.join(
+                            _pdp.get(""legacy_training_data_root""), ""val""))",1,FIXED,argparse default -> registry
+scripts/data_prep/isaac_sim/generate_all.sh,legacy_training_data_root,"TRAIN_BASE=""${TRAIN_BASE:-data/pallet/archive/training_data}""","TRAIN_BASE=""${TRAIN_BASE:-""$(python scripts/data_prep/blender/pallet_data_paths.py --key legacy_training_data_root)""}""",1,FIXED,shell 기본값 -> registry 조회
+scripts/data_prep/blender/gen_palletobj_v1.py,legacy_sandbox_parking_lot_scene,blender -b data/pallet/assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend,"blender -b ""$(python scripts/data_prep/blender/pallet_data_paths.py --key legacy_sandbox_parking_lot_scene)""",1,FIXED,docstring 사용예 -> registry 조회
+scripts/data_prep/blender/gen_palletobj_v1.py,legacy_sandbox_parking_lot_scene,"filepath=""data/pallet/assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend""","filepath=_pdp.get(""legacy_sandbox_parking_lot_scene"")",1,FIXED,save_as_mainfile 출력 -> registry
+scripts/train_dope.sh,legacy_training_data_root,TRAIN_DIR/VAL_DIR = $(yq data.*_dir),resolve_path() 로 registry: 참조 해석,2,FIXED,config 값이 registry 참조로 바뀌어 소비자도 해석해야 한다
+scripts/self_training/self_train.py,legacy_training_data_root,"config[""paths""][""synthetic_data""] 직접 사용",_pdp.resolve_config_value() 경유,2,FIXED,같은 이유
+scripts/self_training/self_train.py,legacy_training_data_root,--synthetic_dir data/pallet/archive/training_data/train,"--synthetic_dir ""$(python scripts/data_prep/blender/pallet_data_paths.py --resolve registry:legacy_training_data_root/train)""",1,FIXED,docstring 사용예 -> registry --resolve
+scripts/data_prep/evaluate_on_val.py,legacy_training_data_root,--val_dir data/pallet/archive/training_data/val,"--val_dir ""$(python scripts/data_prep/blender/pallet_data_paths.py --resolve registry:legacy_training_data_root/val)""",1,FIXED,docstring 사용예 -> registry --resolve
+scripts/data_prep/visualize_inference.py,legacy_training_data_root,--val_dir data/pallet/archive/training_data/val,"--val_dir ""$(python scripts/data_prep/blender/pallet_data_paths.py --resolve registry:legacy_training_data_root/val)""",1,FIXED,docstring 사용예 -> registry --resolve

@@ -225,6 +225,34 @@ def get(key, **kwargs):
     return load(**kwargs).get(key)
 
 
+REGISTRY_PREFIX = "registry:"
+
+
+def resolve_config_value(value, **kwargs):
+    """config 값이 ``registry:<key>[/sub/path]`` 형태면 registry 로 해석한다.
+
+    Stage 2-D1.1 에서 도입했다. 목적은 **정본을 한 곳에 두는 것**이다 —
+    config YAML 이 경로 리터럴을 복사해 갖고 있으면 자료가 움직일 때마다 registry 와
+    config 두 곳을 고쳐야 하고, 한쪽만 고치면 조용히 어긋난다.
+
+        train_dir: registry:legacy_training_data_root/train
+        -> <data/pallet/archive/training_data>/train
+
+    ``registry:`` 로 시작하지 않는 값은 **그대로 돌려준다** (하위호환: 기존 리터럴
+    설정이 계속 동작한다).
+    """
+    if not isinstance(value, str) or not value.startswith(REGISTRY_PREFIX):
+        return value
+    rest = value[len(REGISTRY_PREFIX):].strip().strip("/")
+    if not rest:
+        raise KeyError("registry: 뒤에 key 가 없습니다: %r" % value)
+    parts = rest.split("/")
+    base = load(**kwargs).get(parts[0])
+    if len(parts) == 1:
+        return base
+    return os.path.join(base, *parts[1:])
+
+
 def _print_audit(paths, report, stream=None):
     out = stream or sys.stdout
     print("project_root : %s" % paths.project_root, file=out)
@@ -260,6 +288,9 @@ def main(argv=None):
     ap.add_argument("--audit", action="store_true",
                     help="모든 경로 존재 여부 검사 (인자를 아무것도 주지 않아도 동일)")
     ap.add_argument("--key", default=None, help="단일 키 조회 후 종료")
+    ap.add_argument("--resolve", default=None, metavar="VALUE",
+                    help="config 값 해석 후 종료. 'registry:<key>[/sub]' 는 registry 로 "
+                         "풀고, 그 외 값은 그대로 출력한다 (shell 소비자용)")
     args = ap.parse_args(argv)
 
     try:
@@ -267,6 +298,15 @@ def main(argv=None):
     except (OSError, KeyError, ValueError) as exc:
         print("registry 로드 실패: %s: %s" % (type(exc).__name__, exc), file=sys.stderr)
         return 1
+
+    if args.resolve is not None:
+        try:
+            print(resolve_config_value(args.resolve, config_path=args.config,
+                                       data_root=args.data_root, use_cache=False))
+        except KeyError as exc:
+            print("해석 실패: %s" % exc, file=sys.stderr)
+            return 1
+        return 0
 
     if args.key is not None:
         # 단일 키 조회: audit 을 계산하지 않는다(불필요한 stat 방지).

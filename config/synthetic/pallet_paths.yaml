@@ -55,6 +55,12 @@
   "assets_root": "data/pallet/assets",
   "reference_root": "data/pallet/reference",
 
+  "// legacy dataset": "Stage 2-D1.1: 여러 current runtime 이 독립적으로 참조하는 legacy 자료. 경로 리터럴 대신 이 키를 쓴다. archive/ 안에서 위치가 바뀌면 이 값 하나만 고친다",
+  "legacy_training_data_root": "data/pallet/archive/training_data",
+  "legacy_train_palletobj_v3_root": "data/pallet/archive/train_palletobj_v3",
+  "legacy_train_palletobj_v3_post_v1_root": "data/pallet/archive/train_palletobj_v3_post_v1",
+  "legacy_sandbox_parking_lot_scene": "data/pallet/assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend",
+
   "// optional": "부재를 허용하는 항목 (감사에서 missing 이 아니라 absent 로 보고)",
   "optional_keys": [
     "release_root",

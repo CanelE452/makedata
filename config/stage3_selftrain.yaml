@@ -78,11 +78,12 @@ augmentation:
 
 # --- Paths ---
 paths:
-  synthetic_data: data/pallet/archive/training_data/train
+  # Stage 2-D1.1: registry 참조 (정본 = pallet_paths.yaml:legacy_training_data_root)
+  synthetic_data: registry:legacy_training_data_root/train
   real_unlabeled: data/pallet/real_unlabeled
   pretrained_weights: weights/pallet_category/final_net_epoch_0060.pth
   output_dir: output/stage3_selftrain
-  val_dir: data/pallet/archive/training_data/val
+  val_dir: registry:legacy_training_data_root/val
 
 # --- Logging ---
 logging:

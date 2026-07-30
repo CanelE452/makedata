@@ -1,0 +1,127 @@
+{
+  "stage": "2-D1.1",
+  "when": "before",
+  "base_commit": "1577e25d52a0c603b77729db7475934cc7cb6f1b",
+  "ledgers": {
+    "stage2a": {
+      "path": "reports/data_pallet_cleanup/stage2a/move_transaction.jsonl",
+      "sha256": "fe1adc266bd91963c7be98779ed4c114b90b0b811fabdd60471a807aeb56d101",
+      "rows": 146,
+      "status": {
+        "MOVED": 146
+      },
+      "src_exists": 0,
+      "dst_exists": 146,
+      "verified": 0
+    },
+    "stage2b_b1": {
+      "path": "reports/data_pallet_cleanup/stage2b/transactions/b1_reference_materials.jsonl",
+      "sha256": "43461e47498985294c25317d38fee664d6adc94143dba0185d5afd18e6b369ad",
+      "rows": 4,
+      "status": {
+        "MOVED": 4
+      },
+      "src_exists": 0,
+      "dst_exists": 4,
+      "verified": 0
+    },
+    "stage2b_b2": {
+      "path": "reports/data_pallet_cleanup/stage2b/transactions/b2_lighting_models.jsonl",
+      "sha256": "0d0c06a849fcf20125c4af6c97ebafdb2d12d7b6fa5e5f7a7add139799c78bd4",
+      "rows": 3,
+      "status": {
+        "MOVED": 3
+      },
+      "src_exists": 0,
+      "dst_exists": 3,
+      "verified": 0
+    },
+    "stage2b_b3": {
+      "path": "reports/data_pallet_cleanup/stage2b/transactions/b3_scene_assets.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0,
+      "status": {},
+      "src_exists": 0,
+      "dst_exists": 0,
+      "verified": 0
+    },
+    "stage2c2_c2a": {
+      "path": "reports/data_pallet_cleanup/stage2c2/transactions/c2a_background_packages.jsonl",
+      "sha256": "36f9d180e245c4d2fdd7a53568edc125c7ad3f16ff07af17cde5aa5e29ffda02",
+      "rows": 3,
+      "status": {
+        "MOVED": 3
+      },
+      "src_exists": 0,
+      "dst_exists": 3,
+      "verified": 0
+    },
+    "stage2c2_c2b": {
+      "path": "reports/data_pallet_cleanup/stage2c2/transactions/c2b_background_asset.jsonl",
+      "sha256": "f3e9750a9a5de53fd6b1a33a107a1780f52061604f4f3f98a0f920008f9df91b",
+      "rows": 1,
+      "status": {
+        "MOVED": 1
+      },
+      "src_exists": 0,
+      "dst_exists": 1,
+      "verified": 0
+    },
+    "stage2c2_c2c": {
+      "path": "reports/data_pallet_cleanup/stage2c2/transactions/c2c_distractor_scene.jsonl",
+      "sha256": "241f5c569d2be92488a2f653fece287ac213886373292f28fd4a23a30ebce2c7",
+      "rows": 2,
+      "status": {
+        "MOVED": 2
+      },
+      "src_exists": 0,
+      "dst_exists": 2,
+      "verified": 0
+    },
+    "stage2d1_d1b": {
+      "path": "reports/data_pallet_cleanup/stage2d1/transactions/d1b_corrupt.jsonl",
+      "sha256": "24483d82a6c3de095707ae86f6574768f33eadaa2f5f1fdc960d8dcf93814919",
+      "rows": 1,
+      "status": {
+        "MOVED": 1
+      },
+      "src_exists": 0,
+      "dst_exists": 1,
+      "verified": 1
+    },
+    "stage2d1_d1a": {
+      "path": "reports/data_pallet_cleanup/stage2d1/transactions/d1a_packages.jsonl",
+      "sha256": "49d7e770c99e5f854009810c0f1582720a3776c07438338e00e2643696ed896a",
+      "rows": 14,
+      "status": {
+        "MOVED": 14
+      },
+      "src_exists": 0,
+      "dst_exists": 14,
+      "verified": 14
+    },
+    "stage2d1_d1c": {
+      "path": "reports/data_pallet_cleanup/stage2d1/transactions/d1c_legacy_datasets.jsonl",
+      "sha256": "2c79168d1dcb10d497cb96c7e3ac6d4c542f0b4f3c3e41069ac21e745c445f44",
+      "rows": 15,
+      "status": {
+        "MOVED": 15
+      },
+      "src_exists": 0,
+      "dst_exists": 15,
+      "verified": 15
+    },
+    "stage2d1_d1d": {
+      "path": "reports/data_pallet_cleanup/stage2d1/transactions/d1d_blend_backups.jsonl",
+      "sha256": "c07a8565899167ccfc67dd239a9ab12f34305589e57d084f33bab310465a6162",
+      "rows": 10,
+      "status": {
+        "ROLLED_BACK": 10
+      },
+      "src_exists": 0,
+      "dst_exists": 10,
+      "verified": 10
+    }
+  },
+  "note": "D1D 는 ROLLED_BACK 상태(src 10 복원 · dst 0)여야 하고 실측 일치했다. 이 파일의 sha256 은 **작업 전** 값이다 — D11A 이동으로 C2C 원장 자체는 바뀌지 않지만(수정 금지) verify 방식이 chain 을 요구하게 된다."
+}

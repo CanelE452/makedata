@@ -449,9 +449,47 @@ train_palletobj_v1.zip (손상본)   archive/packages/corrupt/train_palletobj_v1
 isaac_assets/ · _noai_quarantine_usd/   변경 없음 (이동 금지)
 ```
 
-**B8(v4 파생 4종 NoAI 상속 미확정)은 여전히 미해결이다** — 그 4종은 Stage 2-D1 에서
+**B8 은 2026-07-30 Stage 2-D1.1 에서 해소됐다** (아래 D1.1 섹션 참조). 원문:
+~~B8(v4 파생 4종 NoAI 상속 미확정)은 여전히 미해결이다~~ — 그 4종은 Stage 2-D1 에서
 `BLOCKED_UNKNOWN` 으로 이동하지 않았고 `archive/` depth-1 에 옛 경로 그대로 있다.
 배포 제외도 옛 경로로 유지된다.
 
 `data/pallet/_DISTRIBUTION_EXCLUDE.txt` 는 **gitignored** 다 — 이 tracked ledger 가
 경로 기록의 정본이다.
+
+---
+
+### 2026-07-30 Stage 2-D1.1 — B8 해소: v4 파생 4종 = PROVEN_NOAI [확인]
+
+Stage 2-D0.1 이 "NoAI 상속을 라벨 metadata 로 확인하지 않았다"며 UNKNOWN_LICENSE 로
+보류한 4종을 **라벨 전수 스캔으로 확정**했다.
+
+```
+dataset                          frames  NoAI 프레임      %   판정
+─────────────────────────────────────────────────────────────────────────
+training_data_v4_split_GREYBUG    5,000     3,286      65.7%  PROVEN_NOAI
+training_data_v4_split_bg1bak     5,000     3,272      65.4%  PROVEN_NOAI
+training_data_v4_emptywood        3,000     3,000     100.0%  PROVEN_NOAI
+training_data_v4_pilotA             120        76      63.3%  PROVEN_NOAI
+```
+
+근거 4중:
+1. 라벨 `objects[].name` 에 `Pallet_2`/`Pallet_3` 기록 — 13,122 프레임 전수 스캔, 읽기 실패 0
+2. `Pallet_2/3` = `scene_2.usd`/`scene_3.usd` = "Old Wooden Pallet"(Luka Feric, NoAI) — B1
+   명시 + 해당 USD 가 `archive/_noai_quarantine_usd/` 에 실존
+3. mtime 2026-06-16~18 = 2026-07-24 blend 재-bake(NoAI 제거) **이전**
+4. 부모와 바이트 동일 프레임 0/200 → 복사본이 아닌 독립 렌더인데도 NoAI 를 썼다
+
+`README_CONTAMINATION.md` 는 부모 2종에만 있고 파생 4종엔 없다 — **표식 부재는 무죄
+근거가 아니다.**
+
+```
+판정 분포   PROVEN_NOAI 4 / PROVEN_REDISTRIBUTABLE 0 / UNRESOLVED_LICENSE 0
+공개 릴리스  NO (4종 전부)
+목적지      archive/legacy_datasets/noai_baked/<name>   ← 부모 2종이 이미 그곳
+이동        미실행 (hash 예산 20 GiB 초과 — 29.04 GiB 필요)
+            현재 경로는 archive/<name> 이고 exclusion 도 그 경로로 등록돼 있다
+```
+
+상세: `reports/data_pallet_cleanup/stage2d11/provenance_report.md` ·
+`provenance_decisions.csv`

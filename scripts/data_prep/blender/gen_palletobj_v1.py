@@ -1,13 +1,19 @@
 """Generate synthetic data for palletobj (data/palletobj/pallet_full.obj).
 
 Run with:
-  blender -b data/pallet/assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend \
+  blender -b "$(python scripts/data_prep/blender/pallet_data_paths.py --key legacy_sandbox_parking_lot_scene)" \
           --python scripts/data_prep/blender/gen_palletobj_v1.py -- \
           --out data/pallet/test_palletobj_v1 --n 10 --seed 42
 """
 import bpy, os, sys, json, math, random, argparse, subprocess, time
 from mathutils import Vector, Matrix
 from bpy_extras import object_utils as obj_utils
+# Stage 2-D1.1: 경로 정본은 config/synthetic/pallet_paths.yaml 이다.
+#   리터럴을 다시 적지 않고 registry 로 조회한다.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "."))
+import pallet_data_paths as _pdp  # noqa: E402
+
 
 # ---------- argparse (after `--`) ----------
 argv = sys.argv
@@ -566,7 +572,7 @@ def draw_overlay(img_path, ann, kp_proj, c_proj):
 # ---------- save baseline ----------
 print(f"[setup] saving sandbox backup before run...")
 try:
-    bpy.ops.wm.save_as_mainfile(filepath="data/pallet/assets/scenes/production/blender_scene/_sandbox_parking_lot_check.blend", copy=True)
+    bpy.ops.wm.save_as_mainfile(filepath=_pdp.get("legacy_sandbox_parking_lot_scene"), copy=True)
 except Exception as e:
     print(f"[warn] could not save: {e}")
 

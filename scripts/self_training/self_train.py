@@ -14,7 +14,7 @@ Usage:
     python scripts/self_training/self_train.py \\
         --config config/stage3_selftrain.yaml \\
         --pretrained weights/pallet_category/final_net_epoch_0060.pth \\
-        --synthetic_dir data/pallet/archive/training_data/train \\
+        --synthetic_dir "$(python scripts/data_prep/blender/pallet_data_paths.py --resolve registry:legacy_training_data_root/train)" \\
         --real_dir data/pallet/real_unlabeled \\
         --output_dir output/stage3_selftrain
 
@@ -28,6 +28,12 @@ import os
 import random
 import sys
 import time
+# Stage 2-D1.1: 경로 정본은 config/synthetic/pallet_paths.yaml 이다.
+#   리터럴을 다시 적지 않고 registry 로 조회한다.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "..", "data_prep", "blender"))
+import pallet_data_paths as _pdp  # noqa: E402
+
 
 import cv2
 import numpy as np
@@ -587,8 +593,12 @@ def self_training_loop(config, args):
     strong_aug = StrongAugmentation(config["augmentation"]["strong"])
 
     # --- Setup datasets ---
-    syn_dir = args.synthetic_dir or config["paths"]["synthetic_data"]
-    real_dir = args.real_dir or config["paths"]["real_unlabeled"]
+    # Stage 2-D1.1: config 값이 "registry:<key>[/sub]" 면 registry 로 해석한다.
+    #   리터럴이면 그대로 쓴다(하위호환).
+    syn_dir = _pdp.resolve_config_value(
+        args.synthetic_dir or config["paths"]["synthetic_data"])
+    real_dir = _pdp.resolve_config_value(
+        args.real_dir or config["paths"]["real_unlabeled"])
 
     syn_dataset = SyntheticDataset(
         syn_dir,

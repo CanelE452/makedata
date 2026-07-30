@@ -354,3 +354,58 @@ archive/ depth-1 잔여 136건            진단·중간 산출물 (Stage 2-A �
 
 상세: `reports/data_pallet_cleanup/stage2d1/` (final_report.md · final_tree.md ·
 cohort_d1*_report.md · regression_results.md · rollback_plan.md)
+
+## 9. Stage 2-D1.1 실행 결과 (2026-07-30) — 잔여 3범위
+
+```
+[판정] D11A COMPLETE (10건 2.24 GiB) / D11B·D11C PARTIAL (준비 완료, 이동 미실행)
+       D11_SCOPE_COMPLETE 아님 · FULL_*_COMPLETE 아님
+```
+
+### D11A — chained-ledger 로 D1D 를 되살렸다
+
+Stage 2-D1 에서 rollback 했던 cold blend 10개를 **검증 사슬을 유지한 채** 옮겼다.
+
+```
+--successor-ledger-chain <json>   신규
+  immutable prior ledger(C2C)와 verified successor ledger(D11A)를
+  **파일 단위 SHA256 identity** 로 잇는다. 16개 조건 전부 강제.
+  broad removal allow / expected-removal 목록은 쓰지 않는다.
+
+C2C 검증   chain 없이 failures 11  ->  exact additions + chain 으로 failures 0
+```
+
+★ 실행 중 발견: verify 가 재실행마다 `verified_at` 을 갱신해 successor 원장 SHA256 이
+바뀌면 chain 결속이 깨진다. **원장은 첫 검증만 기록하는 immutable 기록**이어야 한다 —
+멱등으로 고치고 테스트 2개로 고정했다.
+
+### D11B — registry 전환 완료, 이동 미실행
+
+```
+신규 key 4   legacy_training_data_root · legacy_train_palletobj_v3_root ·
+             legacy_train_palletobj_v3_post_v1_root · legacy_sandbox_parking_lot_scene
+             (registry ok=24 -> 28)
+전환 16곳    config YAML 값도 "registry:<key>/<sub>" 참조로 바꿨다 —
+             resolve_config_value() + CLI --resolve 신설, 리터럴은 그대로 통과(하위호환)
+             이동 시 pallet_paths.yaml 의 키 값 1줄만 바꾸면 된다
+검증         옛 경로 직접 참조 0 · canonical broken ref 0 · unit 745
+```
+
+### D11C — provenance 판정 완료, 이동 미실행
+
+v4 파생 4종 **전부 PROVEN_NOAI** (라벨 13,122 프레임 전수 스캔). ledger B8 해소.
+
+### ★ 중단 사유 — hash read 예산
+
+```
+cohort                     bytes       예상 read(×2)   판정
+D11A                      2.24 GiB      4.47 GiB      실행
+D11B                     16.14 GiB     32.29 GiB      ★ 20 GiB 상한 초과
+D11C                     14.52 GiB     29.04 GiB      ★ 초과
+합계                     32.90 GiB     65.80 GiB      상한의 3.3배
+```
+
+cohort = transaction_group 원자성을 지키려고 쪼개지 않았다. 예산 승인 시 두 cohort 를
+순차 실행하면 이동이 끝난다.
+
+상세: `reports/data_pallet_cleanup/stage2d11/`

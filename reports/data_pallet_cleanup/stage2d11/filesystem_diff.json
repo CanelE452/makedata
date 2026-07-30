@@ -1,0 +1,18 @@
+{
+  "data_pallet_before": {
+    "files": 363090,
+    "bytes": 192468081042,
+    "dirs": 2567
+  },
+  "data_pallet_after": {
+    "files": 363090,
+    "bytes": 192468097791,
+    "dirs": 2567
+  },
+  "data_pallet_delta": {
+    "dirs": 0,
+    "files": 0,
+    "bytes": 16749
+  },
+  "note": "D11A 10건은 rename 이므로 files/bytes 불변. dirs 도 legacy_scenes/* 가 이미 있었으므로 불변. bytes 변화는 tracked 아닌 data/pallet 내 manifests/README 갱신분이다."
+}

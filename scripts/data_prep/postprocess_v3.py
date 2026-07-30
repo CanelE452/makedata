@@ -17,6 +17,14 @@ Run: python scripts/data_prep/postprocess_v3.py --batches batch_000 --dry-run
 import argparse, json, os, glob, tempfile, math
 import numpy as np
 from PIL import Image
+import os          # noqa: E402  (Stage 2-D1.1 registry 조회용)
+import sys         # noqa: E402
+# Stage 2-D1.1: 경로 정본은 config/synthetic/pallet_paths.yaml 이다.
+#   리터럴을 다시 적지 않고 registry 로 조회한다.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "blender"))
+import pallet_data_paths as _pdp  # noqa: E402
+
 
 EPS = 1e-6
 CONV = np.array([1.0, -1.0, -1.0])  # render(Blender) -> OpenCV camera, confirmed
@@ -196,10 +204,10 @@ def process_frame(jp, src_root, out_root, surface_obj=None, dry=False):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source-root",
-                    default="data/pallet/archive/train_palletobj_v3",
-                    help="Stage 2-D0.1: archive/ 아래로 내려간 실제 현재 위치")
+                    default=_pdp.get("legacy_train_palletobj_v3_root"),
+                    help="Stage 2-D1.1: registry legacy_train_palletobj_v3_root")
     ap.add_argument("--output-root",
-                    default="data/pallet/archive/train_palletobj_v3_post_v1")
+                    default=_pdp.get("legacy_train_palletobj_v3_post_v1_root"))
     ap.add_argument("--batches", nargs="*", default=None, help="e.g. batch_000")
     ap.add_argument("--surface-fps", default=None, help="surface_fps_v1.json path")
     ap.add_argument("--dry-run", action="store_true")

@@ -50,8 +50,10 @@ loss:
 # --- Data ---
 data:
   object: pallet
-  train_dir: data/pallet/archive/training_data/train
-  val_dir: data/pallet/archive/training_data/val
+  # Stage 2-D1.1: registry 참조. 자료가 archive/ 안에서 움직여도 이 값은 그대로다
+  #   (정본 = config/synthetic/pallet_paths.yaml:legacy_training_data_root)
+  train_dir: registry:legacy_training_data_root/train
+  val_dir: registry:legacy_training_data_root/val
   format: ndds                    # NDDS format ({i:06d}.png + {i:06d}.json)
   min_train_images: 100           # 최소 학습 이미지 수 (미만이면 에러)
   augmentation:

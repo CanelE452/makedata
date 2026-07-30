@@ -1,0 +1,40 @@
+{
+  "scopes": {
+    "D1D_ROLLBACK_SOURCE": {
+      "rows": 10,
+      "files": 10,
+      "bytes": 2400984463
+    },
+    "BLOCKED_REFERENCE": {
+      "rows": 4,
+      "files": 92429,
+      "bytes": 17334010020
+    },
+    "BLOCKED_UNKNOWN": {
+      "rows": 4,
+      "files": 39620,
+      "bytes": 15588789193
+    }
+  },
+  "hash_budget_estimate": {
+    "D1D_ROLLBACK_SOURCE": {
+      "bytes": 2400984463,
+      "estimated_read": 4801968926,
+      "estimated_read_gib": 4.472
+    },
+    "BLOCKED_REFERENCE": {
+      "bytes": 17334010020,
+      "estimated_read": 34668020040,
+      "estimated_read_gib": 32.287
+    },
+    "BLOCKED_UNKNOWN": {
+      "bytes": 15588789193,
+      "estimated_read": 31177578386,
+      "estimated_read_gib": 29.036
+    }
+  },
+  "total_estimated_read_bytes": 70647567352,
+  "total_estimated_read_gib": 65.796,
+  "global_limit_gib": 20,
+  "exceeds_global_limit": true
+}

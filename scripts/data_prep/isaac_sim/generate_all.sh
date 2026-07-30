@@ -41,7 +41,7 @@ SCRIPT="scripts/data_prep/isaac_sim/gen_replicator_data.py"
 # Stage 2-D0.1: 두 경로가 Stage 2-A/2-B 이동 후 깨져 있었다.
 #   training_data -> archive/training_data (NoAI baked, 릴리스 제외 — 재생성 대상)
 #   hdri          -> registry hdri_root
-TRAIN_BASE="${TRAIN_BASE:-data/pallet/archive/training_data}"
+TRAIN_BASE="${TRAIN_BASE:-"$(python scripts/data_prep/blender/pallet_data_paths.py --key legacy_training_data_root)"}"
 BATCH_SIZE=64
 RENDERER="PathTracing"
 HDRI_DIR="$(python scripts/data_prep/blender/pallet_data_paths.py --key hdri_root)"

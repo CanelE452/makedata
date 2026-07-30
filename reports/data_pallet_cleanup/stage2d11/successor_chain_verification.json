@@ -1,0 +1,50 @@
+{
+  "stage": "2-D1.1",
+  "prior_manifest": {
+    "path": "reports/data_pallet_cleanup/stage2c2/transactions/c2c_distractor_scene.jsonl",
+    "sha256": "241f5c569d2be92488a2f653fece287ac213886373292f28fd4a23a30ebce2c7"
+  },
+  "successor_manifests": [
+    {
+      "path": "reports/data_pallet_cleanup/stage2d11/transactions/d11a_blend_backups.jsonl",
+      "sha256": "500da4140372ecd31dac08dc356c659cfe1ea89033a6a3efb9cbf95aa5e33c27",
+      "policy": "stage2d11-residual-finalization"
+    }
+  ],
+  "mappings": 10,
+  "verification": {
+    "without_chain": {
+      "failures": 11,
+      "detail": "RELPATH_SET_MISSING 1 + MISSING 10 — chain 없이는 기존처럼 실패한다"
+    },
+    "with_exact_additions_and_chain": {
+      "files": 1326,
+      "sha256_checked": 1324,
+      "expected_additions_accepted": 2,
+      "chain_mappings_applied": 10,
+      "unmapped_prior_missing": 0,
+      "failures": 0,
+      "exit_code": 0
+    }
+  },
+  "conditions_enforced": [
+    "prior manifest SHA256 결속",
+    "prior 원장에 relative path 실재",
+    "prior 원장 size·SHA256 == mapping",
+    "successor source == prior destination",
+    "successor manifest SHA256 결속",
+    "successor row VERIFIED",
+    "successor pre-hash == prior hash",
+    "successor destination 존재",
+    "successor destination SHA256 == mapping",
+    "successor destination size 일치",
+    "prior file 당 mapping 정확히 1개",
+    "successor file 이 복수 prior 대표 금지",
+    "path escape 금지",
+    "ledger cycle 금지",
+    "unmapped missing 0",
+    "prior destination 에 아직 있는 파일은 chain 불가"
+  ],
+  "idempotency_fix": "verify 가 재실행 시 verified_at 을 갱신하면 successor 원장 SHA256 이 바뀌어 chain 결속이 깨진다(실제 발생). 첫 검증만 기록하도록 고쳤고 테스트 2개로 고정했다.",
+  "negative_tests": 31
+}

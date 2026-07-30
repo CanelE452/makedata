@@ -1,0 +1,1405 @@
+{
+  "stage": "2-D1.1",
+  "when": "after",
+  "areas": {
+    "data/pallet": {
+      "files": 363090,
+      "bytes": 192468097791,
+      "dirs": 2567
+    },
+    "data/pallet/assets": {
+      "files": 1555,
+      "bytes": 5519192103,
+      "dirs": 701
+    },
+    "data/pallet/reference": {
+      "files": 3135,
+      "bytes": 437509283,
+      "dirs": 9
+    },
+    "data/pallet/archive": {
+      "files": 327675,
+      "bytes": 176371135808,
+      "dirs": 808
+    },
+    "data/pallet/isaac_assets": {
+      "files": 4543,
+      "bytes": 4350676768,
+      "dirs": 85
+    },
+    "data/pallet/manifests": {
+      "files": 5,
+      "bytes": 187632,
+      "dirs": 0
+    },
+    "data/pallet/release": {
+      "files": 1,
+      "bytes": 2512,
+      "dirs": 3
+    },
+    "data/pallet/runs": {
+      "files": 6982,
+      "bytes": 1206352337,
+      "dirs": 855
+    },
+    "weights": {
+      "files": 57,
+      "bytes": 5774254539,
+      "dirs": 8
+    }
+  },
+  "data_pallet_top_level": [
+    {
+      "name": "README.md",
+      "kind": "file",
+      "files": 1,
+      "bytes": 10752
+    },
+    {
+      "name": "_DISTRIBUTION_EXCLUDE.txt",
+      "kind": "file",
+      "files": 1,
+      "bytes": 4210
+    },
+    {
+      "name": "_addon_pilot2.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 3388
+    },
+    {
+      "name": "_addon_pilot3.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 2429
+    },
+    {
+      "name": "_addon_pilot4.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 4282
+    },
+    {
+      "name": "_addon_pilot_gen.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 6167
+    },
+    {
+      "name": "_copy_and_zip_c.py",
+      "kind": "file",
+      "files": 1,
+      "bytes": 2597
+    },
+    {
+      "name": "_copy_c.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 2559
+    },
+    {
+      "name": "_finalize_c_zip.py",
+      "kind": "file",
+      "files": 1,
+      "bytes": 3305
+    },
+    {
+      "name": "_floor_applied14_render.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 3511
+    },
+    {
+      "name": "_floor_catalog.png",
+      "kind": "file",
+      "files": 1,
+      "bytes": 999776
+    },
+    {
+      "name": "_floor_test10_render.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 5743
+    },
+    {
+      "name": "_make_split_zips.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 2580
+    },
+    {
+      "name": "_make_split_zips.py",
+      "kind": "file",
+      "files": 1,
+      "bytes": 3319
+    },
+    {
+      "name": "_make_zip_lowmem.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 2700
+    },
+    {
+      "name": "_make_zip_lowmem.py",
+      "kind": "file",
+      "files": 1,
+      "bytes": 5575
+    },
+    {
+      "name": "_mask_test10_gen.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 4372
+    },
+    {
+      "name": "_mask_test60_gen.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 14822
+    },
+    {
+      "name": "_mat_test10_gen.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 4245
+    },
+    {
+      "name": "_mat_test10b_gen.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 4139
+    },
+    {
+      "name": "_mat_test10e_closeup.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 1387
+    },
+    {
+      "name": "_mat_test10e_gen.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 3760
+    },
+    {
+      "name": "_material_compare_run.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 6918
+    },
+    {
+      "name": "_ram_test.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 1337
+    },
+    {
+      "name": "_ram_test.py",
+      "kind": "file",
+      "files": 1,
+      "bytes": 3405
+    },
+    {
+      "name": "_read_stability_test.py",
+      "kind": "file",
+      "files": 1,
+      "bytes": 763
+    },
+    {
+      "name": "_rebuild_part7.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 278
+    },
+    {
+      "name": "_rebuild_part7_nocache.py",
+      "kind": "file",
+      "files": 1,
+      "bytes": 5136
+    },
+    {
+      "name": "_rebuild_parts.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 303
+    },
+    {
+      "name": "_rebuild_parts.py",
+      "kind": "file",
+      "files": 1,
+      "bytes": 2459
+    },
+    {
+      "name": "_repack.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 3468
+    },
+    {
+      "name": "_repack.py",
+      "kind": "file",
+      "files": 1,
+      "bytes": 1231
+    },
+    {
+      "name": "_repack_retry.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 921
+    },
+    {
+      "name": "_repack_retry.py",
+      "kind": "file",
+      "files": 1,
+      "bytes": 5211
+    },
+    {
+      "name": "_stress_read.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 763
+    },
+    {
+      "name": "_stress_read.py",
+      "kind": "file",
+      "files": 1,
+      "bytes": 1447
+    },
+    {
+      "name": "_tmp_ph",
+      "kind": "dir",
+      "files": 6,
+      "bytes": 172936
+    },
+    {
+      "name": "_trunc_addon_v1_10m_example",
+      "kind": "dir",
+      "files": 3,
+      "bytes": 474429
+    },
+    {
+      "name": "_trunc_addon_v1_far_example",
+      "kind": "dir",
+      "files": 4,
+      "bytes": 1382207
+    },
+    {
+      "name": "_v2_b3_check",
+      "kind": "dir",
+      "files": 36,
+      "bytes": 8145589
+    },
+    {
+      "name": "_v2_calib_200",
+      "kind": "dir",
+      "files": 1011,
+      "bytes": 140986989
+    },
+    {
+      "name": "_v2_g5_reverify",
+      "kind": "dir",
+      "files": 66,
+      "bytes": 13346911
+    },
+    {
+      "name": "_v2_pilot_2k",
+      "kind": "dir",
+      "files": 12147,
+      "bytes": 2495296046
+    },
+    {
+      "name": "_v2_publicmask_overlay_smoke8",
+      "kind": "dir",
+      "files": 96,
+      "bytes": 19802025
+    },
+    {
+      "name": "_v2_scene_logic_500_seed7500",
+      "kind": "dir",
+      "files": 4995,
+      "bytes": 1698833273
+    },
+    {
+      "name": "_v2_scene_logic_probe_seed7500_f18_r19_log.console.txt",
+      "kind": "file",
+      "files": 1,
+      "bytes": 61048
+    },
+    {
+      "name": "_v2_scene_logic_probe_seed7500_idx02_prealign_r01.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 43564
+    },
+    {
+      "name": "_v2_scene_logic_smoke20_seed7500_r40.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 70874
+    },
+    {
+      "name": "_v2_scene_logic_smoke20_seed7500_r7_blender.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 206202
+    },
+    {
+      "name": "_v2_smoke50_9d",
+      "kind": "dir",
+      "files": 616,
+      "bytes": 182120280
+    },
+    {
+      "name": "_wood_closeup.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 2387
+    },
+    {
+      "name": "archive",
+      "kind": "dir",
+      "files": 327675,
+      "bytes": 176371135808
+    },
+    {
+      "name": "assets",
+      "kind": "dir",
+      "files": 1555,
+      "bytes": 5519192103
+    },
+    {
+      "name": "eval_results",
+      "kind": "dir",
+      "files": 103,
+      "bytes": 11407963
+    },
+    {
+      "name": "isaac_assets",
+      "kind": "dir",
+      "files": 4543,
+      "bytes": 4350676768
+    },
+    {
+      "name": "logs",
+      "kind": "dir",
+      "files": 49,
+      "bytes": 823762
+    },
+    {
+      "name": "manifests",
+      "kind": "dir",
+      "files": 5,
+      "bytes": 187632
+    },
+    {
+      "name": "reference",
+      "kind": "dir",
+      "files": 3135,
+      "bytes": 437509283
+    },
+    {
+      "name": "release",
+      "kind": "dir",
+      "files": 1,
+      "bytes": 2512
+    },
+    {
+      "name": "render_2000.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 1015899
+    },
+    {
+      "name": "runs",
+      "kind": "dir",
+      "files": 6982,
+      "bytes": 1206352337
+    },
+    {
+      "name": "test_canonical_log.txt",
+      "kind": "file",
+      "files": 1,
+      "bytes": 605113
+    },
+    {
+      "name": "test_indoor_v1_log.txt",
+      "kind": "file",
+      "files": 1,
+      "bytes": 134534
+    },
+    {
+      "name": "test_iter2_log.txt",
+      "kind": "file",
+      "files": 1,
+      "bytes": 594099
+    },
+    {
+      "name": "test_iter3_log.txt",
+      "kind": "file",
+      "files": 1,
+      "bytes": 594393
+    },
+    {
+      "name": "train_4pallet_mask_v1_gen.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 7075
+    },
+    {
+      "name": "train_palletobj_addon_v1_gen.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 1471916
+    },
+    {
+      "name": "train_palletobj_v3_gen.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 2354100
+    },
+    {
+      "name": "training_data_v4_emptywood_run.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 5031
+    },
+    {
+      "name": "training_data_v4_run.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 734
+    },
+    {
+      "name": "training_data_v4_split_run.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 7906
+    },
+    {
+      "name": "trunc_addon_v1_gen.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 1372532
+    },
+    {
+      "name": "trunc_addon_v1_pilot_gen.log",
+      "kind": "file",
+      "files": 1,
+      "bytes": 72643
+    },
+    {
+      "name": "v2_dryrun_audit",
+      "kind": "dir",
+      "files": 8,
+      "bytes": 499630
+    }
+  ],
+  "archive_depth1": [
+    {
+      "name": "README.md",
+      "kind": "file",
+      "files": 1,
+      "bytes": 5289
+    },
+    {
+      "name": "_addon_pilot",
+      "kind": "dir",
+      "files": 81,
+      "bytes": 20886859
+    },
+    {
+      "name": "_addon_pilot2",
+      "kind": "dir",
+      "files": 33,
+      "bytes": 8488781
+    },
+    {
+      "name": "_addon_pilot3",
+      "kind": "dir",
+      "files": 17,
+      "bytes": 4033900
+    },
+    {
+      "name": "_addon_pilot4",
+      "kind": "dir",
+      "files": 50,
+      "bytes": 13366774
+    },
+    {
+      "name": "_cam_test10",
+      "kind": "dir",
+      "files": 42,
+      "bytes": 17418114
+    },
+    {
+      "name": "_cam_test10b",
+      "kind": "dir",
+      "files": 41,
+      "bytes": 15745613
+    },
+    {
+      "name": "_diag_pallet3",
+      "kind": "dir",
+      "files": 26,
+      "bytes": 5862609
+    },
+    {
+      "name": "_efront_12kp_check",
+      "kind": "dir",
+      "files": 107,
+      "bytes": 44909247
+    },
+    {
+      "name": "_emptywood_test",
+      "kind": "dir",
+      "files": 48,
+      "bytes": 14951374
+    },
+    {
+      "name": "_floor_applied14",
+      "kind": "dir",
+      "files": 16,
+      "bytes": 8575358
+    },
+    {
+      "name": "_floor_compare",
+      "kind": "dir",
+      "files": 20,
+      "bytes": 10247704
+    },
+    {
+      "name": "_floor_emit",
+      "kind": "dir",
+      "files": 6,
+      "bytes": 1539034
+    },
+    {
+      "name": "_floor_fix_test",
+      "kind": "dir",
+      "files": 7,
+      "bytes": 6180215
+    },
+    {
+      "name": "_floor_smoke10",
+      "kind": "dir",
+      "files": 33,
+      "bytes": 9620190
+    },
+    {
+      "name": "_floor_test10",
+      "kind": "dir",
+      "files": 31,
+      "bytes": 11968317
+    },
+    {
+      "name": "_floor_test10b",
+      "kind": "dir",
+      "files": 33,
+      "bytes": 16487621
+    },
+    {
+      "name": "_floor_test10b_std",
+      "kind": "dir",
+      "files": 32,
+      "bytes": 13123779
+    },
+    {
+      "name": "_floor_uv_test",
+      "kind": "dir",
+      "files": 17,
+      "bytes": 16625340
+    },
+    {
+      "name": "_mask_poc",
+      "kind": "dir",
+      "files": 1,
+      "bytes": 66471
+    },
+    {
+      "name": "_mask_test10",
+      "kind": "dir",
+      "files": 43,
+      "bytes": 12354122
+    },
+    {
+      "name": "_mat_test10",
+      "kind": "dir",
+      "files": 41,
+      "bytes": 15915563
+    },
+    {
+      "name": "_mat_test10b",
+      "kind": "dir",
+      "files": 51,
+      "bytes": 22847925
+    },
+    {
+      "name": "_mat_test10c",
+      "kind": "dir",
+      "files": 44,
+      "bytes": 19425013
+    },
+    {
+      "name": "_mat_test10d",
+      "kind": "dir",
+      "files": 41,
+      "bytes": 17311918
+    },
+    {
+      "name": "_mat_test10d_scene3",
+      "kind": "dir",
+      "files": 25,
+      "bytes": 9942873
+    },
+    {
+      "name": "_mat_test10e",
+      "kind": "dir",
+      "files": 45,
+      "bytes": 19972697
+    },
+    {
+      "name": "_material_compare",
+      "kind": "dir",
+      "files": 44,
+      "bytes": 20303689
+    },
+    {
+      "name": "_mesh_proc_compare",
+      "kind": "dir",
+      "files": 10,
+      "bytes": 4316539
+    },
+    {
+      "name": "_noai_quarantine_usd",
+      "kind": "dir",
+      "files": 3,
+      "bytes": 738082
+    },
+    {
+      "name": "_pallet_catalog_0123",
+      "kind": "dir",
+      "files": 6,
+      "bytes": 3936989
+    },
+    {
+      "name": "_perm_v4_fix_check",
+      "kind": "dir",
+      "files": 3,
+      "bytes": 1566324
+    },
+    {
+      "name": "_preview10",
+      "kind": "dir",
+      "files": 43,
+      "bytes": 16057584
+    },
+    {
+      "name": "_procedural_textures",
+      "kind": "dir",
+      "files": 22,
+      "bytes": 11317364
+    },
+    {
+      "name": "_test_topview",
+      "kind": "dir",
+      "files": 98,
+      "bytes": 38020066
+    },
+    {
+      "name": "_wood_skin_compare",
+      "kind": "dir",
+      "files": 50,
+      "bytes": 28426531
+    },
+    {
+      "name": "corrupt",
+      "kind": "dir",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "name": "legacy_assets",
+      "kind": "dir",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "name": "legacy_datasets",
+      "kind": "dir",
+      "files": 191503,
+      "bytes": 54442767106
+    },
+    {
+      "name": "legacy_scenes",
+      "kind": "dir",
+      "files": 10,
+      "bytes": 2400984463
+    },
+    {
+      "name": "nonredistributable",
+      "kind": "dir",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "name": "packages",
+      "kind": "dir",
+      "files": 18,
+      "bytes": 85448319668
+    },
+    {
+      "name": "rotation_debug",
+      "kind": "dir",
+      "files": 4,
+      "bytes": 1550217
+    },
+    {
+      "name": "runtime_pallet_debug",
+      "kind": "dir",
+      "files": 4,
+      "bytes": 1819819
+    },
+    {
+      "name": "superseded_runs",
+      "kind": "dir",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "name": "test_blender_v1",
+      "kind": "dir",
+      "files": 63,
+      "bytes": 14124145
+    },
+    {
+      "name": "test_blender_v10",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9258721
+    },
+    {
+      "name": "test_blender_v11",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9646016
+    },
+    {
+      "name": "test_blender_v12",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9680287
+    },
+    {
+      "name": "test_blender_v13",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9562151
+    },
+    {
+      "name": "test_blender_v14",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9655600
+    },
+    {
+      "name": "test_blender_v15",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9567223
+    },
+    {
+      "name": "test_blender_v16",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9376375
+    },
+    {
+      "name": "test_blender_v17",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9581741
+    },
+    {
+      "name": "test_blender_v18",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9416465
+    },
+    {
+      "name": "test_blender_v19",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9775801
+    },
+    {
+      "name": "test_blender_v2",
+      "kind": "dir",
+      "files": 20,
+      "bytes": 4526604
+    },
+    {
+      "name": "test_blender_v20",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9449852
+    },
+    {
+      "name": "test_blender_v21",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9708826
+    },
+    {
+      "name": "test_blender_v22",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9501126
+    },
+    {
+      "name": "test_blender_v23",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9559885
+    },
+    {
+      "name": "test_blender_v24",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9340760
+    },
+    {
+      "name": "test_blender_v25",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9484742
+    },
+    {
+      "name": "test_blender_v26",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9421985
+    },
+    {
+      "name": "test_blender_v27",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9357288
+    },
+    {
+      "name": "test_blender_v28",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9383844
+    },
+    {
+      "name": "test_blender_v29",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9553232
+    },
+    {
+      "name": "test_blender_v3",
+      "kind": "dir",
+      "files": 20,
+      "bytes": 4546354
+    },
+    {
+      "name": "test_blender_v30",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9682929
+    },
+    {
+      "name": "test_blender_v31",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9592334
+    },
+    {
+      "name": "test_blender_v32",
+      "kind": "dir",
+      "files": 57,
+      "bytes": 23413074
+    },
+    {
+      "name": "test_blender_v33",
+      "kind": "dir",
+      "files": 57,
+      "bytes": 23012511
+    },
+    {
+      "name": "test_blender_v34",
+      "kind": "dir",
+      "files": 12,
+      "bytes": 3904075
+    },
+    {
+      "name": "test_blender_v35",
+      "kind": "dir",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "name": "test_blender_v36",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9466013
+    },
+    {
+      "name": "test_blender_v37",
+      "kind": "dir",
+      "files": 12,
+      "bytes": 3739542
+    },
+    {
+      "name": "test_blender_v38",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9410447
+    },
+    {
+      "name": "test_blender_v39",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9424508
+    },
+    {
+      "name": "test_blender_v4",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9496976
+    },
+    {
+      "name": "test_blender_v40",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9450482
+    },
+    {
+      "name": "test_blender_v41",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9505780
+    },
+    {
+      "name": "test_blender_v42",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9134188
+    },
+    {
+      "name": "test_blender_v43",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8192271
+    },
+    {
+      "name": "test_blender_v44",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8264108
+    },
+    {
+      "name": "test_blender_v45",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8837235
+    },
+    {
+      "name": "test_blender_v46",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8183335
+    },
+    {
+      "name": "test_blender_v47",
+      "kind": "dir",
+      "files": 12,
+      "bytes": 3422037
+    },
+    {
+      "name": "test_blender_v48",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8494172
+    },
+    {
+      "name": "test_blender_v49",
+      "kind": "dir",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "name": "test_blender_v5",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9508128
+    },
+    {
+      "name": "test_blender_v50",
+      "kind": "dir",
+      "files": 3,
+      "bytes": 914907
+    },
+    {
+      "name": "test_blender_v51",
+      "kind": "dir",
+      "files": 27,
+      "bytes": 7997566
+    },
+    {
+      "name": "test_blender_v52",
+      "kind": "dir",
+      "files": 18,
+      "bytes": 5538912
+    },
+    {
+      "name": "test_blender_v53",
+      "kind": "dir",
+      "files": 27,
+      "bytes": 7568421
+    },
+    {
+      "name": "test_blender_v54",
+      "kind": "dir",
+      "files": 21,
+      "bytes": 6245323
+    },
+    {
+      "name": "test_blender_v55",
+      "kind": "dir",
+      "files": 12,
+      "bytes": 3622759
+    },
+    {
+      "name": "test_blender_v56",
+      "kind": "dir",
+      "files": 15,
+      "bytes": 4389603
+    },
+    {
+      "name": "test_blender_v57",
+      "kind": "dir",
+      "files": 18,
+      "bytes": 4925900
+    },
+    {
+      "name": "test_blender_v58",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8661654
+    },
+    {
+      "name": "test_blender_v59",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8871584
+    },
+    {
+      "name": "test_blender_v6",
+      "kind": "dir",
+      "files": 90,
+      "bytes": 28174468
+    },
+    {
+      "name": "test_blender_v60",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9258927
+    },
+    {
+      "name": "test_blender_v61",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9283276
+    },
+    {
+      "name": "test_blender_v62",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9144406
+    },
+    {
+      "name": "test_blender_v63",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8576032
+    },
+    {
+      "name": "test_blender_v66",
+      "kind": "dir",
+      "files": 99,
+      "bytes": 30126560
+    },
+    {
+      "name": "test_blender_v7",
+      "kind": "dir",
+      "files": 90,
+      "bytes": 28078134
+    },
+    {
+      "name": "test_blender_v8",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 9494168
+    },
+    {
+      "name": "test_blender_v9",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8924538
+    },
+    {
+      "name": "test_canonical",
+      "kind": "dir",
+      "files": 12,
+      "bytes": 2099345
+    },
+    {
+      "name": "test_diagnose",
+      "kind": "dir",
+      "files": 12,
+      "bytes": 2494246
+    },
+    {
+      "name": "test_diagnose2",
+      "kind": "dir",
+      "files": 12,
+      "bytes": 2395363
+    },
+    {
+      "name": "test_diagnose3",
+      "kind": "dir",
+      "files": 12,
+      "bytes": 2402277
+    },
+    {
+      "name": "test_final_check",
+      "kind": "dir",
+      "files": 24,
+      "bytes": 4486280
+    },
+    {
+      "name": "test_fix_axis",
+      "kind": "dir",
+      "files": 12,
+      "bytes": 2631999
+    },
+    {
+      "name": "test_fix_scene",
+      "kind": "dir",
+      "files": 12,
+      "bytes": 3018383
+    },
+    {
+      "name": "test_indoor",
+      "kind": "dir",
+      "files": 18,
+      "bytes": 5662647
+    },
+    {
+      "name": "test_iter2",
+      "kind": "dir",
+      "files": 24,
+      "bytes": 4524045
+    },
+    {
+      "name": "test_iter3",
+      "kind": "dir",
+      "files": 60,
+      "bytes": 11946459
+    },
+    {
+      "name": "test_iter4",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 5062922
+    },
+    {
+      "name": "test_iter5",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 6320702
+    },
+    {
+      "name": "test_iter6",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 4416054
+    },
+    {
+      "name": "test_iter7",
+      "kind": "dir",
+      "files": 70,
+      "bytes": 15098595
+    },
+    {
+      "name": "test_iter8",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 5770157
+    },
+    {
+      "name": "test_iter9",
+      "kind": "dir",
+      "files": 24,
+      "bytes": 3495525
+    },
+    {
+      "name": "test_models",
+      "kind": "dir",
+      "files": 12,
+      "bytes": 2622952
+    },
+    {
+      "name": "test_palletobj_cargo",
+      "kind": "dir",
+      "files": 27,
+      "bytes": 7645902
+    },
+    {
+      "name": "test_palletobj_cargo_v2",
+      "kind": "dir",
+      "files": 27,
+      "bytes": 7333315
+    },
+    {
+      "name": "test_palletobj_r1",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8139664
+    },
+    {
+      "name": "test_palletobj_r2",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8123887
+    },
+    {
+      "name": "test_palletobj_r3",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8393492
+    },
+    {
+      "name": "test_palletobj_r4",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 8825616
+    },
+    {
+      "name": "test_palletobj_v1",
+      "kind": "dir",
+      "files": 31,
+      "bytes": 8242169
+    },
+    {
+      "name": "test_v3_guide",
+      "kind": "dir",
+      "files": 20,
+      "bytes": 1643891
+    },
+    {
+      "name": "test_v4_bright",
+      "kind": "dir",
+      "files": 30,
+      "bytes": 3670256
+    },
+    {
+      "name": "test_v4_pt",
+      "kind": "dir",
+      "files": 10,
+      "bytes": 731812
+    },
+    {
+      "name": "test_v5_pt32",
+      "kind": "dir",
+      "files": 10,
+      "bytes": 716911
+    },
+    {
+      "name": "test_v6_reinhard",
+      "kind": "dir",
+      "files": 6,
+      "bytes": 378477
+    },
+    {
+      "name": "test_v7_reinhard2",
+      "kind": "dir",
+      "files": 10,
+      "bytes": 687908
+    },
+    {
+      "name": "test_v8_lowbounce",
+      "kind": "dir",
+      "files": 15,
+      "bytes": 1414692
+    },
+    {
+      "name": "test_yup",
+      "kind": "dir",
+      "files": 12,
+      "bytes": 3472028
+    },
+    {
+      "name": "train_4pallet_mask_v1_pilot",
+      "kind": "dir",
+      "files": 167,
+      "bytes": 46507868
+    },
+    {
+      "name": "train_palletobj_v3",
+      "kind": "dir",
+      "files": 40002,
+      "bytes": 10682796255
+    },
+    {
+      "name": "train_palletobj_v3_post_v1",
+      "kind": "dir",
+      "files": 17722,
+      "bytes": 77884636
+    },
+    {
+      "name": "training_data",
+      "kind": "dir",
+      "files": 34704,
+      "bytes": 6435540124
+    },
+    {
+      "name": "training_data_v4_emptywood",
+      "kind": "dir",
+      "files": 9031,
+      "bytes": 4820265222
+    },
+    {
+      "name": "training_data_v4_pilotA",
+      "kind": "dir",
+      "files": 482,
+      "bytes": 188826895
+    },
+    {
+      "name": "training_data_v4_split_GREYBUG",
+      "kind": "dir",
+      "files": 15051,
+      "bytes": 5291018327
+    },
+    {
+      "name": "training_data_v4_split_bg1bak",
+      "kind": "dir",
+      "files": 15056,
+      "bytes": 5288678749
+    },
+    {
+      "name": "unidentified",
+      "kind": "dir",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "name": "usd_debug",
+      "kind": "dir",
+      "files": 5,
+      "bytes": 342314
+    }
+  ]
+}

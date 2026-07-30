@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "stage": "2-D1.1",
+  "base_commit": "1577e25d52a0c603b77729db7475934cc7cb6f1b",
+  "scope_csv": "reports/data_pallet_cleanup/stage2d11/residual_scope.csv",
+  "scope_csv_sha256": "7d1c0db2ddb94f995c85e54cfc0c8dc25b08dad8f3e25a8f9b0c8fc155df1a18",
+  "recomputed_from_filesystem": true,
+  "note": "Stage 2-D1 보고 숫자를 쓰지 않고 현재 파일시스템에서 재계산했다. 결과적으로 rows 는 D1 보고와 같지만(10/4/4) bytes 는 실측값이다.",
+  "cohorts": {
+    "D11A_BLEND_BACKUPS": {
+      "source_of_truth": "stage2d1/transactions/d1d_blend_backups.jsonl (ROLLED_BACK)",
+      "rows": 10,
+      "files": 10,
+      "bytes": 2400984463,
+      "all_exist": true,
+      "all_cold_archive": true,
+      "d0_sha256_match": 10,
+      "prior_c2c_member": 10,
+      "prior_hash_match": 10,
+      "registry_ref": 0,
+      "current_runtime_test_ref": 0,
+      "dest_collision": 0,
+      "requires_successor_chain": true
+    },
+    "D11B_REFERENCE_TRANSITION": {
+      "rows": 4,
+      "files": 92429,
+      "bytes": 17334010020,
+      "move_ids": [
+        "D1-003",
+        "D1-033",
+        "D1-038",
+        "D1-053"
+      ],
+      "requires_registry_transition": true
+    },
+    "D11C_LICENSE_RESOLUTION": {
+      "rows": 4,
+      "files": 39620,
+      "bytes": 15588789193,
+      "move_ids": [
+        "D1-041",
+        "D1-042",
+        "D1-043",
+        "D1-049"
+      ],
+      "requires_provenance_decision": true
+    }
+  },
+  "hash_budget": {
+    "D1D_ROLLBACK_SOURCE": {
+      "bytes": 2400984463,
+      "estimated_read": 4801968926,
+      "estimated_read_gib": 4.472
+    },
+    "BLOCKED_REFERENCE": {
+      "bytes": 17334010020,
+      "estimated_read": 34668020040,
+      "estimated_read_gib": 32.287
+    },
+    "BLOCKED_UNKNOWN": {
+      "bytes": 15588789193,
+      "estimated_read": 31177578386,
+      "estimated_read_gib": 29.036
+    }
+  },
+  "total_estimated_read_bytes": 70647567352,
+  "total_estimated_read_gib": 65.796,
+  "global_limit_gib": 20,
+  "exceeds_global_limit": true,
+  "budget_verdict": "BLOCKED_BY_HASH_BUDGET — 전체 18행을 hash-mode all 로 옮기면 예상 read 65.80 GiB 이고 §6 전역 상한 20 GiB 의 3.3배다. §17 은 '20GiB 초과'를 중단 기준으로 명시한다. 예산 안에서 가능한 것(D11A 4.47 GiB)만 실행하고 D11B/D11C 의 실이동은 예산 결정 전에 하지 않는다.",
+  "within_budget_cohorts": [
+    "D11A_BLEND_BACKUPS"
+  ],
+  "over_budget_cohorts": [
+    "D11B_REFERENCE_TRANSITION",
+    "D11C_LICENSE_RESOLUTION"
+  ]
+}

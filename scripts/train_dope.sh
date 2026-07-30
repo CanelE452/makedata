@@ -40,7 +40,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 # --- config에서 값 로드 ---
-TRAIN_DIR="$(yq data.train_dir)"
+# Stage 2-D1.1: config 값이 "registry:<key>[/sub]" 형태면 registry 로 해석한다.
+#   경로 정본을 config/synthetic/pallet_paths.yaml 하나로 두기 위한 것 —
+#   자료가 archive/ 안에서 움직여도 이 스크립트와 config 는 고치지 않는다.
+resolve_path() {
+    python scripts/data_prep/blender/pallet_data_paths.py --resolve "$1"
+}
+TRAIN_DIR="$(resolve_path "$(yq data.train_dir)")"
 OBJECT="$(yq data.object)"
 IMAGE_SIZE="$(yq model.input_size)"
 SIGMA="$(yq train.sigma)"
@@ -127,7 +133,7 @@ echo "  TensorBoard: python scripts/launch_tensorboard.py"
 
 # 자동 Val 평가 (PCK@3/5/10px + PnP Reproj)
 cd ../..
-VAL_DIR="$(yq data.val_dir)"
+VAL_DIR="$(resolve_path "$(yq data.val_dir)")"
 if $FINETUNE; then
     WEIGHTS="$OUTPUT_DIR/final_net_epoch_$(printf '%04d' $EPOCHS).pth"
 else
