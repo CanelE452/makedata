@@ -548,6 +548,15 @@ def _args():
              "(M1..M3 are never rendered, so f_static/f_cargo/f_context/f_explicit are None)",
     )
     parser.add_argument(
+        "--session-usable-cap",
+        type=int,
+        default=None,
+        help="usable mode: stop this Blender session after delivering K NEW usable "
+             "frames, save progress and exit 0 (complete=false, session_paused=true). "
+             "The next run resumes at the same proposal-stream position. "
+             "Default None = unchanged behaviour (run until --n is reached).",
+    )
+    parser.add_argument(
         "--rerun-failures",
         action="store_true",
         help="retry indices whose latest record did not render successfully",
@@ -559,6 +568,11 @@ def _args():
 
 def validate_args(args, fail):
     """Mode-dependent argument validation (`fail` = parser.error / raising callable)."""
+    cap = getattr(args, "session_usable_cap", None)
+    if cap is not None and args.completion_mode != "usable":
+        fail("--session-usable-cap requires --completion-mode usable")
+    if cap is not None and cap < 1:
+        fail(f"--session-usable-cap must be >= 1 (got {cap})")
     if args.completion_mode == "records":
         if args.n not in DIAGNOSTIC_N_CHOICES:
             fail(
@@ -1810,7 +1824,21 @@ def run_usable(args, dirs, vp, vr, np):
     session_start = time.time()
     consecutive_mode_skips = 0
     stop_reason = None
+    # --session-usable-cap: 이번 Blender session 에서 **새로** 전달한 usable 수.
+    # cap 에 닿으면 정상 저장 후 exit 0 로 멈춘다 (complete=false, session_paused=true).
+    # 다음 실행은 _resume_state() 가 계산한 같은 proposal 위치에서 재개된다 —
+    # sampling·quota·proposal 순서는 건드리지 않는다.
+    session_cap = getattr(args, "session_usable_cap", None)
+    session_delivered = 0
+    session_paused = False
     while state["delivered"] < args.n:
+        if session_cap is not None and session_delivered >= session_cap:
+            session_paused = True
+            stop_reason = (
+                f"session usable cap reached ({session_delivered}/{session_cap}); "
+                f"total {state['delivered']}/{args.n} — resume with the same command"
+            )
+            break
         try:
             proposal_index, plan, reject = next(stream)
         except StopIteration:
@@ -1934,6 +1962,7 @@ def run_usable(args, dirs, vp, vr, np):
             if record.get("mask_m0_content_sha256"):
                 seen_m0.add(record["mask_m0_content_sha256"])
             state["delivered"] += 1
+            session_delivered += 1
             state["mode_counts"][mode] += 1
         else:
             state["render_rejects"] += 1
@@ -1993,9 +2022,22 @@ def run_usable(args, dirs, vp, vr, np):
     )
     manifest_path = _write_usable_manifest(out, ordered, args)
     summary["usable_manifest"] = manifest_path
+    summary["session_usable_cap"] = session_cap
+    summary["session_usable_delivered"] = int(session_delivered)
+    summary["session_paused"] = bool(session_paused)
+    summary["stop_reason"] = stop_reason
+    _write_json(os.path.join(out, "progress.json"), summary)
     _write_json(os.path.join(out, "driver_summary.json"), summary)
     _write_usable_readme(out, summary)
     print(f"[USABLE] SESSION DONE {summary}", flush=True)
+    if session_paused:
+        # 정상적인 일시정지다 — 예외가 아니다. wrapper 가 같은 명령으로 재개한다.
+        print(
+            f"[USABLE] SESSION PAUSED delivered={state['delivered']}/{args.n} "
+            f"(this session {session_delivered}/{session_cap}) — resume to continue",
+            flush=True,
+        )
+        return summary
     if not complete:
         raise UsableCompletionError(
             f"usable completion aborted: {stop_reason or 'unknown stop'}. "

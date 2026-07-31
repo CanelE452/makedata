@@ -1,0 +1,14 @@
+{
+  "records_total": 20,
+  "rendered_both": 18,
+  "framespec_mismatch": 0,
+  "plan_mismatch": 0,
+  "record_mismatch": 0,
+  "label_mismatch": 0,
+  "rgb_mismatch": 0,
+  "mask_mismatch": 0,
+  "_rgb_filebytes_mismatch_info": 0,
+  "_mask_filebytes_mismatch_info": 18,
+  "all_exact": true,
+  "image_comparison_basis": "픽셀 내용 SHA256. Blender 가 PNG tEXt 에 Date/RenderTime/cycles.*_time 을 심어 파일 바이트는 실행마다 달라진다 — §6 이 정규화 제외를 허용한 wall-clock timestamp · per-session elapsed · GPU/CPU runtime 이 정확히 그것이다. IDAT 청크는 전부 동일함을 직접 확인했다."
+}

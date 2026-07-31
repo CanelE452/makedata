@@ -1,0 +1,80 @@
+{
+  "base_commit": "7540428a90953bbe23119321086c7dfc4320fd01",
+  "branch": "feat/v2-pilot-2k-paper-figures",
+  "git_status_porcelain": [
+    " M _docs/history/.last-compact-resume.md",
+    " M scripts/data_prep/blender/run_v2_scene_logic.py",
+    "?? reports/v2_pilot_2k_seed7000/",
+    "?? scripts/data_prep/blender/run_v2_pilot_2k_repro.py",
+    "?? scripts/data_prep/blender/tests/test_v2_pilot_resume_reproducibility.py"
+  ],
+  "git_diff_sha256": "64eeeda4dfb9a82ad1f5576fedcb085552d436a5c8285901454f64b1920ef126",
+  "git_diff_bytes": 5022,
+  "patch_file": "reports/v2_pilot_2k_seed7000/reproducibility/code_changes.patch",
+  "files": {
+    "scripts/data_prep/blender/v2_pipeline.py": {
+      "sha256": "d57fd94afd8c61cfe65ca28cad9dc2d75619797d9a87bbae25ca4c2be74f05bb",
+      "bytes": 86470
+    },
+    "scripts/data_prep/blender/v2_realize.py": {
+      "sha256": "d9a3c8d032b2a50cb08e5908eb97f8c1ef8246c5da300c988a11d04ab09aa0bb",
+      "bytes": 166678
+    },
+    "scripts/data_prep/blender/run_v2_scene_logic.py": {
+      "sha256": "7c5dd8e022fcb196d7b0e39783c1ea81a4c5e590294d1277df4e5649f3065aad",
+      "bytes": 83000
+    },
+    "scripts/data_prep/blender/run_v2_pilot_2k_repro.py": {
+      "sha256": "5dd297da10ad7a8c098abaec5d313db0eb1ccc9d680abf23ef68149e77990dd5",
+      "bytes": 8450
+    },
+    "scripts/data_prep/blender/camera_effects.py": {
+      "sha256": "2c23101f4f9e2a1c0c4a1e8b5ce48991988b0b7f5a7901d9c46450727569aa6d",
+      "bytes": 9900
+    },
+    "scripts/data_prep/blender/mask_profiles.py": {
+      "sha256": "8493ece2245c337f0d50e6d4b86ff635db233bc9b83006d73f0e831b0e6dc844",
+      "bytes": 10496
+    },
+    "scripts/data_prep/blender/randomizers.py": {
+      "sha256": "e70504e048ef2b4c1f50bb1ca7a5381cda2ab6e98c4909e3c8a954ce21a5e936",
+      "bytes": 57179
+    },
+    "scripts/data_prep/blender/scene_placement_v2.py": {
+      "sha256": "b6c099c76ee1d84e888a7818c34008870e54e014ffc1b2bc172b21609c5feda0",
+      "bytes": 73016
+    },
+    "scripts/data_prep/blender/scene_visibility_v2.py": {
+      "sha256": "59fa7ceea95759f90954f1cfc3328cb460addb03410afee9bd3ff90ddedd208f",
+      "bytes": 90582
+    },
+    "scripts/data_prep/blender/blender_math.py": {
+      "sha256": "aa4c64614fdd2a8e7c00eae6f229e3bcb8b6bb9ead45faba748fa5e82017c679",
+      "bytes": 13100
+    },
+    "scripts/data_prep/blender/pallet_data_paths.py": {
+      "sha256": "4a42a39296eba15dd70bcf99cf0e8226a651aa22254d73f2527b39cd08f36b77",
+      "bytes": 13616
+    },
+    "scripts/data_prep/blender/analyze_v2_continuous.py": {
+      "sha256": "d881fab2d41236199cbbaa41ea192d3c1e5ef781b4ed2d5286f15a80635ef418",
+      "bytes": 95920
+    },
+    "scripts/data_prep/blender/overlay_v2_detailed.py": {
+      "sha256": "8eeaa5025321a6d183c0bfb16ea1d324c5b490da93134b0b6aeeeafd309f3f91",
+      "bytes": 65653
+    },
+    "scripts/data_prep/blender/audit_v2_scene_logic.py": {
+      "sha256": "2c7c130fd5fbd801ac8e46c81922359a734a880cb92f8ad5f9de8a82301c86eb",
+      "bytes": 123431
+    },
+    "config/synthetic/blender.yaml": {
+      "sha256": "d94765e378a535d21a96771791802107d70a0b07a912ea4acd91b9787933f0bd",
+      "bytes": 12715
+    },
+    "config/synthetic/pallet_paths.yaml": {
+      "sha256": "5ec2eb815dcd9eab5d91b85d65dd7686582bb3efad80e95ba0615386d46ad746",
+      "bytes": 4630
+    }
+  }
+}

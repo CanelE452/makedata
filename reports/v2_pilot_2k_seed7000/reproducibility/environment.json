@@ -1,0 +1,40 @@
+{
+  "os": "Windows-11-10.0.26200-SP0",
+  "os_release": "11",
+  "machine": "AMD64",
+  "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+  "blender_version": "5.1.1",
+  "blender_build_hash": "b70da489d7f4",
+  "blender_build_date": "2026-04-14",
+  "blender_python": "3.13.9",
+  "host_python": "3.13.9",
+  "numpy": "2.3.5",
+  "pillow": "12.0.0",
+  "matplotlib": "3.10.6",
+  "scipy": "1.16.3",
+  "gpu_model": "NVIDIA GeForce RTX 4070",
+  "gpu_driver": "32.0.15.9579",
+  "cycles_backend": "dataset-quality profile -> v2_realize.enable_gpu() (CUDA/OptiX 자동)",
+  "render_profile": "dataset-quality",
+  "samples": 64,
+  "noise_tier": "auto",
+  "denoiser": "render profile 기본값 (v2_realize.RENDER_PROFILES)",
+  "mask_profile": "full-audit",
+  "magenta_max_fraction": 0.0,
+  "placement_mode": "constrained",
+  "master_seed": 7000,
+  "requested_usable_frames": 2000,
+  "session_usable_cap": 100,
+  "workers": 1,
+  "timezone": [
+    "대한민국 표준시",
+    "대한민국 일광 절약 시간"
+  ],
+  "utc_offset_hours": 9,
+  "locale": [
+    "Korean_Korea",
+    "949"
+  ],
+  "preferred_encoding": "cp949",
+  "note": "출력 JSON/CSV 는 전부 UTF-8 명시 인코딩 (host locale 이 cp949)"
+}

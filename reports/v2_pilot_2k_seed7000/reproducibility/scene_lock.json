@@ -1,0 +1,19 @@
+{
+  "registry_key": "production_scene",
+  "absolute_path": "E:\\CODING\\GitHub\\FoundationPose\\data\\pallet\\assets\\scenes\\production\\blender_scene\\synth_data_scene_portable_stage2c2.blend",
+  "repo_relative_path": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene_portable_stage2c2.blend",
+  "bytes": 358898838,
+  "sha256": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+  "blender_version": "5.1.1",
+  "blender_build_hash": "b70da489d7f4",
+  "rollback_sources": {
+    "production_scene_rollback_source": {
+      "repo_relative_path": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene.blend",
+      "sha256": "46f436dc8d9302a6f857c62c1abcaf4e6fefdc10042ee646e9ef3dc3acbb7fb9"
+    },
+    "production_scene_stage2c1_rollback": {
+      "repo_relative_path": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene_portable.blend",
+      "sha256": "5cad94e59d678b01517bfa83e4247f96c234af60654c411c32ff1a1ad9c3e668"
+    }
+  }
+}

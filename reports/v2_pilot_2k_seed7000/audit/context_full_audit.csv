@@ -1,0 +1,601 @@
+usable_id,diagnostic_mode,n_context_requested,n_context_placed,n_context_visible,context_visible_pixel_ratio,context_screen_area_ratio,context_placement_attempts,context_reject_counts_by_reason,context_support_pass,cargo_on,n_cargo_placed,f_total_record,amodal_px,visible_px,runtime_s,rgb_rel
+800,context-rich,3,3,3,1.0,0.07504873294346978,9,"{""support"": 3, ""collision"": 3}",True,True,2,0.08548286604361366,8025,7339,22.907906532287598,rgb/f0800_rgb.png
+801,context-rich,3,3,3,1.0,0.49442997685185186,6,"{""support"": 3}",True,False,0,0.0,24136,24136,8.395285606384277,rgb/f0801_rgb.png
+802,context-rich,3,3,3,1.0,0.038492838541666664,10,"{""support"": 3, ""collision"": 4}",True,False,0,7.648768548262908e-05,13074,13073,8.040517091751099,rgb/f0802_rgb.png
+803,context-rich,3,3,3,1.0,0.05517578125,22,"{""occlusion_budget"": 1, ""collision"": 16, ""support"": 1, ""camera_clearance"": 1}",True,False,0,0.0,1223,1223,9.609708309173584,rgb/f0803_rgb.png
+804,context-rich,3,3,3,1.0,0.3306477864583333,14,"{""occlusion_budget"": 3, ""support"": 6, ""collision"": 2}",True,True,2,0.3033579965850882,1757,1224,17.70290994644165,rgb/f0804_rgb.png
+805,context-rich,3,3,2,0.6666666666666666,0.1495949074074074,9,"{""support"": 4, ""collision"": 2}",True,False,0,0.0,3441,3441,12.144616603851318,rgb/f0805_rgb.png
+806,context-rich,3,3,3,1.0,0.11196393762183236,46,"{""camera_clearance"": 3, ""support"": 19, ""collision"": 11, ""occlusion_budget"": 10}",True,True,2,0.0,23425,23425,22.615551948547363,rgb/f0806_rgb.png
+807,context-rich,3,3,3,1.0,0.041666666666666664,9,"{""collision"": 3, ""support"": 3}",True,False,0,0.0,15150,15150,8.617765188217163,rgb/f0807_rgb.png
+808,context-rich,3,3,3,1.0,0.13505116959064328,6,"{""support"": 3}",True,False,0,0.0,2848,2848,15.263241291046143,rgb/f0808_rgb.png
+809,context-rich,3,3,3,1.0,0.017415364583333332,7,"{""support"": 4}",True,False,0,0.0,3514,3514,8.525514125823975,rgb/f0809_rgb.png
+810,context-rich,3,3,3,1.0,0.0029658564814814816,6,"{""support"": 3}",True,False,0,0.0,13236,13236,13.125932931900024,rgb/f0810_rgb.png
+811,context-rich,3,0,0,0.0,0.0,0,{},True,True,2,0.0,7404,7404,6.679600954055786,rgb/f0811_rgb.png
+812,context-rich,3,2,2,1.0,0.10896809895833333,184,"{""support"": 167, ""collision"": 15}",True,False,0,0.010232091640125951,113662,112499,16.81238842010498,rgb/f0812_rgb.png
+813,context-rich,3,2,2,1.0,0.2682748538011696,183,"{""camera_clearance"": 44, ""occlusion_budget"": 15, ""collision"": 26, ""support"": 96}",True,True,2,0.15691753041910772,22190,18708,33.29118990898132,rgb/f0813_rgb.png
+814,context-rich,3,3,3,1.0,0.7160373263888888,13,"{""occlusion_budget"": 1, ""support"": 7, ""collision"": 2}",True,False,0,0.0,726,726,14.946223020553589,rgb/f0814_rgb.png
+815,context-rich,3,3,3,1.0,0.1997441520467836,24,"{""support"": 4, ""collision"": 5, ""occlusion_budget"": 12}",True,False,0,0.0,23076,23076,26.794682025909424,rgb/f0815_rgb.png
+816,context-rich,3,3,3,1.0,0.3199508101851852,68,"{""support"": 23, ""occlusion_budget"": 27, ""collision"": 13, ""camera_clearance"": 2}",True,True,2,0.11522419186652766,1918,1697,41.75178146362305,rgb/f0816_rgb.png
+817,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,194081,194081,6.857568979263306,rgb/f0817_rgb.png
+818,context-rich,3,1,1,1.0,0.1437355324074074,199,"{""support"": 198}",True,True,0,0.0,93973,93973,11.10246753692627,rgb/f0818_rgb.png
+819,context-rich,3,3,3,1.0,0.015655458089668617,24,"{""collision"": 12, ""support"": 7, ""occlusion_budget"": 2}",True,False,0,0.0,45718,45718,19.131582498550415,rgb/f0819_rgb.png
+820,context-rich,3,3,3,1.0,0.03857421875,14,"{""support"": 5, ""collision"": 6}",True,True,1,0.22638680659670163,2668,2064,17.364354610443115,rgb/f0820_rgb.png
+821,context-rich,3,3,3,1.0,0.040608723958333336,24,"{""support"": 21}",True,True,1,0.1028721915891696,24302,21802,16.06872272491455,rgb/f0821_rgb.png
+822,context-rich,3,3,3,1.0,0.118408203125,6,"{""support"": 3}",True,False,0,0.0,2647,2647,10.986629009246826,rgb/f0822_rgb.png
+823,context-rich,3,1,1,1.0,0.17928059895833334,199,"{""collision"": 9, ""camera_clearance"": 8, ""occlusion_budget"": 1, ""support"": 180}",True,False,0,0.0,133770,133770,12.576871633529663,rgb/f0823_rgb.png
+824,context-rich,3,3,3,1.0,0.4058845029239766,10,"{""collision"": 1, ""support"": 4, ""occlusion_budget"": 2}",True,False,0,0.0,16945,16945,9.937310695648193,rgb/f0824_rgb.png
+825,context-rich,3,3,3,1.0,0.3356119791666667,28,"{""occlusion_budget"": 17, ""support"": 7, ""collision"": 1}",True,False,0,0.1580611169652265,949,799,29.240635633468628,rgb/f0825_rgb.png
+826,context-rich,3,3,3,1.0,0.2972819010416667,26,"{""support"": 21, ""collision"": 2}",True,True,2,0.08726309839040791,33611,30678,22.67554235458374,rgb/f0826_rgb.png
+827,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,305235,305235,5.245147228240967,rgb/f0827_rgb.png
+828,context-rich,3,3,3,1.0,0.043764467592592594,27,"{""support"": 18, ""occlusion_budget"": 5, ""collision"": 1}",True,True,1,0.21102138610346965,11269,8891,15.575308322906494,rgb/f0828_rgb.png
+829,context-rich,3,3,3,1.0,0.3226725260416667,85,"{""support"": 49, ""occlusion_budget"": 4, ""collision"": 29}",True,True,1,0.2700911350455675,95353,69599,20.848809719085693,rgb/f0829_rgb.png
+830,context-rich,3,3,3,1.0,0.16861979166666666,86,"{""support"": 53, ""collision"": 30}",True,False,0,0.010057820319712363,82324,81496,20.3271267414093,rgb/f0830_rgb.png
+831,context-rich,3,3,3,1.0,0.028326023391812866,15,"{""support"": 4, ""occlusion_budget"": 8}",True,True,1,0.21435121503897292,4362,3427,30.27969193458557,rgb/f0831_rgb.png
+832,context-rich,3,2,2,1.0,0.4376627604166667,185,"{""occlusion_budget"": 14, ""collision"": 24, ""support"": 143, ""camera_clearance"": 2}",True,True,2,0.14837671049101153,22362,19044,31.923633575439453,rgb/f0832_rgb.png
+833,context-rich,3,3,3,1.0,0.10910087719298246,6,"{""support"": 3}",True,False,0,0.0,3292,3292,12.280057668685913,rgb/f0833_rgb.png
+834,context-rich,3,3,3,1.0,0.242431640625,39,"{""support"": 28, ""collision"": 8}",True,False,0,0.0,18507,18507,15.239062786102295,rgb/f0834_rgb.png
+835,context-rich,3,3,3,1.0,0.10696881091617934,13,"{""support"": 4, ""collision"": 5, ""occlusion_budget"": 1}",True,True,1,0.19593028247617417,11647,9365,18.703408002853394,rgb/f0835_rgb.png
+836,context-rich,3,3,3,1.0,0.32609953703703703,14,"{""support"": 8, ""occlusion_budget"": 3}",True,False,0,0.0,9222,9222,10.217512607574463,rgb/f0836_rgb.png
+837,context-rich,3,3,3,1.0,0.0947265625,70,"{""support"": 44, ""collision"": 23}",True,True,1,0.2432967447316603,95476,72247,13.378138303756714,rgb/f0837_rgb.png
+838,context-rich,3,3,3,1.0,0.1701388888888889,18,"{""support"": 5, ""collision"": 10}",True,True,2,0.22156060042178394,8061,6275,12.186804294586182,rgb/f0838_rgb.png
+839,context-rich,3,3,3,1.0,0.055745442708333336,29,"{""support"": 9, ""occlusion_budget"": 15, ""collision"": 2}",True,False,0,0.0,5765,5765,24.95899200439453,rgb/f0839_rgb.png
+840,context-rich,3,3,3,1.0,0.13444200779727095,11,"{""collision"": 3, ""occlusion_budget"": 4, ""support"": 1}",True,True,2,0.1388286334056399,1844,1588,18.605403900146484,rgb/f0840_rgb.png
+841,context-rich,3,0,0,0.0,0.0,0,{},True,True,2,0.0,175276,175276,10.779520273208618,rgb/f0841_rgb.png
+842,context-rich,3,3,3,1.0,0.3787434895833333,103,"{""support"": 76, ""collision"": 17, ""camera_clearance"": 1, ""occlusion_budget"": 6}",True,False,0,0.05190112659353696,53968,51167,17.256685972213745,rgb/f0842_rgb.png
+843,context-rich,3,3,3,1.0,0.116455078125,29,"{""support"": 10, ""occlusion_budget"": 16}",True,False,0,0.0,9037,9037,25.610695362091064,rgb/f0843_rgb.png
+844,context-rich,3,3,2,0.6666666666666666,0.3170687134502924,16,"{""support"": 7, ""collision"": 6}",True,True,2,0.11777333268283163,61491,54249,16.43565845489502,rgb/f0844_rgb.png
+845,context-rich,3,0,0,0.0,0.0,0,{},True,True,1,0.2111913357400722,2770,2185,9.626767873764038,rgb/f0845_rgb.png
+846,context-rich,3,3,3,1.0,0.08748372395833333,52,"{""collision"": 6, ""support"": 42, ""occlusion_budget"": 1}",True,False,0,0.0,135242,135242,9.412211418151855,rgb/f0846_rgb.png
+847,context-rich,3,3,3,1.0,0.21354166666666666,13,"{""support"": 4, ""occlusion_budget"": 6}",True,False,0,0.0,5100,5100,12.530778884887695,rgb/f0847_rgb.png
+848,context-rich,3,3,3,1.0,0.11971028645833333,7,"{""occlusion_budget"": 1, ""support"": 3}",True,False,0,0.0,14804,14804,12.722573041915894,rgb/f0848_rgb.png
+849,context-rich,3,3,3,1.0,0.00341796875,9,"{""support"": 3, ""occlusion_budget"": 3}",True,False,0,0.0,1572,1572,10.062331199645996,rgb/f0849_rgb.png
+850,context-rich,3,3,3,1.0,0.215338693957115,8,"{""collision"": 4, ""support"": 1}",True,True,2,0.12787878787878793,1650,1439,17.37455725669861,rgb/f0850_rgb.png
+851,context-rich,3,3,3,1.0,0.296630859375,25,"{""support"": 14, ""occlusion_budget"": 8}",True,True,2,0.2182023742227247,19459,15213,21.652379035949707,rgb/f0851_rgb.png
+852,context-rich,3,3,3,1.0,0.22497106481481483,30,"{""collision"": 15, ""support"": 12}",True,False,0,0.00033153750518022385,72390,72366,12.604938507080078,rgb/f0852_rgb.png
+853,context-rich,3,1,1,1.0,0.036702473958333336,204,"{""camera_clearance"": 10, ""occlusion_budget"": 13, ""support"": 180}",True,False,0,0.11258809373746637,17453,15488,21.772881746292114,rgb/f0853_rgb.png
+854,context-rich,3,3,3,1.0,0.0021929824561403508,16,"{""support"": 1, ""occlusion_budget"": 11, ""collision"": 1}",True,False,0,0.0,6007,6007,22.510549306869507,rgb/f0854_rgb.png
+855,context-rich,3,2,2,1.0,0.306884765625,187,"{""support"": 179, ""occlusion_budget"": 2, ""collision"": 4}",True,True,2,0.10507391130643229,7509,6720,12.699948787689209,rgb/f0855_rgb.png
+856,context-rich,3,3,3,1.0,0.14949544270833334,135,"{""support"": 113, ""collision"": 12, ""occlusion_budget"": 7}",True,False,0,0.0,9372,9372,22.98404335975647,rgb/f0856_rgb.png
+857,context-rich,3,3,3,1.0,0.22362329434697856,7,"{""support"": 3, ""collision"": 1}",True,True,1,0.170128302195666,48869,40555,19.049394130706787,rgb/f0857_rgb.png
+858,context-rich,3,3,3,1.0,0.22858796296296297,75,"{""support"": 46, ""collision"": 25, ""occlusion_budget"": 1}",True,False,0,0.0,27058,27058,14.447986602783203,rgb/f0858_rgb.png
+859,context-rich,3,0,0,0.0,0.0,0,{},True,True,2,0.0,68433,68433,7.001506567001343,rgb/f0859_rgb.png
+860,context-rich,3,3,3,1.0,0.006883528265107212,7,"{""support"": 2, ""occlusion_budget"": 2}",True,False,0,0.0,36309,36309,12.726851224899292,rgb/f0860_rgb.png
+861,context-rich,3,3,2,0.6666666666666666,0.3499348958333333,8,"{""occlusion_budget"": 3, ""support"": 2}",True,True,2,0.19588146659969863,1991,1601,17.475691318511963,rgb/f0861_rgb.png
+862,context-rich,3,3,3,1.0,0.024305555555555556,6,"{""support"": 3}",True,True,1,0.21353006681514475,3592,2825,14.691917181015015,rgb/f0862_rgb.png
+863,context-rich,3,1,1,1.0,0.039469401041666664,199,"{""support"": 178, ""collision"": 20}",True,False,0,0.0,195224,195224,12.087709426879883,rgb/f0863_rgb.png
+864,context-rich,3,3,3,1.0,0.49055799220272905,15,"{""occlusion_budget"": 5, ""support"": 7}",True,False,0,0.11698250728862969,5488,4846,11.449107646942139,rgb/f0864_rgb.png
+865,context-rich,3,3,3,1.0,0.1633029513888889,20,"{""support"": 12, ""collision"": 5}",True,False,0,0.011553759707052191,63356,62624,10.472969770431519,rgb/f0865_rgb.png
+866,context-rich,3,3,3,1.0,0.161865234375,14,"{""occlusion_budget"": 5, ""support"": 6}",True,True,2,0.12014818556874629,11877,10450,22.77794361114502,rgb/f0866_rgb.png
+867,context-rich,3,3,3,1.0,0.12585282651072124,9,"{""support"": 4, ""collision"": 2}",True,False,0,0.0,2788,2788,8.431440591812134,rgb/f0867_rgb.png
+868,context-rich,3,3,3,1.0,0.021195023148148147,5,"{""collision"": 2}",True,False,0,0.0,2419,2419,11.950559616088867,rgb/f0868_rgb.png
+869,context-rich,3,3,3,1.0,0.09391276041666667,6,"{""collision"": 2, ""support"": 1}",True,True,1,0.1358173076923077,2496,2157,10.87861943244934,rgb/f0869_rgb.png
+870,context-rich,3,3,3,1.0,0.3063151041666667,127,"{""collision"": 25, ""support"": 90, ""occlusion_budget"": 9}",True,True,2,0.22278840197430205,50043,38894,30.833335876464844,rgb/f0870_rgb.png
+871,context-rich,3,3,3,1.0,0.300682261208577,82,"{""support"": 63, ""collision"": 13, ""occlusion_budget"": 3}",True,False,0,0.0985426077713959,48923,44102,22.203251600265503,rgb/f0871_rgb.png
+872,context-rich,3,3,1,0.3333333333333333,0.4189205653021443,21,"{""support"": 14, ""collision"": 4}",True,False,0,0.04963355988146145,112706,107112,11.488072633743286,rgb/f0872_rgb.png
+873,context-rich,3,3,2,0.6666666666666666,0.259765625,7,"{""support"": 2, ""collision"": 2}",True,True,2,0.130048465266559,2476,2154,16.643898963928223,rgb/f0873_rgb.png
+874,context-rich,3,3,3,1.0,0.24007161458333334,9,"{""support"": 5, ""collision"": 1}",True,False,0,0.0,947,947,8.28157901763916,rgb/f0874_rgb.png
+875,context-rich,3,3,3,1.0,0.15559895833333334,92,"{""support"": 75, ""collision"": 14}",True,True,1,0.20219978315676723,76553,61074,16.855540990829468,rgb/f0875_rgb.png
+876,context-rich,3,3,3,1.0,0.3171657986111111,23,"{""occlusion_budget"": 8, ""support"": 11, ""collision"": 1}",True,False,0,0.0747535077739856,21096,19519,24.113003730773926,rgb/f0876_rgb.png
+877,context-rich,3,3,3,1.0,0.1248172514619883,14,"{""collision"": 6, ""support"": 5}",True,False,0,0.0,62379,62379,9.260377883911133,rgb/f0877_rgb.png
+878,context-rich,3,3,3,1.0,0.027180989583333332,6,"{""occlusion_budget"": 2, ""support"": 1}",True,True,2,0.1322484100261878,5346,4639,11.372199296951294,rgb/f0878_rgb.png
+879,context-rich,3,3,3,1.0,0.030843098958333332,14,"{""collision"": 5, ""support"": 6}",True,False,0,0.0,130828,130828,8.16730260848999,rgb/f0879_rgb.png
+880,context-rich,3,3,3,1.0,0.27643762183235865,133,"{""occlusion_budget"": 11, ""support"": 82, ""collision"": 37}",True,True,2,0.18857465663948025,28323,22982,34.21204948425293,rgb/f0880_rgb.png
+881,context-rich,3,3,3,1.0,0.126953125,10,"{""support"": 6, ""collision"": 1}",True,False,0,0.0,75984,75984,14.459512710571289,rgb/f0881_rgb.png
+882,context-rich,3,3,3,1.0,0.07998294346978557,6,"{""collision"": 1, ""support"": 2}",True,True,1,0.09394347240915213,3715,3366,14.964999914169312,rgb/f0882_rgb.png
+883,context-rich,3,3,2,0.6666666666666666,0.5198567708333334,10,"{""collision"": 3, ""support"": 4}",True,False,0,0.0,1591,1591,7.81994104385376,rgb/f0883_rgb.png
+884,context-rich,3,3,3,1.0,0.41552734375,52,"{""collision"": 6, ""support"": 34, ""occlusion_budget"": 3, ""camera_clearance"": 6}",True,True,0,0.00875069084401403,75994,75329,28.589202404022217,rgb/f0884_rgb.png
+885,context-rich,3,3,3,1.0,0.16861598440545808,29,"{""support"": 24, ""collision"": 2}",True,False,0,0.0,96692,96692,11.987887382507324,rgb/f0885_rgb.png
+886,context-rich,3,3,2,0.6666666666666666,0.15379050925925927,6,"{""support"": 3}",True,True,2,0.20010341261633924,1934,1547,12.648887395858765,rgb/f0886_rgb.png
+887,context-rich,3,3,3,1.0,0.15926106770833334,35,"{""support"": 32}",True,False,0,0.0,62594,62594,12.535097122192383,rgb/f0887_rgb.png
+888,context-rich,3,3,3,1.0,0.035392300194931774,6,"{""support"": 3}",True,False,0,0.0,3133,3133,8.21131157875061,rgb/f0888_rgb.png
+889,context-rich,3,3,3,1.0,0.13606770833333334,49,"{""collision"": 25, ""support"": 21}",True,True,2,0.10493524676233812,85710,76716,30.538361072540283,rgb/f0889_rgb.png
+890,context-rich,3,3,3,1.0,0.6697048611111112,10,"{""support"": 6, ""collision"": 1}",True,False,0,0.0,2101,2101,12.16244888305664,rgb/f0890_rgb.png
+891,context-rich,3,3,3,1.0,0.021375868055555556,6,"{""support"": 3}",True,True,1,0.17288159670431136,14079,11645,10.70884108543396,rgb/f0891_rgb.png
+892,context-rich,3,3,3,1.0,0.1274366471734893,54,"{""support"": 48, ""collision"": 3}",True,False,0,0.0,217283,217283,11.443081378936768,rgb/f0892_rgb.png
+893,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,36013,36013,5.3414530754089355,rgb/f0893_rgb.png
+894,context-rich,3,3,2,0.6666666666666666,0.44408275462962965,9,"{""support"": 3, ""collision"": 2, ""occlusion_budget"": 1}",True,True,2,0.15467980295566508,4060,3432,23.75605821609497,rgb/f0894_rgb.png
+895,context-rich,3,3,3,1.0,0.016520182291666668,6,"{""support"": 3}",True,False,0,0.0,11148,11148,7.713908672332764,rgb/f0895_rgb.png
+896,context-rich,3,1,1,1.0,0.09505208333333333,203,"{""support"": 176, ""collision"": 18, ""camera_clearance"": 5, ""occlusion_budget"": 3}",True,False,0,0.0,132996,132996,26.627792358398438,rgb/f0896_rgb.png
+897,context-rich,3,3,3,1.0,0.13523391812865498,6,"{""support"": 2, ""collision"": 1}",True,True,1,0.10792532581895031,14195,12663,11.454871654510498,rgb/f0897_rgb.png
+898,context-rich,3,3,3,1.0,0.05360623781676413,12,"{""support"": 3, ""occlusion_budget"": 5, ""collision"": 1}",True,True,0,0.0,6241,6241,22.176835775375366,rgb/f0898_rgb.png
+899,context-rich,3,3,3,1.0,0.17390950520833334,72,"{""support"": 47, ""collision"": 22}",True,False,0,0.0021769275500618246,67067,66921,13.747884035110474,rgb/f0899_rgb.png
+900,context-rich,3,3,3,1.0,0.041087962962962965,6,"{""support"": 3}",True,False,0,0.0,2891,2891,14.336087942123413,rgb/f0900_rgb.png
+901,context-rich,3,3,3,1.0,0.024088541666666668,6,"{""support"": 3}",True,True,0,0.0,18939,18939,16.783236265182495,rgb/f0901_rgb.png
+902,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,2756,2756,5.170501232147217,rgb/f0902_rgb.png
+903,context-rich,3,3,3,1.0,0.4150390625,28,"{""support"": 6, ""occlusion_budget"": 3, ""collision"": 16}",True,True,1,0.09395424836601307,1224,1109,24.09526252746582,rgb/f0903_rgb.png
+904,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,98926,98926,7.533650875091553,rgb/f0904_rgb.png
+905,context-rich,3,3,3,1.0,0.4566243489583333,30,"{""collision"": 1, ""support"": 18, ""occlusion_budget"": 8}",True,True,1,0.22028141678796698,6183,4821,23.009829998016357,rgb/f0905_rgb.png
+906,context-rich,3,3,3,1.0,0.3165204678362573,15,"{""support"": 11, ""collision"": 1}",True,False,0,0.0,122879,122879,10.837632179260254,rgb/f0906_rgb.png
+907,context-rich,3,3,3,1.0,0.28096064814814814,20,"{""support"": 8, ""occlusion_budget"": 5, ""collision"": 4}",True,False,0,0.0,2611,2611,26.16939115524292,rgb/f0907_rgb.png
+908,context-rich,3,3,3,1.0,0.15397135416666666,12,"{""support"": 4, ""occlusion_budget"": 3, ""collision"": 2}",True,True,1,0.2017829754601227,10432,8327,14.90339732170105,rgb/f0908_rgb.png
+909,context-rich,3,3,3,1.0,0.14297027290448344,11,"{""support"": 8}",True,True,1,0.0684575052392935,128357,119570,13.224393606185913,rgb/f0909_rgb.png
+910,context-rich,3,3,3,1.0,0.006266276041666667,42,"{""occlusion_budget"": 35, ""support"": 2, ""collision"": 2}",True,False,0,0.0,4107,4107,44.509400606155396,rgb/f0910_rgb.png
+911,context-rich,3,3,3,1.0,0.3517795138888889,99,"{""occlusion_budget"": 2, ""collision"": 45, ""support"": 49}",True,True,2,0.24078042178865455,8867,6732,20.34394931793213,rgb/f0911_rgb.png
+912,context-rich,3,3,3,1.0,0.19994212962962962,30,"{""support"": 24, ""collision"": 3}",True,False,0,0.0,119532,119532,9.158796072006226,rgb/f0912_rgb.png
+913,context-rich,3,3,3,1.0,0.3098958333333333,24,"{""support"": 13, ""collision"": 7, ""occlusion_budget"": 1}",True,True,1,0.24940140845070424,28400,21317,24.176498889923096,rgb/f0913_rgb.png
+914,context-rich,3,3,3,1.0,0.5415448343079922,42,"{""camera_clearance"": 2, ""occlusion_budget"": 10, ""support"": 23, ""collision"": 4}",True,False,0,0.09878787878787876,11550,10409,23.180202960968018,rgb/f0914_rgb.png
+915,context-rich,3,3,3,1.0,0.16682942708333334,16,"{""collision"": 2, ""support"": 10, ""occlusion_budget"": 1}",True,False,0,0.08486627623950793,67789,62036,8.75635313987732,rgb/f0915_rgb.png
+916,context-rich,3,3,2,0.6666666666666666,0.3003776803118908,12,"{""support"": 4, ""collision"": 1, ""occlusion_budget"": 3, ""camera_clearance"": 1}",True,False,0,0.0,28945,28945,10.486164093017578,rgb/f0916_rgb.png
+917,context-rich,3,3,3,1.0,0.042805989583333336,10,"{""support"": 7}",True,True,2,0.22614840989399299,4811,3723,13.282849788665771,rgb/f0917_rgb.png
+918,context-rich,3,3,3,1.0,0.10408528645833333,6,"{""collision"": 1, ""support"": 2}",True,False,0,0.0,1578,1578,11.828049898147583,rgb/f0918_rgb.png
+919,context-rich,3,3,3,1.0,0.24366471734892786,7,"{""occlusion_budget"": 1, ""support"": 3}",True,True,2,0.07942386831275716,4860,4474,11.433652877807617,rgb/f0919_rgb.png
+920,context-rich,3,3,3,1.0,0.21809895833333334,9,"{""support"": 4, ""occlusion_budget"": 2}",True,False,0,0.0,23356,23356,12.584911584854126,rgb/f0920_rgb.png
+921,context-rich,3,3,3,1.0,0.40653935185185186,16,"{""support"": 13}",True,True,1,0.21080209592906085,19848,15664,11.145755767822266,rgb/f0921_rgb.png
+922,context-rich,3,3,3,1.0,0.2718098958333333,22,"{""occlusion_budget"": 11, ""collision"": 2, ""support"": 6}",True,False,0,0.0,2309,2309,17.26518416404724,rgb/f0922_rgb.png
+923,context-rich,3,3,3,1.0,0.20711263020833334,26,"{""support"": 13, ""collision"": 10}",True,True,1,0.14660818713450297,68400,58372,14.475945472717285,rgb/f0923_rgb.png
+924,context-rich,3,3,3,1.0,0.12664473684210525,24,"{""collision"": 6, ""camera_clearance"": 9, ""support"": 5, ""occlusion_budget"": 1}",True,True,2,0.1782865168539326,35600,29253,15.286798000335693,rgb/f0924_rgb.png
+925,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,1999,1999,6.788514137268066,rgb/f0925_rgb.png
+926,context-rich,3,3,3,1.0,0.12861689814814814,6,"{""support"": 3}",True,True,2,0.14866295264623952,35900,30563,12.53643012046814,rgb/f0926_rgb.png
+927,context-rich,3,3,3,1.0,0.3117404513888889,32,"{""support"": 18, ""collision"": 10, ""camera_clearance"": 1}",True,False,0,0.0,69559,69559,13.123483180999756,rgb/f0927_rgb.png
+928,context-rich,3,3,3,1.0,0.07039388020833333,6,"{""support"": 2, ""collision"": 1}",True,True,2,0.24350814663951115,7856,5943,15.024021863937378,rgb/f0928_rgb.png
+929,context-rich,3,3,3,1.0,0.066703216374269,6,"{""support"": 2, ""collision"": 1}",True,False,0,0.0,5639,5639,9.233852863311768,rgb/f0929_rgb.png
+930,context-rich,3,1,1,1.0,0.17513020833333334,199,"{""support"": 198}",True,True,2,0.00855870533289893,46035,45641,13.41152310371399,rgb/f0930_rgb.png
+931,context-rich,3,3,3,1.0,0.09025065104166667,9,"{""support"": 5, ""collision"": 1}",True,False,0,0.0,103651,103651,10.62753438949585,rgb/f0931_rgb.png
+932,context-rich,3,3,3,1.0,0.014539930555555556,12,"{""support"": 3, ""occlusion_budget"": 6}",True,False,0,0.0,4386,4386,12.486517190933228,rgb/f0932_rgb.png
+933,context-rich,3,3,3,1.0,0.049479166666666664,4,"{""support"": 1}",True,True,2,0.09189463570276102,55161,50092,9.638076305389404,rgb/f0933_rgb.png
+934,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,4932,4932,6.0551066398620605,rgb/f0934_rgb.png
+935,context-rich,3,3,3,1.0,0.07470703125,6,"{""support"": 3}",True,True,2,0.22040938891947348,19981,15577,14.932763814926147,rgb/f0935_rgb.png
+936,context-rich,3,3,3,1.0,0.18663194444444445,4,"{""collision"": 1}",True,False,0,0.0,14480,14480,7.690375566482544,rgb/f0936_rgb.png
+937,context-rich,3,3,3,1.0,0.0520224171539961,6,"{""support"": 3}",True,False,0,0.0,7529,7529,12.290170431137085,rgb/f0937_rgb.png
+938,context-rich,3,0,0,0.0,0.0,0,{},True,True,2,0.0,9071,9071,6.3073601722717285,rgb/f0938_rgb.png
+939,context-rich,3,3,3,1.0,0.036539713541666664,11,"{""support"": 6, ""collision"": 2}",True,True,1,0.2331777622802782,55923,42883,19.294825315475464,rgb/f0939_rgb.png
+940,context-rich,3,3,3,1.0,0.0741349902534113,6,"{""support"": 3}",True,False,0,0.0,3706,3706,8.263470888137817,rgb/f0940_rgb.png
+941,context-rich,3,3,3,1.0,0.029178849902534113,15,"{""support"": 6, ""collision"": 6}",True,False,0,0.0,229037,229037,8.813044309616089,rgb/f0941_rgb.png
+942,context-rich,3,2,2,1.0,0.22446469907407407,188,"{""support"": 117, ""occlusion_budget"": 9, ""collision"": 56, ""camera_clearance"": 4}",True,False,0,0.0,82710,82710,28.744519472122192,rgb/f0942_rgb.png
+943,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,8893,8893,4.757762670516968,rgb/f0943_rgb.png
+944,context-rich,3,3,3,1.0,0.05088975694444445,12,"{""support"": 6, ""collision"": 2, ""occlusion_budget"": 1}",True,True,2,0.15204563335955945,5084,4311,18.91251039505005,rgb/f0944_rgb.png
+945,context-rich,3,3,3,1.0,0.10678606237816764,7,"{""collision"": 2, ""support"": 2}",True,True,2,0.20258835241413642,4018,3204,11.004109621047974,rgb/f0945_rgb.png
+946,context-rich,3,3,3,1.0,0.09847005208333333,42,"{""collision"": 6, ""support"": 33}",True,False,0,0.02659684202174084,126030,122678,9.708742618560791,rgb/f0946_rgb.png
+947,context-rich,3,3,3,1.0,0.027994791666666668,8,"{""support"": 4, ""occlusion_budget"": 1}",True,True,2,0.16018531517618984,14246,11964,13.586979866027832,rgb/f0947_rgb.png
+948,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,332971,332971,5.798056602478027,rgb/f0948_rgb.png
+949,context-rich,3,3,3,1.0,0.035319010416666664,7,"{""support"": 3, ""collision"": 1}",True,True,1,0.08474099099099097,3552,3251,17.06432819366455,rgb/f0949_rgb.png
+950,context-rich,3,3,3,1.0,0.09611002604166667,10,"{""support"": 5, ""collision"": 2}",True,False,0,0.0,69245,69245,12.08316159248352,rgb/f0950_rgb.png
+951,context-rich,3,3,3,1.0,0.31798245614035087,53,"{""support"": 44, ""collision"": 6}",True,True,2,0.27977711794332105,106424,76649,16.81847643852234,rgb/f0951_rgb.png
+952,context-rich,3,3,3,1.0,0.13118489583333334,7,"{""support"": 3, ""collision"": 1}",True,False,0,0.0,7034,7034,7.8840556144714355,rgb/f0952_rgb.png
+953,context-rich,3,3,2,0.6666666666666666,0.11100260416666667,8,"{""occlusion_budget"": 4, ""support"": 1}",True,True,1,0.10497925311203316,2410,2157,18.380785703659058,rgb/f0953_rgb.png
+954,context-rich,3,3,2,0.6666666666666666,0.2126736111111111,104,"{""occlusion_budget"": 52, ""support"": 37, ""collision"": 9, ""camera_clearance"": 3}",True,False,0,0.09021548996985373,26869,24445,62.49510979652405,rgb/f0954_rgb.png
+955,context-rich,3,1,1,1.0,0.001949317738791423,12,"{""support"": 11}",True,True,2,0.1657083115525353,1913,1596,12.24740219116211,rgb/f0955_rgb.png
+956,context-rich,3,3,3,1.0,0.3046875,10,"{""support"": 6, ""collision"": 1}",True,False,0,0.0,30314,30314,11.152220487594604,rgb/f0956_rgb.png
+957,context-rich,3,3,3,1.0,0.1732494212962963,6,"{""occlusion_budget"": 2, ""support"": 1}",True,False,0,0.0,5579,5579,13.622621774673462,rgb/f0957_rgb.png
+958,context-rich,3,2,2,1.0,0.20515950520833334,196,"{""support"": 141, ""collision"": 43, ""occlusion_budget"": 9, ""camera_clearance"": 1}",True,True,2,0.2053052882568338,117430,93321,30.62490153312683,rgb/f0958_rgb.png
+959,context-rich,3,3,3,1.0,0.054946393762183236,6,"{""collision"": 2, ""support"": 1}",True,True,0,0.0,50830,50830,17.72192883491516,rgb/f0959_rgb.png
+960,context-rich,3,3,3,1.0,0.19051106770833334,12,"{""occlusion_budget"": 7, ""camera_clearance"": 1, ""support"": 1}",True,False,0,0.0,1067,1067,20.460930109024048,rgb/f0960_rgb.png
+961,context-rich,3,3,3,1.0,0.12451267056530214,28,"{""support"": 22, ""collision"": 3}",True,True,0,0.0,203590,203590,17.236554861068726,rgb/f0961_rgb.png
+962,context-rich,3,3,3,1.0,0.05114293981481482,23,"{""support"": 20}",True,False,0,0.0,28197,28197,10.788631916046143,rgb/f0962_rgb.png
+963,context-rich,3,3,3,1.0,0.24324544270833334,30,"{""support"": 22, ""collision"": 1, ""occlusion_budget"": 4}",True,True,1,0.1834250028646729,69816,57010,14.805132150650024,rgb/f0963_rgb.png
+964,context-rich,3,1,1,1.0,0.038492838541666664,199,"{""support"": 198}",True,False,0,0.0,96887,96887,7.1291115283966064,rgb/f0964_rgb.png
+965,context-rich,3,3,3,1.0,0.06055068226120858,7,"{""support"": 3, ""collision"": 1}",True,True,1,0.16492763379333553,2971,2481,17.17696523666382,rgb/f0965_rgb.png
+966,context-rich,3,3,3,1.0,0.31539351851851855,144,"{""collision"": 17, ""support"": 100, ""occlusion_budget"": 24}",True,False,0,0.0,25500,25500,30.36486029624939,rgb/f0966_rgb.png
+967,context-rich,3,3,2,0.6666666666666666,0.22356237816764132,5,"{""occlusion_budget"": 1, ""support"": 1}",True,True,0,0.0,5271,5271,21.246718645095825,rgb/f0967_rgb.png
+968,context-rich,3,3,3,1.0,0.047281901041666664,183,"{""support"": 157, ""collision"": 21, ""occlusion_budget"": 2}",True,False,0,0.0,167291,167291,21.074061393737793,rgb/f0968_rgb.png
+969,context-rich,3,2,2,1.0,0.3351236979166667,211,"{""support"": 190, ""camera_clearance"": 3, ""collision"": 12, ""occlusion_budget"": 4}",True,False,0,0.11495838506460665,21747,19247,14.656443357467651,rgb/f0969_rgb.png
+970,context-rich,3,3,3,1.0,0.21158854166666666,13,"{""support"": 8, ""collision"": 2}",True,True,1,0.10058337999169176,55367,49798,12.031635761260986,rgb/f0970_rgb.png
+971,context-rich,3,3,3,1.0,0.3921712239583333,108,"{""occlusion_budget"": 17, ""camera_clearance"": 2, ""support"": 55, ""collision"": 31}",True,False,0,0.0,1151,1151,41.265076875686646,rgb/f0971_rgb.png
+972,context-rich,3,3,3,1.0,0.3684210526315789,6,"{""support"": 3}",True,True,2,0.16452772073921973,7792,6510,10.265183448791504,rgb/f0972_rgb.png
+973,context-rich,3,3,3,1.0,0.04928118908382066,6,"{""support"": 1, ""collision"": 2}",True,True,2,0.02411983251754435,33914,33096,10.855631113052368,rgb/f0973_rgb.png
+974,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,209691,209691,5.254204750061035,rgb/f0974_rgb.png
+975,context-rich,3,3,3,1.0,0.28935185185185186,6,"{""support"": 3}",True,False,0,0.0,2360,2360,13.359849452972412,rgb/f0975_rgb.png
+976,context-rich,3,3,3,1.0,0.03309461805555555,6,"{""support"": 2, ""occlusion_budget"": 1}",True,True,1,0.09699958898479244,19464,17576,10.255743503570557,rgb/f0976_rgb.png
+977,context-rich,3,3,3,1.0,0.029947916666666668,9,"{""support"": 6}",True,False,0,0.0,5791,5791,8.395666122436523,rgb/f0977_rgb.png
+978,context-rich,3,3,3,1.0,0.23300438596491227,6,"{""occlusion_budget"": 1, ""collision"": 2}",True,True,2,0.11139517896274653,2738,2433,14.813990116119385,rgb/f0978_rgb.png
+979,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,645,645,4.332789659500122,rgb/f0979_rgb.png
+980,context-rich,3,3,3,1.0,0.1662326388888889,8,"{""support"": 4, ""collision"": 1}",True,True,1,0.1032359786770779,26638,23888,12.25691556930542,rgb/f0980_rgb.png
+981,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,406519,406519,8.40919017791748,rgb/f0981_rgb.png
+982,context-rich,3,3,3,1.0,0.29658564814814814,33,"{""occlusion_budget"": 1, ""collision"": 13, ""camera_clearance"": 3, ""support"": 13}",True,False,0,0.0,96296,96296,13.07735562324524,rgb/f0982_rgb.png
+983,context-rich,3,3,3,1.0,0.12833658854166666,24,"{""support"": 9, ""collision"": 12}",True,True,1,0.09354647720544707,8445,7655,21.21985101699829,rgb/f0983_rgb.png
+984,context-rich,3,3,3,1.0,0.3431803385416667,81,"{""support"": 63, ""collision"": 15}",True,False,0,0.12113603392478522,53766,47253,15.958213329315186,rgb/f0984_rgb.png
+985,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,3833,3833,7.427241563796997,rgb/f0985_rgb.png
+986,context-rich,3,3,3,1.0,0.2808430989583333,22,"{""occlusion_budget"": 15, ""collision"": 3, ""support"": 1}",True,True,1,0.24791139792447892,57335,43121,23.043972492218018,rgb/f0986_rgb.png
+987,context-rich,3,3,3,1.0,0.19813368055555555,30,"{""support"": 5, ""occlusion_budget"": 16, ""collision"": 6}",True,True,1,0.13869863013698636,1752,1509,22.424744844436646,rgb/f0987_rgb.png
+988,context-rich,3,3,3,1.0,0.5751139322916666,45,"{""occlusion_budget"": 11, ""support"": 27, ""collision"": 4}",True,False,0,0.0,824,824,16.487427473068237,rgb/f0988_rgb.png
+989,context-rich,3,3,2,0.6666666666666666,0.22033382066276802,5,"{""support"": 2}",True,True,2,0.1948681301502937,44779,36053,10.839058876037598,rgb/f0989_rgb.png
+990,context-rich,3,3,3,1.0,0.013020833333333334,27,"{""occlusion_budget"": 18, ""support"": 6}",True,True,2,0.16470588235294115,1360,1136,23.348700761795044,rgb/f0990_rgb.png
+991,context-rich,3,3,3,1.0,0.083984375,24,"{""support"": 10, ""collision"": 10, ""camera_clearance"": 1}",True,False,0,0.00375039667657151,34663,34533,9.988419532775879,rgb/f0991_rgb.png
+992,context-rich,3,3,3,1.0,0.26244212962962965,6,"{""occlusion_budget"": 1, ""support"": 2}",True,True,2,0.22394881170018277,1094,849,13.500974416732788,rgb/f0992_rgb.png
+993,context-rich,3,3,3,1.0,0.20003255208333334,20,"{""support"": 17}",True,True,2,0.24397921802961287,71793,54277,10.039294719696045,rgb/f0993_rgb.png
+994,context-rich,3,3,3,1.0,0.07955653021442495,6,"{""support"": 2, ""occlusion_budget"": 1}",True,False,0,0.0,30395,30395,14.550783157348633,rgb/f0994_rgb.png
+995,context-rich,3,3,3,1.0,0.07828776041666667,11,"{""collision"": 3, ""occlusion_budget"": 4, ""support"": 1}",True,False,0,0.03375796178343948,1570,1517,10.257554054260254,rgb/f0995_rgb.png
+996,context-rich,3,3,3,1.0,0.077729044834308,7,"{""collision"": 1, ""support"": 3}",True,True,2,0.15411907723623208,70744,59841,10.540947675704956,rgb/f0996_rgb.png
+997,context-rich,3,3,3,1.0,0.035237630208333336,6,"{""support"": 3}",True,True,2,0.20365618986529832,3118,2483,10.424956798553467,rgb/f0997_rgb.png
+998,context-rich,3,3,3,1.0,0.12255859375,6,"{""support"": 3}",True,True,1,0.1440320539856601,4742,4059,14.598620653152466,rgb/f0998_rgb.png
+999,context-rich,3,3,3,1.0,0.045464409722222224,6,"{""collision"": 1, ""support"": 2}",True,True,2,0.19696893912869506,19993,16055,12.822823524475098,rgb/f0999_rgb.png
+1000,context-rich,3,3,3,1.0,0.26904296875,122,"{""support"": 66, ""occlusion_budget"": 14, ""collision"": 39}",True,False,0,0.1107052218718757,52012,46254,35.68986201286316,rgb/f1000_rgb.png
+1001,context-rich,3,3,3,1.0,0.04008284600389864,6,"{""support"": 3}",True,True,1,0.24434126523505517,1723,1302,11.034810304641724,rgb/f1001_rgb.png
+1002,context-rich,3,3,3,1.0,0.124267578125,119,"{""support"": 90, ""collision"": 23, ""occlusion_budget"": 3}",True,True,1,0.052628903708523134,98368,93191,28.50307559967041,rgb/f1002_rgb.png
+1003,context-rich,3,3,3,1.0,0.019892939814814815,22,"{""collision"": 2, ""occlusion_budget"": 16, ""support"": 1}",True,False,0,0.0,699,699,41.776333808898926,rgb/f1003_rgb.png
+1004,context-rich,3,0,0,0.0,0.0,0,{},True,True,2,0.17165462676298593,2907,2408,7.6290013790130615,rgb/f1004_rgb.png
+1005,context-rich,3,3,3,1.0,0.3408203125,33,"{""occlusion_budget"": 6, ""support"": 19, ""camera_clearance"": 1, ""collision"": 4}",True,False,0,0.0,15337,15337,21.569418907165527,rgb/f1005_rgb.png
+1006,context-rich,3,3,3,1.0,0.14144736842105263,6,"{""collision"": 2, ""support"": 1}",True,False,0,0.0,152642,152642,8.420498847961426,rgb/f1006_rgb.png
+1007,context-rich,3,3,2,0.6666666666666666,0.1497319688109162,5,"{""support"": 2}",True,False,0,0.0,25944,25944,9.64351201057434,rgb/f1007_rgb.png
+1008,context-rich,3,3,3,1.0,0.1550564236111111,42,"{""support"": 31, ""collision"": 8}",True,True,2,0.2258124906395088,26708,20677,10.721387386322021,rgb/f1008_rgb.png
+1009,context-rich,3,3,3,1.0,0.1279296875,15,"{""collision"": 7, ""support"": 5}",True,False,0,0.0,85491,85491,7.902594089508057,rgb/f1009_rgb.png
+1010,context-rich,3,3,3,1.0,0.016438802083333332,8,"{""support"": 5}",True,False,0,0.0,9925,9925,10.122055530548096,rgb/f1010_rgb.png
+1011,context-rich,3,3,3,1.0,0.019675925925925927,6,"{""support"": 3}",True,True,0,0.0,3981,3981,27.97697162628174,rgb/f1011_rgb.png
+1012,context-rich,3,3,3,1.0,0.27595029239766083,9,"{""occlusion_budget"": 1, ""support"": 4, ""collision"": 1}",True,True,2,0.0,1674,1674,14.763256549835205,rgb/f1012_rgb.png
+1013,context-rich,3,3,3,1.0,0.09360532407407407,7,"{""support"": 2, ""collision"": 2}",True,False,0,0.0,44240,44240,10.807243824005127,rgb/f1013_rgb.png
+1014,context-rich,3,3,3,1.0,0.248046875,31,"{""support"": 24, ""collision"": 3, ""occlusion_budget"": 1}",True,True,1,0.08405572192383703,82481,75548,22.354287147521973,rgb/f1014_rgb.png
+1015,context-rich,3,2,2,1.0,0.07671440972222222,77,"{""occlusion_budget"": 2, ""camera_clearance"": 3, ""support"": 64, ""collision"": 6}",True,True,2,0.09902212564203872,40496,36486,11.275035381317139,rgb/f1015_rgb.png
+1016,context-rich,3,3,3,1.0,0.07602339181286549,6,"{""support"": 3}",True,True,2,0.19606632563062265,11338,9115,10.389486312866211,rgb/f1016_rgb.png
+1017,context-rich,3,3,3,1.0,0.36083984375,49,"{""support"": 23, ""occlusion_budget"": 8, ""camera_clearance"": 1, ""collision"": 14}",True,False,0,0.0740842743045993,18155,16810,24.364113092422485,rgb/f1017_rgb.png
+1018,context-rich,3,3,3,1.0,0.010721247563352826,7,"{""support"": 2, ""occlusion_budget"": 2}",True,True,2,0.19645433931148215,4851,3898,11.507532596588135,rgb/f1018_rgb.png
+1019,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,73011,73011,6.769616365432739,rgb/f1019_rgb.png
+1020,context-rich,3,3,3,1.0,0.2058738425925926,19,"{""collision"": 9, ""occlusion_budget"": 2, ""camera_clearance"": 1, ""support"": 4}",True,False,0,0.07513116474291714,42885,39663,12.537110328674316,rgb/f1020_rgb.png
+1021,context-rich,3,3,3,1.0,0.133544921875,42,"{""support"": 7, ""occlusion_budget"": 32}",True,True,2,0.2024665981500514,1946,1552,68.27236104011536,rgb/f1021_rgb.png
+1022,context-rich,3,2,2,1.0,0.047037760416666664,189,"{""support"": 160, ""collision"": 25, ""camera_clearance"": 2}",True,True,2,0.15913073230411923,96449,81101,17.46587347984314,rgb/f1022_rgb.png
+1023,context-rich,3,3,3,1.0,0.07492690058479533,48,"{""support"": 27, ""occlusion_budget"": 18}",True,False,0,0.0,3973,3973,33.11410188674927,rgb/f1023_rgb.png
+1024,context-rich,3,3,3,1.0,0.09928385416666667,6,"{""support"": 3}",True,True,2,0.06544798013992326,4431,4141,16.250157356262207,rgb/f1024_rgb.png
+1025,context-rich,3,3,3,1.0,0.3849283854166667,42,"{""support"": 21, ""collision"": 15, ""occlusion_budget"": 3}",True,False,0,0.09142597674372688,50653,46022,10.624054908752441,rgb/f1025_rgb.png
+1026,context-rich,3,3,3,1.0,0.002242476851851852,11,"{""occlusion_budget"": 7, ""collision"": 1}",True,False,0,0.0,3719,3719,21.560801029205322,rgb/f1026_rgb.png
+1027,context-rich,3,3,3,1.0,0.09708658854166667,7,"{""support"": 3, ""collision"": 1}",True,True,1,0.14334755019244771,9613,8235,9.66035008430481,rgb/f1027_rgb.png
+1028,context-rich,3,3,3,1.0,0.024975633528265106,6,"{""support"": 3}",True,False,0,0.0,31377,31377,10.605340242385864,rgb/f1028_rgb.png
+1029,context-rich,3,3,3,1.0,0.23193359375,61,"{""support"": 19, ""occlusion_budget"": 39}",True,True,1,0.2411214953271028,1070,812,54.72442626953125,rgb/f1029_rgb.png
+1030,context-rich,3,3,3,1.0,0.3092447916666667,61,"{""support"": 42, ""occlusion_budget"": 2, ""collision"": 14}",True,False,0,0.09872673849167479,35735,32207,14.485183238983154,rgb/f1030_rgb.png
+1031,context-rich,3,3,3,1.0,0.7410453216374269,16,"{""occlusion_budget"": 1, ""support"": 12}",True,True,1,0.25241167827253563,15653,11702,12.34308385848999,rgb/f1031_rgb.png
+1032,context-rich,3,2,2,1.0,0.12076822916666667,189,"{""support"": 147, ""collision"": 35, ""camera_clearance"": 1, ""occlusion_budget"": 4}",True,False,0,0.0,123485,123485,22.323496341705322,rgb/f1032_rgb.png
+1033,context-rich,3,3,3,1.0,0.14583333333333334,6,"{""collision"": 1, ""support"": 2}",True,False,0,0.0,54704,54704,8.523674011230469,rgb/f1033_rgb.png
+1034,context-rich,3,3,3,1.0,0.5528428819444444,43,"{""camera_clearance"": 2, ""support"": 24, ""occlusion_budget"": 9, ""collision"": 5}",True,False,0,0.05623375600535563,12697,11983,22.399874210357666,rgb/f1034_rgb.png
+1035,context-rich,3,3,3,1.0,0.12467447916666667,38,"{""support"": 20, ""occlusion_budget"": 12, ""collision"": 3}",True,False,0,0.055344770702738355,12124,11453,15.56868577003479,rgb/f1035_rgb.png
+1036,context-rich,3,3,3,1.0,0.2606336805555556,20,"{""support"": 11, ""collision"": 6}",True,False,0,0.0,104028,104028,13.478305101394653,rgb/f1036_rgb.png
+1037,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,1321,1321,7.434498071670532,rgb/f1037_rgb.png
+1038,context-rich,3,3,2,0.6666666666666666,0.22452799479166666,7,"{""support"": 1, ""collision"": 3}",True,True,2,0.13740864799025576,26272,22662,9.95499849319458,rgb/f1038_rgb.png
+1039,context-rich,3,3,2,0.6666666666666666,0.027180989583333332,8,"{""support"": 4, ""collision"": 1}",True,True,2,0.2498483929654336,1649,1237,13.05535626411438,rgb/f1039_rgb.png
+1040,context-rich,3,3,3,1.0,0.44321469907407407,25,"{""occlusion_budget"": 17, ""collision"": 4, ""support"": 1}",True,False,0,0.0,92100,92100,19.36667037010193,rgb/f1040_rgb.png
+1041,context-rich,3,2,2,1.0,0.2647417153996101,185,"{""collision"": 28, ""support"": 148, ""occlusion_budget"": 7}",True,True,2,0.0,63527,63527,33.41255831718445,rgb/f1041_rgb.png
+1042,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,12201,12201,5.1491899490356445,rgb/f1042_rgb.png
+1043,context-rich,3,3,3,1.0,0.3990885416666667,7,"{""support"": 3, ""occlusion_budget"": 1}",True,False,0,0.0,746,746,12.001367807388306,rgb/f1043_rgb.png
+1044,context-rich,3,3,3,1.0,0.10276559454191034,6,"{""collision"": 1, ""support"": 2}",True,True,1,0.24985823646158212,28216,21166,15.364506244659424,rgb/f1044_rgb.png
+1045,context-rich,3,2,2,1.0,0.26222511574074076,189,"{""support"": 159, ""camera_clearance"": 2, ""occlusion_budget"": 1, ""collision"": 25}",True,True,2,0.22505434297114613,33583,26025,23.397337675094604,rgb/f1045_rgb.png
+1046,context-rich,3,3,3,1.0,0.0419921875,61,"{""support"": 43, ""collision"": 15}",True,False,0,0.0,146175,146175,11.948974847793579,rgb/f1046_rgb.png
+1047,context-rich,3,3,3,1.0,0.012548732943469785,7,"{""support"": 2, ""occlusion_budget"": 2}",True,True,1,0.18925357331921655,7556,6126,17.070005178451538,rgb/f1047_rgb.png
+1048,context-rich,3,1,1,1.0,0.4203559027777778,199,"{""support"": 180, ""occlusion_budget"": 18}",True,False,0,0.0,23054,23054,25.710886240005493,rgb/f1048_rgb.png
+1049,context-rich,3,3,3,1.0,0.2591959635416667,94,"{""collision"": 15, ""support"": 75, ""camera_clearance"": 1}",True,True,2,0.187987449574182,89240,72464,16.071402072906494,rgb/f1049_rgb.png
+1050,context-rich,3,3,3,1.0,0.03551413255360624,6,"{""support"": 2, ""collision"": 1}",True,False,0,0.06345885634588566,2868,2686,12.47352147102356,rgb/f1050_rgb.png
+1051,context-rich,3,3,3,1.0,0.08610026041666667,14,"{""collision"": 6, ""support"": 5}",True,False,0,0.0,108969,108969,14.637347936630249,rgb/f1051_rgb.png
+1052,context-rich,3,3,3,1.0,0.06917317708333333,7,"{""support"": 3, ""collision"": 1}",True,True,2,0.10401761144744082,1817,1628,9.834862470626831,rgb/f1052_rgb.png
+1053,context-rich,3,3,3,1.0,0.4598524305555556,71,"{""support"": 33, ""camera_clearance"": 4, ""occlusion_budget"": 24, ""collision"": 7}",True,False,0,0.0,7425,7425,26.910811185836792,rgb/f1053_rgb.png
+1054,context-rich,3,3,3,1.0,0.28636695906432746,11,"{""support"": 6, ""collision"": 2}",True,True,2,0.12511984659635667,2086,1825,16.78424644470215,rgb/f1054_rgb.png
+1055,context-rich,3,3,3,1.0,0.21940104166666666,27,"{""collision"": 13, ""support"": 6, ""occlusion_budget"": 2, ""camera_clearance"": 3}",True,False,0,0.016065157289098075,13383,13168,12.54077696800232,rgb/f1055_rgb.png
+1056,context-rich,3,3,3,1.0,0.4131944444444444,10,"{""support"": 5, ""camera_clearance"": 1, ""collision"": 1}",True,False,0,0.019235907026449395,3743,3671,8.542670249938965,rgb/f1056_rgb.png
+1057,context-rich,3,3,3,1.0,0.10286458333333333,13,"{""support"": 8, ""collision"": 2}",True,True,2,0.2768143398426115,13724,9925,15.252390623092651,rgb/f1057_rgb.png
+1058,context-rich,3,3,3,1.0,0.012613932291666666,6,"{""support"": 1, ""collision"": 2}",True,False,0,0.0,512,512,10.176383018493652,rgb/f1058_rgb.png
+1059,context-rich,3,3,3,1.0,0.17472330729166666,9,"{""support"": 2, ""collision"": 3, ""occlusion_budget"": 1}",True,False,0,0.0,37379,37379,13.25839352607727,rgb/f1059_rgb.png
+1060,context-rich,3,3,3,1.0,0.10843460648148148,6,"{""collision"": 2, ""support"": 1}",True,False,0,0.0,1613,1613,11.398412942886353,rgb/f1060_rgb.png
+1061,context-rich,3,3,3,1.0,0.2919108072916667,24,"{""camera_clearance"": 10, ""occlusion_budget"": 8, ""support"": 3}",True,True,2,0.14257620452310715,1017,872,20.418323755264282,rgb/f1061_rgb.png
+1062,context-rich,3,3,2,0.6666666666666666,0.30860136452241715,10,"{""support"": 7}",True,False,0,0.0,53456,53456,10.71799087524414,rgb/f1062_rgb.png
+1063,context-rich,3,3,3,1.0,0.020616319444444444,7,"{""support"": 3, ""collision"": 1}",True,False,0,0.0,6351,6351,10.073687553405762,rgb/f1063_rgb.png
+1064,context-rich,3,3,3,1.0,0.07766812865497076,6,"{""support"": 3}",True,True,1,0.1974641934726462,4259,3418,11.694021224975586,rgb/f1064_rgb.png
+1065,context-rich,3,3,3,1.0,0.319580078125,10,"{""support"": 6, ""collision"": 1}",True,True,1,0.2645871084649236,77260,56818,17.54259753227234,rgb/f1065_rgb.png
+1066,context-rich,3,1,1,1.0,0.11808268229166667,34,"{""support"": 32, ""collision"": 1}",True,False,0,0.0,185390,185390,8.688343286514282,rgb/f1066_rgb.png
+1067,context-rich,3,3,2,0.6666666666666666,0.027168615984405457,7,"{""occlusion_budget"": 2, ""support"": 1, ""collision"": 1}",True,True,2,0.0,66264,66264,15.010506629943848,rgb/f1067_rgb.png
+1068,context-rich,3,3,3,1.0,0.03139467592592592,11,"{""support"": 2, ""occlusion_budget"": 6}",True,False,0,0.0,1991,1991,15.894450902938843,rgb/f1068_rgb.png
+1069,context-rich,3,3,3,1.0,0.07682291666666667,7,"{""occlusion_budget"": 1, ""support"": 2, ""collision"": 1}",True,False,0,0.0,12807,12807,13.894397497177124,rgb/f1069_rgb.png
+1070,context-rich,3,2,2,1.0,0.282958984375,192,"{""support"": 185, ""collision"": 5}",True,True,1,0.10376449598572701,140125,125585,20.782780170440674,rgb/f1070_rgb.png
+1071,context-rich,3,3,3,1.0,0.088623046875,8,"{""occlusion_budget"": 3, ""collision"": 2}",True,True,2,0.044435268137668515,55699,53224,12.57097864151001,rgb/f1071_rgb.png
+1072,context-rich,3,3,3,1.0,0.11951754385964912,9,"{""occlusion_budget"": 5, ""support"": 1}",True,False,0,0.020858023228253142,4219,4131,15.491255283355713,rgb/f1072_rgb.png
+1073,context-rich,3,3,3,1.0,0.012939453125,7,"{""support"": 3, ""collision"": 1}",True,True,0,0.0,2980,2980,16.602120637893677,rgb/f1073_rgb.png
+1074,context-rich,3,3,3,1.0,0.008029513888888888,6,"{""support"": 2, ""occlusion_budget"": 1}",True,False,0,0.0,7207,7207,11.092315435409546,rgb/f1074_rgb.png
+1075,context-rich,3,3,3,1.0,0.32389132553606237,139,"{""camera_clearance"": 6, ""support"": 121, ""occlusion_budget"": 1, ""collision"": 8}",True,True,2,0.0687637930430518,114188,106336,17.534600496292114,rgb/f1075_rgb.png
+1076,context-rich,3,3,3,1.0,0.08024088541666667,11,"{""support"": 6, ""collision"": 2}",True,True,2,0.08485892741761791,9286,8498,10.87278938293457,rgb/f1076_rgb.png
+1077,context-rich,3,3,3,1.0,0.011962890625,12,"{""collision"": 1, ""occlusion_budget"": 7, ""support"": 1}",True,False,0,0.0,4221,4221,33.05931067466736,rgb/f1077_rgb.png
+1078,context-rich,3,3,3,1.0,0.09456380208333333,6,"{""support"": 3}",True,False,0,0.0,14831,14831,10.413717269897461,rgb/f1078_rgb.png
+1079,context-rich,3,3,3,1.0,0.002387152777777778,9,"{""occlusion_budget"": 6}",True,True,2,0.16333333333333333,1500,1255,23.863348245620728,rgb/f1079_rgb.png
+1080,context-rich,3,3,2,0.6666666666666666,0.27601120857699807,65,"{""occlusion_budget"": 45, ""collision"": 3, ""support"": 14}",True,True,1,0.23424156161041076,4918,3766,43.10121393203735,rgb/f1080_rgb.png
+1081,context-rich,3,3,3,1.0,0.20096247563352826,8,"{""occlusion_budget"": 1, ""support"": 4}",True,True,2,0.046898828576695584,119342,113745,19.528021097183228,rgb/f1081_rgb.png
+1082,context-rich,3,3,3,1.0,0.1162109375,8,"{""collision"": 2, ""support"": 2, ""occlusion_budget"": 1}",True,False,0,0.0,30237,30237,9.0545654296875,rgb/f1082_rgb.png
+1083,context-rich,3,3,3,1.0,0.048502604166666664,7,"{""support"": 2, ""collision"": 2}",True,True,1,0.08045977011494254,1653,1520,14.628248453140259,rgb/f1083_rgb.png
+1084,context-rich,3,3,2,0.6666666666666666,0.318115234375,18,"{""support"": 9, ""collision"": 6}",True,False,0,0.008485842785619369,35353,35053,8.111507654190063,rgb/f1084_rgb.png
+1085,context-rich,3,3,3,1.0,0.3216869212962963,20,"{""support"": 6, ""collision"": 6, ""camera_clearance"": 3, ""occlusion_budget"": 2}",True,False,0,0.030312467559431178,9633,9341,14.938198566436768,rgb/f1085_rgb.png
+1086,context-rich,3,2,2,1.0,0.176025390625,211,"{""collision"": 68, ""support"": 133, ""occlusion_budget"": 3, ""camera_clearance"": 5}",True,True,2,0.0,64227,64227,20.522963762283325,rgb/f1086_rgb.png
+1087,context-rich,3,3,3,1.0,0.13450292397660818,24,"{""support"": 14, ""collision"": 6, ""occlusion_budget"": 1}",True,False,0,0.0,74054,74054,14.094787120819092,rgb/f1087_rgb.png
+1088,context-rich,3,3,2,0.6666666666666666,0.060546875,42,"{""support"": 22, ""occlusion_budget"": 2, ""collision"": 15}",True,True,2,0.23213269467893394,84344,64765,16.298798322677612,rgb/f1088_rgb.png
+1089,context-rich,3,3,3,1.0,0.07316033138401559,49,"{""support"": 18, ""occlusion_budget"": 17, ""collision"": 11}",True,True,2,0.1903559909449687,149751,121245,32.82829213142395,rgb/f1089_rgb.png
+1090,context-rich,3,3,3,1.0,0.061767578125,6,"{""support"": 3}",True,True,1,0.1952709883103082,3764,3029,16.582417011260986,rgb/f1090_rgb.png
+1091,context-rich,3,3,3,1.0,0.04623538011695907,6,"{""support"": 2, ""collision"": 1}",True,False,0,0.0,1893,1893,10.567173957824707,rgb/f1091_rgb.png
+1092,context-rich,3,3,3,1.0,0.079833984375,5,"{""support"": 2}",True,False,0,0.0,15055,15055,10.326239109039307,rgb/f1092_rgb.png
+1093,context-rich,3,1,1,1.0,0.230224609375,199,"{""support"": 198}",True,True,2,0.08918764363785459,92681,84415,10.612083911895752,rgb/f1093_rgb.png
+1094,context-rich,3,3,3,1.0,0.20052083333333334,10,"{""support"": 5, ""occlusion_budget"": 2}",True,True,2,0.20246431457042824,29704,23690,20.19001841545105,rgb/f1094_rgb.png
+1095,context-rich,3,3,3,1.0,0.06804337231968811,6,"{""support"": 2, ""collision"": 1}",True,False,0,0.09458563535911602,4525,4097,11.088977336883545,rgb/f1095_rgb.png
+1096,context-rich,3,3,3,1.0,0.019241898148148147,6,"{""support"": 3}",True,True,2,0.1112730162935488,7549,6709,12.011668920516968,rgb/f1096_rgb.png
+1097,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,3089,3089,6.640039682388306,rgb/f1097_rgb.png
+1098,context-rich,3,3,3,1.0,0.22135416666666666,13,"{""support"": 3, ""occlusion_budget"": 5, ""collision"": 2}",True,False,0,0.09631432545201668,2876,2599,13.727332830429077,rgb/f1098_rgb.png
+1099,context-rich,3,3,3,1.0,0.4024731968810916,22,"{""collision"": 7, ""camera_clearance"": 8, ""support"": 4}",True,True,1,0.175672719317436,18284,15072,17.576892614364624,rgb/f1099_rgb.png
+1100,context-rich,3,3,3,1.0,0.15306712962962962,35,"{""support"": 26, ""collision"": 6}",True,True,1,0.07943832160403663,90372,83193,13.405737161636353,rgb/f1100_rgb.png
+1101,context-rich,3,3,3,1.0,0.23567708333333334,31,"{""support"": 18, ""collision"": 10}",True,False,0,0.067433831990794,91245,85092,17.48508906364441,rgb/f1101_rgb.png
+1102,context-rich,3,1,1,1.0,0.2623659844054581,215,"{""support"": 208, ""collision"": 6}",True,False,0,0.0,184942,184942,10.324142694473267,rgb/f1102_rgb.png
+1103,context-rich,3,3,3,1.0,0.13460286458333334,8,"{""support"": 2, ""occlusion_budget"": 3}",True,False,0,0.0,6385,6385,10.205889701843262,rgb/f1103_rgb.png
+1104,context-rich,3,3,3,1.0,0.20914713541666666,138,"{""support"": 119, ""collision"": 16}",True,True,0,0.0032040304493377025,90511,90221,22.166024208068848,rgb/f1104_rgb.png
+1105,context-rich,3,3,3,1.0,0.1644127680311891,113,"{""support"": 67, ""camera_clearance"": 1, ""collision"": 38, ""occlusion_budget"": 4}",True,True,2,0.06658881407309858,120741,112701,35.04322934150696,rgb/f1105_rgb.png
+1106,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,1362,1362,4.9293341636657715,rgb/f1106_rgb.png
+1107,context-rich,3,3,3,1.0,0.20047514619883042,10,"{""support"": 6, ""collision"": 1}",True,False,0,0.0,63667,63667,11.052397727966309,rgb/f1107_rgb.png
+1108,context-rich,3,2,2,1.0,0.19278971354166666,191,"{""occlusion_budget"": 3, ""camera_clearance"": 3, ""support"": 174, ""collision"": 9}",True,True,2,0.0,822,822,14.69674038887024,rgb/f1108_rgb.png
+1109,context-rich,3,3,3,1.0,0.0792519493177388,6,"{""support"": 2, ""occlusion_budget"": 1}",True,False,0,0.0,9081,9081,11.826417684555054,rgb/f1109_rgb.png
+1110,context-rich,3,3,3,1.0,0.006917317708333333,6,"{""support"": 3}",True,False,0,0.0,2678,2678,7.99338173866272,rgb/f1110_rgb.png
+1111,context-rich,3,3,3,1.0,0.17878898635477583,45,"{""support"": 30, ""occlusion_budget"": 7, ""collision"": 5}",True,True,2,0.23514968363395972,21178,16198,25.28353214263916,rgb/f1111_rgb.png
+1112,context-rich,3,3,3,1.0,0.2650824652777778,24,"{""camera_clearance"": 17, ""occlusion_budget"": 1, ""support"": 3}",True,False,0,0.0,8315,8315,9.915358781814575,rgb/f1112_rgb.png
+1113,context-rich,3,3,3,1.0,0.14933268229166666,24,"{""occlusion_budget"": 18, ""support"": 2, ""collision"": 1}",True,False,0,0.0,5520,5520,19.38982319831848,rgb/f1113_rgb.png
+1114,context-rich,3,3,3,1.0,0.040445963541666664,6,"{""support"": 1, ""collision"": 2}",True,True,2,0.06706586826347305,1670,1558,9.984041452407837,rgb/f1114_rgb.png
+1115,context-rich,3,1,1,1.0,0.004934210526315789,72,"{""support"": 60, ""camera_clearance"": 2, ""collision"": 8, ""occlusion_budget"": 1}",True,False,0,0.0,341617,341617,9.761100053787231,rgb/f1115_rgb.png
+1116,context-rich,3,3,3,1.0,0.08904803240740741,35,"{""occlusion_budget"": 8, ""support"": 22, ""collision"": 2}",True,False,0,0.08893805309734515,2260,2059,14.327183723449707,rgb/f1116_rgb.png
+1117,context-rich,3,3,3,1.0,0.14713541666666666,29,"{""support"": 11, ""collision"": 15}",True,False,0,0.0,58030,58030,12.422438859939575,rgb/f1117_rgb.png
+1118,context-rich,3,3,3,1.0,0.3218587239583333,10,"{""occlusion_budget"": 1, ""collision"": 3, ""support"": 3}",True,True,2,0.25273089700996676,37625,28116,13.619734287261963,rgb/f1118_rgb.png
+1119,context-rich,3,3,3,1.0,0.18952546296296297,6,"{""occlusion_budget"": 2, ""support"": 1}",True,True,2,0.12094064949608063,893,785,15.410013675689697,rgb/f1119_rgb.png
+1120,context-rich,3,3,3,1.0,0.049723307291666664,7,"{""support"": 3, ""occlusion_budget"": 1}",True,False,0,0.07538699690402473,12920,11946,14.171121597290039,rgb/f1120_rgb.png
+1121,context-rich,3,3,3,1.0,0.003654970760233918,53,"{""support"": 6, ""occlusion_budget"": 43, ""collision"": 1}",True,True,2,0.22309610588912332,5213,4050,55.61795663833618,rgb/f1121_rgb.png
+1122,context-rich,3,3,3,1.0,0.090087890625,12,"{""support"": 8, ""collision"": 1}",True,False,0,0.0,6983,6983,11.570000648498535,rgb/f1122_rgb.png
+1123,context-rich,3,3,3,1.0,0.3062256335282651,64,"{""support"": 51, ""collision"": 10}",True,False,0,0.0,82329,82329,17.732492923736572,rgb/f1123_rgb.png
+1124,context-rich,3,3,2,0.6666666666666666,0.09114583333333333,5,"{""support"": 2}",True,False,0,0.0,4372,4372,13.357841730117798,rgb/f1124_rgb.png
+1125,context-rich,3,3,3,1.0,0.04347511574074074,168,"{""support"": 152, ""collision"": 13}",True,True,2,0.23105167936230298,149789,115180,12.594935894012451,rgb/f1125_rgb.png
+1126,context-rich,3,3,2,0.6666666666666666,0.029134114583333332,6,"{""occlusion_budget"": 1, ""collision"": 2}",True,False,0,0.0,1517,1517,11.422771215438843,rgb/f1126_rgb.png
+1127,context-rich,3,3,3,1.0,0.3274244639376218,6,"{""support"": 3}",True,True,2,0.043944353518821644,12220,11683,9.902836322784424,rgb/f1127_rgb.png
+1128,context-rich,3,3,3,1.0,0.13096788194444445,6,"{""support"": 3}",True,False,0,0.0,11728,11728,8.603962898254395,rgb/f1128_rgb.png
+1129,context-rich,3,3,3,1.0,0.15625,82,"{""support"": 51, ""occlusion_budget"": 4, ""collision"": 22, ""camera_clearance"": 2}",True,False,0,0.0,17457,17457,22.41618537902832,rgb/f1129_rgb.png
+1130,context-rich,3,3,3,1.0,0.07472511574074074,8,"{""support"": 4, ""collision"": 1}",True,True,1,0.19218025182239895,1509,1219,15.063775062561035,rgb/f1130_rgb.png
+1131,context-rich,3,3,3,1.0,0.12752278645833334,6,"{""support"": 2, ""collision"": 1}",True,True,2,0.11293308648505684,3781,3354,9.728323459625244,rgb/f1131_rgb.png
+1132,context-rich,3,3,3,1.0,0.088623046875,30,"{""support"": 23, ""collision"": 2, ""occlusion_budget"": 2}",True,False,0,0.0,34386,34386,13.934064388275146,rgb/f1132_rgb.png
+1133,context-rich,3,3,3,1.0,0.007249025341130604,24,"{""support"": 5, ""occlusion_budget"": 16}",True,True,1,0.1045296167247387,2296,2056,30.195508241653442,rgb/f1133_rgb.png
+1134,context-rich,3,2,2,1.0,0.12158203125,185,"{""support"": 160, ""collision"": 23}",True,True,1,0.058847302179040994,121246,114111,19.064313650131226,rgb/f1134_rgb.png
+1135,context-rich,3,3,3,1.0,0.031128167641325536,6,"{""support"": 3}",True,False,0,0.0,4273,4273,10.449392795562744,rgb/f1135_rgb.png
+1136,context-rich,3,1,1,1.0,0.3556315104166667,207,"{""camera_clearance"": 7, ""occlusion_budget"": 2, ""support"": 144, ""collision"": 53}",True,False,0,0.0,17525,17525,17.07879662513733,rgb/f1136_rgb.png
+1137,context-rich,3,3,2,0.6666666666666666,0.4947193287037037,16,"{""occlusion_budget"": 7, ""support"": 5, ""camera_clearance"": 1}",True,True,2,0.02911857292759701,3812,3701,13.806032419204712,rgb/f1137_rgb.png
+1138,context-rich,3,3,3,1.0,0.06599934895833333,37,"{""collision"": 4, ""support"": 30}",True,False,0,0.0,138933,138933,8.694788694381714,rgb/f1138_rgb.png
+1139,context-rich,3,0,0,0.0,0.0,0,{},True,True,2,0.0,89953,89953,6.967130661010742,rgb/f1139_rgb.png
+1140,context-rich,3,3,3,1.0,0.08317057291666667,6,"{""support"": 3}",True,False,0,0.0,20077,20077,11.829917430877686,rgb/f1140_rgb.png
+1141,context-rich,3,2,2,1.0,0.1525607638888889,195,"{""support"": 130, ""collision"": 63}",True,True,2,0.06383232630296332,159214,149051,24.156770706176758,rgb/f1141_rgb.png
+1142,context-rich,3,3,3,1.0,0.042561848958333336,9,"{""collision"": 2, ""occlusion_budget"": 2, ""support"": 2}",True,False,0,0.035260352603526,2439,2353,12.346222162246704,rgb/f1142_rgb.png
+1143,context-rich,3,3,3,1.0,0.017787524366471734,60,"{""occlusion_budget"": 34, ""support"": 22, ""collision"": 1}",True,False,0,0.0,2440,2440,52.22628307342529,rgb/f1143_rgb.png
+1144,context-rich,3,3,3,1.0,0.18204752604166666,15,"{""support"": 6, ""occlusion_budget"": 5, ""collision"": 1}",True,False,0,0.0,10364,10364,12.713846683502197,rgb/f1144_rgb.png
+1145,context-rich,3,3,3,1.0,0.20382553606237816,9,"{""support"": 5, ""collision"": 1}",True,False,0,0.0,6357,6357,11.485559463500977,rgb/f1145_rgb.png
+1146,context-rich,3,3,3,1.0,0.6588541666666666,114,"{""occlusion_budget"": 8, ""support"": 78, ""collision"": 25}",True,False,0,0.09563476688621986,15486,14005,16.54975461959839,rgb/f1146_rgb.png
+1147,context-rich,3,3,3,1.0,0.06998697916666667,6,"{""support"": 3}",True,False,0,0.0,3802,3802,13.210607767105103,rgb/f1147_rgb.png
+1148,context-rich,3,3,3,1.0,0.4423828125,109,"{""occlusion_budget"": 17, ""support"": 75, ""collision"": 14}",True,True,2,0.037169726824899274,15631,15050,26.416245698928833,rgb/f1148_rgb.png
+1149,context-rich,3,3,3,1.0,0.061360677083333336,42,"{""support"": 32, ""collision"": 7}",True,False,0,0.008583118087953645,149829,148543,11.613429307937622,rgb/f1149_rgb.png
+1150,context-rich,3,3,3,1.0,0.4337231968810916,55,"{""occlusion_budget"": 10, ""collision"": 21, ""support"": 21}",True,True,2,0.1531365313653137,7046,5967,25.127923250198364,rgb/f1150_rgb.png
+1151,context-rich,3,3,2,0.6666666666666666,0.3204752604166667,25,"{""occlusion_budget"": 19, ""support"": 3}",True,True,1,0.345715700842001,2019,1321,22.680243730545044,rgb/f1151_rgb.png
+1152,context-rich,3,3,3,1.0,0.34691764132553604,95,"{""collision"": 26, ""camera_clearance"": 8, ""support"": 52, ""occlusion_budget"": 6}",True,False,0,0.10138625142423097,52660,47321,31.24612593650818,rgb/f1152_rgb.png
+1153,context-rich,3,3,3,1.0,0.2561848958333333,28,"{""occlusion_budget"": 2, ""support"": 23}",True,True,2,0.0355438332077368,7962,7679,10.999144315719604,rgb/f1153_rgb.png
+1154,context-rich,3,3,3,1.0,0.22251157407407407,21,"{""support"": 18}",True,False,0,0.028118007504561282,145245,141161,8.385287284851074,rgb/f1154_rgb.png
+1155,context-rich,3,3,3,1.0,0.003689236111111111,9,"{""occlusion_budget"": 3, ""support"": 3}",True,False,0,0.0,2528,2528,9.817630052566528,rgb/f1155_rgb.png
+1156,context-rich,3,3,3,1.0,0.18294270833333334,21,"{""support"": 17, ""collision"": 1}",True,False,0,0.0,39088,39088,11.31895661354065,rgb/f1156_rgb.png
+1157,context-rich,3,3,3,1.0,0.151123046875,14,"{""support"": 2, ""collision"": 9}",True,False,0,0.0,5468,5468,11.756740093231201,rgb/f1157_rgb.png
+1158,context-rich,3,3,3,1.0,0.0302734375,6,"{""support"": 3}",True,True,2,0.2378692608850398,8429,6424,16.80108642578125,rgb/f1158_rgb.png
+1159,context-rich,3,3,3,1.0,0.30744395711500977,6,"{""support"": 3}",True,True,2,0.019223235040614295,38287,37551,10.046512365341187,rgb/f1159_rgb.png
+1160,context-rich,3,3,3,1.0,0.08315058479532164,16,"{""support"": 5, ""occlusion_budget"": 5, ""collision"": 3}",True,True,2,0.16707997520148787,3226,2687,15.47001028060913,rgb/f1160_rgb.png
+1161,context-rich,3,3,3,1.0,0.052897135416666664,23,"{""support"": 20}",True,True,2,0.1313316245575491,8193,7117,13.569897651672363,rgb/f1161_rgb.png
+1162,context-rich,3,3,3,1.0,0.20857747395833334,9,"{""support"": 6}",True,False,0,0.0,60839,60839,11.827213525772095,rgb/f1162_rgb.png
+1163,context-rich,3,1,1,1.0,0.5297309027777778,202,"{""occlusion_budget"": 10, ""camera_clearance"": 4, ""collision"": 54, ""support"": 133}",True,False,0,0.0,6761,6761,20.165398597717285,rgb/f1163_rgb.png
+1164,context-rich,3,3,3,1.0,0.04832175925925926,9,"{""occlusion_budget"": 3, ""support"": 3}",True,True,1,0.21506897771489208,2827,2219,19.677977800369263,rgb/f1164_rgb.png
+1165,context-rich,3,3,3,1.0,0.30025584795321636,25,"{""support"": 11, ""occlusion_budget"": 7, ""camera_clearance"": 1, ""collision"": 3}",True,False,0,0.0,1794,1794,14.76510739326477,rgb/f1165_rgb.png
+1166,context-rich,3,3,3,1.0,0.3964029947916667,4,"{""camera_clearance"": 1}",True,True,2,0.03229061553985868,991,959,14.309388637542725,rgb/f1166_rgb.png
+1167,context-rich,3,3,3,1.0,0.18682992202729046,20,"{""support"": 13, ""collision"": 4}",True,True,2,0.21458006448609412,57997,45552,14.235888481140137,rgb/f1167_rgb.png
+1168,context-rich,3,1,1,1.0,0.06689453125,201,"{""support"": 199, ""collision"": 1}",True,False,0,0.0,172478,172478,9.317174434661865,rgb/f1168_rgb.png
+1169,context-rich,3,3,3,1.0,0.3509114583333333,51,"{""occlusion_budget"": 11, ""collision"": 6, ""support"": 31}",True,False,0,0.02226013486067102,36927,36105,31.56587529182434,rgb/f1169_rgb.png
+1170,context-rich,3,3,3,1.0,0.10199652777777778,6,"{""support"": 3}",True,True,2,0.07415540540540544,23680,21924,14.76537537574768,rgb/f1170_rgb.png
+1171,context-rich,3,3,3,1.0,0.22971491228070176,32,"{""support"": 28, ""collision"": 1}",True,False,0,0.0,85274,85274,11.42493224143982,rgb/f1171_rgb.png
+1172,context-rich,3,3,3,1.0,0.021050347222222224,24,"{""collision"": 6, ""camera_clearance"": 7, ""occlusion_budget"": 5, ""support"": 3}",True,True,2,0.16030150753768846,3980,3342,20.3224995136261,rgb/f1172_rgb.png
+1173,context-rich,3,3,3,1.0,0.053466796875,6,"{""support"": 3}",True,False,0,0.0,2453,2453,12.711092233657837,rgb/f1173_rgb.png
+1174,context-rich,3,0,0,0.0,0.0,0,{},True,True,2,0.11712473572938686,2365,2088,8.903929471969604,rgb/f1174_rgb.png
+1175,context-rich,3,3,3,1.0,0.118896484375,18,"{""collision"": 4, ""support"": 11}",True,False,0,0.0,5682,5682,11.208155632019043,rgb/f1175_rgb.png
+1176,context-rich,3,3,3,1.0,0.14272280092592593,6,"{""support"": 3}",True,False,0,0.0,38687,38687,7.93588662147522,rgb/f1176_rgb.png
+1177,context-rich,3,3,3,1.0,0.14493815104166666,127,"{""support"": 89, ""occlusion_budget"": 22, ""collision"": 12, ""camera_clearance"": 1}",True,False,0,0.035381391652014704,41519,40050,32.00444149971008,rgb/f1177_rgb.png
+1178,context-rich,3,3,3,1.0,0.25603070175438597,165,"{""support"": 88, ""occlusion_budget"": 15, ""camera_clearance"": 3, ""collision"": 56}",True,True,2,0.17423110377589934,44837,37025,32.182315826416016,rgb/f1178_rgb.png
+1179,context-rich,3,3,3,1.0,0.10343567251461988,6,"{""support"": 3}",True,True,2,0.2124685605904424,24253,19100,12.958503723144531,rgb/f1179_rgb.png
+1180,context-rich,3,3,3,1.0,0.01273148148148148,42,"{""occlusion_budget"": 34, ""support"": 4, ""collision"": 1}",True,False,0,0.0,3504,3504,51.92403197288513,rgb/f1180_rgb.png
+1181,context-rich,3,3,3,1.0,0.13389756944444445,23,"{""support"": 6, ""collision"": 6, ""occlusion_budget"": 4, ""camera_clearance"": 4}",True,True,2,0.07294911734164067,3852,3571,17.45445680618286,rgb/f1181_rgb.png
+1182,context-rich,3,3,3,1.0,0.13028971354166666,6,"{""support"": 3}",True,True,2,0.1636772928618111,13771,11517,10.152160167694092,rgb/f1182_rgb.png
+1183,context-rich,3,3,3,1.0,0.013157894736842105,7,"{""occlusion_budget"": 3, ""support"": 1}",True,False,0,0.0,1672,1672,10.157554864883423,rgb/f1183_rgb.png
+1184,context-rich,3,3,3,1.0,0.17171223958333334,150,"{""support"": 116, ""collision"": 29, ""occlusion_budget"": 1, ""camera_clearance"": 1}",True,False,0,0.08998474353021446,105529,96033,28.617859840393066,rgb/f1184_rgb.png
+1185,context-rich,3,3,3,1.0,0.10237630208333333,6,"{""support"": 3}",True,True,2,0.1506821421299125,24555,20855,12.407941818237305,rgb/f1185_rgb.png
+1186,context-rich,3,3,3,1.0,0.2463107638888889,51,"{""collision"": 15, ""support"": 17, ""occlusion_budget"": 13, ""camera_clearance"": 3}",True,True,1,0.04060780717841239,11451,10986,22.653780221939087,rgb/f1186_rgb.png
+1187,context-rich,3,3,3,1.0,0.08154296875,28,"{""collision"": 6, ""camera_clearance"": 4, ""occlusion_budget"": 12, ""support"": 3}",True,False,0,0.0,33538,33538,23.321004390716553,rgb/f1187_rgb.png
+1188,context-rich,3,3,2,0.6666666666666666,0.16617838541666666,4,"{""support"": 1}",True,True,2,0.20944558521560575,5357,4235,9.6726553440094,rgb/f1188_rgb.png
+1189,context-rich,3,0,0,0.0,0.0,0,{},True,True,2,0.08109965635738836,1455,1337,6.00306248664856,rgb/f1189_rgb.png
+1190,context-rich,3,3,3,1.0,0.02025462962962963,6,"{""support"": 3}",True,False,0,0.0,11817,11817,8.052011251449585,rgb/f1190_rgb.png
+1191,context-rich,3,3,3,1.0,0.007080078125,6,"{""support"": 2, ""collision"": 1}",True,False,0,0.0,67633,67633,7.914747714996338,rgb/f1191_rgb.png
+1192,context-rich,3,3,3,1.0,0.6446150097465887,23,"{""occlusion_budget"": 1, ""collision"": 11, ""camera_clearance"": 4, ""support"": 4}",True,True,2,0.13819664703217038,13242,11412,32.00040340423584,rgb/f1192_rgb.png
+1193,context-rich,3,3,3,1.0,0.17100694444444445,9,"{""support"": 5, ""collision"": 1}",True,True,2,0.22614622057001244,3228,2498,16.50041151046753,rgb/f1193_rgb.png
+1194,context-rich,3,1,1,1.0,0.08683268229166667,209,"{""support"": 164, ""collision"": 41, ""occlusion_budget"": 2, ""camera_clearance"": 1}",True,False,0,0.05497633704586702,168618,159348,27.84290862083435,rgb/f1194_rgb.png
+1195,context-rich,3,3,2,0.6666666666666666,0.6795247395833334,12,"{""support"": 6, ""occlusion_budget"": 1, ""collision"": 2}",True,False,0,0.09415428845232388,4174,3781,10.897011756896973,rgb/f1195_rgb.png
+1196,context-rich,3,0,0,0.0,0.0,0,{},True,True,2,0.0,177326,177326,6.6959428787231445,rgb/f1196_rgb.png
+1197,context-rich,3,3,3,1.0,0.3859049479166667,42,"{""support"": 19, ""occlusion_budget"": 7, ""collision"": 12, ""camera_clearance"": 1}",True,True,2,0.14602487831260136,1849,1579,31.070098876953125,rgb/f1197_rgb.png
+1198,context-rich,3,3,3,1.0,0.17964181286549707,43,"{""support"": 39, ""collision"": 1}",True,False,0,0.03518872585877253,93098,89822,14.66264295578003,rgb/f1198_rgb.png
+1199,context-rich,3,3,3,1.0,0.3014322916666667,63,"{""support"": 53, ""collision"": 4, ""occlusion_budget"": 3}",True,False,0,0.11335412751612839,51617,45766,15.51859450340271,rgb/f1199_rgb.png
+1200,context-rich,3,3,3,1.0,0.19962565104166666,7,"{""occlusion_budget"": 2, ""support"": 1, ""collision"": 1}",True,True,2,0.19382591093117407,3952,3186,14.325329065322876,rgb/f1200_rgb.png
+1201,context-rich,3,3,2,0.6666666666666666,0.14132553606237816,7,"{""support"": 2, ""collision"": 2}",True,False,0,0.0,180264,180264,12.967717170715332,rgb/f1201_rgb.png
+1202,context-rich,3,3,3,1.0,0.057373046875,26,"{""support"": 5, ""occlusion_budget"": 17, ""collision"": 1}",True,True,1,0.1069728367404088,3571,3189,24.881758451461792,rgb/f1202_rgb.png
+1203,context-rich,3,3,3,1.0,0.4366319444444444,90,"{""occlusion_budget"": 13, ""support"": 60, ""collision"": 14}",True,True,1,0.19801580900145188,24796,19886,37.384521484375,rgb/f1203_rgb.png
+1204,context-rich,3,3,2,0.6666666666666666,0.21354166666666666,8,"{""support"": 4, ""collision"": 1}",True,False,0,0.08019732205778718,7095,6526,10.199919700622559,rgb/f1204_rgb.png
+1205,context-rich,3,3,3,1.0,0.17809606481481483,26,"{""support"": 20, ""collision"": 3}",True,True,2,0.1719745222929936,471,390,16.107531309127808,rgb/f1205_rgb.png
+1206,context-rich,3,3,3,1.0,0.15486653645833334,7,"{""support"": 4}",True,False,0,0.0,1768,1768,12.576934814453125,rgb/f1206_rgb.png
+1207,context-rich,3,3,3,1.0,0.3179524739583333,52,"{""occlusion_budget"": 22, ""support"": 25, ""collision"": 2}",True,False,0,0.10512367491166075,27168,24312,33.039896965026855,rgb/f1207_rgb.png
+1208,context-rich,3,0,0,0.0,0.0,0,{},True,True,2,0.0,165612,165612,6.628627300262451,rgb/f1208_rgb.png
+1209,context-rich,3,1,1,1.0,0.4440104166666667,202,"{""support"": 199, ""camera_clearance"": 2}",True,False,0,0.0,14901,14901,9.829146146774292,rgb/f1209_rgb.png
+1210,context-rich,3,3,3,1.0,0.13175455729166666,4,"{""support"": 1}",True,True,1,0.18570411718428048,26693,21736,15.001622438430786,rgb/f1210_rgb.png
+1211,context-rich,3,3,3,1.0,0.11269493177387914,16,"{""support"": 13}",True,False,0,0.0,174889,174889,9.971468925476074,rgb/f1211_rgb.png
+1212,context-rich,3,3,3,1.0,0.3389485677083333,46,"{""collision"": 10, ""support"": 33}",True,True,0,0.0,104477,104477,28.077484607696533,rgb/f1212_rgb.png
+1213,context-rich,3,3,2,0.6666666666666666,0.30665204678362573,4,"{""support"": 1}",True,False,0,0.0,9327,9327,13.25981593132019,rgb/f1213_rgb.png
+1214,context-rich,3,3,3,1.0,0.02197265625,7,"{""support"": 4}",True,True,0,0.0,2335,2335,16.76613974571228,rgb/f1214_rgb.png
+1215,context-rich,3,3,3,1.0,0.01902488425925926,7,"{""support"": 3, ""collision"": 1}",True,False,0,0.0,15958,15958,8.17023229598999,rgb/f1215_rgb.png
+1216,context-rich,3,3,3,1.0,0.13975694444444445,8,"{""support"": 5}",True,True,2,0.1311736590546999,1883,1636,9.58515191078186,rgb/f1216_rgb.png
+1217,context-rich,3,3,3,1.0,0.21671549479166666,6,"{""collision"": 2, ""support"": 1}",True,False,0,0.013544266051446208,63717,62854,12.964330434799194,rgb/f1217_rgb.png
+1218,context-rich,3,3,3,1.0,0.036702473958333336,8,"{""occlusion_budget"": 4, ""support"": 1}",True,True,2,0.27453580901856767,2262,1641,19.42998480796814,rgb/f1218_rgb.png
+1219,context-rich,3,2,2,1.0,0.255859375,202,"{""support"": 132, ""collision"": 53, ""occlusion_budget"": 15}",True,True,0,0.0,116638,116638,39.0341100692749,rgb/f1219_rgb.png
+1220,context-rich,3,3,3,1.0,0.16952972709551656,6,"{""support"": 3}",True,False,0,0.0,182452,182452,8.033839225769043,rgb/f1220_rgb.png
+1221,context-rich,3,3,3,1.0,0.3187210648148148,39,"{""support"": 17, ""camera_clearance"": 10, ""occlusion_budget"": 8, ""collision"": 1}",True,True,1,0.2150041911148366,31018,24349,19.736934900283813,rgb/f1221_rgb.png
+1222,context-rich,3,0,0,0.0,0.0,0,{},True,True,2,0.23755429335115263,2993,2282,10.736897706985474,rgb/f1222_rgb.png
+1223,context-rich,3,3,3,1.0,0.19371345029239767,10,"{""support"": 6, ""camera_clearance"": 1}",True,True,2,0.0,79338,79338,17.628835201263428,rgb/f1223_rgb.png
+1224,context-rich,3,3,2,0.6666666666666666,0.3434244791666667,22,"{""collision"": 5, ""support"": 14}",True,False,0,0.017469020840052862,96113,94434,12.597720623016357,rgb/f1224_rgb.png
+1225,context-rich,3,3,3,1.0,0.13444010416666666,9,"{""support"": 5, ""collision"": 1}",True,True,1,0.11731160896130344,2455,2167,15.27769136428833,rgb/f1225_rgb.png
+1226,context-rich,3,3,3,1.0,0.181640625,45,"{""collision"": 3, ""support"": 39}",True,False,0,0.0005877578437684106,35729,35708,9.260175228118896,rgb/f1226_rgb.png
+1227,context-rich,3,3,3,1.0,0.12475633528265107,6,"{""occlusion_budget"": 1, ""support"": 2}",True,True,1,0.24990230558812032,5118,3839,18.296431064605713,rgb/f1227_rgb.png
+1228,context-rich,3,3,3,1.0,0.18098958333333334,44,"{""occlusion_budget"": 22, ""collision"": 8, ""support"": 8, ""camera_clearance"": 3}",True,False,0,0.0,26722,26722,25.246312141418457,rgb/f1228_rgb.png
+1229,context-rich,3,3,3,1.0,0.22757523148148148,64,"{""support"": 34, ""occlusion_budget"": 15, ""collision"": 12}",True,True,2,0.2660064603876232,117640,86347,22.49355435371399,rgb/f1229_rgb.png
+1230,context-rich,3,2,2,1.0,0.11219618055555555,189,"{""support"": 137, ""collision"": 34, ""camera_clearance"": 12, ""occlusion_budget"": 4}",True,False,0,0.08749274265908968,113678,103732,20.671135187149048,rgb/f1230_rgb.png
+1231,context-rich,3,3,3,1.0,0.028238932291666668,7,"{""support"": 3, ""collision"": 1}",True,False,0,0.0,5836,5836,9.97832465171814,rgb/f1231_rgb.png
+1232,context-rich,3,3,3,1.0,0.11222330729166667,6,"{""support"": 3}",True,True,0,0.0,1236,1236,16.36602282524109,rgb/f1232_rgb.png
+1233,context-rich,3,3,2,0.6666666666666666,0.5377071150097466,4,"{""support"": 1}",True,True,2,0.29348475791990436,1673,1182,14.18039870262146,rgb/f1233_rgb.png
+1234,context-rich,3,3,3,1.0,0.094482421875,9,"{""collision"": 2, ""support"": 4}",True,False,0,0.0,3945,3945,13.241168737411499,rgb/f1234_rgb.png
+1235,context-rich,3,3,2,0.6666666666666666,0.22420247395833334,7,"{""support"": 4}",True,False,0,0.0013660614404956695,92968,92841,8.568977117538452,rgb/f1235_rgb.png
+1236,context-rich,3,3,3,1.0,0.06889619883040936,4,"{""support"": 1}",True,True,2,0.0903967538322813,17744,16140,14.970643043518066,rgb/f1236_rgb.png
+1237,context-rich,3,3,3,1.0,0.19502314814814814,18,"{""support"": 4, ""collision"": 10, ""camera_clearance"": 1}",True,True,2,0.1428571428571429,1414,1212,25.468944311141968,rgb/f1237_rgb.png
+1238,context-rich,3,1,1,1.0,0.14516325536062377,199,"{""support"": 187, ""occlusion_budget"": 3, ""collision"": 8}",True,False,0,0.0,60665,60665,11.854626893997192,rgb/f1238_rgb.png
+1239,context-rich,3,3,3,1.0,0.149169921875,57,"{""support"": 51, ""collision"": 3}",True,True,1,0.04592877735281731,121057,115497,17.855478286743164,rgb/f1239_rgb.png
+1240,context-rich,3,3,3,1.0,0.11775716145833333,10,"{""occlusion_budget"": 4, ""support"": 3}",True,False,0,0.0,31260,31260,15.063726663589478,rgb/f1240_rgb.png
+1241,context-rich,3,2,2,1.0,0.2789351851851852,183,"{""support"": 166, ""occlusion_budget"": 4, ""collision"": 11}",True,True,1,0.28507888839595485,87909,62848,25.715392351150513,rgb/f1241_rgb.png
+1242,context-rich,3,3,3,1.0,0.29885477582846004,16,"{""support"": 8, ""collision"": 5}",True,False,0,0.0,3807,3807,11.265547752380371,rgb/f1242_rgb.png
+1243,context-rich,3,3,3,1.0,0.21622721354166666,44,"{""support"": 40, ""collision"": 1}",True,True,2,0.1668129826838175,78597,65486,11.191125631332397,rgb/f1243_rgb.png
+1244,context-rich,3,3,3,1.0,0.07210286458333333,6,"{""support"": 3}",True,True,1,0.2099471830985915,11360,8975,10.788604974746704,rgb/f1244_rgb.png
+1245,context-rich,3,3,2,0.6666666666666666,0.06396198830409357,4,"{""support"": 1}",True,False,0,0.0,6382,6382,8.374186754226685,rgb/f1245_rgb.png
+1246,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,8555,8555,7.098634958267212,rgb/f1246_rgb.png
+1247,context-rich,3,3,2,0.6666666666666666,0.3970630787037037,8,"{""camera_clearance"": 1, ""collision"": 3, ""support"": 1}",True,True,2,0.04125580868185419,79407,76131,10.56435251235962,rgb/f1247_rgb.png
+1248,context-rich,3,3,3,1.0,0.055338541666666664,6,"{""support"": 3}",True,True,1,0.24024640657084184,1948,1480,14.528558731079102,rgb/f1248_rgb.png
+1249,context-rich,3,3,3,1.0,0.0947265625,6,"{""support"": 3}",True,False,0,0.0,47316,47316,7.846211671829224,rgb/f1249_rgb.png
+1250,context-rich,3,3,3,1.0,0.05859375,6,"{""support"": 3}",True,True,2,0.22121917170777106,10745,8368,12.420109033584595,rgb/f1250_rgb.png
+1251,context-rich,3,3,3,1.0,0.11385091145833333,42,"{""support"": 25, ""occlusion_budget"": 12, ""collision"": 2}",True,True,2,0.1523340609187419,80632,68349,18.152195930480957,rgb/f1251_rgb.png
+1252,context-rich,3,3,3,1.0,0.39418859649122806,25,"{""support"": 19, ""collision"": 2, ""occlusion_budget"": 1}",True,True,1,0.1714536928487691,3412,2827,19.91056776046753,rgb/f1252_rgb.png
+1253,context-rich,3,3,3,1.0,0.19913736979166666,13,"{""support"": 6, ""collision"": 4}",True,True,0,0.0,2134,2134,18.12897753715515,rgb/f1253_rgb.png
+1254,context-rich,3,3,3,1.0,0.37567007797270957,84,"{""support"": 32, ""occlusion_budget"": 18, ""collision"": 29, ""camera_clearance"": 2}",True,False,0,0.007268081184676256,47743,47396,51.257439374923706,rgb/f1254_rgb.png
+1255,context-rich,3,3,3,1.0,0.12152777777777778,15,"{""occlusion_budget"": 2, ""collision"": 8, ""support"": 2}",True,True,2,0.10612862381398713,60813,54359,15.6183500289917,rgb/f1255_rgb.png
+1256,context-rich,3,3,3,1.0,0.20222981770833334,4,"{""collision"": 1}",True,False,0,0.0,66846,66846,10.971871852874756,rgb/f1256_rgb.png
+1257,context-rich,3,3,3,1.0,0.49457846003898637,124,"{""support"": 120, ""collision"": 1}",True,True,1,0.24553677695786713,58814,44373,19.407429218292236,rgb/f1257_rgb.png
+1258,context-rich,3,3,3,1.0,0.187744140625,44,"{""camera_clearance"": 10, ""collision"": 18, ""support"": 13}",True,False,0,0.0,34369,34369,14.144588232040405,rgb/f1258_rgb.png
+1259,context-rich,3,3,3,1.0,0.1945167824074074,6,"{""support"": 3}",True,False,0,0.0,6179,6179,10.30970549583435,rgb/f1259_rgb.png
+1260,context-rich,3,3,3,1.0,0.037109375,25,"{""support"": 21, ""collision"": 1}",True,True,2,0.2421465968586387,1528,1158,12.581819772720337,rgb/f1260_rgb.png
+1261,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,2163,2163,5.08135724067688,rgb/f1261_rgb.png
+1262,context-rich,3,3,3,1.0,0.20321637426900585,6,"{""occlusion_budget"": 2, ""support"": 1}",True,True,2,0.17721518987341767,1343,1105,17.122103691101074,rgb/f1262_rgb.png
+1263,context-rich,3,3,3,1.0,0.045979817708333336,6,"{""support"": 3}",True,False,0,0.0,5127,5127,10.356106519699097,rgb/f1263_rgb.png
+1264,context-rich,3,3,3,1.0,0.15328414351851852,6,"{""collision"": 1, ""support"": 2}",True,True,2,0.16134555342934842,9929,8327,13.376262664794922,rgb/f1264_rgb.png
+1265,context-rich,3,3,3,1.0,0.10702972709551657,12,"{""support"": 7, ""collision"": 2}",True,True,1,0.10021850958255563,175736,158124,15.363725662231445,rgb/f1265_rgb.png
+1266,context-rich,3,3,3,1.0,0.037109375,6,"{""support"": 3}",True,False,0,0.0,41477,41477,7.739459037780762,rgb/f1266_rgb.png
+1267,context-rich,3,3,3,1.0,0.239013671875,6,"{""support"": 2, ""occlusion_budget"": 1}",True,False,0,0.008488964346349714,1178,1168,10.96313214302063,rgb/f1267_rgb.png
+1268,context-rich,3,2,2,1.0,0.14699074074074073,187,"{""support"": 179, ""camera_clearance"": 1, ""occlusion_budget"": 2, ""collision"": 3}",True,True,2,0.0330014099400775,22696,21947,18.282855987548828,rgb/f1268_rgb.png
+1269,context-rich,3,3,3,1.0,0.14011863425925927,6,"{""support"": 3}",True,False,0,0.0,1219,1219,11.611438512802124,rgb/f1269_rgb.png
+1270,context-rich,3,3,3,1.0,0.04638671875,11,"{""support"": 2, ""occlusion_budget"": 6}",True,True,2,0.21205432937181667,5890,4641,23.57152485847473,rgb/f1270_rgb.png
+1271,context-rich,3,3,3,1.0,0.11357060185185185,14,"{""support"": 5, ""occlusion_budget"": 5, ""collision"": 1}",True,True,2,0.16374186906266086,21369,17870,13.416013956069946,rgb/f1271_rgb.png
+1272,context-rich,3,3,2,0.6666666666666666,0.24913194444444445,6,"{""support"": 2, ""collision"": 1}",True,True,2,0.14336712837355414,7003,5999,9.215139627456665,rgb/f1272_rgb.png
+1273,context-rich,3,3,3,1.0,0.6190592447916666,12,"{""occlusion_budget"": 5, ""support"": 3, ""collision"": 1}",True,False,0,0.0,5108,5108,19.03489851951599,rgb/f1273_rgb.png
+1274,context-rich,3,3,3,1.0,0.39522417153996103,8,"{""support"": 3, ""occlusion_budget"": 2}",True,False,0,0.0,2231,2231,11.011021614074707,rgb/f1274_rgb.png
+1275,context-rich,3,2,2,1.0,0.3658040364583333,183,"{""camera_clearance"": 10, ""occlusion_budget"": 9, ""support"": 161, ""collision"": 1}",True,True,2,0.0026891807379612054,15990,15947,16.69237518310547,rgb/f1275_rgb.png
+1276,context-rich,3,3,3,1.0,0.22786458333333334,6,"{""collision"": 2, ""support"": 1}",True,False,0,0.0,1312,1312,8.714995861053467,rgb/f1276_rgb.png
+1277,context-rich,3,3,3,1.0,0.05701754385964912,7,"{""support"": 3, ""occlusion_budget"": 1}",True,False,0,0.0,19986,19986,13.694487810134888,rgb/f1277_rgb.png
+1278,context-rich,3,3,3,1.0,0.3666178385416667,58,"{""occlusion_budget"": 22, ""support"": 26, ""collision"": 7}",True,False,0,0.05588022851139274,45687,43134,37.465020179748535,rgb/f1278_rgb.png
+1279,context-rich,3,3,3,1.0,0.0793185763888889,6,"{""support"": 3}",True,True,2,0.004255319148936176,940,936,9.21316909790039,rgb/f1279_rgb.png
+1280,context-rich,3,3,3,1.0,0.013264973958333334,6,"{""support"": 3}",True,False,0,0.0,2528,2528,8.20315670967102,rgb/f1280_rgb.png
+1281,context-rich,3,3,3,1.0,0.36970029239766083,24,"{""support"": 17, ""camera_clearance"": 1, ""collision"": 3}",True,True,2,0.04698241482775645,52658,50184,11.390605211257935,rgb/f1281_rgb.png
+1282,context-rich,3,3,3,1.0,0.3723958333333333,60,"{""occlusion_budget"": 9, ""collision"": 20, ""support"": 28}",True,False,0,0.0,1261,1261,26.017717838287354,rgb/f1282_rgb.png
+1283,context-rich,3,3,3,1.0,0.08919270833333333,12,"{""support"": 4, ""collision"": 5}",True,True,1,0.2173785839672323,34180,26750,11.327511072158813,rgb/f1283_rgb.png
+1284,context-rich,3,3,3,1.0,0.17008463541666666,47,"{""support"": 40, ""collision"": 4}",True,True,1,0.09827168796234032,148700,134087,16.79788088798523,rgb/f1284_rgb.png
+1285,context-rich,3,3,3,1.0,0.21003898635477583,12,"{""collision"": 3, ""support"": 4, ""occlusion_budget"": 2}",True,False,0,1.3360410431761949e-05,74848,74847,11.905334949493408,rgb/f1285_rgb.png
+1286,context-rich,3,3,3,1.0,0.018636067708333332,6,"{""support"": 2, ""collision"": 1}",True,False,0,0.0,11180,11180,12.115999460220337,rgb/f1286_rgb.png
+1287,context-rich,3,3,3,1.0,0.10503472222222222,55,"{""camera_clearance"": 10, ""occlusion_budget"": 2, ""support"": 34, ""collision"": 6}",True,True,2,0.14311365298929313,15037,12885,15.777670860290527,rgb/f1287_rgb.png
+1288,context-rich,3,1,1,1.0,0.2506510416666667,201,"{""occlusion_budget"": 53, ""support"": 104, ""collision"": 20, ""camera_clearance"": 23}",True,False,0,0.06864453302145734,41897,39021,71.02003598213196,rgb/f1288_rgb.png
+1289,context-rich,3,3,3,1.0,0.15484892787524365,21,"{""occlusion_budget"": 6, ""support"": 12}",True,True,2,0.09642890530055159,21394,19331,19.245686054229736,rgb/f1289_rgb.png
+1290,context-rich,3,3,3,1.0,0.3321940104166667,11,"{""occlusion_budget"": 5, ""support"": 2, ""collision"": 1}",True,True,2,0.042763157894736836,608,582,14.613085508346558,rgb/f1290_rgb.png
+1291,context-rich,3,3,3,1.0,0.5199652777777778,25,"{""support"": 14, ""occlusion_budget"": 6, ""collision"": 2}",True,False,0,0.0,1427,1427,13.323164701461792,rgb/f1291_rgb.png
+1292,context-rich,3,2,2,1.0,0.18330439814814814,188,"{""collision"": 14, ""support"": 167, ""camera_clearance"": 5}",True,True,0,0.0,162053,162053,16.531881093978882,rgb/f1292_rgb.png
+1293,context-rich,3,3,3,1.0,0.11610623781676413,6,"{""support"": 3}",True,False,0,0.0,10881,10881,11.524487257003784,rgb/f1293_rgb.png
+1294,context-rich,3,3,3,1.0,0.23551432291666666,45,"{""support"": 14, ""occlusion_budget"": 11, ""collision"": 9, ""camera_clearance"": 8}",True,True,2,0.08444317151176672,41898,38360,19.94416904449463,rgb/f1294_rgb.png
+1295,context-rich,3,3,3,1.0,0.12801106770833334,116,"{""occlusion_budget"": 43, ""collision"": 27, ""support"": 41, ""camera_clearance"": 2}",True,False,0,0.0,14643,14643,62.8401460647583,rgb/f1295_rgb.png
+1296,context-rich,3,3,3,1.0,0.08463541666666667,26,"{""support"": 15, ""collision"": 8}",True,False,0,0.013685957608902677,36753,36250,9.08881163597107,rgb/f1296_rgb.png
+1297,context-rich,3,3,2,0.6666666666666666,0.2989156920077973,11,"{""support"": 2, ""collision"": 4, ""occlusion_budget"": 2}",True,True,2,0.21916299559471364,19976,15598,18.103891372680664,rgb/f1297_rgb.png
+1298,context-rich,3,3,3,1.0,0.061279296875,11,"{""support"": 4, ""collision"": 4}",True,True,1,0.10267288926601614,2357,2115,16.501555919647217,rgb/f1298_rgb.png
+1299,context-rich,3,3,3,1.0,0.036539713541666664,12,"{""support"": 8, ""collision"": 1}",True,True,2,0.22957198443579763,514,396,10.470523834228516,rgb/f1299_rgb.png
+1300,context-rich,3,3,3,1.0,0.01547270955165692,18,"{""collision"": 2, ""support"": 13}",True,False,0,0.0,14025,14025,9.814486980438232,rgb/f1300_rgb.png
+1301,context-rich,3,3,3,1.0,0.17854817708333334,102,"{""support"": 53, ""collision"": 29, ""occlusion_budget"": 17}",True,True,1,0.08179869546177432,130161,119514,46.32669806480408,rgb/f1301_rgb.png
+1302,context-rich,3,3,3,1.0,0.038266782407407406,10,"{""occlusion_budget"": 7}",True,True,1,0.2265256538516507,6997,5412,23.181118726730347,rgb/f1302_rgb.png
+1303,context-rich,3,3,3,1.0,0.11342592592592593,9,"{""support"": 4, ""collision"": 2}",True,False,0,0.0004247407777226986,268399,268285,8.602445840835571,rgb/f1303_rgb.png
+1304,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,2695,2695,4.9761481285095215,rgb/f1304_rgb.png
+1305,context-rich,3,3,3,1.0,0.2995876736111111,24,"{""support"": 17, ""collision"": 4}",True,True,2,0.1631030217352889,16977,14208,12.783960342407227,rgb/f1305_rgb.png
+1306,context-rich,3,3,3,1.0,0.12386067708333333,67,"{""support"": 22, ""collision"": 28, ""occlusion_budget"": 14}",True,True,2,0.21167911458534883,129205,101855,44.55507969856262,rgb/f1306_rgb.png
+1307,context-rich,3,3,3,1.0,0.10678606237816764,6,"{""support"": 2, ""occlusion_budget"": 1}",True,False,0,0.0,26096,26096,11.794061422348022,rgb/f1307_rgb.png
+1308,context-rich,3,3,3,1.0,0.02601120857699805,9,"{""occlusion_budget"": 6}",True,False,0,0.0,6610,6610,17.114150524139404,rgb/f1308_rgb.png
+1309,context-rich,3,2,2,1.0,0.09285481770833333,183,"{""occlusion_budget"": 1, ""support"": 140, ""collision"": 40}",True,True,2,0.12042450097435087,75948,66802,17.704572200775146,rgb/f1309_rgb.png
+1310,context-rich,3,3,3,1.0,0.016764322916666668,10,"{""occlusion_budget"": 5, ""support"": 2}",True,False,0,0.0,2369,2369,15.29545521736145,rgb/f1310_rgb.png
+1311,context-rich,3,3,3,1.0,0.0978732638888889,44,"{""support"": 34, ""collision"": 7}",True,True,0,0.0608363649461513,27763,26074,14.007998943328857,rgb/f1311_rgb.png
+1312,context-rich,3,3,3,1.0,0.04666179337231969,6,"{""support"": 3}",True,False,0,0.0,7173,7173,17.948941469192505,rgb/f1312_rgb.png
+1313,context-rich,3,3,3,1.0,0.18375651041666666,8,"{""support"": 5}",True,False,0,0.037888233960553186,35288,33951,17.895939111709595,rgb/f1313_rgb.png
+1314,context-rich,3,2,2,1.0,0.24013157894736842,192,"{""support"": 166, ""occlusion_budget"": 13, ""collision"": 11}",True,False,0,0.002164924821924319,117787,117532,27.433500051498413,rgb/f1314_rgb.png
+1315,context-rich,3,3,1,0.3333333333333333,0.18538411458333334,17,"{""support"": 4, ""occlusion_budget"": 6, ""collision"": 4}",True,True,1,0.20432692307692313,2080,1655,24.809336185455322,rgb/f1315_rgb.png
+1316,context-rich,3,3,3,1.0,0.0458984375,6,"{""collision"": 1, ""support"": 2}",True,True,2,0.14436707568781326,44089,37724,12.817947387695312,rgb/f1316_rgb.png
+1317,context-rich,3,3,3,1.0,0.03027534113060429,9,"{""support"": 2, ""occlusion_budget"": 3, ""collision"": 1}",True,False,0,0.0,3080,3080,15.803153991699219,rgb/f1317_rgb.png
+1318,context-rich,3,3,3,1.0,0.125,6,"{""support"": 3}",True,True,1,0.02956001925074092,78958,76624,16.636271476745605,rgb/f1318_rgb.png
+1319,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,3664,3664,5.6210410594940186,rgb/f1319_rgb.png
+1320,context-rich,3,3,3,1.0,0.17578125,6,"{""support"": 3}",True,False,0,0.0,43049,43049,10.52715516090393,rgb/f1320_rgb.png
+1321,context-rich,3,3,3,1.0,0.029378255208333332,9,"{""collision"": 5, ""support"": 1}",True,False,0,0.0,128134,128134,7.833358287811279,rgb/f1321_rgb.png
+1322,context-rich,3,3,2,0.6666666666666666,0.13157894736842105,22,"{""occlusion_budget"": 18, ""support"": 1}",True,True,1,0.128495842781557,1323,1153,21.37970781326294,rgb/f1322_rgb.png
+1323,context-rich,3,3,3,1.0,0.3051215277777778,36,"{""camera_clearance"": 7, ""support"": 7, ""collision"": 16, ""occlusion_budget"": 3}",True,True,2,0.1112769132381155,4691,4169,21.35915184020996,rgb/f1323_rgb.png
+1324,context-rich,3,3,3,1.0,0.1918402777777778,6,"{""support"": 2, ""collision"": 1}",True,True,2,0.1551806766989361,10433,8814,12.778013706207275,rgb/f1324_rgb.png
+1325,context-rich,3,3,3,1.0,0.20524088541666666,9,"{""support"": 5, ""collision"": 1}",True,False,0,0.0,59831,59831,7.885270595550537,rgb/f1325_rgb.png
+1326,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,1809,1809,7.041550397872925,rgb/f1326_rgb.png
+1327,context-rich,3,3,3,1.0,0.047770182291666664,6,"{""support"": 3}",True,False,0,0.0,4822,4822,7.84964394569397,rgb/f1327_rgb.png
+1328,context-rich,3,3,3,1.0,0.04672270955165692,63,"{""camera_clearance"": 18, ""collision"": 17, ""support"": 9, ""occlusion_budget"": 16}",True,False,0,0.0,133654,133654,31.219542264938354,rgb/f1328_rgb.png
+1329,context-rich,3,3,3,1.0,0.21915690104166666,100,"{""support"": 84, ""camera_clearance"": 1, ""collision"": 12}",True,True,2,0.02860746840564532,42017,40815,18.2949001789093,rgb/f1329_rgb.png
+1330,context-rich,3,3,3,1.0,0.13932291666666666,16,"{""occlusion_budget"": 12, ""support"": 1}",True,True,1,0.08763784097504357,1723,1572,29.200541734695435,rgb/f1330_rgb.png
+1331,context-rich,3,3,3,1.0,0.09461805555555555,27,"{""support"": 18, ""collision"": 6}",True,False,0,0.051342554922701344,12290,11659,12.4483323097229,rgb/f1331_rgb.png
+1332,context-rich,3,3,3,1.0,0.03155458089668616,6,"{""support"": 3}",True,True,0,0.0,4717,4717,13.178614616394043,rgb/f1332_rgb.png
+1333,context-rich,3,3,3,1.0,0.10481770833333333,25,"{""support"": 22}",True,False,0,0.0,123769,123769,10.742588758468628,rgb/f1333_rgb.png
+1334,context-rich,3,3,3,1.0,0.5077363547758285,78,"{""support"": 29, ""collision"": 41, ""occlusion_budget"": 5}",True,False,0,0.0,1515,1515,19.527138233184814,rgb/f1334_rgb.png
+1335,context-rich,3,3,3,1.0,0.160400390625,60,"{""support"": 49, ""collision"": 8}",True,True,2,0.250653695841651,106701,79956,15.748095989227295,rgb/f1335_rgb.png
+1336,context-rich,3,2,2,1.0,0.15413411458333334,43,"{""occlusion_budget"": 1, ""camera_clearance"": 1, ""collision"": 2, ""support"": 37}",True,True,2,0.005954349983460117,9069,9015,13.044055938720703,rgb/f1336_rgb.png
+1337,context-rich,3,3,3,1.0,0.029541015625,6,"{""support"": 3}",True,False,0,0.0,1860,1860,11.182421445846558,rgb/f1337_rgb.png
+1338,context-rich,3,3,3,1.0,0.1371527777777778,7,"{""support"": 3, ""collision"": 1}",True,False,0,0.0,2605,2605,7.83085823059082,rgb/f1338_rgb.png
+1339,context-rich,3,3,3,1.0,0.4323221247563353,82,"{""occlusion_budget"": 18, ""collision"": 10, ""camera_clearance"": 9, ""support"": 42}",True,False,0,0.1027177844373256,29031,26049,41.735591411590576,rgb/f1339_rgb.png
+1340,context-rich,3,3,3,1.0,0.11968315972222222,6,"{""support"": 2, ""occlusion_budget"": 1}",True,True,2,0.19613913676925876,5491,4414,13.436616659164429,rgb/f1340_rgb.png
+1341,context-rich,3,3,3,1.0,0.040934244791666664,183,"{""collision"": 14, ""camera_clearance"": 4, ""support"": 143, ""occlusion_budget"": 19}",True,True,0,0.0,117931,117931,57.46453285217285,rgb/f1341_rgb.png
+1342,context-rich,3,3,3,1.0,0.14982096354166666,6,"{""support"": 3}",True,False,0,0.0,1096,1096,10.00613260269165,rgb/f1342_rgb.png
+1343,context-rich,3,3,3,1.0,0.102783203125,9,"{""support"": 5, ""collision"": 1}",True,True,1,0.23625922094495955,103433,78996,14.947641849517822,rgb/f1343_rgb.png
+1344,context-rich,3,3,2,0.6666666666666666,0.6495492202729045,18,"{""camera_clearance"": 1, ""support"": 14}",True,False,0,0.0,71097,71097,11.248018026351929,rgb/f1344_rgb.png
+1345,context-rich,3,3,3,1.0,0.4175618489583333,6,"{""support"": 3}",True,True,2,0.06889128094725516,929,865,10.01630449295044,rgb/f1345_rgb.png
+1346,context-rich,3,3,3,1.0,0.5158382066276803,42,"{""support"": 23, ""occlusion_budget"": 2, ""collision"": 14}",True,False,0,0.0,8255,8255,17.991204500198364,rgb/f1346_rgb.png
+1347,context-rich,3,3,3,1.0,0.3324652777777778,81,"{""occlusion_budget"": 19, ""support"": 52, ""collision"": 6, ""camera_clearance"": 1}",True,False,0,0.0,19719,19719,29.97272253036499,rgb/f1347_rgb.png
+1348,context-rich,3,3,3,1.0,0.17775341130604289,24,"{""occlusion_budget"": 10, ""collision"": 2, ""support"": 9}",True,False,0,0.09953710120021064,36077,32486,20.673224449157715,rgb/f1348_rgb.png
+1349,context-rich,3,3,3,1.0,0.03870081018518518,9,"{""support"": 2, ""collision"": 1, ""occlusion_budget"": 3}",True,False,0,0.0,9488,9488,13.745489597320557,rgb/f1349_rgb.png
+1350,context-rich,3,3,3,1.0,0.08707682291666667,25,"{""support"": 10, ""collision"": 5, ""occlusion_budget"": 2, ""camera_clearance"": 5}",True,True,2,0.14739517153748416,4722,4026,12.026695013046265,rgb/f1350_rgb.png
+1351,context-rich,3,3,3,1.0,0.1118421052631579,7,"{""support"": 3, ""collision"": 1}",True,False,0,0.0,647,647,8.521381378173828,rgb/f1351_rgb.png
+1352,context-rich,3,3,3,1.0,0.09331597222222222,24,"{""support"": 11, ""collision"": 10}",True,False,0,0.0,126829,126829,12.385689973831177,rgb/f1352_rgb.png
+1353,context-rich,3,3,3,1.0,0.346435546875,88,"{""support"": 73, ""camera_clearance"": 7, ""collision"": 5}",True,False,0,0.08410295471135232,94527,86577,12.951504707336426,rgb/f1353_rgb.png
+1354,context-rich,3,1,1,1.0,0.30029296875,202,"{""support"": 199, ""collision"": 2}",True,False,0,0.0,80507,80507,10.80911898612976,rgb/f1354_rgb.png
+1355,context-rich,3,3,3,1.0,0.14892578125,131,"{""support"": 97, ""collision"": 19, ""occlusion_budget"": 12}",True,False,0,0.08044963632356184,13611,12516,24.052329063415527,rgb/f1355_rgb.png
+1356,context-rich,3,3,3,1.0,0.08897569444444445,11,"{""support"": 6, ""collision"": 2}",True,True,1,0.243420635423933,31538,23861,14.529809474945068,rgb/f1356_rgb.png
+1357,context-rich,3,3,3,1.0,0.05104775828460039,6,"{""support"": 3}",True,True,2,0.23824102421374893,3593,2737,13.587707996368408,rgb/f1357_rgb.png
+1358,context-rich,3,3,3,1.0,0.15227141203703703,6,"{""occlusion_budget"": 1, ""collision"": 1, ""support"": 1}",True,True,2,0.17761217202297774,6441,5297,10.57163381576538,rgb/f1358_rgb.png
+1359,context-rich,3,3,3,1.0,0.2764985380116959,7,"{""support"": 3, ""occlusion_budget"": 1}",True,False,0,0.11627575728800688,21062,18613,8.892480850219727,rgb/f1359_rgb.png
+1360,context-rich,3,3,3,1.0,0.19637044270833334,9,"{""support"": 6}",True,True,1,0.06654973938390851,80962,75574,19.215197801589966,rgb/f1360_rgb.png
+1361,context-rich,3,3,2,0.6666666666666666,0.12906901041666666,13,"{""occlusion_budget"": 9, ""support"": 1}",True,False,0,0.12121212121212122,561,493,13.80713176727295,rgb/f1361_rgb.png
+1362,context-rich,3,3,3,1.0,0.2859405458089669,12,"{""support"": 9}",True,True,0,0.0,78920,78920,12.983471870422363,rgb/f1362_rgb.png
+1363,context-rich,3,2,2,1.0,0.00904224537037037,23,"{""support"": 12, ""collision"": 7, ""occlusion_budget"": 2}",True,False,0,0.0,3012,3012,14.30281400680542,rgb/f1363_rgb.png
+1364,context-rich,3,3,3,1.0,0.06404622395833333,7,"{""support"": 3, ""occlusion_budget"": 1}",True,True,2,0.10839567251810567,33553,29916,9.747780084609985,rgb/f1364_rgb.png
+1365,context-rich,3,3,3,1.0,0.042154947916666664,7,"{""support"": 4}",True,False,0,0.058510638297872286,1880,1770,7.698895454406738,rgb/f1365_rgb.png
+1366,context-rich,3,3,3,1.0,0.2221137152777778,97,"{""occlusion_budget"": 7, ""support"": 77, ""collision"": 10}",True,False,0,0.11020613671365953,33764,30043,32.009496212005615,rgb/f1366_rgb.png
+1367,context-rich,3,3,3,1.0,0.08732096354166667,7,"{""support"": 2, ""collision"": 2}",True,True,0,0.0,3247,3247,16.15143895149231,rgb/f1367_rgb.png
+1368,context-rich,3,3,3,1.0,0.053548177083333336,6,"{""support"": 3}",True,False,0,0.0,52076,52076,7.775799512863159,rgb/f1368_rgb.png
+1369,context-rich,3,3,3,1.0,0.31359649122807015,122,"{""support"": 95, ""collision"": 20, ""camera_clearance"": 4}",True,False,0,0.0,201232,201232,15.426953315734863,rgb/f1369_rgb.png
+1370,context-rich,3,0,0,0.0,0.0,0,{},True,True,0,0.0,2136,2136,11.66742730140686,rgb/f1370_rgb.png
+1371,context-rich,3,3,3,1.0,0.12263997395833333,26,"{""support"": 5, ""occlusion_budget"": 11, ""collision"": 7}",True,True,2,0.23806492679821767,10997,8379,24.114048957824707,rgb/f1371_rgb.png
+1372,context-rich,3,3,3,1.0,0.12320963541666667,15,"{""support"": 7, ""collision"": 5}",True,False,0,0.0,7553,7553,10.57685923576355,rgb/f1372_rgb.png
+1373,context-rich,3,3,3,1.0,0.07698567708333333,8,"{""support"": 2, ""occlusion_budget"": 1, ""collision"": 2}",True,True,0,0.0,747,747,18.103151082992554,rgb/f1373_rgb.png
+1374,context-rich,3,2,2,1.0,0.2566550925925926,187,"{""support"": 166, ""collision"": 18, ""camera_clearance"": 1}",True,False,0,0.0,142605,142605,21.463305950164795,rgb/f1374_rgb.png
+1375,context-rich,3,3,3,1.0,0.15714518229166666,38,"{""occlusion_budget"": 2, ""collision"": 16, ""support"": 17}",True,True,2,0.23379299413536214,37854,29004,16.7396297454834,rgb/f1375_rgb.png
+1376,context-rich,3,3,3,1.0,0.034342447916666664,6,"{""collision"": 1, ""support"": 2}",True,True,0,0.0,3839,3839,22.685365200042725,rgb/f1376_rgb.png
+1377,context-rich,3,3,3,1.0,0.06475389863547758,4,"{""collision"": 1}",True,False,0,0.0,5317,5317,10.576755046844482,rgb/f1377_rgb.png
+1378,context-rich,3,0,0,0.0,0.0,0,{},True,True,2,0.027349577324714103,58319,56724,7.4599573612213135,rgb/f1378_rgb.png
+1379,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,159409,159409,5.768995523452759,rgb/f1379_rgb.png
+1380,context-rich,3,3,3,1.0,0.3518880208333333,21,"{""support"": 12, ""collision"": 6}",True,False,0,0.0,8634,8634,10.908792972564697,rgb/f1380_rgb.png
+1381,context-rich,3,2,2,1.0,0.4261067708333333,184,"{""support"": 154, ""occlusion_budget"": 4, ""collision"": 24}",True,True,2,0.17121298482751135,36843,30535,18.473268747329712,rgb/f1381_rgb.png
+1382,context-rich,3,3,2,0.6666666666666666,0.144287109375,6,"{""support"": 2, ""collision"": 1}",True,False,0,0.0,7698,7698,13.657501697540283,rgb/f1382_rgb.png
+1383,context-rich,3,3,3,1.0,0.06583658854166667,6,"{""support"": 3}",True,True,1,0.17967072297780962,2794,2292,11.24722695350647,rgb/f1383_rgb.png
+1384,context-rich,3,0,0,0.0,0.0,0,{},True,False,0,0.0,1381,1381,8.080857753753662,rgb/f1384_rgb.png
+1385,context-rich,3,3,3,1.0,0.049985532407407406,7,"{""support"": 4}",True,False,0,0.0,171132,171132,12.7262601852417,rgb/f1385_rgb.png
+1386,context-rich,3,3,3,1.0,0.101806640625,12,"{""support"": 6, ""collision"": 2, ""occlusion_budget"": 1}",True,True,2,0.0,23991,23991,15.35879921913147,rgb/f1386_rgb.png
+1387,context-rich,3,3,3,1.0,0.4291087962962963,17,"{""occlusion_budget"": 1, ""support"": 8, ""collision"": 5}",True,False,0,0.01522428899950512,34353,33830,14.310245513916016,rgb/f1387_rgb.png
+1388,context-rich,3,3,3,1.0,0.15533625730994152,5,"{""support"": 2}",True,True,2,0.22158783284933803,20317,15815,15.325003862380981,rgb/f1388_rgb.png
+1389,context-rich,3,3,3,1.0,0.025227864583333332,8,"{""occlusion_budget"": 4, ""collision"": 1}",True,True,1,0.19822595704948642,10710,8587,18.468944549560547,rgb/f1389_rgb.png
+1390,context-rich,3,3,3,1.0,0.16878255208333334,24,"{""occlusion_budget"": 9, ""collision"": 4, ""support"": 8}",True,False,0,0.0,11698,11698,19.62884521484375,rgb/f1390_rgb.png
+1391,context-rich,3,3,3,1.0,0.081298828125,7,"{""support"": 3, ""collision"": 1}",True,True,1,0.23406326034063263,2055,1574,11.689094543457031,rgb/f1391_rgb.png
+1392,context-rich,3,3,3,1.0,0.24451754385964913,101,"{""collision"": 13, ""support"": 85}",True,False,0,0.0,155660,155660,11.701593399047852,rgb/f1392_rgb.png
+1393,context-rich,3,3,3,1.0,0.21961805555555555,7,"{""support"": 2, ""collision"": 1, ""occlusion_budget"": 1}",True,False,0,0.12230339198134244,29157,25591,11.334437131881714,rgb/f1393_rgb.png
+1394,context-rich,3,3,3,1.0,0.13712565104166666,16,"{""support"": 8, ""collision"": 3, ""occlusion_budget"": 2}",True,True,2,0.0,77359,77359,17.36404275894165,rgb/f1394_rgb.png
+1395,context-rich,3,3,3,1.0,0.027913411458333332,6,"{""support"": 3}",True,True,1,0.2405791720809356,5387,4091,10.945812702178955,rgb/f1395_rgb.png
+1396,context-rich,3,3,3,1.0,0.0535453216374269,161,"{""support"": 119, ""collision"": 24, ""occlusion_budget"": 1, ""camera_clearance"": 14}",True,False,0,0.0,277031,277031,20.99318552017212,rgb/f1396_rgb.png
+1397,context-rich,3,3,3,1.0,0.11219618055555555,7,"{""support"": 2, ""occlusion_budget"": 2}",True,True,2,0.20093823299452696,1279,1022,16.93716549873352,rgb/f1397_rgb.png
+1398,context-rich,3,3,3,1.0,0.3982090643274854,6,"{""collision"": 1, ""support"": 2}",True,True,1,0.22555282555282552,20350,15760,17.84418511390686,rgb/f1398_rgb.png
+1399,context-rich,3,3,3,1.0,0.20524088541666666,13,"{""support"": 10}",True,False,0,0.005436962015872626,107229,106646,8.934959888458252,rgb/f1399_rgb.png

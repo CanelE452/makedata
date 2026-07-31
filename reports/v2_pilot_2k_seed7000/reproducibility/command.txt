@@ -1,0 +1,23 @@
+# wrapper (실제 실행)
+python scripts/data_prep/blender/run_v2_pilot_2k_repro.py \
+  --out data/pallet/runs/diagnostics/v2_pilot_2k_seed7000_fullaudit \
+  --seed 7000 --n 2000 --session-usable-cap 100 \
+  --render-profile dataset-quality --samples 64 --noise-tier auto \
+  --mask-profile full-audit --magenta-max-fraction 0.0 \
+  --log-dir reports/v2_pilot_2k_seed7000/logs
+
+# wrapper 가 세션마다 호출하는 Blender 명령
+"C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" -b "E:\CODING\GitHub\FoundationPose\data\pallet\assets\scenes\production\blender_scene\synth_data_scene_portable_stage2c2.blend" \
+  --python scripts/data_prep/blender/run_v2_scene_logic.py -- \
+  --out data/pallet/runs/diagnostics/v2_pilot_2k_seed7000_fullaudit \
+  --seed 7000 --n 2000 --completion-mode usable \
+  --render-profile dataset-quality --samples 64 --noise-tier auto \
+  --mask-profile full-audit --magenta-max-fraction 0.0 \
+  --session-usable-cap 100
+
+# environment variables
+PYTHONIOENCODING=utf-8
+(BLENDER_EXE 는 설정하지 않았다 — wrapper 가 표준 경로에서 탐지)
+
+# production scene 은 registry 로만 해석한다
+python scripts/data_prep/blender/pallet_data_paths.py --key production_scene

@@ -1,0 +1,9 @@
+reject_reason,count,runtime_total_s,runtime_median_s,runtime_p95_s,runtime_max_s,rendered_frames
+usable_reject:rendered|usable_reject:realize_ok,94,4936.447621583939,47.89746916294098,103.6109813213348,127.74679589271545,94
+gate_fail:G5,2,126.86228251457214,63.43114125728607,65.66989153623581,65.91864156723022,2
+gate_fail:G3,1,50.432060956954956,50.432060956954956,50.432060956954956,50.432060956954956,1
+usable_reject:ground_continuity_pass,1,33.22293663024902,33.22293663024902,33.22293663024902,33.22293663024902,1
+proposal_skip:mode_requires_explicit_occluder,98,0,,,,0
+solve_reject:C1,15,0,,,,0
+solve_reject:d_occ_fail,11,0,,,,0
+solve_reject:v_below_min,7,0,,,,0

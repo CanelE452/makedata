@@ -1,0 +1,77 @@
+{
+  "stage": "v2_pilot_2k_seed7000",
+  "when": "preflight",
+  "base_commit": "7540428a90953bbe23119321086c7dfc4320fd01",
+  "branch": "feat/v2-pilot-2k-paper-figures",
+  "baseline": {
+    "registry": {
+      "ok": 28,
+      "missing": 0,
+      "absent_optional": 0
+    },
+    "unit": {
+      "passed": 778,
+      "skipped": 0,
+      "failed": 0
+    },
+    "integration": {
+      "passed": 31,
+      "skipped": 0,
+      "failed": 0
+    },
+    "golden": {
+      "passed": 51,
+      "skipped": 0,
+      "failed": 0
+    },
+    "frameSpec_5k": {
+      "accepted": 4313,
+      "rejected": 687,
+      "digest_prefix": "938f387d"
+    },
+    "proposal_5k": {
+      "accepted": 4439,
+      "digest_prefix": "3cd365ee",
+      "checks": "12/12"
+    },
+    "active_scene": {
+      "sha256": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+      "sha256_prefix": "8cb4109a",
+      "bytes": 358898838,
+      "absolute_external": 0,
+      "missing_external": 0,
+      "dist_roots": 209
+    },
+    "data_pallet_files": 363090
+  },
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "blender_version": "5.1.1",
+    "blender_build_hash": "b70da489d7f4",
+    "blender_build_date": "2026-04-14",
+    "blender_python": "3.13.9",
+    "host_python": "3.13.9",
+    "numpy": "2.3.5",
+    "pillow": "12.0.0",
+    "matplotlib": "3.10.6",
+    "scipy": "1.16.3",
+    "gpu": "NVIDIA GeForce RTX 4070",
+    "gpu_driver": "32.0.15.9579",
+    "locale": [
+      "Korean_Korea",
+      "949"
+    ],
+    "preferred_encoding": "cp949",
+    "timezone": [
+      "대한민국 표준시",
+      "대한민국 일광 절약 시간"
+    ],
+    "utc_offset_hours": 9,
+    "disk_free_e": "1.3T of 1.9T"
+  },
+  "processes_at_preflight": {
+    "blender": 0,
+    "foundationpose_python": 0,
+    "note": "다른 프로젝트(Algorithmic-Trading) python 4개는 종료하지 않았다"
+  }
+}
