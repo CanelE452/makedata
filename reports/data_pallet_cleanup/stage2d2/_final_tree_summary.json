@@ -1,0 +1,32 @@
+{
+  "MANAGEMENT_FILE": {
+    "n": 3,
+    "files": 3,
+    "bytes": 20924
+  },
+  "EXPECTED_ROOT": {
+    "n": 6,
+    "files": 358545,
+    "bytes": 188117567722
+  },
+  "KEEP_QUARANTINE": {
+    "n": 1,
+    "files": 4543,
+    "bytes": 4350676768
+  },
+  "PLAN_ROW_KEEP_QUARANTINE": {
+    "n": 1,
+    "files": 3,
+    "bytes": 738082
+  },
+  "SEMANTIC_CONTAINER": {
+    "n": 16,
+    "files": 670444,
+    "bytes": 356306078278
+  },
+  "MOVED_BY_LEDGER": {
+    "n": 250,
+    "files": 346864,
+    "bytes": 181091207828
+  }
+}

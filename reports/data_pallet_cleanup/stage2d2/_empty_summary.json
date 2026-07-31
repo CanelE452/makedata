@@ -1,0 +1,8 @@
+{
+  "total_empty": 420,
+  "counts": {
+    "EMPTY_POLICY_CONTAINER": 19,
+    "EMPTY_PAYLOAD_SUBDIR": 401
+  },
+  "stale_top_level": []
+}

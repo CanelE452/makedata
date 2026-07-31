@@ -12,7 +12,7 @@ BLENDER="/c/Program Files/Blender Foundation/Blender 5.1/blender.exe"
 # Stage 2-C1: 씬 경로는 리터럴 대신 registry(config/synthetic/pallet_paths.yaml)에 물어본다.
 SCENE="$(python "${ROOT}/scripts/data_prep/blender/pallet_data_paths.py" --key production_scene)"
 SCRIPT="${ROOT}/scripts/data_prep/blender/_v2_pilot_2k.py"
-OUT="${ROOT}/data/pallet/_v2_pilot_2k"
+OUT="${ROOT}/data/pallet/runs/diagnostics/_v2_pilot_2k"
 LOGDIR="${OUT}/logs"
 mkdir -p "$LOGDIR" "${OUT}/rgb"
 

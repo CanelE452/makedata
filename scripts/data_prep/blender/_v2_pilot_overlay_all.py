@@ -1,7 +1,7 @@
 """v2 PILOT 2k — FULL-SET 9kp cuboid overlay (bpy-FREE: PIL + numpy only).
 
 Draws a 9-keypoint cuboid overlay for EVERY frame of the pilot render
-(data/pallet/_v2_pilot_2k: labels/ + rgb/, idx 0..1999 continuous) so the whole
+(data/pallet/archive/superseded_runs/_v2_pilot_2k: labels/ + rgb/, idx 0..1999 continuous) so the whole
 set can be eyeballed, not just the 84 audit samples. NO Blender, NO re-render, NO
 commit. Reads on-disk labels/rgb only and draws 2D.
 
@@ -17,7 +17,7 @@ all_pass gate, front_visibility_cos, facing_margin.
 
 Run:
   C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/_v2_pilot_overlay_all.py \
-      --dir data/pallet/_v2_pilot_2k
+      --dir data/pallet/archive/superseded_runs/_v2_pilot_2k
 """
 import argparse
 import json
@@ -81,7 +81,7 @@ def _draw_overlay(rgb_path, lab, out_path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dir", default="data/pallet/_v2_pilot_2k")
+    ap.add_argument("--dir", default="data/pallet/archive/superseded_runs/_v2_pilot_2k")
     ap.add_argument("--n", type=int, default=2000, help="number of frames idx 0..n-1")
     args = ap.parse_args()
 

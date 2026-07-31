@@ -3,7 +3,7 @@
 #
 # This is a thin, parametric wrapper around run_mass_10k.py that pins the EXACT
 # preset used for the original add-on run (verified from
-# data/pallet/train_palletobj_addon_v1_gen.log):
+# data/pallet/archive/superseded_runs/train_palletobj_addon_v1_gen.log):
 #
 #   blend   = data/pallet/blender_scene/_sandbox_palletobj_production.blend
 #   driver  = scripts/data_prep/blender/run_mass_10k.py  (-> gen_palletobj_scenarios.py)

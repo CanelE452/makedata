@@ -10,7 +10,7 @@
     python scripts/data_prep/evaluate_on_val.py \
         --weights weights/pallet_category/final_net_epoch_0060.pth \
         --val_dir "$(python scripts/data_prep/blender/pallet_data_paths.py --resolve registry:legacy_training_data_root/val)" \
-        --output_dir data/pallet/eval_results
+        --output_dir data/pallet/runs/eval
 """
 
 import argparse
@@ -127,7 +127,7 @@ def main():
     parser = argparse.ArgumentParser(description="DOPE 6D Pose 종합 평가")
     parser.add_argument("--weights", required=True)
     parser.add_argument("--val_dir", required=True)
-    parser.add_argument("--output_dir", default="data/pallet/eval_results")
+    parser.add_argument("--output_dir", default="data/pallet/runs/eval")
     parser.add_argument("--threshold", type=float, default=0.3,
                         help="Belief map peak threshold")
     parser.add_argument("--max_frames", type=int, default=200)

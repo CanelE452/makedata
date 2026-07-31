@@ -1,0 +1,49 @@
+{
+  "stage": "2-D2",
+  "generated_from": "reports/data_pallet_cleanup/stage2d2/ 산출물",
+  "base_commit": "d5e1ba181345fc7d84480606b26ba732ec3324e8",
+  "D2_SCOPE_COMPLETE": {
+    "selected_rows": 199,
+    "ledger_rows": 199,
+    "verified": 199,
+    "moved": 199,
+    "failed": 0,
+    "rolled_back": 0,
+    "sha256_mismatch": 0,
+    "unhashed": 0,
+    "source_residual": 0,
+    "pass": true
+  },
+  "FULL_DATA_PALLET_LAYOUT_POLICY_COMPLETE": {
+    "d2_scope_complete": true,
+    "approved_plan_executed_no_with_existing_source": 0,
+    "planned_residual_remaining": 0,
+    "unknown_remaining": 0,
+    "blocked_remaining": 0,
+    "unclassified_remaining": 0,
+    "current_broken_ref": 0,
+    "exclusion_leak": 0,
+    "prior_ledger_unmapped_missing": 0,
+    "keep_and_quarantine_documented": {
+      "isaac_assets": {
+        "role": "Isaac Sim 소스 에셋 (NVIDIA EULA)",
+        "current_reference": "config/synthetic/isaac_sim.yaml:9,10 (isaac_assets_root, hdri_dir)",
+        "keep_reason": "ledger B6 — 재배포 제한. archive.csv 에 이동 계획 row 가 없어 이번 범위의 승인 대상이 아니다. _DISTRIBUTION_EXCLUDE.txt 등재됨.",
+        "classification": "KEEP_QUARANTINE"
+      },
+      "archive/_noai_quarantine_usd": "archive.csv final_status = KEEP_QUARANTINE — 현 위치가 라이선스 근거 (ledger B1). _DISTRIBUTION_EXCLUDE.txt 등재."
+    },
+    "pass": true
+  },
+  "FULL_PHYSICAL_MINIMAL_TREE": {
+    "top_level_unexpected": 0,
+    "top_level_zip": 0,
+    "dataset_or_package_outside_semantic_container": 0,
+    "stale_empty_source_outside_final_roots": 0,
+    "old_new_duplicate_path": 0,
+    "empty_policy_containers_kept": 19,
+    "empty_payload_subdirs_kept": 401,
+    "pass": true
+  },
+  "DATA_PALLET_CLEANUP_COMPLETE": true
+}

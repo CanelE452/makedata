@@ -60,7 +60,7 @@ import mask_profiles as MP  # noqa: E402  (bpy-free; shared mask layout/profile 
 ImageFile.LOAD_TRUNCATED_IMAGES = False
 
 
-DEFAULT_DIR = "data/pallet/_v2_scene_logic_500_seed7500"
+DEFAULT_DIR = "data/pallet/archive/superseded_runs/_v2_scene_logic_500_seed7500"
 DEFAULT_OUT_DIRNAME = "eda"
 MASK_NAMES = list(MP.mask_stages(MP.FULL_AUDIT))
 DEFAULT_MASK_REPORT_DIRNAME = "mask_integrity"

@@ -26,7 +26,7 @@ This is why P2 (near-square footprint, W/D differ 6 mm) is handled correctly:
 validity is keyed on the PHYSICAL axis, not on which side happens to be marginally
 longer this frame.
 
-Source of the ratios: P0/P1 from data/pallet/archive/_efront_12kp_check/efront_measurements.json
+Source of the ratios: P0/P1 from data/pallet/archive/superseded_runs/_efront_12kp_check/efront_measurements.json
 (measured read-only from the baked scene, 2026-07; rebuild via build_ratio_table_from_json).
 P2/P3 were re-measured for the 2026-07 re-bake (P2=J-Toastie, P3=EUR replaced the
 removed NoAI wood pallets) from the registry key pallet_measurements

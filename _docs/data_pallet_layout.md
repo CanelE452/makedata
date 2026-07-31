@@ -506,3 +506,102 @@ archive/ depth 2      135   1.20 GiB   test_blender_v* 과거 렌더 · _efront_
 ```
 
 상세: `reports/data_pallet_cleanup/stage2d12/` (final_report.md 가 45항목 순서 + 마감 수치)
+
+## 11. Stage 2-D2 실행 결과 (2026-07-31) — 레이아웃 정리 종료
+
+Stage 2-A archive 계획에 destination 이 있으나 `executed=no` 로 남아 있던 물리적 잔여를
+최종 destination 으로 옮겨 레이아웃 정책을 닫았다.
+
+```
+cohort                 rows  files     bytes           hash read(pre+post)   failures
+────────────────────────────────────────────────────────────────────────────────────────
+D2_SUPERSEDED_RUNS      135  21,321   5,268,927,072    4.91 + 4.91 GiB          0
+D2_LEGACY_DATASETS       64   1,963     607,410,306    0.57 + 0.57 GiB          0
+────────────────────────────────────────────────────────────────────────────────────────
+                        199  23,284   5,876,337,378   10.95 / 16 GiB            0
+```
+
+hash-mode all · same-volume rename · 삭제 0 · overwrite 0 · unhashed 0 ·
+`data/pallet` 파일수 **363,090 불변**(bytes +150,544 = manifests 150,286 + exclusion 258).
+
+### 잔여 재계산 — 보고서 숫자를 믿지 않았다
+
+세 자료를 독립적으로 읽고 대조했다.
+
+```
+A  FILESYSTEM_RESIDUAL                   201   (depth-1 66 + archive depth-1 135)
+B  FINAL_TREE_RESIDUAL (stage2d12)       207   ★ 그중 8은 D1.2 분류기 결함(허수)
+C  PLAN_PENDING (archive.csv, source 존재) 183
+   A ∩ B ∩ C                             182
+```
+
+`B − A = 8` 은 semantic **하위** container(noai_baked · redistributable · snapshots ·
+dataset_bundles …)와 `archive/README.md` 를 `RESIDUAL_DATASET_DIR` 로 세던 D1.2 분류기
+결함이었다. 최종 구조 그 자체인데 "정리 안 된 잔여"로 잡히던 허수 — D2 에서 고쳤다.
+
+`A − C = 18` 중 17건은 **Stage 2-A 계획 수립 이후 생성된** v2 진단 run·로그다. 계획된
+동종 48건과 분류·destination 이 같아 D2 에서 plan row 를 신설해 함께 옮겼다
+(`plan_origin = D2_PLAN_ADDITION`). 나머지 1건은 `isaac_assets`.
+
+### ★ 이동 전 참조 실측 — 오탐 145건을 걸렀다
+
+1차 측정에서 145건이 live runtime 참조를 갖는 것으로 나왔는데, join-form 패턴이 leaf 의
+**첫 세그먼트만** 요구해서 `os.path.join("data","pallet","archive","training_data")`
+한 줄(`merge_and_validate.py:18`)이 `archive/*` 후보 전부에 걸린 것이었다.
+"모든 세그먼트 요구"로 고치자 **145 → 14**.
+
+실제 14건은 전환 규칙을 역할별로 나눠 처리했다:
+
+```
+WRITE (--out / out_dir / DEFAULT_OUT)  ->  data/pallet/runs/{diagnostics,eval}/
+READ  (--dir / --records / DEFAULT_DIR / config input / docstring)
+                                       ->  data/pallet/archive/superseded_runs/
+```
+
+출력 기본값을 archive 로 보내면 **재실행이 아카이브를 오염시키고 옛 레이아웃이
+되살아난다**(D0.1 이 `gen_palletobj_v1.py:569` 에서 잡은 함정). 도구에도 이미
+`EXPLICIT_EXCLUSIONS` 로 `v2_dryrun_audit` 이 같은 이유로 이동 금지돼 있었는데,
+D2 는 **함정 자체를 해소**하고 그 사실을 `RESOLVED_EXCLUSIONS` 에 남겼다(가드 삭제 아님).
+
+전환 후 이동 대상 199건의 live runtime/test 참조 = 0.
+
+### 최종 구조
+
+```
+data/pallet/
+├── assets/ reference/ runs/ manifests/ release/ archive/
+├── README.md · _DISTRIBUTION_EXCLUDE.txt
+└── isaac_assets/           KEEP_QUARANTINE (NVIDIA EULA, 이동 계획 row 없음)
+
+data/pallet/archive/
+├── legacy_datasets/{redistributable, noai_baked, partial}
+├── packages/{dataset_bundles, background_sources, corrupt}
+├── superseded_runs/        ★ D2 가 199건 수용 (21,321 파일 / 5,025 MiB)
+├── legacy_scenes/{snapshots, blender_backups}
+├── legacy_assets/ nonredistributable/ unidentified/ corrupt/   (빈 policy container)
+├── _noai_quarantine_usd/   KEEP (현 위치가 라이선스 근거)
+└── README.md
+```
+
+archive depth-1 은 **134 entry 감소 / 0 증가**.
+
+### 빈 디렉토리 — 420개, 삭제 0 · 이동 0
+
+`STALE_EMPTY_SOURCE = 0`. §20 기준은 "stale empty source **outside final roots**"이고,
+420개는 전부 policy container(19) 또는 최종 구조 **안**의 빈 하위폴더(401)다.
+그래서 `archive/legacy_layout/empty_sources/` 는 만들지 않았다.
+
+### 완료 판정
+
+```
+D2_SCOPE_COMPLETE                        ✅
+FULL_DATA_PALLET_LAYOUT_POLICY_COMPLETE  ✅
+FULL_PHYSICAL_MINIMAL_TREE               ✅
+DATA_PALLET_CLEANUP_COMPLETE             ✅
+```
+
+`archive.csv` 에서 **source 가 현재 존재하는 승인 row 중 executed=no = 0**.
+남은 `executed=no` 는 전부 명시적 final policy 다(KEEP_QUARANTINE 1 ·
+ALREADY_MOVED_BY_PRIOR_STAGE 12 · NO_SOURCE_ROW 3).
+
+상세: `reports/data_pallet_cleanup/stage2d2/` (final_report.md 가 49항목 + 마감 수치)

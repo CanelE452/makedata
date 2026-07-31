@@ -120,7 +120,7 @@ def verify_single(json_path, model_name=""):
 def main():
     # Stage 2-D0.1: test_canonical 은 archive/ 아래로 내려갔다.
     data_dir = (sys.argv[1] if len(sys.argv) > 1
-                else "data/pallet/archive/test_canonical")
+                else "data/pallet/archive/superseded_runs/test_canonical")
     json_files = sorted(glob.glob(os.path.join(data_dir, "*.json")))
     if not json_files:
         print(f"[ERROR] No JSON files in {data_dir}")

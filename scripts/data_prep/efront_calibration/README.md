@@ -8,7 +8,7 @@
 Blender 5.1로 P0~P3 × 앞면 2종의 개구부 기하 8레코드를 측정:
 - 닫힌 2홀 면: see-through 정사영 hole 검출
 - bottom_open 면(P1 short, P2 long): front slab + 데크 밑면 cap + 바닥 seal
-- 출력 JSON = data/pallet/archive/_efront_12kp_check/efront_measurements.json (대용량 산출물이라 gitignore)
+- 출력 JSON = data/pallet/archive/superseded_runs/_efront_12kp_check/efront_measurements.json (대용량 산출물이라 gitignore)
 - efront_kp12.py의 build_ratio_table_from_json()과 대조 시 mismatch 0 이어야 함
 
 실행:

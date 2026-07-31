@@ -1,7 +1,7 @@
 # Blender v2 usable 50-frame continuous EDA 결과 해석
 
 작성일: 2026-07-27
-대상 산출물: `data/pallet/_v2_smoke50_9d/eda/paper_continuous/`
+대상 산출물: `data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/`
 
 문서 상태: **usable 50장 배달셋의 연속변수 EDA 해석 — 500-frame pilot도 40k 본렌더도 아니다**
 
@@ -34,14 +34,14 @@
 [확인] 아래 파일을 직접 읽었다.
 
 ```text
-data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/*.png     17개 (전부 개별 확인)
-data/pallet/_v2_smoke50_9d/eda/paper_continuous/continuous_summary.json
-data/pallet/_v2_smoke50_9d/eda/paper_continuous/continuous_metrics.csv    215행
-data/pallet/_v2_smoke50_9d/eda/paper_continuous/discrete_counts.csv        60행
-data/pallet/_v2_smoke50_9d/eda/paper_continuous/paper_continuous_summary.md
+data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/*.png     17개 (전부 개별 확인)
+data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/continuous_summary.json
+data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/continuous_metrics.csv    215행
+data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/discrete_counts.csv        60행
+data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/paper_continuous_summary.md
 reports/v2_revision/quality_smoke50/summary.md                        (Phase 9E 보고서)
 reports/v2_revision/quality_smoke50/pnp/pnp_threshold_study.md
-data/pallet/_v2_smoke50_9d/records.jsonl / labels/*_label.json        (수치 재계산용)
+data/pallet/archive/superseded_runs/_v2_smoke50_9d/records.jsonl / labels/*_label.json        (수치 재계산용)
 ```
 
 [확인] 같은 이름의 PDF 17개가 `figures_pdf/`에 있고, 내용은 PNG와 동일한 figure다(논문용 벡터 출력).
@@ -122,7 +122,7 @@ PnP eligibility만 비퇴화 곡선                               fig 13, base 0
 
 ## 핵심 그림 미리보기
 
-![가림원별 zero point mass와 조건부 ECDF](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/06_occlusion_source_zero_mass_and_positive_ecdf.png)
+![가림원별 zero point mass와 조건부 ECDF](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/06_occlusion_source_zero_mass_and_positive_ecdf.png)
 
 *그림 P1 (fig 06). 5개 가림원(static / cargo / context / explicit / total)을 zero-inflated 분포로 다룬다.
 왼쪽 막대는 P(X=0)을 점질량으로 그대로 표시하고, 오른쪽은 X>0에만 조건부 ECDF와 KDE를 얹는다.
@@ -130,40 +130,40 @@ PnP eligibility만 비퇴화 곡선                               fig 13, base 0
 이게 이 그림의 방법론적 핵심이다. n=1(f_static), n=3(f_context) 패널은 ECDF 계단 자체가 표본이며 분포로
 읽으면 안 된다.*
 
-![projected size target vs actual](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/08_projected_size_target_vs_actual.png)
+![projected size target vs actual](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/08_projected_size_target_vs_actual.png)
 
 *그림 P2 (fig 08). 50쌍 전부가 y=x 위쪽에 있다. 잔차 ECDF가 0 왼쪽에 아무 질량도 갖지 않는 것(signed residual
 최솟값 > 0)이 그 시각적 증거다. bias_mean = +0.1954로 MAE와 정확히 같다(= 모든 잔차가 양수라는 뜻).
 이건 랜덤 오차가 아니라 `projected_size_actual`이 큐보이드 코너가 화면 밖으로 나가거나 카메라 뒤로 갈 때
 과대 읽히는 **계통 결함**(blocker B5)이다.*
 
-![controlled occlusion f_target vs f_explicit_actual](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/09_f_target_vs_f_explicit_actual.png)
+![controlled occlusion f_target vs f_explicit_actual](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/09_f_target_vs_f_explicit_actual.png)
 
 *그림 P3 (fig 09). 왼쪽은 배달된 15장의 정밀도(MAE 0.052, Pearson r 0.907), 오른쪽 막대는 proposal-level
 delivery(38 제안 → 15 배달 → 15 쌍)를 **같은 숫자에 섞지 않고** 따로 보여준다. 이 두 패널을 분리한 것이
 핵심이다 — 왼쪽만 보면 solver가 정확해 보이고, 오른쪽만 보면 실패만 보인다.*
 
-![P(all_pass) vs f_total](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/12_allpass_probability_vs_f_total.png)
+![P(all_pass) vs f_total](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/12_allpass_probability_vs_f_total.png)
 
 *그림 P4 (fig 12). **무정보 그림의 대표 사례.** 곡선 3개가 전부 y=1.0에 겹쳐 있고, rug의 negative 줄에는
 눈금이 하나도 없다. usable 셋에는 실패 사례가 0이라 base rate가 1.000이고 LOO Brier가 8.1e-33이다.
 "가림이 커져도 게이트 통과율이 안 떨어진다"로 읽으면 안 된다 — 애초에 떨어질 사례가 배달셋에 들어올 수 없다.*
 
-![PnP eligibility vs projected size](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/13_pnp_stability_vs_projected_size.png)
+![PnP eligibility vs projected size](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/13_pnp_stability_vs_projected_size.png)
 
 *그림 P5 (fig 13). 이 셋에서 **유일하게 비퇴화한 pass-probability 그림**이다. PnP eligibility는 배달 조건이
 아니라 사후 측정값이라 0과 1이 모두 존재한다(base 0.909 / 0.773 / 0.727). 다만 200 격자점 중 신뢰 구간
 (n_eff >= 20)이 **0개**라 전 구간이 점선이다. 큰 projected size에서 넓게 벌어진 부트스트랩 밴드는 신호가
 아니라 표본 희박이다.*
 
-![scene preset별 final-RGB luma ECDF](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/05_final_luma_ecdf_by_scene.png)
+![scene preset별 final-RGB luma ECDF](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/05_final_luma_ecdf_by_scene.png)
 
 *그림 P6 (fig 05). post-effect가 적용된 **final** RGB 기준 luma다(G5가 실제로 보는 픽셀). 왼쪽은 팔레트
 영역, 오른쪽은 프레임 전체. 4개 preset 표본이 16/12/11/11로 작아 계단이 거칠다. 눈에 띄는 건 outdoor-day의
 팔레트 luma가 가장 왼쪽(어두움)이고 outdoor-night가 그보다 오른쪽이라는 점인데, preset 이름과 팔레트
 밝기가 단조 대응하지 않는다는 뜻이다.*
 
-![이산 변수 카운트](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/A01_discrete_variable_counts.png)
+![이산 변수 카운트](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/A01_discrete_variable_counts.png)
 
 *그림 P7 (A01). 21개 이산 변수의 카운트. `(missing)` 버킷을 회색으로 **분리**해 그리고 0/False와 절대
 합치지 않는다(구 analyzer의 falsy-0 버그를 고친 결과). G1~G5와 all_pass가 전부 True 한 막대만 갖는 것이
@@ -175,7 +175,7 @@ delivery(38 제안 → 15 배달 → 15 쌍)를 **같은 숫자에 섞지 않고
 
 ### Fig. 01 — Camera distance: target vs actual
 
-파일: [01_camera_distance_ecdf.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/01_camera_distance_ecdf.png)
+파일: [01_camera_distance_ecdf.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/01_camera_distance_ecdf.png)
 
 [확인] 분모 50, target n=50 / actual n=50, missing 0. ECDF(주) + KDE(보조, Silverman robust h=1.197,
 reflection 경계보정, [0,10] m로 clip).
@@ -206,7 +206,7 @@ camera dist    1.157    1.994    3.180    7.072    9.295    0.816    9.737
 
 ### Fig. 02 — Projected size ratio: target vs actual (ECDF)
 
-파일: [02_projected_size_target_actual_ecdf.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/02_projected_size_target_actual_ecdf.png)
+파일: [02_projected_size_target_actual_ecdf.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/02_projected_size_target_actual_ecdf.png)
 
 [확인] 분모 50. target n=50, actual n=50이지만 actual 중 **6개가 nominal support [0,1] 밖**(최대 2.624)이다.
 이 6개는 ECDF에는 남기고 density와 x축 표시에서만 제외했다.
@@ -229,7 +229,7 @@ actual ECDF는 x=1.0에서 0.88까지만 올라가고 나머지 12 %(6/50)는 �
 
 ### Fig. 03 — Camera elevation: target vs actual (density)
 
-파일: [03_elevation_target_actual_density.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/03_elevation_target_actual_density.png)
+파일: [03_elevation_target_actual_density.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/03_elevation_target_actual_density.png)
 
 [확인] 분모 50, missing 0. density는 처방 범위 (0.5, 80.0) deg로 clip, h=7.396.
 
@@ -253,7 +253,7 @@ Phase 9E 보고서에 따르면 elev < 5도가 8장, < 10도가 17장(분모 50)
 
 ### Fig. 04 — Azimuth prescription: von Mises circular KDE
 
-파일: [04_azimuth_circular_kde.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/04_azimuth_circular_kde.png)
+파일: [04_azimuth_circular_kde.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/04_azimuth_circular_kde.png)
 
 [확인] 분모 50, missing 0. 극좌표 밀도(왼쪽)와 0~360 펼친 뷰(오른쪽) 두 패널.
 
@@ -280,7 +280,7 @@ seam step / local median step      1.032
 
 ### Fig. 05 — Final-RGB luma ECDF by scene preset
 
-파일: [05_final_luma_ecdf_by_scene.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/05_final_luma_ecdf_by_scene.png)
+파일: [05_final_luma_ecdf_by_scene.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/05_final_luma_ecdf_by_scene.png)
 
 [확인] 분모 50. `luma_pallet_final` n=50, `luma_frame_final` n=50, scene_preset 4그룹
 (outdoor-day 16 / random-mix 12 / indoor 11 / outdoor-night 11).
@@ -317,7 +317,7 @@ preset이 절대 밝기를 결정하지 않기 때문이다.
 
 ### Fig. 06 — Occlusion sources: zero point mass + conditional ECDF
 
-파일: [06_occlusion_source_zero_mass_and_positive_ecdf.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/06_occlusion_source_zero_mass_and_positive_ecdf.png)
+파일: [06_occlusion_source_zero_mass_and_positive_ecdf.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/06_occlusion_source_zero_mass_and_positive_ecdf.png)
 
 [확인] 분모 50, 5개 변수 전부 missing 0. 좌측은 P(X=0) 막대, 우측은 X>0 조건부 ECDF(+ n>=15일 때만 KDE).
 
@@ -346,7 +346,7 @@ explicit occluder는 배달 15건 전부에서 양수이고 조건부 중앙값 
 
 ### Fig. 07 — Elevation: target vs actual (scatter + residual)
 
-파일: [07_elevation_target_vs_actual.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/07_elevation_target_vs_actual.png)
+파일: [07_elevation_target_vs_actual.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/07_elevation_target_vs_actual.png)
 
 [확인] 분모 50, rendered-only. 좌측 산점도는 y=x 위에 완전히 눕고, 우측 잔차 ECDF의 x축 단위는 **1e-5**다.
 
@@ -371,7 +371,7 @@ bias_mean    8.340e-08 deg
 
 ### Fig. 08 — Projected size: target vs actual (scatter + residual)
 
-파일: [08_projected_size_target_vs_actual.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/08_projected_size_target_vs_actual.png)
+파일: [08_projected_size_target_vs_actual.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/08_projected_size_target_vs_actual.png)
 
 [확인] 분모 50, rendered-only. 6/50 쌍이 support [0,1] 밖(최대 2.624)이라 산점도는 clip됐지만 **통계는
 50쌍 전부**를 쓴다.
@@ -400,7 +400,7 @@ bias_mean    +0.19542   (= MAE와 동일 -> 모든 잔차가 양수)
 
 ### Fig. 09 — Controlled occlusion: f_target vs delivered f_explicit_actual
 
-파일: [09_f_target_vs_f_explicit_actual.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/09_f_target_vs_f_explicit_actual.png)
+파일: [09_f_target_vs_f_explicit_actual.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/09_f_target_vs_f_explicit_actual.png)
 
 [확인] 분모 **15**(controlled-occlusion 배달분). 3패널: 산점도 / 잔차 ECDF / proposal delivery 막대.
 
@@ -432,7 +432,7 @@ bias_mean   -0.04025
 
 ### Fig. 10 — P(all_pass) vs camera distance
 
-파일: [10_allpass_probability_vs_distance.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/10_allpass_probability_vs_distance.png)
+파일: [10_allpass_probability_vs_distance.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/10_allpass_probability_vs_distance.png)
 
 [확인] 분모 50. 세 outcome: `all_pass`(base 1.000), `physical_valid`(base 1.000), `pnp_eligible_3cell`
 (base 0.800).
@@ -462,7 +462,7 @@ p_hat 신뢰구간 범위    0.563 ~ 0.950
 
 ### Fig. 11 — P(all_pass) vs projected size
 
-파일: [11_allpass_probability_vs_projected_size.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/11_allpass_probability_vs_projected_size.png)
+파일: [11_allpass_probability_vs_projected_size.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/11_allpass_probability_vs_projected_size.png)
 
 [확인] 분모 50이지만 fit에 쓰인 n=44다(projected_size_actual > 1.0인 6행 제외, 최대 관측 2.624).
 
@@ -481,7 +481,7 @@ p_hat 신뢰구간 범위    0.563 ~ 0.950
 
 ### Fig. 12 — P(all_pass) vs total occlusion fraction
 
-파일: [12_allpass_probability_vs_f_total.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/12_allpass_probability_vs_f_total.png)
+파일: [12_allpass_probability_vs_f_total.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/12_allpass_probability_vs_f_total.png)
 
 [확인] 분모 50, 세 outcome(all_pass / G1_pass / G3_pass) **전부 base rate 1.000**.
 
@@ -501,7 +501,7 @@ p_hat 신뢰구간 범위    0.563 ~ 0.950
 
 ### Fig. 13 — PnP eligibility probability vs projected size
 
-파일: [13_pnp_stability_vs_projected_size.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/13_pnp_stability_vs_projected_size.png)
+파일: [13_pnp_stability_vs_projected_size.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/13_pnp_stability_vs_projected_size.png)
 
 [확인] 분모 50, fit n=44(>1.0인 6행 제외). 세 후보 임계 곡선.
 
@@ -528,7 +528,7 @@ p_hat 신뢰구간 범위    0.563 ~ 0.950
 
 ### Fig. 14 — Supplementary: focal length fx
 
-파일: [14_fx_ecdf.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/14_fx_ecdf.png)
+파일: [14_fx_ecdf.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/14_fx_ecdf.png)
 
 [확인] 분모 50, missing 0, 경계보정 없음(domain null), h=39.28.
 
@@ -551,7 +551,7 @@ fx    356.33   477.16   599.83   605.91   652.92   335.44   692.19   541.33
 
 ### Fig. 15 — Supplementary: exposure EV
 
-파일: [15_exposure_ev_ecdf.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/15_exposure_ev_ecdf.png)
+파일: [15_exposure_ev_ecdf.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/15_exposure_ev_ecdf.png)
 
 [확인] 분모 50, missing 0, 처방 범위 (−3.0, +0.2) EV, reflection 경계보정, h=0.3532.
 
@@ -573,7 +573,7 @@ KDE는 −1.1 EV 부근에서 완만한 최대를 보이지만 최대/최소 밀
 
 ### Fig. 16 — Supplementary: per-frame runtime
 
-파일: [16_runtime_ecdf.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/16_runtime_ecdf.png)
+파일: [16_runtime_ecdf.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/16_runtime_ecdf.png)
 
 [확인] 분모 50(배달된 프레임만), 비음수 support, h=6.092.
 
@@ -597,7 +597,7 @@ clean-static/cargo-only 슬롯이고 느린 쪽은 controlled다.
 
 ### Fig. A01 — Appendix: discrete variable counts
 
-파일: [A01_discrete_variable_counts.png](../../data/pallet/_v2_smoke50_9d/eda/paper_continuous/figures_png/A01_discrete_variable_counts.png)
+파일: [A01_discrete_variable_counts.png](../../data/pallet/archive/superseded_runs/_v2_smoke50_9d/eda/paper_continuous/figures_png/A01_discrete_variable_counts.png)
 
 [확인] 분모 50, 21개 이산 변수의 카운트 막대. `(missing)`은 회색으로 분리되며 0이나 False와 절대 합쳐지지
 않는다.

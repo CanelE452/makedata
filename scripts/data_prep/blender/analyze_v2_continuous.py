@@ -55,7 +55,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 
-DEFAULT_DIR = "data/pallet/_v2_scene_logic_500_seed7500"
+DEFAULT_DIR = "data/pallet/archive/superseded_runs/_v2_scene_logic_500_seed7500"
 DEFAULT_OUT_SUBDIR = "eda/paper_continuous"
 DEFAULT_PNP_MANIFEST = "reports/v2_revision/pnp_eligibility_manifest.csv"
 DEFAULT_PNP_STUDY = "reports/v2_revision/pnp_threshold_study.csv"

@@ -20,7 +20,7 @@ Adds over _v2_calib_200.py (the two live-label wirings that did not run at calib
 Run one chunk:
   blender -b data/pallet/blender_scene/synth_data_scene.blend \
       --python scripts/data_prep/blender/_v2_pilot_2k.py -- \
-      --out data/pallet/_v2_pilot_2k --seed 7000 --n 2000 --max_render 200
+      --out data/pallet/runs/diagnostics/_v2_pilot_2k --seed 7000 --n 2000 --max_render 200
 """
 import argparse
 import json
@@ -41,7 +41,7 @@ import v2_realize as vr    # noqa: E402
 def _args():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     p = argparse.ArgumentParser()
-    p.add_argument("--out", default="data/pallet/_v2_pilot_2k")
+    p.add_argument("--out", default="data/pallet/runs/diagnostics/_v2_pilot_2k")
     p.add_argument("--seed", type=int, default=7000)
     p.add_argument("--n", type=int, default=2000)
     p.add_argument("--samples", type=int, default=16)

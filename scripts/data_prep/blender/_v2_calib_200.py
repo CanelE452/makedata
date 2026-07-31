@@ -11,7 +11,7 @@ main render. Does NOT commit anything and does NOT change any prescription.
 Run:
   blender -b data/pallet/blender_scene/synth_data_scene.blend \
       --python scripts/data_prep/blender/_v2_calib_200.py -- \
-      --out data/pallet/_v2_calib_200 --seed 7000 --n 200
+      --out data/pallet/runs/diagnostics/_v2_calib_200 --seed 7000 --n 200
 
 Resumable: re-running skips frames whose rgb already exists (deterministic plan list).
 """
@@ -34,7 +34,7 @@ import v2_realize as vr    # noqa: E402
 def _args():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     p = argparse.ArgumentParser()
-    p.add_argument("--out", default="data/pallet/_v2_calib_200")
+    p.add_argument("--out", default="data/pallet/runs/diagnostics/_v2_calib_200")
     p.add_argument("--seed", type=int, default=7000)
     p.add_argument("--n", type=int, default=200)
     p.add_argument("--samples", type=int, default=16)

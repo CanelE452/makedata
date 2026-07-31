@@ -178,34 +178,34 @@ C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/v2_pipeline.py --n 
 # (b) dry-run 감사 리포트 (a~f 차트 + report) -> data/pallet/v2_dryrun_audit/
 C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/audit_v2_dryrun.py
 
-# (c) B3 자산체크 (첫 실렌더 5프레임 + magenta 서브테스트) -> data/pallet/_v2_b3_check/
+# (c) B3 자산체크 (첫 실렌더 5프레임 + magenta 서브테스트) -> data/pallet/runs/diagnostics/_v2_b3_check/
 "/c/Program Files/Blender Foundation/Blender 5.1/blender.exe" -b \
   "$(python scripts/data_prep/blender/pallet_data_paths.py --key production_scene)" \
   --python scripts/data_prep/blender/_b3_asset_check.py -- \
   --out data/pallet/_v2_b3_check --seed 7000 --n 5
 
-# (d) 200장 캘리브 (target vs actual 6종 분석) -> data/pallet/_v2_calib_200/
+# (d) 200장 캘리브 (target vs actual 6종 분석) -> data/pallet/runs/diagnostics/_v2_calib_200/
 "/c/.../blender.exe" -b "$(python scripts/data_prep/blender/pallet_data_paths.py --key production_scene)" \
   --python scripts/data_prep/blender/_v2_calib_200.py -- --seed 7000 --n 200
 C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/_v2_calib_200_analyze.py  # matplotlib(base)
 
-# (e) 파일럿 2k (chunk launcher: 200장/fresh Blender, OOM 방지, resume) -> data/pallet/_v2_pilot_2k/
+# (e) 파일럿 2k (chunk launcher: 200장/fresh Blender, OOM 방지, resume) -> data/pallet/runs/diagnostics/_v2_pilot_2k/
 #     mask 레이아웃 선택: 진단용은 --mask-profile full-audit (기본), 공개용은 --mask-profile public
 bash scripts/data_prep/blender/run_pilot_2k.sh 2000 200 7000    # TOTAL CHUNK SEED
 
 # (f) 파일럿 감사 (★overlay 폴더 선-clear 후) -> _v2_pilot_2k/audit/
 C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/_v2_pilot_audit.py \
-  --dir data/pallet/_v2_pilot_2k --n_overlay 30
+  --dir data/pallet/archive/superseded_runs/_v2_pilot_2k --n_overlay 30
 
 # (g) ★전수 오버레이 (canonical) -> <dataset>/overlay/
 C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/overlay_v2_detailed.py \
-  --dir data/pallet/_v2_pilot_2k --style archive
+  --dir data/pallet/archive/superseded_runs/_v2_pilot_2k --style archive
 # (g-2) 진단용 FRONT/REAR overlay -> <dataset>/overlay_frontrear_debug/
 C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/overlay_v2_detailed.py \
-  --dir data/pallet/_v2_pilot_2k --style frontrear-debug
+  --dir data/pallet/archive/superseded_runs/_v2_pilot_2k --style frontrear-debug
 # (구) 파일럿 당시 전수 오버레이 스크립트 (재현용, canonical 아님)
 C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/_v2_pilot_overlay_all.py \
-  --dir data/pallet/_v2_pilot_2k
+  --dir data/pallet/archive/superseded_runs/_v2_pilot_2k
 ```
 - **★ 본 렌더(40k)는 반드시 사용자 승인 후**. 파일럿·캘리브까지가 무-승인 상한. commit도 명시 요청 전 금지.
 
@@ -213,7 +213,11 @@ C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/_v2_pilot_overlay_a
 
 ## 3. 파일 구조 (★ rgb / overlay / mask / labels 분리)
 
-### 3.1 v2 파일럿 출력 레이아웃 (`data/pallet/_v2_pilot_2k/`)
+> **2026-07-31 Stage 2-D2**: v2 진단 산출물은 `archive/superseded_runs/` 로 옮겼다.
+> 위 명령의 **출력** 경로는 `runs/diagnostics/` 로 바꿨다 — archive 를 기본 출력으로
+> 두면 재실행이 아카이브를 오염시키고 옛 레이아웃이 되살아난다.
+
+### 3.1 v2 파일럿 출력 레이아웃 (`data/pallet/archive/superseded_runs/_v2_pilot_2k/`)
 ```
 _v2_pilot_2k/
 ├── rgb/            f{idx:04d}_rgb.png          최종 post-process된 RGB (Cycles 16spp + camera_effects)

@@ -1,0 +1,45 @@
+{
+  "stage": "2-D2",
+  "base_commit": "d5e1ba181345fc7d84480606b26ba732ec3324e8",
+  "cohort_order": [
+    "D2_LEGACY_DATASETS",
+    "D2_SUPERSEDED_RUNS"
+  ],
+  "checkpoints": [
+    {
+      "cohort": "D2_LEGACY_DATASETS",
+      "manifest": "reports/data_pallet_cleanup/stage2d2/transactions/d2_legacy_datasets.jsonl",
+      "rows": 64,
+      "files": 1963,
+      "bytes": 607410306,
+      "all_moved": true,
+      "all_verified": true,
+      "hash_mode": [
+        "all"
+      ],
+      "unhashed_files": 0,
+      "pre_hash_read_bytes": 607410306,
+      "post_hash_read_bytes": 607410306,
+      "verify_failures": 0,
+      "state": "VERIFIED"
+    },
+    {
+      "cohort": "D2_SUPERSEDED_RUNS",
+      "manifest": "reports/data_pallet_cleanup/stage2d2/transactions/d2_superseded_runs.jsonl",
+      "rows": 135,
+      "files": 21321,
+      "bytes": 5268927072,
+      "all_moved": true,
+      "all_verified": true,
+      "hash_mode": [
+        "all"
+      ],
+      "unhashed_files": 0,
+      "pre_hash_read_bytes": 5268927072,
+      "post_hash_read_bytes": 5268927072,
+      "verify_failures": 0,
+      "state": "VERIFIED"
+    }
+  ],
+  "all_verified": true
+}

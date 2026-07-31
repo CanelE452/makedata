@@ -1,0 +1,33 @@
+{
+  "total_references": 94302,
+  "classification_counts": {
+    "CURRENT_DOC": 103,
+    "CURRENT_RUNTIME": 108,
+    "LEGACY_DOC": 26,
+    "HISTORY": 200,
+    "FALSE_POSITIVE_COMMENT": 16,
+    "LOCAL_INVENTORY": 2,
+    "REPORT_SNAPSHOT": 92952,
+    "TRANSACTION_MANIFEST": 469,
+    "LEGACY_RUNTIME_FROZEN": 74,
+    "CURRENT_TEST": 180,
+    "FALSE_POSITIVE_TEST_FIXTURE": 172
+  },
+  "form_counts": {
+    "bare": 22682,
+    "os_path_join": 26,
+    "literal": 51112,
+    "yaml_value": 15,
+    "fstring": 36,
+    "shell_var": 36,
+    "literal_bs": 20395
+  },
+  "csv_excluded_bulk_classes": {
+    "HISTORY": 200,
+    "LOCAL_INVENTORY": 2,
+    "REPORT_SNAPSHOT": 92952,
+    "TRANSACTION_MANIFEST": 469
+  },
+  "csv_rows_written": 679,
+  "fix_required": 7
+}

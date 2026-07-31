@@ -12,7 +12,7 @@ Two completion modes:
 
   blender -b "$(python scripts/data_prep/blender/pallet_data_paths.py --key production_scene)" \
     --python scripts/data_prep/blender/run_v2_scene_logic.py -- \
-    --out data/pallet/_v2_scene_logic_500_seed7500 \
+    --out data/pallet/runs/diagnostics/_v2_scene_logic_500_seed7500 \
     --seed 7500 --n 500 --start 0 --count 100
 
 ``--completion-mode usable``
@@ -482,7 +482,7 @@ def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--out",
-        default="data/pallet/_v2_scene_logic_500_seed7500",
+        default="data/pallet/runs/diagnostics/_v2_scene_logic_500_seed7500",
     )
     parser.add_argument("--seed", type=int, default=7500)
     parser.add_argument(

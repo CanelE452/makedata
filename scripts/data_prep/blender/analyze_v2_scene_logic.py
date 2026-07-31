@@ -82,9 +82,9 @@ def mask_path_for(root: Path, idx: int, stage: str, profile_info: dict[str, Any]
     return Path(MP.frame_mask_paths(root, idx, profile_info["profile"])[stage])
 
 
-DEFAULT_DIR = "data/pallet/_v2_scene_logic_500_seed7500"
+DEFAULT_DIR = "data/pallet/archive/superseded_runs/_v2_scene_logic_500_seed7500"
 DEFAULT_OUT_DIRNAME = "eda"
-DEFAULT_BASELINE = "data/pallet/_v2_pilot_2k/diagnosis/pilot_frames.csv"
+DEFAULT_BASELINE = "data/pallet/archive/superseded_runs/_v2_pilot_2k/diagnosis/pilot_frames.csv"
 MASK_NAMES = ["m0", "m1", "m2", "m3", "m4"]
 GATE_COLUMNS = ["G1_pass", "G2_pass", "G3_pass", "G4_pass", "G5_pass"]
 GATE_LABEL_KEYS = [

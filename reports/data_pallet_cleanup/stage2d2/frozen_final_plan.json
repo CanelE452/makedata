@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "stage": "2-D2",
+  "base_commit": "d5e1ba181345fc7d84480606b26ba732ec3324e8",
+  "plan_csv": "reports/data_pallet_cleanup/stage2d2/frozen_final_plan.csv",
+  "plan_csv_sha256": "7523904b13ed8d27311ed29a409635d5f16530bb717716dcb3052d3b25ceed97",
+  "recomputed_from_filesystem": true,
+  "actual_residual_count": 201,
+  "actual_residual_bytes": 10227752228,
+  "selected_count": 199,
+  "selected_files": 23284,
+  "selected_bytes": 5876337378,
+  "excluded": [
+    {
+      "path": "data/pallet/archive/_noai_quarantine_usd",
+      "class": "INTENTIONAL_QUARANTINE",
+      "reason": "plan 이 이동 금지로 명시: data/pallet/(이동 금지 — 현 위치가 라이선스 근거)"
+    },
+    {
+      "path": "data/pallet/isaac_assets",
+      "class": "INTENTIONAL_QUARANTINE",
+      "reason": "NVIDIA EULA (ledger B6) — archive.csv 계획 row 없음"
+    }
+  ],
+  "cohorts": {
+    "D2_SUPERSEDED_RUNS": {
+      "rows": 135,
+      "files": 21321,
+      "bytes": 5268927072
+    },
+    "D2_LEGACY_DATASETS": {
+      "rows": 64,
+      "files": 1963,
+      "bytes": 607410306
+    }
+  },
+  "hash_budget": {
+    "estimated_read_bytes": 11752674756,
+    "estimated_read_gib": 10.946,
+    "limit_gib": 16,
+    "within": true
+  },
+  "destination_policy_problems": [],
+  "nested_source_conflicts": [],
+  "duplicate_destinations": [],
+  "plan_origin_counts": {
+    "STAGE2A_PLAN": 182,
+    "D2_PLAN_ADDITION": 17
+  }
+}

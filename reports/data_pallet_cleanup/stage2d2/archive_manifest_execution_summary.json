@@ -1,0 +1,19 @@
+{
+  "stage": "2-D2",
+  "archive_csv_rows": 263,
+  "rows_updated": 182,
+  "rows_added": 17,
+  "executed_yes": 247,
+  "final_status_counts": {
+    "MOVED_STAGE2D2": 199,
+    "(빈값)": 48,
+    "KEEP_QUARANTINE — 현 위치가 라이선스 근거 (ledger B1)": 1,
+    "ALREADY_MOVED_BY_PRIOR_STAGE (source 부재)": 12,
+    "NO_SOURCE_ROW (2C2 원장 기록 전용)": 3
+  },
+  "still_pending_with_existing_source": [],
+  "path_map_rows": 414,
+  "assets_rows": 17,
+  "assets_sha_changed": 0,
+  "assets_missing": 0
+}

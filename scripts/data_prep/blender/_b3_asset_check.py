@@ -33,7 +33,7 @@ CUBOID_EDGES = [(0, 1), (1, 2), (2, 3), (3, 0), (4, 5), (5, 6), (6, 7), (7, 4),
 def _args():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     p = argparse.ArgumentParser()
-    p.add_argument("--out", default="data/pallet/_v2_b3_check")
+    p.add_argument("--out", default="data/pallet/runs/diagnostics/_v2_b3_check")
     p.add_argument("--seed", type=int, default=7000)
     p.add_argument("--n", type=int, default=6)
     return p.parse_args(argv)

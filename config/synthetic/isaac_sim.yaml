@@ -9,7 +9,7 @@
     "isaac_assets_root": "data/pallet/isaac_assets/Assets/Isaac/4.5/Isaac",
     "hdri_dir": "data/pallet/isaac_assets/Assets/Isaac/4.5/NVIDIA/Assets/Skies",
     "// procedural_texture_dir": "Stage 2-D0.1: archive/ 아래로 내려간 실제 현재 위치로 정정",
-    "procedural_texture_dir": "data/pallet/archive/_procedural_textures"
+    "procedural_texture_dir": "data/pallet/archive/superseded_runs/_procedural_textures"
   },
   "render": {
     "image_width": 640,

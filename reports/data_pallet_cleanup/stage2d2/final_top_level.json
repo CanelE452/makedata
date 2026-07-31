@@ -1,0 +1,46 @@
+{
+  "stage": "2-D2",
+  "expected": [
+    "README.md",
+    "_DISTRIBUTION_EXCLUDE.txt",
+    "archive",
+    "assets",
+    "manifests",
+    "reference",
+    "release",
+    "runs"
+  ],
+  "actual": [
+    "README.md",
+    "_DISTRIBUTION_EXCLUDE.txt",
+    "archive",
+    "assets",
+    "isaac_assets",
+    "manifests",
+    "reference",
+    "release",
+    "runs"
+  ],
+  "unexpected": [],
+  "management_allowlist": {
+    "isaac_assets": {
+      "role": "Isaac Sim 소스 에셋 (NVIDIA EULA)",
+      "current_reference": "config/synthetic/isaac_sim.yaml:9,10 (isaac_assets_root, hdri_dir)",
+      "keep_reason": "ledger B6 — 재배포 제한. archive.csv 에 이동 계획 row 가 없어 이번 범위의 승인 대상이 아니다. _DISTRIBUTION_EXCLUDE.txt 등재됨.",
+      "classification": "KEEP_QUARANTINE"
+    }
+  },
+  "top_level_zip": [],
+  "archive_depth1": [
+    "README.md",
+    "_noai_quarantine_usd",
+    "corrupt",
+    "legacy_assets",
+    "legacy_datasets",
+    "legacy_scenes",
+    "nonredistributable",
+    "packages",
+    "superseded_runs",
+    "unidentified"
+  ]
+}

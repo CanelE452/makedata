@@ -1,0 +1,1 @@
+{"_meta": true, "stage": "2-D2", "note": "STALE_EMPTY_SOURCE = 0 이라 보존 이동이 없다. 빈 디렉토리 420개는 EMPTY_POLICY_CONTAINER 19 + EMPTY_PAYLOAD_SUBDIR 401 이며 전부 최종 구조 안에 있다. 삭제 0 · 이동 0. 분류 근거는 empty_directory_classification.csv."}

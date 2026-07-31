@@ -37,7 +37,7 @@ silent 0. The per-run manifest counts those so the gap is visible without openin
 Usage
 -----
   python scripts/data_prep/blender/overlay_v2_detailed.py \
-      --dir data/pallet/_v2_scene_logic_500_seed7500
+      --dir data/pallet/archive/superseded_runs/_v2_scene_logic_500_seed7500
 
 Outputs (default <dir>/eda_phase6, never the existing eda/ or eda_phase5/ overlays):
   overlay/fNNNN.png                 (--style archive, default)
@@ -84,7 +84,7 @@ def _load_audit_module():
 
 AUDIT = _load_audit_module()
 
-DEFAULT_DIR = "data/pallet/_v2_scene_logic_500_seed7500"
+DEFAULT_DIR = "data/pallet/archive/superseded_runs/_v2_scene_logic_500_seed7500"
 DEFAULT_OUT_DIRNAME = "eda_phase6"
 
 STYLE_ARCHIVE = "archive"

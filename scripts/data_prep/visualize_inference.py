@@ -8,7 +8,7 @@ cuboid wireframe을 그려서 저장.
         --weights weights/pallet_category/final_net_epoch_0060.pth \
         --val_dir "$(python scripts/data_prep/blender/pallet_data_paths.py --resolve registry:legacy_training_data_root/val)" \
         --real_dir data/pallet/reference/real_images/real_data \
-        --output_dir data/pallet/eval_results/vis \
+        --output_dir data/pallet/runs/eval/vis \
         --num_syn 10 --num_real 10
 """
 
@@ -193,7 +193,7 @@ def main():
                         default=os.path.join(
                             _pdp.get("legacy_training_data_root"), "val"))
     parser.add_argument("--real_dir", default="data/pallet/reference/real_images/real_data")
-    parser.add_argument("--output_dir", default="data/pallet/eval_results/vis")
+    parser.add_argument("--output_dir", default="data/pallet/runs/eval/vis")
     parser.add_argument("--num_syn", type=int, default=10)
     parser.add_argument("--num_real", type=int, default=10)
     parser.add_argument("--threshold", type=float, default=0.3)

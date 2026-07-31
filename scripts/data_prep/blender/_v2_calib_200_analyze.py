@@ -6,7 +6,7 @@ diagnoses systematic bias — it does NOT change any prescription (correction is
 
 Run:
   python scripts/data_prep/blender/_v2_calib_200_analyze.py \
-      --records data/pallet/_v2_calib_200/calib_records.json
+      --records data/pallet/archive/superseded_runs/_v2_calib_200/calib_records.json
 """
 import argparse
 import json
@@ -347,7 +347,7 @@ def main():
     except Exception:
         pass
     ap = argparse.ArgumentParser()
-    ap.add_argument("--records", default="data/pallet/_v2_calib_200/calib_records.json")
+    ap.add_argument("--records", default="data/pallet/archive/superseded_runs/_v2_calib_200/calib_records.json")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
     records_path = args.records

@@ -36,7 +36,7 @@ import v2_pipeline as vp
 
 _THIS = os.path.dirname(os.path.abspath(__file__))
 _PROJECT_ROOT = os.path.abspath(os.path.join(_THIS, "..", "..", ".."))
-DEFAULT_OUT = os.path.join(_PROJECT_ROOT, "data", "pallet", "v2_dryrun_audit")
+DEFAULT_OUT = os.path.join(_PROJECT_ROOT, "data", "pallet", "runs", "diagnostics", "v2_dryrun_audit")
 
 SIZE_ORDER = ["large", "road", "medium", "indoor", "small"]
 

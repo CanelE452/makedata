@@ -326,7 +326,7 @@ _procedural_textures  data/pallet/archive/_procedural_textures/ 절차생성(자
   → 전 9종 Poly Haven CC0.
   - **★ source URL (재발견용)**: URL 패턴 `https://polyhaven.com/a/<name>` (name = 파일명에서 `_diff/_nor_gl/
     _rough` 접미 제거). 예: https://polyhaven.com/a/wood_planks , https://polyhaven.com/a/plank_flooring_03 ,
-    https://polyhaven.com/a/weathered_planks . (다운로드 CDN URL 원본은 `data/pallet/_tmp_ph/*_files.json`.)
+    https://polyhaven.com/a/weathered_planks . (다운로드 CDN URL 원본은 `data/pallet/archive/superseded_runs/_tmp_ph/*_files.json`.)
 - **floor 14종 [확인, 검증완료 → B4 해소 2026-07-24]**: `textures_floor/{SOURCES.txt,LICENSE.txt}` 생성 =
   **14/14 CONFIRMED Poly Haven CC0, 0 UNVERIFIED**. 9종은 기존 Poly Haven slug 실증 유지, **미검증 5종을
   동등 Poly Haven CC0로 내용 교체**(파일명 유지 = `floor_and_mask.py:34` 참조만이라 코드 무변경, 원본 백업

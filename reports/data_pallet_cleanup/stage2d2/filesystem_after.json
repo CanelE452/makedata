@@ -1,0 +1,169 @@
+{
+  "stage": "2-D2",
+  "when": "after",
+  "areas": {
+    "data/pallet": {
+      "files": 363090,
+      "bytes": 192468260125,
+      "dirs": 2567
+    },
+    "data/pallet/assets": {
+      "files": 1554,
+      "bytes": 5381403719,
+      "dirs": 701
+    },
+    "data/pallet/reference": {
+      "files": 3135,
+      "bytes": 437509283,
+      "dirs": 9
+    },
+    "data/pallet/archive": {
+      "files": 346868,
+      "bytes": 181091951199,
+      "dirs": 907
+    },
+    "data/pallet/isaac_assets": {
+      "files": 4543,
+      "bytes": 4350676768,
+      "dirs": 85
+    },
+    "data/pallet/manifests": {
+      "files": 5,
+      "bytes": 348672,
+      "dirs": 0
+    },
+    "data/pallet/release": {
+      "files": 1,
+      "bytes": 2512,
+      "dirs": 3
+    },
+    "data/pallet/runs": {
+      "files": 6982,
+      "bytes": 1206352337,
+      "dirs": 855
+    },
+    "weights": {
+      "files": 57,
+      "bytes": 5774254539,
+      "dirs": 8
+    }
+  },
+  "data_pallet_top_level": [
+    {
+      "name": "README.md",
+      "kind": "file",
+      "files": 1,
+      "bytes": 10752
+    },
+    {
+      "name": "_DISTRIBUTION_EXCLUDE.txt",
+      "kind": "file",
+      "files": 1,
+      "bytes": 4883
+    },
+    {
+      "name": "archive",
+      "kind": "dir",
+      "files": 346868,
+      "bytes": 181091951199
+    },
+    {
+      "name": "assets",
+      "kind": "dir",
+      "files": 1554,
+      "bytes": 5381403719
+    },
+    {
+      "name": "isaac_assets",
+      "kind": "dir",
+      "files": 4543,
+      "bytes": 4350676768
+    },
+    {
+      "name": "manifests",
+      "kind": "dir",
+      "files": 5,
+      "bytes": 348672
+    },
+    {
+      "name": "reference",
+      "kind": "dir",
+      "files": 3135,
+      "bytes": 437509283
+    },
+    {
+      "name": "release",
+      "kind": "dir",
+      "files": 1,
+      "bytes": 2512
+    },
+    {
+      "name": "runs",
+      "kind": "dir",
+      "files": 6982,
+      "bytes": 1206352337
+    }
+  ],
+  "archive_depth1": [
+    {
+      "name": "README.md",
+      "kind": "file",
+      "files": 1,
+      "bytes": 5289
+    },
+    {
+      "name": "_noai_quarantine_usd",
+      "kind": "dir",
+      "files": 3,
+      "bytes": 738082
+    },
+    {
+      "name": "corrupt",
+      "kind": "dir",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "name": "legacy_assets",
+      "kind": "dir",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "name": "legacy_datasets",
+      "kind": "dir",
+      "files": 325514,
+      "bytes": 87835187620
+    },
+    {
+      "name": "legacy_scenes",
+      "kind": "dir",
+      "files": 11,
+      "bytes": 2538773468
+    },
+    {
+      "name": "nonredistributable",
+      "kind": "dir",
+      "files": 0,
+      "bytes": 0
+    },
+    {
+      "name": "packages",
+      "kind": "dir",
+      "files": 18,
+      "bytes": 85448319668
+    },
+    {
+      "name": "superseded_runs",
+      "kind": "dir",
+      "files": 21321,
+      "bytes": 5268927072
+    },
+    {
+      "name": "unidentified",
+      "kind": "dir",
+      "files": 0,
+      "bytes": 0
+    }
+  ]
+}

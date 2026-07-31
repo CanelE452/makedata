@@ -191,7 +191,7 @@ def main():
     model.to(device).eval()
     print('Model loaded')
 
-    out_dir = 'data/pallet/eval_results/comprehensive'
+    out_dir = 'data/pallet/runs/eval/comprehensive'
     os.makedirs(out_dir, exist_ok=True)
 
     # Synthetic val

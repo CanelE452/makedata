@@ -8,7 +8,7 @@ re-analysis of the calib set):
   3. render_post() raises sensor noise_scale on dark frames (task ① sub-item).
   4. no bad frame leaks: a G5-pass frame with an invisible pallet is caught by G3.
 
-Calibration/diagnostic ONLY. No commit. Writes data/pallet/_v2_g5_reverify/.
+Calibration/diagnostic ONLY. No commit. Writes data/pallet/runs/diagnostics/_v2_g5_reverify/.
 
 Run:
   blender -b data/pallet/blender_scene/synth_data_scene.blend \
@@ -26,7 +26,7 @@ import v2_realize as vr    # noqa: E402
 def _args():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     p = argparse.ArgumentParser()
-    p.add_argument("--out", default="data/pallet/_v2_g5_reverify")
+    p.add_argument("--out", default="data/pallet/runs/diagnostics/_v2_g5_reverify")
     p.add_argument("--seed", type=int, default=7000)
     p.add_argument("--n", type=int, default=16)
     p.add_argument("--samples", type=int, default=16)

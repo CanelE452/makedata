@@ -117,7 +117,7 @@ STABILITY_TARGET_FAIL_RATE = 0.10
 KNEE_STEP_RATIO = 2.0
 TINY_MASK_AREA_PX = int(THRESHOLD_CANDIDATES["2cell"] ** 2)  # 256 px^2
 
-DEFAULT_DIR = "data/pallet/_v2_scene_logic_500_seed7500"
+DEFAULT_DIR = "data/pallet/archive/superseded_runs/_v2_scene_logic_500_seed7500"
 DEFAULT_OUT = "reports/v2_revision"
 
 # Fallback camera-distance cap when the record predates Phase 1 (v2_pipeline.MAX_CAMERA_DISTANCE_M).

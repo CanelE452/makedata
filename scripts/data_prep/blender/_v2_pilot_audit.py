@@ -1,6 +1,6 @@
 """v2 규약 PILOT 2k — audit (bpy-FREE, base python: PIL + numpy).
 
-Reads the pilot render (data/pallet/_v2_pilot_2k: pilot_records.json + labels/ + rgb/ + mask/)
+Reads the pilot render (data/pallet/archive/superseded_runs/_v2_pilot_2k: pilot_records.json + labels/ + rgb/ + mask/)
 and runs the task audit item-by-item. Produces overlays + a machine report. NO Blender, NO
 render, NO commit. Uses only the on-disk labels/masks/rgb.
 
@@ -19,7 +19,7 @@ Items (priority order):
 
 Run:
   C:/Users/User/anaconda3/python.exe scripts/data_prep/blender/_v2_pilot_audit.py \
-      --dir data/pallet/_v2_pilot_2k [--n_overlay 30]
+      --dir data/pallet/archive/superseded_runs/_v2_pilot_2k [--n_overlay 30]
 """
 import argparse
 import json
@@ -167,7 +167,7 @@ def _mask_luma(rgb_arr_L, mask_path):
 # ---------------------------------------------------------------------------
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dir", default="data/pallet/_v2_pilot_2k")
+    ap.add_argument("--dir", default="data/pallet/archive/superseded_runs/_v2_pilot_2k")
     ap.add_argument("--n_overlay", type=int, default=30)
     args = ap.parse_args()
     d = args.dir if os.path.isabs(args.dir) else os.path.join(
