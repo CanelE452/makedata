@@ -1,0 +1,43 @@
+branch      main
+HEAD        0ebb41cb26feed567558ad9e94e06016c5d17430
+origin/main 0ebb41cb26feed567558ad9e94e06016c5d17430
+
+--- git status --porcelain ---
+ M _docs/history/.last-compact-resume.md
+ M _docs/history/2026-08-01.md
+ M _docs/history/changelog.md
+ M scripts/data_prep/blender/run_v2_scene_logic.py
+ M scripts/data_prep/blender/scene_placement_v2.py
+ M scripts/data_prep/blender/tests/test_scene_placement_v2.py
+ M scripts/data_prep/blender/tests/test_usable_completion_mode.py
+ M scripts/data_prep/blender/tests/test_v2_pilot_resume_reproducibility.py
+ M scripts/data_prep/blender/v2_pipeline.py
+ M scripts/data_prep/blender/v2_realize.py
+?? reports/v2_generator_fix_g1_g3/
+?? reports/v2_generator_fix_g1p5_g2b/
+?? reports/v2_generator_fix_g1p6_g2c_g3/
+?? scripts/data_prep/blender/audit_controlled_replay.py
+?? scripts/data_prep/blender/audit_v2_bpyfree_determinism.py
+?? scripts/data_prep/blender/audit_v2_controlled_prefilter.py
+?? scripts/data_prep/blender/audit_v2_dataset_quality_probe.py
+?? scripts/data_prep/blender/audit_v2_mode_semantics.py
+?? scripts/data_prep/blender/build_controlled_case_lock.py
+?? scripts/data_prep/blender/build_v2_overlay_review.py
+?? scripts/data_prep/blender/replay_controlled_cases.py
+?? scripts/data_prep/blender/tests/fixtures/
+?? scripts/data_prep/blender/tests/test_controlled_prefilter.py
+?? scripts/data_prep/blender/tests/test_explicit_lowres_metrics.py
+?? scripts/data_prep/blender/tests/test_mode_semantics.py
+
+--- git diff --stat ---
+ _docs/history/.last-compact-resume.md              |   8 +-
+ _docs/history/2026-08-01.md                        | 326 +++++++++++
+ _docs/history/changelog.md                         |   2 +
+ scripts/data_prep/blender/run_v2_scene_logic.py    | 191 ++++++-
+ scripts/data_prep/blender/scene_placement_v2.py    | 317 +++++++++++
+ .../blender/tests/test_scene_placement_v2.py       |  56 ++
+ .../blender/tests/test_usable_completion_mode.py   |  54 +-
+ .../tests/test_v2_pilot_resume_reproducibility.py  |  20 +
+ scripts/data_prep/blender/v2_pipeline.py           |  50 ++
+ scripts/data_prep/blender/v2_realize.py            | 610 ++++++++++++++-------
+ 10 files changed, 1409 insertions(+), 225 deletions(-)

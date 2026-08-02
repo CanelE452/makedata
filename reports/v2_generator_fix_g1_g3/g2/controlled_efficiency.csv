@@ -1,0 +1,25 @@
+metric,value
+usable,30
+all_proposals,144
+yield_all_proposals,0.20833333333333334
+yield_all_proposals_ci95,"[0.15001005766064063, 0.28181427324486913]"
+mode_filter_skips,51
+solve_rejects,4
+prefilter_exhausted_rejects,12
+attempts_excluding_mode_filter,93
+yield_attempts_excluding_mode_filter,0.3225806451612903
+expensive_reject_share_excluding_mode_filter,0.5053763440860215
+blender_attempts,77
+yield_blender_attempts,0.38961038961038963
+yield_blender_attempts_ci95,"[0.28842084532265894, 0.5012913820454289]"
+expensive_rejects,47
+expensive_reject_share_blender,0.6103896103896104
+reject_runtime_s,3167.7
+accepted_runtime_s,1781.4
+reject_over_accepted_runtime,1.7782526601118993
+wall_time_per_usable_controlled_s,164.97054715156554
+stage_counts,"{""render"": 59, ""mode_filter"": 51, ""solve"": 4}"
+primary_reject_reason_counts,"{""usable_reject:rendered|usable_reject:realize_ok|mode_semantics:explicit_occluder_not_visible"": 58, ""proposal_skip:mode_requires_explicit_occluder"": 51, ""solve_reject:d_occ_fail"": 1, ""solve_reject:v_below_min"": 2, ""solve_reject:C1"": 1, ""gate_fail:G5"": 1}"
+prefilter_reject_count_total,2064
+candidates_before_prefilter_total,5961
+candidates_after_prefilter_total,3897

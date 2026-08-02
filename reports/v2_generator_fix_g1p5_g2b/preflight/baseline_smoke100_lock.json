@@ -1,0 +1,17 @@
+{
+  "dataset_root": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100_seed7000_public",
+  "read_only": true,
+  "records_jsonl_sha256": "269a48a9f3f00c8da6fb7a9c01bc77b03b9391cc8ebfa7d7f415ed8bcf82286d",
+  "records_rejected_jsonl_sha256": "a3133abedae7f0aaff4602466e347b5b71146f75bf9a565d480a045f198d6419",
+  "rgb_count": 100,
+  "label_count": 100,
+  "mask_amodal_count": 100,
+  "mask_visible_count": 100,
+  "overlay_count": 0,
+  "total_files": 408,
+  "total_bytes": 80811427,
+  "report_dir": "reports/v2_generator_fix_g1_g3/g2",
+  "final_report_sha256": "cbf30b4a8fc489b383b074626d690639ada1729f3b854defaf82dd681d167747",
+  "audit_summary_sha256": "a8bee0d488347088d01fafcb857fda3f5c6aabe4b8ba3918a09fd348b2190652",
+  "report_overlay_count": 100
+}

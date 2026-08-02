@@ -1,0 +1,12 @@
+# v2 production pilot 500 — 실제 실행 명령 (frozen config 기준)
+# blender: /c/Program Files/Blender Foundation/Blender 5.1/blender.exe  (5.1.1)
+# scene:   E:/CODING/GitHub/FoundationPose/data/pallet/assets/scenes/production/blender_scene/synth_data_scene_portable_stage2c2.blend
+
+## P1 exact20 A
+"$BL" -b "$SCENE" --python scripts/data_prep/blender/run_v2_scene_logic.py --   --out data/pallet/runs/diagnostics/v2_production_exact20_a_seed7290_public   --seed 7290 --n 20 --completion-mode usable --render-profile diagnostic-exact --mask-profile public --magenta-max-fraction 0.0 --target-seed-free-cap 8 --near-miss-gap-threshold 0.0607 --constraint-rescue-mode off
+
+## P1 exact20 B  (동일 인자, 출력만 다름)
+"$BL" -b "$SCENE" --python scripts/data_prep/blender/run_v2_scene_logic.py --   --out data/pallet/runs/diagnostics/v2_production_exact20_b_seed7290_public   --seed 7290 --n 20 --completion-mode usable --render-profile diagnostic-exact --mask-profile public --magenta-max-fraction 0.0 --target-seed-free-cap 8 --near-miss-gap-threshold 0.0607 --constraint-rescue-mode off
+
+## P2 pilot500 (checkpoint 별 --session-usable-cap 20/100/250/500 로 resume)
+"$BL" -b "$SCENE" --python scripts/data_prep/blender/run_v2_scene_logic.py --   --out data/pallet/runs/diagnostics/v2_production_pilot500_seed7300_public   --seed 7300 --n 500 --completion-mode usable --render-profile dataset-quality   --mask-profile public --magenta-max-fraction 0.0   --target-seed-free-cap 8 --near-miss-gap-threshold 0.0607   --constraint-rescue-mode off --session-usable-cap <CAP>

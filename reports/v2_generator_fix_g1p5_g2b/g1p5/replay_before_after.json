@@ -1,0 +1,66 @@
+{
+  "n_cases": 77,
+  "replayed": 77,
+  "accepted_recall": {
+    "kept": 30,
+    "of": 30,
+    "pass": true
+  },
+  "recovered_from_expensive_reject": 1,
+  "new_accepted_total": 31,
+  "explicit_visible_gt0": 31,
+  "side_match": 31,
+  "metrics_available": 31,
+  "abs_error_lowres": {
+    "n": 31,
+    "min": 0.001571651211764613,
+    "median": 0.03747784807828797,
+    "p95": 0.11394467089924262,
+    "max": 0.11604323164489044,
+    "sum": 1.481654270297529
+  },
+  "runtime": {
+    "old_total_s": 4949.1,
+    "new_total_s": 5019.5,
+    "delta_pct": 1.4,
+    "old_context_waste_on_failure_s": 1151.0,
+    "new_context_waste_on_failure_s": 31.8
+  },
+  "attempts": {
+    "old": {
+      "n": 77,
+      "min": 1.0,
+      "median": 17.0,
+      "p95": 21.0,
+      "max": 21.0,
+      "sum": 1044.0
+    },
+    "new": {
+      "n": 77,
+      "min": 1.0,
+      "median": 17.0,
+      "p95": 22.0,
+      "max": 24.0,
+      "sum": 1030.0
+    }
+  },
+  "candidate_budget_exhausted": {
+    "old": 543,
+    "new": 434
+  },
+  "score_callback_rejects": {
+    "old": 1338,
+    "new": 2026
+  },
+  "winning_stage_counts": {
+    "target-seed": 21,
+    "preprobe": 3,
+    "primary": 2,
+    "gate-overlap-refine": 3,
+    "corner-contact-refine": 2
+  },
+  "new_solver_fail_counts": {
+    "bounded_local_search_exhausted": 44,
+    "null": 2
+  }
+}

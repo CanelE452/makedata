@@ -1,0 +1,25 @@
+metric,value
+usable,6
+all_proposals,9
+yield_all_proposals,0.6666666666666666
+yield_all_proposals_ci95,"[0.35419734749908977, 0.8794184013172571]"
+mode_filter_skips,1
+solve_rejects,0
+prefilter_exhausted_rejects,1
+attempts_excluding_mode_filter,8
+yield_attempts_excluding_mode_filter,0.75
+expensive_reject_share_excluding_mode_filter,0.125
+blender_attempts,7
+yield_blender_attempts,0.8571428571428571
+yield_blender_attempts_ci95,"[0.4868654966809702, 0.9743210440510253]"
+expensive_rejects,1
+expensive_reject_share_blender,0.14285714285714285
+reject_runtime_s,104.9
+accepted_runtime_s,327.5
+reject_over_accepted_runtime,0.3203091714938283
+wall_time_per_usable_controlled_s,72.0685574611028
+stage_counts,"{""render"": 2, ""mode_filter"": 1}"
+primary_reject_reason_counts,"{""usable_reject:rendered|usable_reject:realize_ok|mode_semantics:explicit_occluder_not_visible"": 2, ""proposal_skip:mode_requires_explicit_occluder"": 1}"
+prefilter_reject_count_total,506
+candidates_before_prefilter_total,1397
+candidates_after_prefilter_total,891

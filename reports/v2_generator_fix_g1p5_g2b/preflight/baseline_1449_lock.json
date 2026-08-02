@@ -1,0 +1,13 @@
+{
+  "dataset_root": "data/pallet/runs/diagnostics/v2_pilot_2k_seed7000_public",
+  "read_only": true,
+  "records_jsonl_sha256": "d04283b279dca43d068451b6c9294210aacd8a510a6c737a1d3b361bc588a992",
+  "records_rejected_jsonl_sha256": "fa90ccb465fea50c4a5fc22cc10d9560a55aaf98736952decac3023090a06992",
+  "rgb_count": 1449,
+  "label_count": 1449,
+  "mask_amodal_count": 1449,
+  "mask_visible_count": 1449,
+  "overlay_count": 0,
+  "total_files": 5805,
+  "total_bytes": 1038106969
+}

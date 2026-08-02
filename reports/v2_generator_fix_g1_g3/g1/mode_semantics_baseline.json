@@ -1,0 +1,97 @@
+{
+  "source_pilot": "data/pallet/runs/diagnostics/v2_pilot_2k_seed7000_public",
+  "note": "1,449 usable 에서 중단된 baseline. 읽기 전용.",
+  "cargo_only": {
+    "assigned": 400,
+    "cargo_on_true": 400,
+    "n_cargo_placed_ge1": 349,
+    "placement_failure": 51,
+    "placement_attempts_zero": 0,
+    "cargo_occludes_pallet": 15,
+    "cargo_self_visibility_measured": false,
+    "cargo_self_visibility_note": "baseline 은 cargo 자체의 화면 가시성을 측정하지 않았다. front/left/right_visibility_after_cargo 는 '팔레트가 가려졌는가'이지 'cargo 가 보이는가'가 아니다. public mask 는 팔레트 전용이라 그것으로도 추론하지 않는다."
+  },
+  "context_rich": {
+    "assigned": 600,
+    "n_context_visible_ge1": 561,
+    "absent": 39,
+    "n_context_placed_ge1": 561,
+    "requested_zero": 0,
+    "placement_attempts_zero": 39
+  },
+  "controlled_occlusion": {
+    "accepted": 49,
+    "occluder_placed": 49,
+    "explicit_visible_px_gt0": 49,
+    "side_match": 49,
+    "abs_target_error_median": 0.04491846912562675,
+    "abs_target_error_p95": 0.23012316443291617,
+    "visible_fraction_median": 0.7696616761037338,
+    "yield_all_proposals": {
+      "usable": 49,
+      "denominator": 278,
+      "rate": 0.17625899280575538
+    },
+    "yield_render_attempts": {
+      "usable": 49,
+      "denominator": 180,
+      "rate": 0.2722222222222222
+    },
+    "expensive_reject_share": {
+      "n": 98,
+      "denominator": 180,
+      "rate": 0.5444444444444444
+    },
+    "runtime_reject_over_accepted": 2.018977505112474
+  },
+  "reject_runtime_by_reason": {
+    "usable_reject:rendered|usable_reject:realize_ok": {
+      "n": 94,
+      "runtime_total_s": 4936.4
+    },
+    "gate_fail:G5": {
+      "n": 2,
+      "runtime_total_s": 126.9
+    },
+    "gate_fail:G3": {
+      "n": 1,
+      "runtime_total_s": 50.4
+    },
+    "usable_reject:ground_continuity_pass": {
+      "n": 1,
+      "runtime_total_s": 33.2
+    },
+    "proposal_skip:mode_requires_explicit_occluder": {
+      "n": 98,
+      "runtime_total_s": 0.0
+    },
+    "solve_reject:C1": {
+      "n": 15,
+      "runtime_total_s": 0.0
+    },
+    "solve_reject:d_occ_fail": {
+      "n": 11,
+      "runtime_total_s": 0.0
+    },
+    "solve_reject:v_below_min": {
+      "n": 7,
+      "runtime_total_s": 0.0
+    }
+  },
+  "expensive_stage_runtime_s": {
+    "explicit": 3117.7,
+    "context": 1423.9,
+    "cargo": 226.0,
+    "anchor": 28.7,
+    "collision_audit": 21.2,
+    "background": 2.4
+  },
+  "accepted_stage_runtime_s": {
+    "explicit": 1115.3,
+    "context": 924.1,
+    "cargo": 131.0,
+    "anchor": 12.8,
+    "collision_audit": 10.3,
+    "background": 1.0
+  }
+}

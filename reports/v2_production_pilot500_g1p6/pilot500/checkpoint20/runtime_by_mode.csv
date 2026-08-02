@@ -1,0 +1,5 @@
+mode,n,total_s,mean_s,median_s,p90_s,p95_s,max_s
+clean-static,4,32.9,8.2,6.7,14.4,14.4,14.4
+cargo-only,4,47.5,11.9,11.8,14.9,14.9,14.9
+context-rich,6,152.3,25.4,26.8,35.7,35.7,35.7
+controlled-occlusion,6,327.5,54.6,54.3,71.9,71.9,71.9

@@ -1,0 +1,21 @@
+{
+  "dataset_path": "data/pallet/runs/diagnostics/v2_production_pilot500_seed7300_public",
+  "current_phase": "P2-1",
+  "current_checkpoint": 20,
+  "frozen_config_sha256": "ca9ac6ad17f735f089b73e039853565c36e95c35e4c97c6ac24b3def9cda3e89",
+  "code_lock_sha256": "854bd00ed32e8cc2a4086d0cccec05eb94bc3ef5029e23af14ec395e13eb53be",
+  "scene_sha256": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+  "asset_manifest_sha256": "327239153fddf5bc640072e3c52a5982f81fd4358e5651d72ae6c603081dde7e",
+  "usable_delivered": 0,
+  "last_usable_id": null,
+  "session_usable_cap": 20,
+  "process_id": null,
+  "start_time": null,
+  "end_time": null,
+  "exit_code": null,
+  "session_clean_stop": null,
+  "dataset_complete": false,
+  "audit_status": "NOT_STARTED",
+  "next_action": "checkpoint20 렌더 (cap=20)",
+  "stop_reason": null
+}

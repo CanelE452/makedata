@@ -36,9 +36,45 @@ def _load_runner():
     return module
 
 
-# Frozen schema of a rendered record BEFORE Phase 7 (146 keys).  records mode must keep
-# producing exactly this set; usable mode is only allowed to ADD keys on top.
+# Frozen schema of a rendered record.  records mode must keep producing exactly this set;
+# usable mode is only allowed to ADD keys on top.
+# 2026-08-01: mode semantics + cargo 자체 가시성 + controlled prefilter 계측 16개 추가.
+# 2026-08-01 (G1.5): explicit 저해상도 품질 지표 11 + 탐색 계측 6 + context skip 1 추가.
 RECORD_RENDERED_KEYS = (
+    "explicit_metrics_available", "explicit_target_pixels",
+    "explicit_actual_pixels_lowres", "f_explicit_actual_lowres",
+    "explicit_abs_error_lowres", "explicit_target_centroid_u",
+    "explicit_target_centroid_v", "explicit_actual_centroid_u_lowres",
+    "explicit_actual_centroid_v_lowres", "explicit_target_bbox_u0v0u1v1",
+    "explicit_actual_bbox_u0v0u1v1_lowres",
+    "search_init_strategy", "search_seed_count", "coarse_eval_count",
+    "fine_eval_count", "best_seed_score", "final_seed_score",
+    "search_winning_stage", "context_skipped_due_to_explicit_failure",
+    # 2026-08-02: holdout 엔진은 배포 마스크 픽셀을 바꾸므로 프레임마다 남긴다
+    # (샤드를 병합하면 progress.json 은 사라진다).
+    "holdout_engine",
+    # 2026-08-01 (G1.6): target-seed 예산 회계 5 + fine refinement 11 + 이름 정리 1
+    "target_seed_free_cap", "target_seed_unique_count", "target_seed_free_used",
+    "target_seed_paid_used", "target_seed_duplicate_count",
+    "fine_triggered", "fine_trigger_reason", "fine_source_stage",
+    "fine_source_score", "fine_score_margin_before", "fine_best_score",
+    "fine_score_margin_after", "fine_won", "fine_runtime_s",
+    "near_miss_gap_threshold", "refine_feedback_eval_count",
+    # 2026-08-02 (G1.7): constraint-directed rescue 계측 13 + 설정 4
+    "rescue_triggered", "rescue_binding_signatures", "rescue_beam_size",
+    "rescue_eval_count", "rescue_duplicate_skips", "rescue_axis_sequence",
+    "rescue_seed_types", "rescue_categories", "rescue_constraint_before",
+    "rescue_constraint_after", "rescue_won", "rescue_runtime_s",
+    "rescue_final_constraint_vector", "constraint_rescue_mode",
+    "constraint_rescue_beam", "constraint_rescue_eval_max",
+    "constraint_rescue_category_max",
+    "cargo_visible_pixels", "cargo_visible_pixel_ratio", "cargo_visibility_measured",
+    "n_cargo_visible", "mode_semantics_pass", "mode_semantics_conditions",
+    "mode_semantics_failed_conditions", "mode_semantics_unknown_conditions",
+    "mode_semantics_reason", "proposal_prepare_s", "candidates_before_prefilter",
+    "candidates_after_prefilter", "prefilter_reject_count",
+    "prefilter_reject_counts_by_reason", "realization_attempt_count",
+    "lowres_render_count",
     "G1_pass", "G2_pass", "G3_pass", "G4_pass", "G5_pass", "V_actual", "V_vis", "all_pass",
     "anchor_attempts", "anchor_reject_counts_by_reason", "anchor_reject_reason",
     "anchor_translation", "attempt_frame_index", "azimuth_bin", "background_asset",
@@ -117,7 +153,32 @@ def passing_record(idx, mask_hash):
         "luma_pallet_final": 18.0,
         "bbox_vis_min_side_px": 120.0,
         "visible_kp_count": 9,
+        # mode semantics (2026-08-01): clean-static 은 explicit occluder 도, 보이는
+        # cargo 도, 보이는 context 도 없어야 한다.  측정 안 됨(None)은 통과가 아니므로
+        # 통과 픽스처는 세 값을 명시한다.
+        "explicit_occluder_placed": False,
+        "cargo_visible_pixels": 0,
+        "n_context_visible": 0,
     }
+
+
+def passing_mode_semantics(mode):
+    """그 mode 의 내용 조건을 만족시키는 최소 필드 (2026-08-01 mode semantics gate)."""
+    if mode == "cargo-only":
+        return {"n_cargo_placed": 2, "cargo_visible_pixels": 140,
+                "n_cargo_visible": 2, "cargo_visible_pixel_ratio": 0.02}
+    if mode == "context-rich":
+        return {"n_context_requested": 3, "n_context_placed": 3,
+                "n_context_visible": 3, "context_visible_pixel_ratio": 1.0,
+                "explicit_occluder_placed": False}
+    if mode == "controlled-occlusion":
+        return {"f_explicit_target": 0.2, "explicit_occluder_placed": True,
+                "explicit_occluder_visible_pixels": 120,
+                "occluder_side_match": True, "n_context_requested": 3,
+                "n_context_placed": 3, "n_context_visible": 3,
+                "context_visible_pixel_ratio": 1.0}
+    return {"explicit_occluder_placed": False, "cargo_visible_pixels": 0,
+            "n_context_visible": 0}
 
 
 class UsableConditionTests(unittest.TestCase):
@@ -425,6 +486,25 @@ class FakeRealize:
     def enable_gpu():
         return "fake-gpu"
 
+    @staticmethod
+    def set_search_tuning(target_seed_free_cap=None, near_miss_gap_threshold=None,
+                          constraint_rescue_mode=None,
+                          constraint_rescue_beam=None,
+                          constraint_rescue_eval_max=None,
+                          constraint_rescue_category_max=None):
+        return {"target_seed_free_cap": target_seed_free_cap,
+                "near_miss_gap_threshold": near_miss_gap_threshold,
+                "constraint_rescue_mode": constraint_rescue_mode,
+                "constraint_rescue_beam": constraint_rescue_beam,
+                "constraint_rescue_eval_max": constraint_rescue_eval_max,
+                "constraint_rescue_category_max": constraint_rescue_category_max}
+
+    HOLDOUT_ENGINES = ("cycles", "eevee")
+
+    @staticmethod
+    def set_holdout_engine(engine=None):
+        return {"engine": "eevee" if engine is None else engine}
+
 
 def _fake_process_frame(overrides, salt=""):
     """Patched _process_frame: writes placeholder files, returns a scripted record.
@@ -456,6 +536,7 @@ def _fake_process_frame(overrides, salt=""):
             "rgb_path": rgb_path,
             "label_path": label_path,
             "diagnostic_mode": mode,
+            **passing_mode_semantics(mode),
         })
         record.update(override)
         calls.append({"idx": idx, "mode": mode, "attempt": attempt,
@@ -586,9 +667,11 @@ class RunUsableTests(unittest.TestCase):
         )
 
     def test_controlled_slot_skips_plans_without_an_explicit_occluder(self):
-        # slot 0 is clean-static (n=1 apportions the single slot to context-rich)
+        # n=10 의 interleave 는 slot 3/5/9 가 controlled-occlusion 이다.  proposal 3/4 를
+        # occluder 없는 plan 으로 두면 slot 3 을 채우려다 두 번 skip 하고 proposal 5 로
+        # 채운다.
         args = self._args(n=10)
-        script = ["plan"] * 7 + ["plan_no_occluder", "plan_no_occluder"] + ["plan"] * 40
+        script = ["plan"] * 3 + ["plan_no_occluder", "plan_no_occluder"] + ["plan"] * 40
         summary, process, _ = self._run(lambda attempt: {}, script=script, args=args)
         rejected = self._read_jsonl("records_rejected.jsonl")
 

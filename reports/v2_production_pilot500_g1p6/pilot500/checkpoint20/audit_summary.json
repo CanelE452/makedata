@@ -1,0 +1,154 @@
+{
+  "dir": "data/pallet/runs/diagnostics/v2_production_pilot500_seed7300_public",
+  "n_usable": 20,
+  "mode_counts": {
+    "clean-static": 4,
+    "cargo-only": 4,
+    "context-rich": 6,
+    "controlled-occlusion": 6
+  },
+  "mode_counts_expected": {
+    "clean-static": 4,
+    "cargo-only": 4,
+    "context-rich": 6,
+    "controlled-occlusion": 6
+  },
+  "mode_counts_match": true,
+  "ten_block_violations": [],
+  "mode_semantics_failures": 0,
+  "mode_semantics_disagreements": [],
+  "per_mode": {
+    "clean-static": {
+      "n": 4,
+      "semantics_pass": 4
+    },
+    "cargo-only": {
+      "n": 4,
+      "semantics_pass": 4,
+      "placed_ge1": 4,
+      "visible_px_gt0": 4,
+      "visible_pixels": {
+        "n": 4,
+        "min": 89.0,
+        "p05": 89.0,
+        "median": 791.0,
+        "p95": 1021.0,
+        "max": 1021.0
+      },
+      "visible_ratio": {
+        "n": 4,
+        "min": 0.007242838541666667,
+        "p05": 0.007242838541666667,
+        "median": 0.06437174479166667,
+        "p95": 0.11078559027777778,
+        "max": 0.11078559027777778
+      }
+    },
+    "context-rich": {
+      "n": 6,
+      "semantics_pass": 6,
+      "visible_ge1": 6,
+      "ratio_gt0": 6,
+      "visible_ratio": {
+        "n": 6,
+        "min": 1.0,
+        "p05": 1.0,
+        "median": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      }
+    },
+    "controlled-occlusion": {
+      "n": 6,
+      "semantics_pass": 6,
+      "placed": 6,
+      "visible_px_gt0": 6,
+      "side_match": 6,
+      "abs_target_error": {},
+      "metrics_available": 6,
+      "abs_target_error_lowres": {
+        "n": 6,
+        "min": 0.0024605756873503637,
+        "p05": 0.0024605756873503637,
+        "median": 0.01660942928118772,
+        "p95": 0.057578396200272275,
+        "max": 0.057578396200272275
+      },
+      "centroid_error_px_lowres": {
+        "n": 6,
+        "min": 6.757239250045621,
+        "p05": 6.757239250045621,
+        "median": 21.19529229329861,
+        "p95": 43.07342824451678,
+        "max": 43.07342824451678
+      },
+      "winning_stage": {
+        "preprobe": 3,
+        "gate-overlap-refine": 1,
+        "target-seed": 2
+      }
+    }
+  },
+  "controlled_efficiency": {
+    "usable": 6,
+    "all_proposals": 9,
+    "yield_all_proposals": 0.6666666666666666,
+    "yield_all_proposals_ci95": [
+      0.35419734749908977,
+      0.8794184013172571
+    ],
+    "mode_filter_skips": 1,
+    "solve_rejects": 0,
+    "prefilter_exhausted_rejects": 1,
+    "attempts_excluding_mode_filter": 8,
+    "yield_attempts_excluding_mode_filter": 0.75,
+    "expensive_reject_share_excluding_mode_filter": 0.125,
+    "blender_attempts": 7,
+    "yield_blender_attempts": 0.8571428571428571,
+    "yield_blender_attempts_ci95": [
+      0.4868654966809702,
+      0.9743210440510253
+    ],
+    "expensive_rejects": 1,
+    "expensive_reject_share_blender": 0.14285714285714285,
+    "reject_runtime_s": 104.9,
+    "accepted_runtime_s": 327.5,
+    "reject_over_accepted_runtime": 0.3203091714938283,
+    "wall_time_per_usable_controlled_s": 72.0685574611028,
+    "stage_counts": {
+      "render": 2,
+      "mode_filter": 1
+    },
+    "primary_reject_reason_counts": {
+      "usable_reject:rendered|usable_reject:realize_ok|mode_semantics:explicit_occluder_not_visible": 2,
+      "proposal_skip:mode_requires_explicit_occluder": 1
+    },
+    "prefilter_reject_count_total": 506,
+    "candidates_before_prefilter_total": 1397,
+    "candidates_after_prefilter_total": 891
+  },
+  "integrity": {
+    "id_min": 0,
+    "id_max": 19,
+    "contiguous": true,
+    "missing": [],
+    "duplicate": [],
+    "file_counts": {
+      "rgb": 20,
+      "labels": 20,
+      "mask_amodal": 20,
+      "mask_visible": 20
+    },
+    "visible_subset_amodal_violations": [],
+    "empty_amodal": [],
+    "corrupt": [],
+    "magenta_frames": [],
+    "camera_distance_over_10m": [],
+    "annotation_invalid": 0,
+    "reproj_max_px": 2.3437142008433856e-13,
+    "reproj_median_px": 8.038873388460929e-14,
+    "reproj_gate_px": 0.0001,
+    "reproj_gate_pass": true,
+    "gate_failures": []
+  }
+}

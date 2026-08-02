@@ -1,0 +1,57 @@
+{
+  "A_registry": {
+    "cmd": "pallet_data_paths.py --audit",
+    "ok": 28,
+    "missing": 0,
+    "pass": true
+  },
+  "B_unit": {
+    "cmd": "pytest scripts/data_prep/blender/tests/ -q",
+    "passed": 919,
+    "failed": 0,
+    "skipped": 0,
+    "pass": true
+  },
+  "C_integration": {
+    "cmd": "pytest integration_tests/test_pallet_data_paths_local.py -q",
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0,
+    "pass": true
+  },
+  "D_golden_overlay": {
+    "cmd": "pytest tests/test_overlay_archive_trunc_style.py -q",
+    "passed": 51,
+    "failed": 0,
+    "skipped": 0,
+    "pass": true
+  },
+  "E_5k": {
+    "framespec": {
+      "cmd": "v2_pipeline.py --n 5000 --seed 7000 --dump",
+      "digest_prefix": "938f387d",
+      "accepted": 4313,
+      "rejected": 687,
+      "expected_digest_prefix": "938f387d",
+      "pass": true
+    },
+    "proposal": {
+      "cmd": "dryrun_v2_proposals.py (tag 5k)",
+      "digest_prefix": "3cd365ee",
+      "accepted": 4439,
+      "checks_pass": 12,
+      "checks_total": 12,
+      "pass": true
+    }
+  },
+  "F_active_scene": {
+    "blend_sha256": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+    "registry_missing": [],
+    "images_missing": 0,
+    "images_absolute": 0,
+    "node_image_missing": 0,
+    "distractor_rows": 209,
+    "pass": true
+  },
+  "ALL_PASS": true
+}

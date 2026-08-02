@@ -1,0 +1,14 @@
+{
+  "blender.exe": [],
+  "python.exe": [
+    {
+      "pid": 24916,
+      "command": "python -m blender_mcp.server"
+    },
+    {
+      "pid": 33952,
+      "command": "C:\\Users\\User\\anaconda3\\python.exe C:/Users/User/AppData/Local/Temp/claude/E--CODING-GitHub-FoundationPose/3266d86f-94b3-40f9-a657-60e290fc1ee2/scratchpad/r0_preflight.py"
+    }
+  ],
+  "render_or_replay_python": []
+}

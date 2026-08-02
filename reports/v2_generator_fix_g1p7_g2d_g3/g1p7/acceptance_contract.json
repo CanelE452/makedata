@@ -1,0 +1,92 @@
+{
+  "source": "scripts/data_prep/blender/v2_realize.py:1838-1843 (explicit_score)",
+  "gate_source": "scripts/data_prep/blender/scene_placement_v2.py:69 (external_corner_gate_metrics)",
+  "candidate_accept_expression": "side_match AND int(object_visible_stats['visible_pixels']) >= 8 AND target_error_ok AND corner_metrics['joint_pass']",
+  "score_is_acceptance_threshold": false,
+  "score_role": "RANKING_ONLY",
+  "score_expression": "-(abs_error + EXPLICIT_ROI_SCORE_WEIGHT*roi_penalty + 0.25*corner_gate_penalty + screen_penalty + visibility_penalty)",
+  "score_range": "(-inf, 0]  — 높을수록 좋음, 최대 0. 임계 없음.",
+  "HARD_PHYSICAL": [
+    {
+      "name": "support",
+      "field": "reason == 'support'",
+      "meaning": "바닥/지지면 접지 실패. score_callback 에 도달하지 못한다.",
+      "observed_count": 463
+    },
+    {
+      "name": "collision",
+      "field": "reason == 'collision'",
+      "meaning": "다른 오브젝트와 관통.",
+      "observed_count": 112
+    },
+    {
+      "name": "camera_clearance",
+      "field": "reason == 'camera_clearance'",
+      "meaning": "카메라 최소 이격 위반.",
+      "observed_count": 157
+    }
+  ],
+  "ACCEPTANCE_CONSTRAINT": [
+    {
+      "name": "side",
+      "field": "occluder_side_match",
+      "type": "boolean",
+      "operator": "is True",
+      "unit": "없음 (범주형 side 일치)",
+      "continuous_margin": null,
+      "none_meaning": "미측정 — pass 로 세지 않는다",
+      "note": "occluder_side_actual 이 None 이면서 match=False 인 후보가 832건 — occluder 가 팔레트를 전혀 덮지 않아 side 를 산출할 수 없는 경우다. '가까운 실패'가 아니다."
+    },
+    {
+      "name": "visibility",
+      "field": "object_visible_pixels",
+      "type": "continuous",
+      "operator": ">= 8",
+      "unit": "저해상도 픽셀 수",
+      "threshold": 8,
+      "continuous_margin": "visible_pixels - 8",
+      "zero_meaning": "0 px = occluder 가 화면에서 전혀 안 보임 (margin -8, 실패분의 중앙값)"
+    },
+    {
+      "name": "target",
+      "field": "abs_error",
+      "type": "continuous",
+      "operator": "<= 0.12",
+      "unit": "가림 분율(f_explicit) 의 절대 오차 — 무차원",
+      "threshold": 0.12,
+      "continuous_margin": "EXPLICIT_TARGET_ABS_TOLERANCE - abs_error",
+      "zero_meaning": "margin 0 = 정확히 허용오차 경계"
+    },
+    {
+      "name": "G1",
+      "field": "candidate_V_vis",
+      "type": "continuous(정수)",
+      "operator": ">= 4",
+      "unit": "가시 코너 개수",
+      "definition": "V_vis = V_inframe - ext_occ",
+      "continuous_margin": "V_vis - 4",
+      "meaning": "팔레트 코너가 최소 4개는 가려지지 않고 보여야 한다"
+    },
+    {
+      "name": "G2",
+      "field": "candidate_ext_occ_corners",
+      "type": "continuous(정수)",
+      "operator": "1 <= ext_occ <= 4",
+      "unit": "외부 가림 코너 개수 (가림분율 >= 0.5 인 in-frame 코너)",
+      "continuous_margin": "min(ext_occ - 1, 4 - ext_occ)",
+      "zero_meaning": "ext_occ = 0 은 '가림이 하나도 없음' = 실패. controlled 모드는 **의도적 가림**이 목적이라 최소 1개는 가려야 한다.",
+      "note": "G2 실패 1,152건 중 1,028건이 ext_occ=0 (덜 가림), 124건이 ext_occ>=5 (너무 가림)"
+    }
+  ],
+  "RANKING_ONLY": [
+    {
+      "name": "score",
+      "role": "정렬 전용. 어떤 임계와도 비교되지 않는다."
+    },
+    {
+      "name": "candidate order",
+      "role": "동률 tie-break"
+    }
+  ],
+  "none_policy": "모든 acceptance 조건에서 None = 미측정이며 절대 pass 로 취급하지 않는다. 후보 732/2918 는 hard physical 단계에서 탈락해 acceptance 를 보지도 못했다."
+}

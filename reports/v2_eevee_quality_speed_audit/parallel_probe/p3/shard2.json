@@ -1,0 +1,44 @@
+{
+ "shard": 2,
+ "elapsed_s": 152.67,
+ "frames": 7,
+ "attempts": 7,
+ "per_frame_s": 21.81,
+ "detail": [
+  {
+   "proposal": 400,
+   "mode": "clean-static",
+   "s": 5.196
+  },
+  {
+   "proposal": 401,
+   "mode": "cargo-only",
+   "s": 7.906
+  },
+  {
+   "proposal": 402,
+   "mode": "context-rich",
+   "s": 29.631
+  },
+  {
+   "proposal": 403,
+   "mode": "controlled-occlusion",
+   "s": 42.209
+  },
+  {
+   "proposal": 404,
+   "mode": "clean-static",
+   "s": 5.606
+  },
+  {
+   "proposal": 405,
+   "mode": "cargo-only",
+   "s": 16.018
+  },
+  {
+   "proposal": 406,
+   "mode": "context-rich",
+   "s": 45.588
+  }
+ ]
+}

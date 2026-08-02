@@ -1,0 +1,155 @@
+{
+  "dir": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100b_seed7000_public",
+  "n_usable": 10,
+  "mode_counts": {
+    "clean-static": 2,
+    "cargo-only": 2,
+    "context-rich": 3,
+    "controlled-occlusion": 3
+  },
+  "mode_counts_expected": {
+    "clean-static": 2,
+    "cargo-only": 2,
+    "context-rich": 3,
+    "controlled-occlusion": 3
+  },
+  "mode_counts_match": true,
+  "ten_block_violations": [],
+  "mode_semantics_failures": 0,
+  "mode_semantics_disagreements": [],
+  "per_mode": {
+    "clean-static": {
+      "n": 2,
+      "semantics_pass": 2
+    },
+    "cargo-only": {
+      "n": 2,
+      "semantics_pass": 2,
+      "placed_ge1": 2,
+      "visible_px_gt0": 2,
+      "visible_pixels": {
+        "n": 2,
+        "min": 64.0,
+        "p05": 64.0,
+        "median": 832.0,
+        "p95": 832.0,
+        "max": 832.0
+      },
+      "visible_ratio": {
+        "n": 2,
+        "min": 0.004629629629629629,
+        "p05": 0.004629629629629629,
+        "median": 0.06018518518518518,
+        "p95": 0.06018518518518518,
+        "max": 0.06018518518518518
+      }
+    },
+    "context-rich": {
+      "n": 3,
+      "semantics_pass": 3,
+      "visible_ge1": 3,
+      "ratio_gt0": 3,
+      "visible_ratio": {
+        "n": 3,
+        "min": 0.6666666666666666,
+        "p05": 0.6666666666666666,
+        "median": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      }
+    },
+    "controlled-occlusion": {
+      "n": 3,
+      "semantics_pass": 3,
+      "placed": 3,
+      "visible_px_gt0": 3,
+      "side_match": 3,
+      "abs_target_error": {},
+      "metrics_available": 3,
+      "abs_target_error_lowres": {
+        "n": 3,
+        "min": 0.03747784807828797,
+        "p05": 0.03747784807828797,
+        "median": 0.1065769427090294,
+        "p95": 0.11394467089924262,
+        "max": 0.11394467089924262
+      },
+      "centroid_error_px_lowres": {
+        "n": 3,
+        "min": 6.21052631578948,
+        "p05": 6.21052631578948,
+        "median": 10.114244944285625,
+        "p95": 18.482036271373516,
+        "max": 18.482036271373516
+      },
+      "winning_stage": {
+        "target-seed": 2,
+        "preprobe": 1
+      }
+    }
+  },
+  "controlled_efficiency": {
+    "usable": 3,
+    "all_proposals": 11,
+    "yield_all_proposals": 0.2727272727272727,
+    "yield_all_proposals_ci95": [
+      0.09745880573921469,
+      0.5656502930102462
+    ],
+    "mode_filter_skips": 3,
+    "solve_rejects": 1,
+    "prefilter_exhausted_rejects": 1,
+    "attempts_excluding_mode_filter": 8,
+    "yield_attempts_excluding_mode_filter": 0.375,
+    "expensive_reject_share_excluding_mode_filter": 0.375,
+    "blender_attempts": 6,
+    "yield_blender_attempts": 0.5,
+    "yield_blender_attempts_ci95": [
+      0.1876128068994087,
+      0.8123871931005913
+    ],
+    "expensive_rejects": 3,
+    "expensive_reject_share_blender": 0.5,
+    "reject_runtime_s": 149.1,
+    "accepted_runtime_s": 130.5,
+    "reject_over_accepted_runtime": 1.1424864875902176,
+    "wall_time_per_usable_controlled_s": 93.19406501452129,
+    "stage_counts": {
+      "render": 4,
+      "mode_filter": 3,
+      "solve": 1
+    },
+    "primary_reject_reason_counts": {
+      "usable_reject:rendered|usable_reject:realize_ok|mode_semantics:explicit_occluder_not_visible": 4,
+      "proposal_skip:mode_requires_explicit_occluder": 3,
+      "solve_reject:d_occ_fail": 1
+    },
+    "prefilter_reject_count_total": 338,
+    "candidates_before_prefilter_total": 633,
+    "candidates_after_prefilter_total": 295
+  },
+  "integrity": {
+    "id_min": 0,
+    "id_max": 9,
+    "contiguous": true,
+    "missing": [],
+    "duplicate": [],
+    "file_counts": {
+      "rgb": 10,
+      "labels": 10,
+      "mask_amodal": 10,
+      "mask_visible": 10
+    },
+    "visible_subset_amodal_violations": [],
+    "empty_amodal": [],
+    "corrupt": [],
+    "magenta_frames": [],
+    "camera_distance_over_10m": [],
+    "annotation_invalid": 0,
+    "reproj_max_px": 1.2710574864626038e-13,
+    "reproj_median_px": 6.107286467210742e-14,
+    "reproj_gate_px": 0.0001,
+    "reproj_gate_pass": true,
+    "gate_failures": []
+  }
+}

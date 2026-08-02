@@ -1,0 +1,53 @@
+{
+  "checkpoint": 20,
+  "checks": {
+    "records/files count 정확": true,
+    "mode 4/4/6/6 · 10블록 위반 0": true,
+    "semantics 20/20": true,
+    "controlled explicit metrics 6/6": true,
+    "controlled explicit visible 6/6": true,
+    "controlled side match 6/6": true,
+    "post-context regression 0": true,
+    "constraint rescue trigger 0": true,
+    "integrity failure 0": true,
+    "mask subset violation 0": true,
+    "reprojection gate pass": true,
+    "public schema violation 0": true,
+    "overlay 20/20 · size mismatch 0": true,
+    "code/scene/asset/config lock 불변": true
+  },
+  "PILOT500_CHECKPOINT20_PASS": true,
+  "session": {
+    "elapsed_s": 763.7,
+    "usable": 20,
+    "per_usable_s": 38.2,
+    "render_attempts": 26,
+    "proposals_drawn": 29,
+    "session_clean_stop": true,
+    "dataset_complete": false
+  },
+  "controlled_quality_abs_error_lowres": {
+    "n": 6,
+    "min": 0.0024605756873503637,
+    "p05": 0.0024605756873503637,
+    "median": 0.01660942928118772,
+    "p95": 0.057578396200272275,
+    "max": 0.057578396200272275
+  },
+  "controlled_winning_stage": {
+    "preprobe": 3,
+    "gate-overlap-refine": 1,
+    "target-seed": 2
+  },
+  "reprojection": {
+    "median_px": 8.038873388460929e-14,
+    "max_px": 2.3437142008433856e-13,
+    "gate_px": 0.0001
+  },
+  "resolutions": {
+    "640x480": 12,
+    "960x540": 4,
+    "560x560": 2,
+    "720x480": 2
+  }
+}

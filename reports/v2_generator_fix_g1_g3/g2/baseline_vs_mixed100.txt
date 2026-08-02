@@ -1,0 +1,45 @@
+
+=== baseline(1,449) — controlled 단계별 runtime ===
+  [accepted n=49]
+    cargo_s                    n= 49  min     0.01  med     1.61  p95     9.82  max    10.73
+    context_s                  n= 49  min     3.28  med    14.17  p95    42.09  max    51.81
+    explicit_s                 n= 49  min     4.75  med    20.53  p95    43.31  max    63.60
+    total_s                    n= 49  min    23.62  med    43.96  p95    88.10  max   111.64
+  [expensive reject n=98]
+    cargo_s                    n= 97  min     0.01  med     1.63  p95    11.30  max    17.40
+    context_s                  n= 97  min     2.06  med    12.41  p95    38.17  max    44.40
+    explicit_s                 n= 97  min     4.94  med    28.00  p95    73.71  max    80.26
+    total_s                    n= 98  min     0.00  med    48.43  p95   107.66  max   127.75
+  usable 1장당 실효 wall time  154.9 s  (accepted+expensive / usable)
+
+=== mixed100 — controlled 단계별 runtime ===
+  [accepted n=30]
+    cargo_s                    n= 30  min     0.01  med     0.02  p95     9.40  max    13.34
+    context_s                  n= 30  min     6.78  med    15.78  p95    65.51  max   192.51
+    explicit_s                 n= 30  min     4.07  med    22.49  p95    39.25  max    58.68
+    total_s                    n= 30  min    24.65  med    47.63  p95    94.54  max   277.50
+  [expensive reject n=47]
+    cargo_s                    n= 47  min     0.01  med     0.02  p95    15.13  max    15.74
+    context_s                  n= 47  min     6.48  med    21.03  p95    54.56  max    80.73
+    explicit_s                 n= 47  min     9.23  med    36.54  p95    71.56  max    87.60
+    total_s                    n= 47  min    24.43  med    65.01  p95   130.53  max   133.58
+  usable 1장당 실효 wall time  165.0 s  (accepted+expensive / usable)
+
+=== mixed100 cargo-only 가시성 (baseline 은 미측정) ===
+  visible_pixels             n= 20  min    16.00  med   164.00  p95  1906.00  max  1906.00 px(96p)
+  visible_ratio              n= 20  min     0.00  med     0.01  p95     0.16  max     0.16
+  n_cargo_visible            n= 20  min     1.00  med     2.00  p95     2.00  max     2.00
+  n_cargo_placed             n= 20  min     1.00  med     2.00  p95     2.00  max     2.00
+  cargo 가 팔레트를 실제로 가린 프레임 0 / 20  (강제하지 않는 지표)
+
+=== mixed100 context-rich ===
+  n_context_visible          n= 30  min     1.00  med     3.00  p95     3.00  max     3.00
+  visible_pixel_ratio        n= 30  min     0.67  med     1.00  p95     1.00  max     1.00
+  placement_attempts         n= 30  min     6.00  med    13.00  p95   199.00  max   214.00
+  attempts=0 프레임 0 / 30
+
+=== mixed100 controlled accepted 품질 ===
+  explicit_visible_px        n= 30  min   187.00  med   829.00  p95 11123.00  max 12513.00
+  side match 30/30 · placed 30/30
+  f_explicit_actual 이 기록된 프레임 0 / 30  (public 프로필은 마스크 분해 불가)
+  baseline 도 동일: f_explicit_actual 기록 0 / 49

@@ -1,0 +1,17 @@
+{
+  "measured_per_usable_s": 57.5,
+  "placement_solver_share": 0.8025,
+  "final_rgb_mask_write_share": 0.1975,
+  "floor_s_if_rgb_free": 46.1,
+  "eevee_speedup_measured_1frame": 1.6,
+  "projection_40k_hours": {
+    "현재 (Cycles 64spp)": 638.9,
+    "EEVEE 32 (실측 x1.6 적용)": 591.6,
+    "최종 RGB+mask 0초 (이론 하한)": 512.7
+  },
+  "SINGLE_GPU_40K_24H_FEASIBLE": false,
+  "SINGLE_GPU_40K_48H_FEASIBLE": false,
+  "reason": "최종 RGB 를 0초로 만들어도 배치/탐색만 46.1 s/usable 이라 40k=513h(21.4일). 24h 상한 2.16 s/usable · 48h 상한 4.32 s/usable 에 각각 21.4배·10.7배 못 미친다. 렌더러 교체는 전체의 19.8% 구간에만 작용한다.",
+  "required_gpus_24h": 30.4,
+  "required_gpus_48h": 15.2
+}

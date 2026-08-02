@@ -1582,11 +1582,29 @@ def select_diagnostic_explicit_proposals(proposals, max_proposals):
     return selected
 
 
+def occluder_screen_silhouette_px2(spec, candidate):
+    """계획된 occluder 실루엣의 화면 면적(px^2).  `_occluder_lateral` 이 depth 를 풀 때
+    쓴 것과 같은 식이다 (두 축 중 큰 둘 * scale * sqrt(fill), 원근 나눗셈).  Plan 의
+    occluder dict 를 건드리지 않으려고 여기서 되짚는다 (5k dry-run digest 보존)."""
+    bx, by, bz = candidate["bbox_m"]
+    dims = sorted([float(bx), float(by), float(bz)], reverse=True)
+    fill = float(candidate["fill_ratio"])
+    scale = float(candidate.get("scale", 1.0))
+    d_occ = float(candidate["d_occ_m"])
+    if d_occ <= 1e-9:
+        return None
+    sfr = math.sqrt(fill)
+    fx = float(spec.fx)
+    fy = float(getattr(spec, "fy", spec.fx))
+    return (dims[0] * scale * sfr * fx / d_occ) * (dims[1] * scale * sfr * fy / d_occ)
+
+
 def prepare_diagnostic_explicit_occluders(
     plan: Plan,
     assets: Assets,
     max_proposals=6,
     max_nonce=640,
+    prefilter=True,
 ):
     """Prepare deterministic full-target proposals for controlled diagnostics.
 
@@ -1638,6 +1656,8 @@ def prepare_diagnostic_explicit_occluders(
     proposals = []
     seen = set()
     failures = []
+    prefilter_rejects = {}
+    candidates_before_prefilter = 0
 
     for nonce in range(max_nonce + 1):
         proposal = solve_placement(
@@ -1691,10 +1711,33 @@ def prepare_diagnostic_explicit_occluders(
         if key in seen:
             continue
         seen.add(key)
+        candidates_before_prefilter += 1
+        # FEASIBILITY PREFILTER (bpy-free): 접지시키면 목표를 맞출 수 없는 후보를
+        # Blender 상세 realization 에 넘기기 전에 버린다.  분포를 바꾸지 않는다 —
+        # FrameSpec 도 f_target 도 side 도 그대로고, 걸러지는 것은 "이 프레임에 쓸
+        # occluder 후보"뿐이다.
+        if prefilter:
+            screen_px2 = occluder_screen_silhouette_px2(proposal_spec, candidate)
+            reason = _sp2.controlled_prefilter_reason(
+                candidate,
+                plan.pallet_silhouette_px2,
+                screen_area_px2=screen_px2,
+            )
+            if reason is not None:
+                prefilter_rejects[reason] = prefilter_rejects.get(reason, 0) + 1
+                continue
         proposals.append(candidate)
 
     if not proposals:
         detail = ",".join(failures[:8]) or "no same-side proposal"
+        if prefilter and prefilter_rejects:
+            detail = "prefilter:" + ",".join(
+                f"{k}={v}" for k, v in sorted(prefilter_rejects.items()))
+            return Reject(
+                spec=plan.spec,
+                reason="diagnostic_explicit_prefilter_exhausted",
+                detail=detail,
+            )
         return Reject(
             spec=plan.spec,
             reason="diagnostic_explicit_proposal_failed",
@@ -1719,6 +1762,13 @@ def prepare_diagnostic_explicit_occluders(
     primary["diagnostic_resample_proposals"] = [
         dict(candidate) for candidate in selected_alternatives
     ]
+    primary["candidates_before_prefilter"] = int(candidates_before_prefilter)
+    primary["candidates_after_prefilter"] = int(len(proposals))
+    primary["prefilter_reject_count"] = int(
+        sum(prefilter_rejects.values())
+    )
+    primary["prefilter_reject_counts_by_reason"] = dict(prefilter_rejects)
+    primary["prefilter_enabled"] = bool(prefilter)
     return replace(
         plan,
         f_need=float(plan.spec.f_target),

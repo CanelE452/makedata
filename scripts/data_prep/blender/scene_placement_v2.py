@@ -131,6 +131,659 @@ def explicit_corner_reserve_pass(
     )
 
 
+# ---------------------------------------------------------------------------
+# §3 target-seed bounded free allowance · §4 near-miss fine refinement
+# ---------------------------------------------------------------------------
+# G1.5 는 해석적 seed 단계(target-seed)를 후보 예산에서 **전부** 뺐다.  그래야
+# accepted recall 이 30/30 이 됐지만, 대신 실패 프레임이 후보를 더 많이 평가하게 됐다
+# (score_callback reject +28.8%).  여기서는 **앞 K개 unique 후보만** free 로 두고
+# 나머지는 일반 예산을 쓰게 한다.  K=None 이면 G1.5 동작(무제한)과 같다.
+TARGET_SEED_STAGE = "target-seed"
+FINE_STAGE = "fine"
+FINE_MAX_EVALS = 8
+FINE_STEP_SCALE = 0.5          # coarse step 의 절반 — 새 절대 단위를 만들지 않는다
+
+# --- G1.7 constraint-directed rescue ------------------------------------
+# schedule 에 이미 "rescue" 라는 coarse sweep stage 가 있으므로 이름을 분리한다.
+CONSTRAINT_RESCUE_STAGE = "constraint-rescue"
+CONSTRAINT_RESCUE_MODES = ("off", "side_g1")
+CONSTRAINT_RESCUE_DEFAULT_MODE = "off"      # §5 production default 는 OFF
+RESCUE_BEAM_MAX = 3
+RESCUE_EVAL_MAX_PER_CASE = 8
+RESCUE_EVAL_MAX_PER_CATEGORY = 4
+RESCUE_HARD_REASONS = ("support", "collision", "camera_clearance")
+# acceptance 계약 (v2_realize.py:1838-1843 에서 읽은 값)
+ACCEPTANCE_MIN_VISIBLE_PIXELS = 8
+G1_MIN_V_VIS = 4
+G2_MIN_EXT_OCC = 1
+G2_MAX_EXT_OCC = 4
+ACCEPTANCE_CONSTRAINTS = ("side", "visibility", "target", "G1", "G2")
+
+
+def candidate_geometry_key(candidate):
+    """같은 배치를 stage 이름만 바꿔 재평가한 것을 하나로 세기 위한 canonical key."""
+    center = candidate.get("center") or ()
+    parts = [str(candidate.get("proposal_object"))]
+    parts += ["%.6f" % float(value) for value in center]
+    for key in ("yaw_rad", "u_offset", "v_offset", "depth_offset", "yaw_offset"):
+        value = candidate.get(key)
+        parts.append("na" if value is None else "%.6f" % float(value))
+    return "|".join(parts)
+
+
+def planned_offset_key(plan, offset):
+    """평가 **전에** 계산되는 dedup key: 같은 plan 에 같은 offset 이면 결과도 같다.
+
+    `candidate_geometry_key` 는 배치 결과(center)가 있어야 하므로 이미 평가한
+    후보끼리만 비교할 수 있다.  탐색 단계는 (plan, offset) 만으로 결과가 결정되므로
+    그 쌍을 키로 쓰면 **평가하기 전에** 중복을 걸러낼 수 있다.  primary 격자의
+    (0,0,0) 은 preprobe 와 같은 지점이라 실측 후보의 5.2% 가 재평가였다.
+    """
+    center = tuple(float(v) for v in (plan.get("center") or ()))
+    yaw = plan.get("yaw_rad")
+    values = tuple(float(v) for v in offset)
+    return (
+        str(plan.get("obj_name")),
+        center,
+        "na" if yaw is None else round(float(yaw), 9),
+        tuple(round(v, 9) for v in values),
+    )
+
+
+def dedup_candidate_offsets(plan, offsets, evaluated_keys):
+    """이미 평가한 (plan, offset) 조합을 뺀 나머지와, 그 키들을 함께 돌려준다.
+
+    호출자는 **실제로 평가한 offset 의 키만** `evaluated_keys` 에 넣어야 한다
+    (예산에 잘려 평가되지 않은 것을 넣으면 다음 단계에서 잘못 건너뛴다).
+    """
+    kept, keys = [], []
+    seen = set()
+    for offset in offsets:
+        key = planned_offset_key(plan, offset)
+        if key in evaluated_keys or key in seen:
+            continue
+        seen.add(key)
+        kept.append(tuple(float(v) for v in offset))
+        keys.append(key)
+    return tuple(kept), tuple(keys)
+
+
+def candidate_constraint_vector(candidate, order=None):
+    """§6 constraint vector.  측정 안 된 값은 None 이며 절대 pass 로 세지 않는다."""
+    reason = candidate.get("reason")
+    visible = candidate.get("object_visible_pixels")
+    error = candidate.get("abs_error")
+    v_vis = candidate.get("candidate_V_vis")
+    ext = candidate.get("candidate_ext_occ_corners")
+    side = candidate.get("occluder_side_match")
+    vector = {
+        "hard_physical_pass": reason not in RESCUE_HARD_REASONS,
+        "side_pass": None if side is None else bool(side),
+        "visibility_margin_px": (None if visible is None
+                                 else int(visible) - ACCEPTANCE_MIN_VISIBLE_PIXELS),
+        "target_margin": (None if error is None
+                          else EXPLICIT_TARGET_ABS_TOLERANCE - float(error)),
+        "G1_margin": None if v_vis is None else int(v_vis) - G1_MIN_V_VIS,
+        "G2_margin": (None if ext is None
+                      else min(int(ext) - G2_MIN_EXT_OCC,
+                               G2_MAX_EXT_OCC - int(ext))),
+        "existing_score": candidate.get("score"),
+        "original_candidate_order": order,
+    }
+    vector["G1_pass"] = (None if vector["G1_margin"] is None
+                         else vector["G1_margin"] >= 0)
+    vector["G2_pass"] = (None if vector["G2_margin"] is None
+                         else vector["G2_margin"] >= 0)
+    vector["visibility_pass"] = (None if vector["visibility_margin_px"] is None
+                                 else vector["visibility_margin_px"] >= 0)
+    vector["target_pass"] = (None if vector["target_margin"] is None
+                             else vector["target_margin"] >= 0)
+    violated, unknown = [], []
+    for name in ACCEPTANCE_CONSTRAINTS:
+        value = vector["side_pass" if name == "side" else name + "_pass"]
+        if value is None:
+            unknown.append(name)
+        elif not value:
+            violated.append(name)
+    vector["violated"] = tuple(violated)
+    vector["unknown"] = tuple(unknown)
+    vector["violation_count"] = None if unknown else len(violated)
+    vector["acceptance_pass_count"] = len(ACCEPTANCE_CONSTRAINTS) - len(
+        violated) - len(unknown)
+    vector["accepted"] = bool(not violated and not unknown)
+    return vector
+
+
+def _constraint_axis_values(vector):
+    """dominance 비교에 쓰는 (boolean, continuous) 축.  None 은 비교 불가."""
+    return (
+        ("side", "boolean", vector["side_pass"]),
+        ("visibility", "continuous", vector["visibility_margin_px"]),
+        ("target", "continuous", vector["target_margin"]),
+        ("G1", "continuous", vector["G1_margin"]),
+        ("G2", "continuous", vector["G2_margin"]),
+    )
+
+
+def constraint_vector_dominates(a, b):
+    """A 가 B 를 Pareto dominate 하는가 (§6).
+
+    - 모든 acceptance 축에서 같거나 낫고, 최소 하나에서 더 나아야 한다.
+    - boolean 은 pass 가 fail 을 dominate 한다.
+    - 어느 한쪽이라도 축이 미측정(None)이면 그 축은 비교할 수 없으므로
+      dominance 를 주장하지 않는다 (보수적).
+    - hard physical fail 은 어떤 후보도 dominate 하지 못한다.
+    """
+    if not a.get("hard_physical_pass"):
+        return False
+    strictly_better = False
+    for (_name, kind, va), (_n2, _k2, vb) in zip(_constraint_axis_values(a),
+                                                 _constraint_axis_values(b)):
+        if va is None or vb is None:
+            return False
+        if kind == "boolean":
+            if int(bool(va)) < int(bool(vb)):
+                return False
+            if int(bool(va)) > int(bool(vb)):
+                strictly_better = True
+        else:
+            # margin 은 0 이상이면 이미 통과다.  통과분끼리는 더 큰 margin 을
+            # "더 낫다"로 세지 않는다 — 그러면 통과한 축을 계속 밀어붙여
+            # 다른 축을 희생하는 후보가 선택된다.
+            ca, cb = min(float(va), 0.0), min(float(vb), 0.0)
+            if ca < cb:
+                return False
+            if ca > cb:
+                strictly_better = True
+    return strictly_better
+
+
+def pareto_non_dominated(vectors):
+    """hard physical pass 후보 중 non-dominated 집합 (입력 순서 보존)."""
+    live = [v for v in vectors if v.get("hard_physical_pass")]
+    keep = []
+    for i, cand in enumerate(live):
+        if any(constraint_vector_dominates(other, cand)
+               for j, other in enumerate(live) if j != i):
+            continue
+        keep.append(cand)
+    return keep
+
+
+def _rescue_tie_key(vector):
+    """§6 동률 순서: pass 수 → binding margin → score → 원래 순서 → asset."""
+    margins = [m for m in (vector["visibility_margin_px"], vector["target_margin"],
+                           vector["G1_margin"], vector["G2_margin"])
+               if m is not None]
+    binding = min((min(float(m), 0.0) for m in margins), default=-99.0)
+    return (
+        -int(vector["acceptance_pass_count"]),
+        -float(binding),
+        -float(vector["existing_score"] if vector["existing_score"] is not None
+               else -99.0),
+        int(vector["original_candidate_order"]
+            if vector["original_candidate_order"] is not None else 1 << 30),
+        str(vector.get("asset") or ""),
+    )
+
+
+def rescue_beam(candidate_log, categories=("side", "G1"),
+                beam_max=RESCUE_BEAM_MAX):
+    """§6 beam: global best 1 + category champion 각 1, 중복 geometry 제거 후 <=3.
+
+    champion = 그 category 만 위반하고 나머지는 통과한 후보 중 최선.
+    없으면 그 category 를 위반하되 위반 수가 가장 적은 후보.
+    """
+    vectors, seen = [], set()
+    for order, candidate in enumerate(candidate_log):
+        key = candidate_geometry_key(candidate)
+        if key in seen:
+            continue
+        seen.add(key)
+        vector = candidate_constraint_vector(candidate, order=order)
+        if not vector["hard_physical_pass"]:
+            continue
+        vector["geometry_key"] = key
+        vector["candidate"] = candidate
+        vector["asset"] = candidate.get("proposal_object")
+        vectors.append(vector)
+    if not vectors:
+        return []
+    frontier = pareto_non_dominated(vectors)
+    pool = frontier or vectors
+
+    beam, used = [], set()
+
+    def take(vector, role):
+        if vector is None or vector["geometry_key"] in used:
+            return
+        used.add(vector["geometry_key"])
+        entry = dict(vector)
+        entry["beam_role"] = role
+        beam.append(entry)
+
+    scored = [v for v in pool if v["existing_score"] is not None]
+    take(min(scored or pool, key=_rescue_tie_key) if (scored or pool) else None,
+         "global_best")
+    for name in categories:
+        solo = [v for v in pool
+                if v["violation_count"] is not None
+                and v["violated"] == (name,)]
+        champions = solo or [v for v in pool
+                             if v["violation_count"] is not None
+                             and name in v["violated"]]
+        if champions:
+            take(min(champions, key=_rescue_tie_key), "%s_champion" % name)
+    return beam[:int(beam_max)]
+
+
+def side_region_bounds(target_bbox_px):
+    """`_occlusion_side_from_masks` 와 **같은** 삼등분 경계 (v2_realize.py:3530)."""
+    x0, y0, x1, y1 = (float(v) for v in target_bbox_px)
+    width = max(1.0, x1 - x0)
+    height = max(1.0, y1 - y0)
+    return {"x0": x0, "y0": y0, "x1": x1, "y1": y1,
+            "left_max": x0 + width / 3.0,
+            "right_min": x0 + 2.0 * width / 3.0,
+            "bottom_min": y0 + 2.0 * height / 3.0,
+            "width": width, "height": height}
+
+
+def side_target_point(target_bbox_px, target_side):
+    """target side 로 판정되려면 가림 centroid 가 있어야 할 대표 지점.
+
+    판정 순서가 bottom -> left -> right -> center 이므로, left/right 를 얻으려면
+    bottom 경계보다 **위**에 있어야 한다 (그 조건을 먼저 만족시킨다).
+    """
+    if target_side not in EXPLICIT_OCCLUDER_SIDES:
+        raise ValueError("unknown target side: %r" % (target_side,))
+    b = side_region_bounds(target_bbox_px)
+    mid_y = 0.5 * (b["y0"] + b["bottom_min"])       # bottom 밴드 위쪽 중앙
+    if target_side == "bottom":
+        return (0.5 * (b["x0"] + b["x1"]),
+                0.5 * (b["bottom_min"] + b["y1"]))
+    if target_side == "left":
+        return (0.5 * (b["x0"] + b["left_max"]), mid_y)
+    if target_side == "right":
+        return (0.5 * (b["right_min"] + b["x1"]), mid_y)
+    return (0.5 * (b["x0"] + b["x1"]), mid_y)       # center
+
+
+def screen_axis_sensitivity(candidate_log, offset_key, screen_index):
+    """이미 평가된 후보들로부터 d(screen px)/d(offset) 을 실측한다.
+
+    이름이나 부호 규약을 추측하지 않는다 (§16).  같은 proposal 안에서 해당 축만
+    다른 후보 쌍의 유한차분 중앙값을 쓴다.  쌍이 없으면 None.
+    """
+    others = ("u_offset", "v_offset", "depth_offset", "yaw_offset")
+    points = []
+    for candidate in candidate_log:
+        centroid = candidate.get("object_visible_centroid_px")
+        if not centroid or candidate.get(offset_key) is None:
+            continue
+        rest = tuple((k, candidate.get(k)) for k in others if k != offset_key)
+        points.append((rest, float(candidate[offset_key]),
+                       float(centroid[int(screen_index)]),
+                       candidate.get("proposal_object")))
+    slopes = []
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+            rest_a, xa, ya, asset_a = points[i]
+            rest_b, xb, yb, asset_b = points[j]
+            if rest_a != rest_b or asset_a != asset_b:
+                continue
+            if abs(xa - xb) < 1e-9:
+                continue
+            slopes.append((ya - yb) / (xa - xb))
+    if not slopes:
+        return None
+    slopes.sort()
+    mid = len(slopes) // 2
+    return (slopes[mid] if len(slopes) % 2
+            else 0.5 * (slopes[mid - 1] + slopes[mid]))
+
+
+def side_rescue_seeds(beam_entry, target_bbox_px, target_side, candidate_log,
+                      coarse_u_step, coarse_v_step, max_seeds=4):
+    """§7 SIDE discrete reseed — 최대 4개, 전부 실측 기하에서 결정적으로 만든다.
+
+    임의 연속 margin 을 만들지 않는다.  seed 는 출발점일 뿐이고 성공 판정은
+    항상 5개 acceptance 조건 실측으로 한다.
+    """
+    candidate = beam_entry["candidate"]
+    centroid = candidate.get("object_visible_centroid_px")
+    if not centroid or target_bbox_px is None:
+        return ()
+    u0 = float(candidate.get("u_offset") or 0.0)
+    v0 = float(candidate.get("v_offset") or 0.0)
+    d0 = float(candidate.get("depth_offset") or 0.0)
+    y0 = float(candidate.get("yaw_offset") or 0.0)
+    tx, ty = side_target_point(target_bbox_px, target_side)
+    bounds = side_region_bounds(target_bbox_px)
+    du_dx = screen_axis_sensitivity(candidate_log, "u_offset", 0)
+    dv_dy = screen_axis_sensitivity(candidate_log, "v_offset", 1)
+    step_u = abs(float(coarse_u_step)) or 0.15
+    step_v = abs(float(coarse_v_step)) or 0.15
+
+    def clamp(delta, step):
+        limit = 4.0 * step
+        return max(-limit, min(limit, delta))
+
+    seeds = []
+
+    def add(seed_type, u, v, depth, yaw):
+        offset = (round(float(u), 12), round(float(v), 12),
+                  round(float(depth), 12), round(float(yaw), 12))
+        for existing in seeds:
+            if existing[1] == offset:
+                return
+        seeds.append((seed_type, offset))
+
+    # 1. target-side anchor — 측정된 감도로 centroid 를 목표 지점까지 민다.
+    if du_dx and abs(du_dx) > 1e-9:
+        add("target_side_anchor",
+            u0 + clamp((tx - float(centroid[0])) / du_dx, step_u), v0, d0, y0)
+    else:
+        direction = 1.0 if tx >= float(centroid[0]) else -1.0
+        add("target_side_anchor", u0 + direction * 2.0 * step_u, v0, d0, y0)
+
+    # 2. target-mask centroid 방향 — 목표 지점과 팔레트 중심의 중간을 겨눈다.
+    mid_x = 0.5 * (tx + 0.5 * (bounds["x0"] + bounds["x1"]))
+    if du_dx and abs(du_dx) > 1e-9:
+        add("target_mask_centroid",
+            u0 + clamp((mid_x - float(centroid[0])) / du_dx, step_u), v0, d0, y0)
+
+    # 3. lateral mirror — 팔레트 중심을 기준으로 u 를 반사한다.
+    add("lateral_mirror", -u0 if abs(u0) > 1e-9 else u0 + 2.0 * step_u,
+        v0, d0, y0)
+
+    # 4. side-specific 세로 이동 — bottom 판정이 **먼저** 걸리므로 left/right 는
+    #    가림 centroid 를 bottom 밴드 위로, bottom 목표는 밴드 안으로 옮겨야 한다.
+    #    방향은 **실측 감도로만** 정한다 (§16: 이름·규약으로 추측 금지).
+    #    감도가 없으면 세로 seed 를 만들지 않는다 — 부호를 지어내지 않는다.
+    if dv_dy and abs(dv_dy) > 1e-9:
+        shift = clamp((ty - float(centroid[1])) / dv_dy, step_v)
+        seed_u = seeds[0][1][0] if (seeds and target_side != "bottom") else u0
+        add("side_specific_shift", seed_u, v0 + shift, d0, y0)
+    return tuple(seeds[:int(max_seeds)])
+
+
+def g1_rescue_seeds(beam_entry, candidate_log, coarse_u_step, coarse_v_step,
+                    coarse_depth_step, max_seeds=4):
+    """§8 G1 rescue — raw margin(V_vis-4) 이 있으므로 실측 축 감도로 움직인다.
+
+    이미 통과한 다른 제약을 깨지 않는 방향만 고른다.  boolean 만 있는 경우의
+    fallback 은 `g1_pass_champion_seed` 가 담당한다.
+    """
+    candidate = beam_entry["candidate"]
+    u0 = float(candidate.get("u_offset") or 0.0)
+    v0 = float(candidate.get("v_offset") or 0.0)
+    d0 = float(candidate.get("depth_offset") or 0.0)
+    y0 = float(candidate.get("yaw_offset") or 0.0)
+    steps = {"u_offset": abs(float(coarse_u_step)) or 0.15,
+             "v_offset": abs(float(coarse_v_step)) or 0.15,
+             "depth_offset": abs(float(coarse_depth_step)) or 0.175}
+    sens = g1_axis_sensitivity(candidate_log)
+    seeds = []
+
+    def add(seed_type, u, v, depth, yaw):
+        offset = (round(float(u), 12), round(float(v), 12),
+                  round(float(depth), 12), round(float(yaw), 12))
+        for existing in seeds:
+            if existing[1] == offset:
+                return
+        seeds.append((seed_type, offset))
+
+    ranked = sorted(
+        (axis for axis in ("u_offset", "v_offset", "depth_offset")
+         if sens.get(axis)),
+        key=lambda axis: -abs(sens[axis]))
+    for axis in ranked:
+        step = steps[axis] * FINE_STEP_SCALE
+        direction = 1.0 if sens[axis] > 0 else -1.0
+        delta = direction * step
+        add("g1_sensitivity_%s" % axis[0],
+            u0 + (delta if axis == "u_offset" else 0.0),
+            v0 + (delta if axis == "v_offset" else 0.0),
+            d0 + (delta if axis == "depth_offset" else 0.0), y0)
+    if not ranked:
+        # 감도 정보가 없으면 임의 gradient 를 만들지 않고 depth 후퇴만 시도한다
+        # (occluder 를 카메라에서 멀리 두면 팔레트 코너를 덜 가린다).
+        add("g1_depth_backoff", u0, v0, d0 + steps["depth_offset"], y0)
+    return tuple(seeds[:int(max_seeds)])
+
+
+def g1_axis_sensitivity(candidate_log):
+    """축별 d(V_vis)/d(offset) 실측값.  쌍이 없으면 그 축은 없다."""
+    others = ("u_offset", "v_offset", "depth_offset", "yaw_offset")
+    result = {}
+    for axis in ("u_offset", "v_offset", "depth_offset"):
+        points = []
+        for candidate in candidate_log:
+            v_vis = candidate.get("candidate_V_vis")
+            if v_vis is None or candidate.get(axis) is None:
+                continue
+            rest = tuple((k, candidate.get(k)) for k in others if k != axis)
+            points.append((rest, float(candidate[axis]), float(v_vis),
+                           candidate.get("proposal_object")))
+        slopes = []
+        for i in range(len(points)):
+            for j in range(i + 1, len(points)):
+                rest_a, xa, ya, asset_a = points[i]
+                rest_b, xb, yb, asset_b = points[j]
+                if rest_a != rest_b or asset_a != asset_b or abs(xa - xb) < 1e-9:
+                    continue
+                slopes.append((ya - yb) / (xa - xb))
+        if slopes:
+            slopes.sort()
+            mid = len(slopes) // 2
+            result[axis] = (slopes[mid] if len(slopes) % 2
+                            else 0.5 * (slopes[mid - 1] + slopes[mid]))
+    return result
+
+
+def constraint_rescue_plan(candidate_log, target_bbox_px, target_side,
+                           coarse_steps, mode=CONSTRAINT_RESCUE_DEFAULT_MODE,
+                           beam_max=RESCUE_BEAM_MAX,
+                           eval_max=RESCUE_EVAL_MAX_PER_CASE,
+                           category_max=RESCUE_EVAL_MAX_PER_CATEGORY,
+                           evaluated_keys=()):
+    """§7-§9 를 합친 결정적 rescue 계획.
+
+    반환: {"beam": [...], "evaluations": [{category, seed_type, offset, ...}],
+           "duplicate_skips": int, "axis_sequence": [...]}
+    """
+    if mode not in CONSTRAINT_RESCUE_MODES:
+        raise ValueError("unknown constraint_rescue_mode: %r" % (mode,))
+    empty = {"beam": [], "evaluations": [], "duplicate_skips": 0,
+             "axis_sequence": [], "categories": []}
+    if mode == "off":
+        return empty
+    beam = rescue_beam(candidate_log, categories=("side", "G1"),
+                       beam_max=beam_max)
+    if not beam:
+        return empty
+    u_step, v_step, d_step = coarse_steps
+    seen = set(evaluated_keys)
+    evaluations, duplicates, axes = [], 0, []
+    per_category = {"side": 0, "G1": 0}
+
+    def emit(category, seed_type, offset, entry):
+        nonlocal duplicates
+        if len(evaluations) >= int(eval_max):
+            return
+        if per_category[category] >= int(category_max):
+            return
+        probe = dict(entry["candidate"])
+        probe.update({"u_offset": offset[0], "v_offset": offset[1],
+                      "depth_offset": offset[2], "yaw_offset": offset[3]})
+        key = candidate_geometry_key(probe)
+        if key in seen:
+            duplicates += 1
+            return
+        seen.add(key)
+        per_category[category] += 1
+        evaluations.append({
+            "category": category, "seed_type": seed_type, "offset": offset,
+            "geometry_key": key, "beam_role": entry.get("beam_role"),
+            "source_order": entry.get("original_candidate_order"),
+            "asset": entry.get("asset"),
+            "constraint_before": {k: entry[k] for k in
+                                  ("side_pass", "visibility_margin_px",
+                                   "target_margin", "G1_margin", "G2_margin",
+                                   "acceptance_pass_count")}})
+        axes.append("%s:%s" % (category, seed_type))
+
+    # side 를 먼저 — 위반 wall time 이 가장 큰 category 다 (§14 상위 우선).
+    for entry in beam:
+        if entry["side_pass"] is False:
+            for seed_type, offset in side_rescue_seeds(
+                    entry, target_bbox_px, target_side, candidate_log,
+                    u_step, v_step, max_seeds=category_max):
+                emit("side", seed_type, offset, entry)
+    for entry in beam:
+        if entry["G1_margin"] is not None and entry["G1_margin"] < 0:
+            for seed_type, offset in g1_rescue_seeds(
+                    entry, candidate_log, u_step, v_step, d_step,
+                    max_seeds=category_max):
+                emit("G1", seed_type, offset, entry)
+    return {"beam": [{k: v for k, v in e.items() if k != "candidate"}
+                     for e in beam],
+            "evaluations": evaluations, "duplicate_skips": duplicates,
+            "axis_sequence": axes,
+            "categories": sorted({e["category"] for e in evaluations})}
+
+
+def target_seed_budget_usage(candidate_log, proposal_index, free_cap):
+    """target-seed 후보의 free / paid 사용량.
+
+    free_cap=None 이면 전부 free(G1.5 동작), 0 이면 전부 paid.
+    중복 geometry 는 free 슬롯을 **새로 소비하지 않는다** — 이미 free 인 key 의
+    중복은 free, paid 인 key 의 중복은 paid.
+    """
+    ranks, free_used, paid_used, total, duplicates = {}, 0, 0, 0, 0
+    for candidate in candidate_log:
+        if candidate.get("proposal_index") != proposal_index:
+            continue
+        if candidate.get("stage") != TARGET_SEED_STAGE:
+            continue
+        total += 1
+        key = candidate_geometry_key(candidate)
+        if key in ranks:
+            duplicates += 1
+        else:
+            ranks[key] = len(ranks)
+        if free_cap is None or ranks[key] < int(free_cap):
+            free_used += 1
+        else:
+            paid_used += 1
+    return {"target_seed_candidate_count": total,
+            "target_seed_unique_count": len(ranks),
+            "target_seed_duplicate_count": duplicates,
+            "target_seed_free_used": free_used,
+            "target_seed_paid_used": paid_used}
+
+
+def budgeted_attempt_count(candidate_log, proposal_index, free_cap):
+    """일반 후보 예산이 세는 시도 수 (target-seed 의 free 분과 fine 단계는 제외)."""
+    counted = 0
+    for candidate in candidate_log:
+        if candidate.get("proposal_index") != proposal_index:
+            continue
+        stage = candidate.get("stage")
+        if stage in (TARGET_SEED_STAGE, FINE_STAGE):
+            continue
+        counted += 1
+    usage = target_seed_budget_usage(candidate_log, proposal_index, free_cap)
+    return counted + usage["target_seed_paid_used"]
+
+
+def near_miss_candidates(candidate_log, tolerance=None, hard_reasons=(
+        "support", "collision", "camera_clearance")):
+    """목표 오차 **하나만** 막고 있는 후보만 돌려준다 (margin 작은 순).
+
+    side / 코너 / 가시성이 함께 막고 있으면 좌표 미세 조정으로 살아나지 않는다.
+    support·collision·camera_clearance 같은 hard 실패도 대상이 아니다.
+    """
+    tolerance = EXPLICIT_TARGET_ABS_TOLERANCE if tolerance is None else tolerance
+    out = []
+    for order, candidate in enumerate(candidate_log):
+        if candidate.get("reason") in hard_reasons:
+            continue
+        error = candidate.get("abs_error")
+        if error is None:
+            continue
+        if candidate.get("target_error_ok"):
+            continue
+        if not candidate.get("occluder_side_match"):
+            continue
+        visible = candidate.get("object_visible_pixels")
+        if visible is None or int(visible) < 8:
+            continue
+        g1, g2 = candidate.get("candidate_G1_pass"), candidate.get("candidate_G2_pass")
+        if not (g1 and g2):
+            continue
+        margin = float(tolerance) - float(error)
+        out.append({"order": order, "candidate": candidate,
+                    "abs_gap": abs(margin), "score_margin": margin,
+                    "score": candidate.get("score"),
+                    "stage": candidate.get("stage"),
+                    "object": candidate.get("proposal_object")})
+    return out
+
+
+def select_near_miss_seed(candidate_log, gap_threshold, tolerance=None):
+    """case 당 1개.  score 높은 순 -> 후보 순서 -> asset 이름 순으로 deterministic."""
+    if gap_threshold is None:
+        return None
+    pool = [c for c in near_miss_candidates(candidate_log, tolerance=tolerance)
+            if c["abs_gap"] <= float(gap_threshold)]
+    if not pool:
+        return None
+    pool.sort(key=lambda c: (-(c["score"] if c["score"] is not None else -1e9),
+                             c["order"], str(c["object"])))
+    return pool[0]
+
+
+def fine_refinement_offsets(coarse_u_step, coarse_v_step, coarse_depth_step,
+                            scale=FINE_STEP_SCALE):
+    """coarse step 의 ±scale 배로 만든 축별 이웃 — 전체 grid 를 만들지 않는다.
+
+    ((u,v,depth,yaw) 오프셋 목록, 축 경계) 를 돌려준다.  호출자는 offset 이웃을
+    먼저 평가하고 그중 best 를 기준으로 depth 이웃을 평가한다.
+    """
+    du = abs(float(coarse_u_step)) * float(scale)
+    dv = abs(float(coarse_v_step)) * float(scale)
+    dd = abs(float(coarse_depth_step)) * float(scale)
+    offsets = [(-du, 0.0, 0.0, 0.0), (du, 0.0, 0.0, 0.0),
+               (0.0, -dv, 0.0, 0.0), (0.0, dv, 0.0, 0.0)]
+    depth = [(0.0, 0.0, -dd, 0.0), (0.0, 0.0, dd, 0.0)]
+    return tuple(offsets), tuple(depth)
+
+
+def context_corner_no_regression(metrics, post_explicit_metrics):
+    """explicit 이 이미 놓인 뒤 context 가 코너를 더 나쁘게 만들지 않았는가.
+
+    `explicit_corner_reserve_pass` 는 **explicit 을 놓기 전** 코너 여유를 남겨 두는
+    계약이라 `ext_occ <= 1` 을 요구한다.  explicit 배치를 context 앞으로 옮긴 뒤
+    그 계약을 그대로 쓰면, 가리는 것이 본업인 occluder 때문에 거의 모든 context
+    후보가 탈락한다 (2026-08-01 replay: context 단계 14초 -> 225초).  배치 후에는
+    "explicit 만 있던 상태보다 나빠지지 않았는가"가 올바른 기준이다.
+    """
+    if not isinstance(metrics, Mapping):
+        raise TypeError("metrics must be a mapping")
+    if not isinstance(post_explicit_metrics, Mapping):
+        raise TypeError("post_explicit_metrics must be a mapping")
+    return bool(
+        int(metrics.get("V_inframe", 0))
+        >= int(post_explicit_metrics.get("V_inframe", 0))
+        and int(metrics.get("ext_occ_corners", 0))
+        <= int(post_explicit_metrics.get("ext_occ_corners", 0))
+        and int(metrics.get("V_vis", 0))
+        >= int(post_explicit_metrics.get("V_vis", 0))
+    )
+
+
 def image_space_context_poses(
     pallet_center,
     camera_pos,
@@ -244,6 +897,58 @@ def image_space_context_poses(
                 "yaw_rad": rng.uniform(-math.pi, math.pi),
             }
         )
+    if poses:
+        return poses
+
+    # ★ 저앙각 구제 (2026-08-01).  위 sampler 는 "이미지 좌우 띠의 픽셀 -> 지면 교점"
+    # 방향으로 푼다.  카메라가 지면에 가까우면 그 띠의 광선이 지평선 위로 가거나 아주
+    # 멀리 떨어져 max_camera_distance 를 넘고, 32*attempts 후보가 전부 탈락해 빈 목록이
+    # 된다 -- baseline 에서 context-rich 600장 중 39장이 "배치를 시도조차 못 한" 원인이
+    # 바로 이것이다 (기각 사유 64% camera_distance_out_of_band, 22% ray_up).
+    # 같은 물리 제약(카메라 거리 밴드 · 팔레트 최소 이격)을 유지한 채 순서만 뒤집어,
+    # 지면 위 점을 먼저 고르고 그것이 화면 좌우 띠에 맺히는지 확인한다.  위 sampler 가
+    # 하나라도 성공하면 이 경로는 돌지 않으므로 기존 프레임의 배치는 변하지 않는다.
+    horizontal_forward = (forward[0], forward[1], 0.0)
+    if math.sqrt(dot(horizontal_forward, horizontal_forward)) <= 1e-9:
+        return poses
+    horizontal_forward = normalized(horizontal_forward)
+    base_yaw = math.atan2(horizontal_forward[1], horizontal_forward[0])
+    lo = max(float(min_camera_distance), float(min_target_distance))
+    hi = float(max_camera_distance)
+    if lo >= hi:
+        return poses
+    for index in range(max_candidates):
+        radius = lo + (hi - lo) * rng.random()
+        # 화면 좌우 띠에 대응하는 시야각 근처만 본다 (중앙 정면은 팔레트 자리다).
+        side = -1.0 if index % 2 == 0 else 1.0
+        offset = side * (0.25 + 0.55 * rng.random()) * (
+            math.atan2(0.5 * float(width), fx)
+        )
+        yaw = base_yaw + offset
+        point = (
+            camera[0] + radius * math.cos(yaw),
+            camera[1] + radius * math.sin(yaw),
+            float(ground_z),
+        )
+        if math.hypot(point[0] - pallet[0],
+                      point[1] - pallet[1]) < float(min_target_distance):
+            continue
+        to_point = subtract(point, camera)
+        if dot(to_point, forward) <= 1e-6:      # 카메라 뒤
+            continue
+        pixel_u = fx * dot(to_point, right) / dot(to_point, forward) + float(cx)
+        if not (0.0 <= pixel_u <= float(width - 1)):
+            continue
+        poses.append(
+            {
+                "x": float(point[0]),
+                "y": float(point[1]),
+                "yaw_rad": rng.uniform(-math.pi, math.pi),
+                "fallback": "ground_ring",
+            }
+        )
+        if len(poses) >= requested:
+            break
     return poses
 
 
@@ -1401,6 +2106,250 @@ def explicit_side_matches(target_side, actual_side):
     if target_side is None:
         return True
     return actual_side == target_side
+
+
+# ---------------------------------------------------------------------------
+# MODE SEMANTICS — "이 프레임이 정말 그 mode 의 내용을 담고 있는가"
+# ---------------------------------------------------------------------------
+# 지금까지 usable gate 는 물리·마스크 무결성만 봤다.  그래서 cargo-only 인데 cargo 가
+# 하나도 놓이지 않은 프레임, context-rich 인데 context 를 시도조차 안 한 프레임이
+# usable 로 통과했다 (2026-08-01 pilot 감사).  아래 조건은 mode 별로 "그 물체가 실제로
+# 화면에 있는가"를 판정한다.
+#
+# tri-state 규약:  True = 통과 · False = 실제 실패 · None = 측정 안 됨(=통과 아님).
+MODE_SEMANTICS_CONDITIONS = {
+    "clean-static": (
+        "no_explicit_occluder", "no_visible_cargo", "no_visible_context",
+    ),
+    "cargo-only": ("cargo_placed", "cargo_visible"),
+    "context-rich": ("context_requested", "context_placed", "context_visible"),
+    "controlled-occlusion": (
+        "explicit_target_positive", "explicit_occluder_placed",
+        "explicit_occluder_visible", "occluder_side_match",
+    ),
+}
+MODE_SEMANTICS_REASONS = {
+    "no_explicit_occluder": "clean_has_explicit_occluder",
+    "no_visible_cargo": "clean_has_visible_cargo",
+    "no_visible_context": "clean_has_visible_context",
+    "cargo_placed": "cargo_not_placed",
+    "cargo_visible": "cargo_not_visible",
+    "context_requested": "context_not_requested",
+    "context_placed": "context_not_placed",
+    "context_visible": "context_not_visible",
+    "explicit_target_positive": "explicit_target_not_positive",
+    "explicit_occluder_placed": "explicit_occluder_missing",
+    "explicit_occluder_visible": "explicit_occluder_not_visible",
+    "occluder_side_match": "occluder_side_mismatch",
+}
+
+
+def _semantics_number(value):
+    """숫자로 읽되, 없으면 None(=측정 안 됨).  0 은 진짜 0 이다."""
+    if value is None or isinstance(value, bool):
+        return None if value is None else float(value)
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _semantics_ge(value, threshold):
+    n = _semantics_number(value)
+    return None if n is None else bool(n >= threshold)
+
+
+def _semantics_gt(value, threshold):
+    n = _semantics_number(value)
+    return None if n is None else bool(n > threshold)
+
+
+def mode_semantics_conditions(diagnostic_mode, record):
+    """mode 별 내용 조건을 tri-state dict 로 평가한다 (bpy 없음).
+
+    record 는 realize 의 constrained_metrics 또는 runner 의 최종 record — 둘 다
+    같은 필드 이름을 쓴다.  short-circuit 하지 않고 전부 평가한다.
+    """
+    if diagnostic_mode not in MODE_SEMANTICS_CONDITIONS:
+        raise ValueError(f"unknown diagnostic mode: {diagnostic_mode!r}")
+    get = record.get
+    if diagnostic_mode == "clean-static":
+        placed = get("explicit_occluder_placed")
+        cargo_px = _semantics_number(get("cargo_visible_pixels"))
+        context_n = _semantics_number(get("n_context_visible"))
+        return {
+            "no_explicit_occluder": (None if placed is None else not bool(placed)),
+            "no_visible_cargo": (None if cargo_px is None else cargo_px == 0.0),
+            "no_visible_context": (None if context_n is None else context_n == 0.0),
+        }
+    if diagnostic_mode == "cargo-only":
+        return {
+            "cargo_placed": _semantics_ge(get("n_cargo_placed"), 1),
+            "cargo_visible": _semantics_gt(get("cargo_visible_pixels"), 0),
+        }
+    if diagnostic_mode == "context-rich":
+        return {
+            "context_requested": _semantics_ge(get("n_context_requested"), 1),
+            "context_placed": _semantics_ge(get("n_context_placed"), 1),
+            "context_visible": (
+                _semantics_ge(get("n_context_visible"), 1)
+                and _semantics_gt(get("context_visible_pixel_ratio"), 0.0)
+            ),
+        }
+    side_match = get("occluder_side_match")
+    return {
+        "explicit_target_positive": _semantics_gt(get("f_explicit_target"), 0.0),
+        "explicit_occluder_placed": (
+            None if get("explicit_occluder_placed") is None
+            else bool(get("explicit_occluder_placed"))
+        ),
+        "explicit_occluder_visible": _semantics_gt(
+            get("explicit_occluder_visible_pixels"), 0),
+        "occluder_side_match": (None if side_match is None else bool(side_match)),
+    }
+
+
+def mode_semantics_verdict(diagnostic_mode, record):
+    """{pass, conditions, failed, unknown, reason} — None 은 통과가 아니다."""
+    conditions = mode_semantics_conditions(diagnostic_mode, record)
+    failed = [name for name in MODE_SEMANTICS_CONDITIONS[diagnostic_mode]
+              if conditions.get(name) is False]
+    unknown = [name for name in MODE_SEMANTICS_CONDITIONS[diagnostic_mode]
+               if conditions.get(name) is None]
+    ordered = failed + unknown
+    return {
+        "pass": not ordered,
+        "conditions": conditions,
+        "failed_conditions": failed,
+        "unknown_conditions": unknown,
+        "reason": (f"mode_semantics:{MODE_SEMANTICS_REASONS[ordered[0]]}"
+                   if ordered else None),
+        "reasons": [f"mode_semantics:{MODE_SEMANTICS_REASONS[name]}"
+                    for name in ordered],
+    }
+
+
+# ---------------------------------------------------------------------------
+# CONTROLLED OCCLUDER FEASIBILITY PREFILTER (bpy-free, 결정적)
+# ---------------------------------------------------------------------------
+# Blender 의 bounded local search 는 비싸다 (baseline: 실패 94건에 4,936초, 그중
+# explicit 단계 3,118초 + 그 앞 context 배치 1,424초 — RGB 는 한 장도 렌더하지 않았다).
+# 아래 규칙은 상세 탐색에 넘기기 전에 "이 후보는 접지시키면 목표를 맞출 수 없다"를
+# 계획 단계 기하만으로 판정한다.  ML 아님 · frame-ID blacklist 아님 · seed 무관.
+#
+# 임계는 baseline 의 winner 49건(=프레임을 살린 후보)이 전부 통과하도록 잡고, 물리적
+# 여유를 더했다.  근거는 reports/v2_generator_fix_g1_g3/g1/controlled_failure_matrix.md.
+PREFILTER_BURIED_MAX = -0.60      # 계획 바닥이 자기 높이의 60% 넘게 지면 아래 (winner 최소 -0.535)
+PREFILTER_FLOAT_MAX = 1.90        # 계획 바닥이 자기 높이의 1.9배 넘게 공중 (winner 최대 1.751)
+PREFILTER_SILHOUETTE_MIN = 1.15   # 실루엣/요구 겹침면적 (winner 최소 1.192)
+PREFILTER_FILL_MIN = 0.45         # 성긴 실루엣은 조밀한 겹침을 못 만든다 (winner 최소 0.480)
+PREFILTER_SCREEN_OVER_PALLET_MAX = 22.0   # 팔레트 실루엣 대비 상한 (winner 최대 19.92)
+
+PREFILTER_REASONS = (
+    "prefilter_insufficient_projected_area",
+    "prefilter_fill_ratio_too_low",
+    "prefilter_side_geometry_infeasible",
+    "prefilter_floor_support_infeasible",
+    "prefilter_position_band_infeasible",
+)
+
+
+def controlled_prefilter_reason(candidate, pallet_silhouette_px2,
+                                screen_area_px2=None):
+    """계획된 explicit occluder 후보가 접지 상태로 목표를 맞출 수 있는가.
+
+    통과면 None, 아니면 PREFILTER_REASONS 중 하나.  입력은 전부 solve 단계에서 이미
+    알려진 값이다 (최종 RGB 를 보지 않는다).
+    """
+    if candidate is None:
+        return "prefilter_side_geometry_infeasible"
+    side = candidate.get("side")
+    if side == "center":
+        # center 는 실루엣 전체가 팔레트 안에 들어가야 하는데, 접지된 occluder 로는
+        # 깊이가 고정돼 탐색 여유가 없다.  baseline 에서 30번 시도해 0번 성공.
+        return "prefilter_side_geometry_infeasible"
+    if candidate.get("in_position_band") is False:
+        return "prefilter_position_band_infeasible"
+
+    fill = candidate.get("fill_ratio")
+    if fill is not None and float(fill) < PREFILTER_FILL_MIN:
+        return "prefilter_fill_ratio_too_low"
+
+    bmin = candidate.get("bmin")
+    bmax = candidate.get("bmax")
+    if bmin is not None and bmax is not None:
+        bottom = float(bmin[2])
+        height = float(bmax[2]) - bottom
+        if height > 1e-9:
+            ratio = bottom / height
+            if ratio < PREFILTER_BURIED_MAX or ratio > PREFILTER_FLOAT_MAX:
+                # 접지 스냅이 만들 변위가 bounded search 의 u/v/depth 범위를 넘는다.
+                return "prefilter_floor_support_infeasible"
+
+    target_px2 = candidate.get("overlap_target_px2")
+    if screen_area_px2 is not None and target_px2:
+        if float(screen_area_px2) / float(target_px2) < PREFILTER_SILHOUETTE_MIN:
+            return "prefilter_insufficient_projected_area"
+    if screen_area_px2 is not None and pallet_silhouette_px2:
+        over = float(screen_area_px2) / float(pallet_silhouette_px2)
+        if over > PREFILTER_SCREEN_OVER_PALLET_MAX:
+            return "prefilter_insufficient_projected_area"
+    return None
+
+
+def explicit_lowres_metrics(target_stats, actual_stats, f_target, f_actual):
+    """§2 explicit 저해상도 품질 지표 — 숫자만 돌려준다 (마스크 저장 없음).
+
+    측정 안 됨은 None 이고 0 과 구분된다.  `explicit_metrics_available` 이 False 면
+    나머지 값을 품질 판정에 쓰면 안 된다 (f_total 로 대체하는 것도 금지).
+    """
+    available = bool(target_stats is not None and actual_stats is not None)
+    target_stats = target_stats or {}
+    actual_stats = actual_stats or {}
+    target_centroid = target_stats.get("centroid_px") or [None, None]
+    actual_centroid = actual_stats.get("centroid_px") or [None, None]
+    error = (abs(float(f_actual) - float(f_target))
+             if available and f_actual is not None and f_target is not None
+             else None)
+    return {
+        "explicit_metrics_available": available,
+        "explicit_target_pixels": (target_stats.get("visible_pixels")
+                                   if available else None),
+        "explicit_actual_pixels_lowres": (actual_stats.get("visible_pixels")
+                                          if available else None),
+        "f_explicit_actual_lowres": float(f_actual) if available else None,
+        "explicit_abs_error_lowres": error,
+        "explicit_target_centroid_u": target_centroid[0] if available else None,
+        "explicit_target_centroid_v": target_centroid[1] if available else None,
+        "explicit_actual_centroid_u_lowres": (actual_centroid[0]
+                                              if available else None),
+        "explicit_actual_centroid_v_lowres": (actual_centroid[1]
+                                              if available else None),
+        "explicit_target_bbox_u0v0u1v1": (target_stats.get("bbox_px")
+                                          if available else None),
+        "explicit_actual_bbox_u0v0u1v1_lowres": (actual_stats.get("bbox_px")
+                                                 if available else None),
+    }
+
+
+EXPLICIT_SEARCH_INIT_STRATEGY = "target_mask_conditioned_prealign_first"
+
+
+def explicit_search_metrics(explicit_search):
+    """§4 탐색 계측 — 어떤 초기화 전략으로 몇 번 평가했고 어디서 이겼는가."""
+    stats = (explicit_search or {}).get("search_stats") or {}
+    return {
+        "search_init_strategy": (EXPLICIT_SEARCH_INIT_STRATEGY
+                                 if explicit_search is not None else None),
+        "search_seed_count": stats.get("search_seed_count"),
+        "coarse_eval_count": stats.get("coarse_eval_count"),
+        # refine/feedback/fine 을 합친 수.  §4 의 fine 단계만 센 값은 record 의
+        # `fine_eval_count` 로 따로 나간다 (이름 충돌을 피한다).
+        "refine_feedback_eval_count": stats.get("fine_eval_count"),
+        "best_seed_score": stats.get("best_seed_score"),
+        "final_seed_score": stats.get("final_seed_score"),
+        "search_winning_stage": stats.get("winning_stage"),
+    }
 
 
 def explicit_requirement_failure(

@@ -58,6 +58,7 @@ if _THIS not in sys.path:
 
 # bpy-free (like the audit helpers below), so the unit tests can import this runner.
 import mask_profiles as MP  # noqa: E402
+import scene_placement_v2 as SP2  # noqa: E402
 
 
 DIAGNOSTIC_MODES = (
@@ -75,6 +76,24 @@ DIAGNOSTIC_N_CHOICES = (20, 500)
 # 100/100/150/150; the same shares are apportioned over an arbitrary usable target
 # (largest-remainder), because diagnostic_mode_for_index only knows 20 and 500.
 USABLE_MODE_FRACTIONS = (0.20, 0.20, 0.30, 0.30)
+# usable slot -> mode 배치는 큰 연속 블록이 아니라 10장 주기로 섞는다 (2/2/3/3).
+# 인덱스는 DIAGNOSTIC_MODES 순서. 첫 10장 안에 네 mode 가 모두 나오므로 중간에 멈춰도
+# 그때까지의 delivered set 이 이미 대표성을 갖는다.
+USABLE_MODE_CYCLE = (0, 1, 2, 3, 2, 3, 0, 1, 2, 3)
+
+# 이 세션이 쓴 holdout 엔진.  record 빌더는 module-top 에서 v2_realize 를 import 할 수
+# 없어(bpy 필요) 여기에 담아 둔다.  `_apply_holdout_engine()` 이 설정 시점에 채운다.
+_SESSION_HOLDOUT_ENGINE = None
+
+
+def _apply_holdout_engine(vr, args):
+    """holdout 엔진을 프로세스에 심고, record 에 남길 값을 기억한다."""
+    global _SESSION_HOLDOUT_ENGINE
+    applied = vr.set_holdout_engine(getattr(args, "holdout_engine", None))
+    _SESSION_HOLDOUT_ENGINE = applied.get("engine")
+    return _SESSION_HOLDOUT_ENGINE
+
+
 # Safety stops (no unbounded loop).  Exceeding either one aborts with an explicit error.
 USABLE_RENDER_ATTEMPT_FACTOR = 30      # render attempts allowed per requested usable frame
 USABLE_MIN_RENDER_ATTEMPTS = 60
@@ -283,15 +302,29 @@ def apportion(n, fractions):
 
 
 def usable_diagnostic_modes(n):
-    """Diagnostic stratum for every usable SLOT (0..n-1), in DIAGNOSTIC_MODES block order.
+    """Diagnostic stratum for every usable SLOT (0..n-1), INTERLEAVED on a 10-frame cycle.
 
     The slot -- not the proposal -- owns the stratum, so the delivered set always has the
     prescribed composition no matter how many proposals each slot needed.
+
+    Modes used to be laid out as four long blocks (0..399 clean, 400..799 cargo, ...), which
+    meant a run stopped early carried only the first one or two strata.  The cycle below keeps
+    the SAME totals (largest-remainder apportionment, untouched) while making every 10 slots
+    2 clean / 2 cargo / 3 context / 3 controlled, so any prefix is already representative.
+    Deterministic and seed-independent: same n => same schedule.
     """
     counts = apportion(n, USABLE_MODE_FRACTIONS)
+    remaining = list(counts)
     modes = []
-    for mode, count in zip(DIAGNOSTIC_MODES, counts):
-        modes.extend([mode] * count)
+    for slot in range(int(n)):
+        want = USABLE_MODE_CYCLE[slot % len(USABLE_MODE_CYCLE)]
+        if remaining[want] <= 0:
+            # That stratum is already full (only reachable when n is not a multiple of the
+            # cycle length).  Fall back to the mode with the most slots left, ties broken by
+            # DIAGNOSTIC_MODES order -- deterministic, and the totals stay exact.
+            want = max(range(len(remaining)), key=lambda i: (remaining[i], -i))
+        remaining[want] -= 1
+        modes.append(DIAGNOSTIC_MODES[want])
     return modes
 
 
@@ -393,6 +426,15 @@ def usable_conditions(record, magenta_max=DEFAULT_MAGENTA_MAX_FRACTION,
     for gate in GATE_CONDITIONS:
         conditions[gate] = _tri_state(record.get(GATE_RECORD_FIELDS[gate]))
 
+    # MODE SEMANTICS — "그 mode 의 물체가 실제로 화면에 있는가".  realize 가 렌더 전에
+    # 한 번 판정하지만, gate 는 최종 record 로 독립적으로 다시 본다 (fail-closed).
+    mode = record.get("diagnostic_mode")
+    semantics = None
+    if mode in SP2.MODE_SEMANTICS_CONDITIONS:
+        semantics = SP2.mode_semantics_verdict(mode, record)
+        for name in SP2.MODE_SEMANTICS_CONDITIONS[mode]:
+            conditions[f"mode_semantics:{name}"] = semantics["conditions"][name]
+
     physical_names = (
         [f"no_{field}" for field in PHYSICAL_NEGATED_FIELDS]
         + list(PHYSICAL_TRUE_FIELDS)
@@ -405,6 +447,10 @@ def usable_conditions(record, magenta_max=DEFAULT_MAGENTA_MAX_FRACTION,
         suffix = ":unknown" if conditions[name] is None else ""
         if name in GATE_CONDITIONS:
             reasons.append(f"gate_fail:{name}{suffix}")
+        elif name.startswith("mode_semantics:"):
+            key = name.split(":", 1)[1]
+            reasons.append(
+                f"mode_semantics:{SP2.MODE_SEMANTICS_REASONS[key]}{suffix}")
         else:
             reasons.append(f"usable_reject:{name}{suffix}")
 
@@ -414,6 +460,13 @@ def usable_conditions(record, magenta_max=DEFAULT_MAGENTA_MAX_FRACTION,
         "failed_conditions": failed,
         "unknown_conditions": unknown,
         "reject_reasons": reasons,
+        "mode_semantics_pass": None if semantics is None else semantics["pass"],
+        "mode_semantics_conditions": (
+            None if semantics is None else dict(semantics["conditions"])),
+        "mode_semantics_failed_conditions": (
+            [] if semantics is None else list(semantics["failed_conditions"])),
+        "mode_semantics_unknown_conditions": (
+            [] if semantics is None else list(semantics["unknown_conditions"])),
         "physical_valid": all(
             conditions[name] is True for name in physical_names
         ),
@@ -546,6 +599,54 @@ def _args():
         help="full-audit = keep M0..M4 with exact per-source occlusion fractions "
              "(500-record diagnostics); public = keep only mask_amodal/ + mask_visible/ "
              "(M1..M3 are never rendered, so f_static/f_cargo/f_context/f_explicit are None)",
+    )
+    parser.add_argument(
+        "--target-seed-free-cap",
+        type=int,
+        default=None,
+        help="controlled 탐색: 앞 K개 unique target-seed 후보만 후보 예산에서 "
+             "면제한다.  생략하면 무제한 면제(G1.5 동작).  0 이면 면제 없음.",
+    )
+    parser.add_argument(
+        "--near-miss-gap-threshold",
+        type=float,
+        default=None,
+        help="controlled 탐색: 목표오차만 막고 있고 그 간격이 이 값 이하인 후보 "
+             "1개에만 bounded fine refinement 를 돌린다.  생략하면 비활성.",
+    )
+    parser.add_argument(
+        "--constraint-rescue-mode",
+        choices=SP2.CONSTRAINT_RESCUE_MODES,
+        default=SP2.CONSTRAINT_RESCUE_DEFAULT_MODE,
+        help="controlled 탐색: 기존 search 가 전부 실패한 뒤 SIDE/G1 "
+             "constraint-directed rescue 를 돌린다.  기본 off (production 동작 "
+             "불변) — benchmark 에서만 side_g1 을 준다.",
+    )
+    parser.add_argument(
+        "--constraint-rescue-beam",
+        type=int,
+        default=SP2.RESCUE_BEAM_MAX,
+        help="constraint rescue beam 폭 (최대 %d)." % SP2.RESCUE_BEAM_MAX,
+    )
+    parser.add_argument(
+        "--constraint-rescue-eval-max",
+        type=int,
+        default=SP2.RESCUE_EVAL_MAX_PER_CASE,
+        help="case 당 constraint rescue 평가 상한.",
+    )
+    parser.add_argument(
+        "--constraint-rescue-category-max",
+        type=int,
+        default=SP2.RESCUE_EVAL_MAX_PER_CATEGORY,
+        help="category 당 constraint rescue 평가 상한.",
+    )
+    parser.add_argument(
+        "--holdout-engine",
+        choices=vr.HOLDOUT_ENGINES,
+        default="eevee",
+        help="holdout 마스크(탐색용 + 배포용 최종)의 렌더 엔진.  기본 eevee — "
+             "controlled 6케이스에서 1.84배, 판정 6/6 동일, 마스크 최대 3px(0.005%) 차이. "
+             "cycles 는 이전 정본이며 기존 데이터셋과 픽셀 단위로 이어붙일 때 쓴다.",
     )
     parser.add_argument(
         "--session-usable-cap",
@@ -874,6 +975,10 @@ def _record_rendered(idx, frame_seed, mode, plan, rs, meas, gates, runtime_s,
         ),
         "n_cargo_requested": placement.get("n_cargo_requested", 0),
         "n_cargo_placed": placement.get("n_cargo_placed", rs.get("n_cargo", 0)),
+        "n_cargo_visible": placement.get("n_cargo_visible"),
+        "cargo_visible_pixels": placement.get("cargo_visible_pixels"),
+        "cargo_visible_pixel_ratio": placement.get("cargo_visible_pixel_ratio"),
+        "cargo_visibility_measured": placement.get("cargo_visibility_measured"),
         "cargo_on": bool(placement.get("n_cargo_requested", 0)),
         "cargo_placement_attempts": placement.get("cargo_placement_attempts", 0),
         "cargo_support_pass": placement.get("cargo_support_pass"),
@@ -945,6 +1050,63 @@ def _record_rendered(idx, frame_seed, mode, plan, rs, meas, gates, runtime_s,
             "explicit_reject_counts_by_reason", {}
         ),
         "explicit_candidate_log": placement.get("explicit_candidate_log", []),
+        # §2 explicit 저해상도 품질 지표 + §4 탐색 계측
+        # (public 프로필에서도 explicit 정확도를 계산할 수 있게 한다)
+        "explicit_metrics_available": placement.get("explicit_metrics_available"),
+        "explicit_target_pixels": placement.get("explicit_target_pixels"),
+        "explicit_actual_pixels_lowres": placement.get("explicit_actual_pixels_lowres"),
+        "f_explicit_actual_lowres": placement.get("f_explicit_actual_lowres"),
+        "explicit_abs_error_lowres": placement.get("explicit_abs_error_lowres"),
+        "explicit_target_centroid_u": placement.get("explicit_target_centroid_u"),
+        "explicit_target_centroid_v": placement.get("explicit_target_centroid_v"),
+        "explicit_actual_centroid_u_lowres": placement.get("explicit_actual_centroid_u_lowres"),
+        "explicit_actual_centroid_v_lowres": placement.get("explicit_actual_centroid_v_lowres"),
+        "explicit_target_bbox_u0v0u1v1": placement.get("explicit_target_bbox_u0v0u1v1"),
+        "explicit_actual_bbox_u0v0u1v1_lowres": placement.get("explicit_actual_bbox_u0v0u1v1_lowres"),
+        "search_init_strategy": placement.get("search_init_strategy"),
+        "search_seed_count": placement.get("search_seed_count"),
+        "coarse_eval_count": placement.get("coarse_eval_count"),
+        "best_seed_score": placement.get("best_seed_score"),
+        "final_seed_score": placement.get("final_seed_score"),
+        "search_winning_stage": placement.get("search_winning_stage"),
+        # 샤드를 병합하면 progress.json 은 남지 않는다 — 프레임 단위로도 남겨야
+        # "이 마스크가 어느 엔진으로 만들어졌는지"를 나중에 추적할 수 있다.
+        "holdout_engine": _SESSION_HOLDOUT_ENGINE,
+        "target_seed_free_cap": placement.get("target_seed_free_cap"),
+        "target_seed_unique_count": placement.get("target_seed_unique_count"),
+        "target_seed_free_used": placement.get("target_seed_free_used"),
+        "target_seed_paid_used": placement.get("target_seed_paid_used"),
+        "target_seed_duplicate_count": placement.get("target_seed_duplicate_count"),
+        "fine_triggered": placement.get("fine_triggered"),
+        "fine_trigger_reason": placement.get("fine_trigger_reason"),
+        "fine_source_stage": placement.get("fine_source_stage"),
+        "fine_source_score": placement.get("fine_source_score"),
+        "fine_score_margin_before": placement.get("fine_score_margin_before"),
+        "fine_eval_count": placement.get("fine_eval_count"),
+        "fine_best_score": placement.get("fine_best_score"),
+        "fine_score_margin_after": placement.get("fine_score_margin_after"),
+        "fine_won": placement.get("fine_won"),
+        "fine_runtime_s": placement.get("fine_runtime_s"),
+        "near_miss_gap_threshold": placement.get("near_miss_gap_threshold"),
+        "rescue_triggered": placement.get("rescue_triggered"),
+        "rescue_binding_signatures": placement.get("rescue_binding_signatures"),
+        "rescue_beam_size": placement.get("rescue_beam_size"),
+        "rescue_eval_count": placement.get("rescue_eval_count"),
+        "rescue_duplicate_skips": placement.get("rescue_duplicate_skips"),
+        "rescue_axis_sequence": placement.get("rescue_axis_sequence"),
+        "rescue_seed_types": placement.get("rescue_seed_types"),
+        "rescue_categories": placement.get("rescue_categories"),
+        "rescue_constraint_before": placement.get("rescue_constraint_before"),
+        "rescue_constraint_after": placement.get("rescue_constraint_after"),
+        "rescue_won": placement.get("rescue_won"),
+        "rescue_runtime_s": placement.get("rescue_runtime_s"),
+        "rescue_final_constraint_vector": placement.get("rescue_final_constraint_vector"),
+        "constraint_rescue_mode": placement.get("constraint_rescue_mode"),
+        "constraint_rescue_beam": placement.get("constraint_rescue_beam"),
+        "constraint_rescue_eval_max": placement.get("constraint_rescue_eval_max"),
+        "constraint_rescue_category_max": placement.get("constraint_rescue_category_max"),
+        "refine_feedback_eval_count": placement.get("refine_feedback_eval_count"),
+        "context_skipped_due_to_explicit_failure": placement.get("context_skipped_due_to_explicit_failure"),
         "explicit_target_mask_stats": placement.get(
             "explicit_target_mask_stats"
         ),
@@ -1012,6 +1174,21 @@ def _record_rendered(idx, frame_seed, mode, plan, rs, meas, gates, runtime_s,
         "reject_reason": _gate_reason(gates),
         "runtime_s": float(runtime_s),
         "stage_runtime_s": placement.get("stage_runtime_s"),
+        "proposal_prepare_s": placement.get("proposal_prepare_s"),
+        "candidates_before_prefilter": placement.get("candidates_before_prefilter"),
+        "candidates_after_prefilter": placement.get("candidates_after_prefilter"),
+        "prefilter_reject_count": placement.get("prefilter_reject_count"),
+        "prefilter_reject_counts_by_reason": placement.get(
+            "prefilter_reject_counts_by_reason"),
+        "realization_attempt_count": placement.get("realization_attempt_count"),
+        "lowres_render_count": placement.get("lowres_render_count"),
+        "mode_semantics_pass": placement.get("mode_semantics_pass"),
+        "mode_semantics_conditions": placement.get("mode_semantics_conditions"),
+        "mode_semantics_failed_conditions": placement.get(
+            "mode_semantics_failed_conditions"),
+        "mode_semantics_unknown_conditions": placement.get(
+            "mode_semantics_unknown_conditions"),
+        "mode_semantics_reason": placement.get("mode_semantics_reason"),
         "rgb_path": os.path.abspath(rgb_path),
         "label_path": os.path.abspath(label_path),
         "mask_paths": {key: os.path.abspath(path) for key, path in mask_paths.items()},
@@ -1075,6 +1252,10 @@ def _record_realize_failure(idx, frame_seed, mode, plan, runtime_s, detail):
         ),
         "n_cargo_requested": metrics.get("n_cargo_requested", 0),
         "n_cargo_placed": metrics.get("n_cargo_placed", 0),
+        "n_cargo_visible": metrics.get("n_cargo_visible"),
+        "cargo_visible_pixels": metrics.get("cargo_visible_pixels"),
+        "cargo_visible_pixel_ratio": metrics.get("cargo_visible_pixel_ratio"),
+        "cargo_visibility_measured": metrics.get("cargo_visibility_measured"),
         "cargo_placement_attempts": metrics.get("cargo_placement_attempts", 0),
         "cargo_collision_pass": metrics.get("cargo_collision_pass"),
         "front_visibility_after_cargo": metrics.get(
@@ -1122,6 +1303,61 @@ def _record_realize_failure(idx, frame_seed, mode, plan, runtime_s, detail):
             "explicit_reject_counts_by_reason", {}
         ),
         "explicit_candidate_log": metrics.get("explicit_candidate_log", []),
+        # §2 explicit 저해상도 품질 지표 + §4 탐색 계측
+        # (public 프로필에서도 explicit 정확도를 계산할 수 있게 한다)
+        "explicit_metrics_available": metrics.get("explicit_metrics_available"),
+        "explicit_target_pixels": metrics.get("explicit_target_pixels"),
+        "explicit_actual_pixels_lowres": metrics.get("explicit_actual_pixels_lowres"),
+        "f_explicit_actual_lowres": metrics.get("f_explicit_actual_lowres"),
+        "explicit_abs_error_lowres": metrics.get("explicit_abs_error_lowres"),
+        "explicit_target_centroid_u": metrics.get("explicit_target_centroid_u"),
+        "explicit_target_centroid_v": metrics.get("explicit_target_centroid_v"),
+        "explicit_actual_centroid_u_lowres": metrics.get("explicit_actual_centroid_u_lowres"),
+        "explicit_actual_centroid_v_lowres": metrics.get("explicit_actual_centroid_v_lowres"),
+        "explicit_target_bbox_u0v0u1v1": metrics.get("explicit_target_bbox_u0v0u1v1"),
+        "explicit_actual_bbox_u0v0u1v1_lowres": metrics.get("explicit_actual_bbox_u0v0u1v1_lowres"),
+        "search_init_strategy": metrics.get("search_init_strategy"),
+        "search_seed_count": metrics.get("search_seed_count"),
+        "coarse_eval_count": metrics.get("coarse_eval_count"),
+        "best_seed_score": metrics.get("best_seed_score"),
+        "final_seed_score": metrics.get("final_seed_score"),
+        "search_winning_stage": metrics.get("search_winning_stage"),
+        "holdout_engine": _SESSION_HOLDOUT_ENGINE,
+        "target_seed_free_cap": metrics.get("target_seed_free_cap"),
+        "target_seed_unique_count": metrics.get("target_seed_unique_count"),
+        "target_seed_free_used": metrics.get("target_seed_free_used"),
+        "target_seed_paid_used": metrics.get("target_seed_paid_used"),
+        "target_seed_duplicate_count": metrics.get("target_seed_duplicate_count"),
+        "fine_triggered": metrics.get("fine_triggered"),
+        "fine_trigger_reason": metrics.get("fine_trigger_reason"),
+        "fine_source_stage": metrics.get("fine_source_stage"),
+        "fine_source_score": metrics.get("fine_source_score"),
+        "fine_score_margin_before": metrics.get("fine_score_margin_before"),
+        "fine_eval_count": metrics.get("fine_eval_count"),
+        "fine_best_score": metrics.get("fine_best_score"),
+        "fine_score_margin_after": metrics.get("fine_score_margin_after"),
+        "fine_won": metrics.get("fine_won"),
+        "fine_runtime_s": metrics.get("fine_runtime_s"),
+        "near_miss_gap_threshold": metrics.get("near_miss_gap_threshold"),
+        "rescue_triggered": metrics.get("rescue_triggered"),
+        "rescue_binding_signatures": metrics.get("rescue_binding_signatures"),
+        "rescue_beam_size": metrics.get("rescue_beam_size"),
+        "rescue_eval_count": metrics.get("rescue_eval_count"),
+        "rescue_duplicate_skips": metrics.get("rescue_duplicate_skips"),
+        "rescue_axis_sequence": metrics.get("rescue_axis_sequence"),
+        "rescue_seed_types": metrics.get("rescue_seed_types"),
+        "rescue_categories": metrics.get("rescue_categories"),
+        "rescue_constraint_before": metrics.get("rescue_constraint_before"),
+        "rescue_constraint_after": metrics.get("rescue_constraint_after"),
+        "rescue_won": metrics.get("rescue_won"),
+        "rescue_runtime_s": metrics.get("rescue_runtime_s"),
+        "rescue_final_constraint_vector": metrics.get("rescue_final_constraint_vector"),
+        "constraint_rescue_mode": metrics.get("constraint_rescue_mode"),
+        "constraint_rescue_beam": metrics.get("constraint_rescue_beam"),
+        "constraint_rescue_eval_max": metrics.get("constraint_rescue_eval_max"),
+        "constraint_rescue_category_max": metrics.get("constraint_rescue_category_max"),
+        "refine_feedback_eval_count": metrics.get("refine_feedback_eval_count"),
+        "context_skipped_due_to_explicit_failure": metrics.get("context_skipped_due_to_explicit_failure"),
         "explicit_target_mask_stats": metrics.get(
             "explicit_target_mask_stats"
         ),
@@ -1145,6 +1381,21 @@ def _record_realize_failure(idx, frame_seed, mode, plan, runtime_s, detail):
         "explicit_selected_object": metrics.get("explicit_selected_object"),
         "explicit_selected_stage": metrics.get("explicit_selected_stage"),
         "stage_runtime_s": metrics.get("stage_runtime_s"),
+        "proposal_prepare_s": metrics.get("proposal_prepare_s"),
+        "candidates_before_prefilter": metrics.get("candidates_before_prefilter"),
+        "candidates_after_prefilter": metrics.get("candidates_after_prefilter"),
+        "prefilter_reject_count": metrics.get("prefilter_reject_count"),
+        "prefilter_reject_counts_by_reason": metrics.get(
+            "prefilter_reject_counts_by_reason"),
+        "realization_attempt_count": metrics.get("realization_attempt_count"),
+        "lowres_render_count": metrics.get("lowres_render_count"),
+        "mode_semantics_pass": metrics.get("mode_semantics_pass"),
+        "mode_semantics_conditions": metrics.get("mode_semantics_conditions"),
+        "mode_semantics_failed_conditions": metrics.get(
+            "mode_semantics_failed_conditions"),
+        "mode_semantics_unknown_conditions": metrics.get(
+            "mode_semantics_unknown_conditions"),
+        "mode_semantics_reason": metrics.get("mode_semantics_reason"),
         "runtime_s": float(runtime_s),
     }
 
@@ -1183,22 +1434,38 @@ def _process_frame(idx, plan, mode, args, assets, dirs, vp, vr, np,
     keeps the labels of frames it actually delivers).
     """
     proposal_failure = None
+    stage_extra = {}
     if (
         mode == "controlled-occlusion"
         and float(plan.spec.f_target) > 1e-6
     ):
+        prepare_t0 = time.time()
         adjusted_plan = vp.prepare_diagnostic_explicit_occluders(
             plan,
             assets,
         )
+        # bpy-free 후보 준비(=feasibility prefilter + 선정)에 쓴 시간.  이 단계에서
+        # 걸러지면 Blender 는 아예 열리지 않는다.
+        stage_extra["proposal_prepare_s"] = round(time.time() - prepare_t0, 6)
         if isinstance(adjusted_plan, vp.Reject):
             proposal_failure = {
                 "failure_reason": adjusted_plan.reason,
                 "failure_detail": adjusted_plan.detail,
                 "explicit_solver_fail_reason": adjusted_plan.reason,
+                "stage_runtime_s": dict(stage_extra),
             }
         else:
             plan = adjusted_plan
+            occ = plan.occluder or {}
+            stage_extra.update({
+                "candidates_before_prefilter": occ.get(
+                    "candidates_before_prefilter"),
+                "candidates_after_prefilter": occ.get(
+                    "candidates_after_prefilter"),
+                "prefilter_reject_count": occ.get("prefilter_reject_count"),
+                "prefilter_reject_counts_by_reason": occ.get(
+                    "prefilter_reject_counts_by_reason"),
+            })
     frame_seed = _frame_seed(args.seed, idx, plan.spec.frame_index)
     random.seed(frame_seed)
     np.random.seed(frame_seed & 0xFFFFFFFF)
@@ -1227,6 +1494,13 @@ def _process_frame(idx, plan, mode, args, assets, dirs, vp, vr, np,
                 f"[SCENE500] idx={idx} realize exception: {type(exc).__name__}: {exc}",
                 flush=True,
             )
+
+    # bpy-free 준비 단계의 계측을 record 로 흘려보낸다 (성공/실패 양쪽 경로).
+    if stage_extra:
+        if rs is not None:
+            rs.setdefault("constrained_metrics", {}).update(stage_extra)
+        elif isinstance(failure_detail, dict):
+            failure_detail = {**stage_extra, **failure_detail}
 
     result = {
         "record": None,
@@ -1356,6 +1630,19 @@ def run():
         elif args.rerun_failures and not prior.get("rendered"):
             pending.append(idx)
 
+    # G1.6 탐색 조정값을 프로세스에 한 번 심는다 (모든 record 에 그대로 기록된다).
+    _apply_holdout_engine(vr, args)
+    tuning = vr.set_search_tuning(
+        target_seed_free_cap=getattr(args, "target_seed_free_cap", None),
+        near_miss_gap_threshold=getattr(args, "near_miss_gap_threshold", None),
+        constraint_rescue_mode=getattr(args, "constraint_rescue_mode", None),
+        constraint_rescue_beam=getattr(args, "constraint_rescue_beam", None),
+        constraint_rescue_eval_max=getattr(
+            args, "constraint_rescue_eval_max", None),
+        constraint_rescue_category_max=getattr(
+            args, "constraint_rescue_category_max", None),
+    )
+    print(f"[TUNING] {tuning}", flush=True)
     gpu = vr.enable_gpu()
     assets = vp.load_assets()
     generated_at = time.time()
@@ -1471,6 +1758,29 @@ USABLE_MANIFEST_COLUMNS = (
     "scene_preset",
     "physical_valid",
     "gate_valid",
+    # mode semantics — "그 mode 의 물체가 실제로 화면에 있었는가".  0 과 빈칸(=측정 안 됨)
+    # 을 혼동하지 않도록 없는 값은 빈칸으로 나간다.
+    "mode_semantics_pass",
+    "n_cargo_placed",
+    "n_cargo_visible",
+    "cargo_visible_pixels",
+    "cargo_visible_pixel_ratio",
+    "n_context_visible",
+    "context_visible_pixel_ratio",
+    "explicit_occluder_visible_pixels",
+    "occluder_side_match",
+    "explicit_metrics_available",
+    "holdout_engine",
+    "constraint_rescue_mode",
+    "rescue_triggered",
+    "rescue_eval_count",
+    "rescue_won",
+    "rescue_runtime_s",
+    "f_explicit_target",
+    "f_explicit_actual_lowres",
+    "explicit_abs_error_lowres",
+    "prefilter_reject_count",
+    "realization_attempt_count",
     "camera_distance_actual_m",
     "camera_distance_limit_m",
     "projected_size_actual",
@@ -1595,6 +1905,9 @@ def _usable_summary(args, state, gpu, out, elapsed_s, complete, rejected_log_ent
         "occlusion_decomposition_available": MP.occlusion_decomposition_available(
             args.mask_profile
         ),
+        # holdout 엔진은 **배포 마스크 픽셀을 바꾼다**(EEVEE 는 Cycles 대비 최대 3px).
+        # seed 가 같아도 이 값이 다르면 마스크가 재현되지 않으므로 반드시 남긴다.
+        "holdout_engine": _SESSION_HOLDOUT_ENGINE,
         "magenta_max_fraction": float(args.magenta_max_fraction),
         "gpu": gpu,
         "out": out,
@@ -1786,6 +2099,19 @@ def run_usable(args, dirs, vp, vr, np):
         if latest[key].get("mask_m0_content_sha256")
     }
 
+    # G1.6 탐색 조정값을 프로세스에 한 번 심는다 (모든 record 에 그대로 기록된다).
+    _apply_holdout_engine(vr, args)
+    tuning = vr.set_search_tuning(
+        target_seed_free_cap=getattr(args, "target_seed_free_cap", None),
+        near_miss_gap_threshold=getattr(args, "near_miss_gap_threshold", None),
+        constraint_rescue_mode=getattr(args, "constraint_rescue_mode", None),
+        constraint_rescue_beam=getattr(args, "constraint_rescue_beam", None),
+        constraint_rescue_eval_max=getattr(
+            args, "constraint_rescue_eval_max", None),
+        constraint_rescue_category_max=getattr(
+            args, "constraint_rescue_category_max", None),
+    )
+    print(f"[TUNING] {tuning}", flush=True)
     gpu = vr.enable_gpu()
     assets = vp.load_assets()
     slot_modes = usable_diagnostic_modes(args.n)
@@ -1873,13 +2199,13 @@ def run_usable(args, dirs, vp, vr, np):
             })
             continue
 
-        if (
-            mode == "controlled-occlusion"
-            and float(plan.spec.f_target) <= 1e-6
-            and consecutive_mode_skips < CONTROLLED_MODE_MAX_SKIPS
-        ):
+        if mode == "controlled-occlusion" and float(plan.spec.f_target) <= 1e-6:
             # A controlled-occlusion slot wants a plan that carries an explicit occluder;
-            # plans are free, renders are not.  Bounded so the slot can always be filled.
+            # plans are free, renders are not.
+            # ★ 예전에는 CONTROLLED_MODE_MAX_SKIPS 를 넘기면 f_target=0 plan 을 그대로
+            #   렌더해 슬롯을 채웠다 — occluder 가 없는 프레임이 controlled-occlusion
+            #   으로 delivered 됐다는 뜻이다.  그 fallback 을 없앤다.  후보가 계속
+            #   없으면 슬롯을 잘못 채우는 대신 명시적으로 멈춘다.
             consecutive_mode_skips += 1
             state["mode_filter_skips"] += 1
             reason = "proposal_skip:mode_requires_explicit_occluder"
@@ -1895,6 +2221,13 @@ def run_usable(args, dirs, vp, vr, np):
                 "reject_reasons": [reason],
                 "f_target": float(plan.spec.f_target),
             })
+            if consecutive_mode_skips >= CONTROLLED_MODE_MAX_SKIPS:
+                stop_reason = (
+                    f"{CONTROLLED_MODE_MAX_SKIPS} consecutive proposals carried no "
+                    f"explicit occluder for a controlled-occlusion slot "
+                    f"({state['delivered']}/{args.n} usable)"
+                )
+                break
             continue
         consecutive_mode_skips = 0
 
@@ -1949,6 +2282,13 @@ def run_usable(args, dirs, vp, vr, np):
         record["usable_failed_conditions"] = verdict["failed_conditions"]
         record["usable_unknown_conditions"] = verdict["unknown_conditions"]
         record["usable_reject_reasons"] = verdict["reject_reasons"]
+        # gate 가 최종 record 로 다시 판정한 mode semantics (realize 판정과 독립).
+        record["mode_semantics_pass"] = verdict["mode_semantics_pass"]
+        record["mode_semantics_conditions"] = verdict["mode_semantics_conditions"]
+        record["mode_semantics_failed_conditions"] = verdict[
+            "mode_semantics_failed_conditions"]
+        record["mode_semantics_unknown_conditions"] = verdict[
+            "mode_semantics_unknown_conditions"]
         record["physical_valid"] = verdict["physical_valid"]
         record["physical_violations"] = verdict["physical_violations"]
         record["gate_valid"] = verdict["gate_valid"]

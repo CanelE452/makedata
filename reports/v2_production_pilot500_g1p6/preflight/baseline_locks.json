@@ -1,0 +1,65 @@
+{
+  "git": {
+    "HEAD": "0ebb41cb26feed567558ad9e94e06016c5d17430",
+    "diff_sha256": "60905442d45550cb15293c7782cc17fe3c0d2de9603bb5bac74177bdd484fb57",
+    "dirty": 38,
+    "unrelated": []
+  },
+  "code_lock_sha256": "854bd00ed32e8cc2a4086d0cccec05eb94bc3ef5029e23af14ec395e13eb53be",
+  "scene": {
+    "sha256": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e"
+  },
+  "asset_manifest": {
+    "path": "data/pallet/assets/distractors/library/distractors_manifest.csv",
+    "sha256": "327239153fddf5bc640072e3c52a5982f81fd4358e5651d72ae6c603081dde7e",
+    "rows": 209
+  },
+  "pilot_1449": {
+    "dataset_root": "data/pallet/runs/diagnostics/v2_pilot_2k_seed7000_public",
+    "read_only": true,
+    "records_jsonl_sha256": "d04283b279dca43d068451b6c9294210aacd8a510a6c737a1d3b361bc588a992",
+    "records_rejected_jsonl_sha256": "fa90ccb465fea50c4a5fc22cc10d9560a55aaf98736952decac3023090a06992",
+    "rgb_count": 1449,
+    "rgb_manifest_sha256": "016247599d76bfec56268b044d2446c0438102127bb60227fd7be9faea6d72d5",
+    "label_count": 1449,
+    "label_manifest_sha256": "ccfc9a2a6ab7b24eabb91d17bcd803313d4a65595d6dc93da237d33d3b6af3c9",
+    "mask_amodal_count": 1449,
+    "mask_amodal_manifest_sha256": "2edfca21b508c1d5db3cd963df24aaed586b6ea306303f8a7e6f26e415259e45",
+    "mask_visible_count": 1449,
+    "mask_visible_manifest_sha256": "2edfca21b508c1d5db3cd963df24aaed586b6ea306303f8a7e6f26e415259e45",
+    "overlay_count": 0,
+    "overlay_manifest_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "smoke100": {
+    "dataset_root": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100_seed7000_public",
+    "read_only": true,
+    "records_jsonl_sha256": "269a48a9f3f00c8da6fb7a9c01bc77b03b9391cc8ebfa7d7f415ed8bcf82286d",
+    "records_rejected_jsonl_sha256": "a3133abedae7f0aaff4602466e347b5b71146f75bf9a565d480a045f198d6419",
+    "rgb_count": 100,
+    "rgb_manifest_sha256": "f43ef3f11401015baf5be458baa9c0fa7f3bcb9e677b71faf786e0945c59f051",
+    "label_count": 100,
+    "label_manifest_sha256": "9a78ab18a9b872a0e86c8b50d681f9829cf0852a7d647700f74be350e0623511",
+    "mask_amodal_count": 100,
+    "mask_amodal_manifest_sha256": "9d466e7289fb7e920a7ed22321e8e37906139880b59830a35c2a7c4c4ad25f7d",
+    "mask_visible_count": 100,
+    "mask_visible_manifest_sha256": "9d466e7289fb7e920a7ed22321e8e37906139880b59830a35c2a7c4c4ad25f7d",
+    "overlay_count": 0,
+    "overlay_manifest_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "smoke100b": {
+    "dataset_root": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100b_seed7000_public",
+    "read_only": true,
+    "records_jsonl_sha256": "bf682c0aab51f96d5f335b435e6b8c04e3b228f639369a275bcda428645e77a7",
+    "records_rejected_jsonl_sha256": "865523d0b0219577994800d904e16952fa9a4942b4ad9c3417c3b9b00ac22e02",
+    "rgb_count": 100,
+    "rgb_manifest_sha256": "f43ef3f11401015baf5be458baa9c0fa7f3bcb9e677b71faf786e0945c59f051",
+    "label_count": 100,
+    "label_manifest_sha256": "9a78ab18a9b872a0e86c8b50d681f9829cf0852a7d647700f74be350e0623511",
+    "mask_amodal_count": 100,
+    "mask_amodal_manifest_sha256": "9d466e7289fb7e920a7ed22321e8e37906139880b59830a35c2a7c4c4ad25f7d",
+    "mask_visible_count": 100,
+    "mask_visible_manifest_sha256": "9d466e7289fb7e920a7ed22321e8e37906139880b59830a35c2a7c4c4ad25f7d",
+    "overlay_count": 100,
+    "overlay_manifest_sha256": "414c3870cdc37f004c9ba2485f026d6958390e478f26963aadd9d2062cd50ce8"
+  }
+}

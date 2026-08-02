@@ -1,0 +1,9 @@
+cutoff_stage,rule_fired_proposals,false_negatives,safe_stops,saved_candidate_evals,safe
+preprobe,89,33,56,1082,False
+primary,52,0,52,88,True
+prealign-primary,41,0,41,0,True
+target-seed,47,3,44,490,False
+gate-overlap-refine,0,0,0,0,True
+fine,0,0,0,0,True
+rescue,4,0,4,0,True
+corner-contact-refine,9,0,9,9,True

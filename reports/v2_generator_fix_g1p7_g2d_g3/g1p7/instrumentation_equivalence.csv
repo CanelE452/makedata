@@ -1,0 +1,4 @@
+item,status,detail
+instrumentation_patch,NOT_APPLIED,기존 candidate log 로 §7-§11 감사 충족 (candidate_schema_audit.md)
+subset_replay,NOT_RUN,instrumentation 이 없으므로 전후 비교 대상 없음
+outcome_mismatch,N/A,비교 대상 없음 — 임의 baseline 금지

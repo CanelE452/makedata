@@ -1,0 +1,1 @@
+bda0ba69dd100dbe32263496f9c743477f77273eeb2d95c0b65697f219d64b0b  current_diff.patch

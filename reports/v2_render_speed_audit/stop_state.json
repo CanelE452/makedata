@@ -1,0 +1,32 @@
+{
+  "stop_requested_at": "2026-08-02T15:56:50+09:00",
+  "stop_completed_at": "2026-08-02T15:58:34",
+  "stop_method": "CTRL_BREAK_EVENT (GenerateConsoleCtrlEvent) — 1회. taskkill /F 미사용, process tree 강제종료 미사용",
+  "taskkill_graceful_attempted": true,
+  "taskkill_graceful_result": "거부됨 (Windows: /F 옵션 필요) -> 사용 안 함",
+  "graceful_stop": true,
+  "blender_processes_after": 0,
+  "delivered_usable": 45,
+  "last_usable_id": 44,
+  "ids_contiguous": true,
+  "mode_counts": {
+    "clean-static": 9,
+    "cargo-only": 9,
+    "context-rich": 14,
+    "controlled-occlusion": 13
+  },
+  "file_counts": {
+    "rgb": 45,
+    "labels": 45,
+    "mask_amodal": 45,
+    "mask_visible": 45
+  },
+  "orphan_rgb_without_record": [],
+  "orphan_label_without_record": [],
+  "record_without_rgb": [],
+  "corrupt_files": [],
+  "partial_frame_present": false,
+  "deleted_anything": false,
+  "resume_possible": true,
+  "resume_command": "동일 명령에 --session-usable-cap <남은 수> 로 재개 — resume_from_proposal 은 wrapper 가 records 에서 재계산한다"
+}

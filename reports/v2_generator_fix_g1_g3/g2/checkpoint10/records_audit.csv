@@ -1,0 +1,11 @@
+usable_id,diagnostic_mode,semantics_pass,failed,unknown,recorded_pass,n_cargo_requested,n_cargo_placed,n_cargo_visible,cargo_visible_pixels,cargo_visible_pixel_ratio,n_context_requested,n_context_placed,n_context_visible,context_visible_pixel_ratio,explicit_occluder_placed,explicit_occluder_visible_pixels,occluder_side_target,occluder_side_actual,occluder_side_match,f_explicit_target,f_explicit_actual,runtime_s
+0,clean-static,True,,,True,0,0,0,0,0.0,0,0,0,0.0,False,0,,,,0.0,,6.467190265655518
+1,cargo-only,True,,,True,2,2,2,64,0.004629629629629629,0,0,0,0.0,False,0,,,,0.0,,11.336408376693726
+2,context-rich,True,,,True,2,2,2,1676,0.13639322916666666,3,1,1,1.0,False,0,,,,0.0,,22.140578508377075
+3,controlled-occlusion,True,,,True,0,0,0,0,0.0,3,2,2,1.0,True,228,left,left,True,0.19537258492039322,,41.190797328948975
+4,context-rich,True,,,True,2,2,2,223,0.01613136574074074,3,3,3,1.0,False,0,,,,0.0,,27.240599870681763
+5,controlled-occlusion,True,,,True,2,1,1,84,0.005116959064327485,3,3,3,1.0,True,12513,right,right,True,0.27312834436863037,,53.542211055755615
+6,clean-static,True,,,True,0,0,0,0,0.0,0,0,0,0.0,False,0,,,,0.0,,4.96879506111145
+7,cargo-only,True,,,True,2,2,2,832,0.06018518518518518,0,0,0,0.0,False,0,,,,0.0,,11.755192279815674
+8,context-rich,True,,,True,0,0,0,0,0.0,3,3,2,0.6666666666666666,False,0,,,,0.0,,24.853123903274536
+9,controlled-occlusion,True,,,True,0,0,0,0,0.0,3,3,3,1.0,True,193,bottom,bottom,True,0.14684539908486832,,29.19108295440674

@@ -1,0 +1,10 @@
+selection,quantile,usable_id,diagnostic_mode,metric,value,rule
+cargo_visible_pixels,min,61,cargo-only,cargo_visible_pixels,16,sort by cargo_visible_pixels asc; take min
+cargo_visible_pixels,median,97,cargo-only,cargo_visible_pixels,164,sort by cargo_visible_pixels asc; take median
+cargo_visible_pixels,max,11,cargo-only,cargo_visible_pixels,1906,sort by cargo_visible_pixels asc; take max
+context_visible_ratio,min,8,context-rich,context_visible_pixel_ratio,0.6666666666666666,sort by context_visible_pixel_ratio asc; take min
+context_visible_ratio,median,52,context-rich,context_visible_pixel_ratio,1.0,sort by context_visible_pixel_ratio asc; take median
+context_visible_ratio,max,98,context-rich,context_visible_pixel_ratio,1.0,sort by context_visible_pixel_ratio asc; take max
+controlled_runtime,min,43,controlled-occlusion,runtime_s,24.649908781051636,sort by runtime_s asc; take min
+controlled_runtime,median,35,controlled-occlusion,runtime_s,47.629260540008545,sort by runtime_s asc; take median
+controlled_runtime,max,93,controlled-occlusion,runtime_s,277.4955143928528,sort by runtime_s asc; take max

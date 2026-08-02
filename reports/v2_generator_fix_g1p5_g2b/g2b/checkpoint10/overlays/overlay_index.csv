@@ -1,0 +1,11 @@
+usable_id,diagnostic_mode,overlay_rel,overlay_w,overlay_h,rgb_w,rgb_h,size_matches_rgb,panel_drawn,legend_drawn,differs_from_rgb,overlay_ok,cargo_visible_pixels,context_visible_pixel_ratio,explicit_occluder_visible_pixels,f_explicit_target,f_explicit_actual,abs_target_error,runtime_s
+0,clean-static,all/f0000_overlay.png,640,480,640,480,True,True,True,True,True,0,0.0,0,0.0,,,7.094091415405273
+1,cargo-only,all/f0001_overlay.png,720,480,720,480,True,True,True,True,True,64,0.0,0,0.0,,,11.370739698410034
+2,context-rich,all/f0002_overlay.png,640,480,640,480,True,True,True,True,True,1676,1.0,0,0.0,,,21.989343881607056
+3,controlled-occlusion,all/f0003_overlay.png,640,480,640,480,True,True,True,True,True,0,1.0,228,0.19537258492039322,,,41.9253044128418
+4,context-rich,all/f0004_overlay.png,720,480,720,480,True,True,True,True,True,223,1.0,0,0.0,,,26.808188915252686
+5,controlled-occlusion,all/f0005_overlay.png,960,540,960,540,True,True,True,True,True,84,1.0,12513,0.27312834436863037,,,60.205660581588745
+6,clean-static,all/f0006_overlay.png,640,480,640,480,True,True,True,True,True,0,0.0,0,0.0,,,4.953212022781372
+7,cargo-only,all/f0007_overlay.png,720,480,720,480,True,True,True,True,True,832,0.0,0,0.0,,,11.264337539672852
+8,context-rich,all/f0008_overlay.png,960,540,960,540,True,True,True,True,True,0,0.6666666666666666,0,0.0,,,24.678026914596558
+9,controlled-occlusion,all/f0009_overlay.png,560,560,560,560,True,True,True,True,True,0,1.0,193,0.14684539908486832,,,28.363297939300537

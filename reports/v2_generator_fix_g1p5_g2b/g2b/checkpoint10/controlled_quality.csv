@@ -1,0 +1,4 @@
+usable_id,f_explicit_target,f_explicit_actual,abs_error,occluder_side_target,occluder_side_actual,occluder_side_match,explicit_occluder_visible_pixels,runtime_s
+3,0.19537258492039322,,,left,left,True,228,41.9253044128418
+5,0.27312834436863037,,,right,right,True,12513,60.205660581588745
+9,0.14684539908486832,,,bottom,bottom,True,193,28.363297939300537

@@ -1,0 +1,14 @@
+{
+  "frames": 20,
+  "overlays": 20,
+  "failed": [],
+  "overlay_ok": 20,
+  "size_matches_rgb": 20,
+  "panel_drawn": 20,
+  "legend_drawn": 20,
+  "resolutions": {
+    "960x540": 3,
+    "640x480": 14,
+    "720x480": 3
+  }
+}

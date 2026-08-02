@@ -1,0 +1,11 @@
+usable_id,diagnostic_mode,overlay_rel,cargo_visible_pixels,context_visible_pixel_ratio,explicit_occluder_visible_pixels,f_explicit_target,f_explicit_actual,abs_target_error,runtime_s
+0,clean-static,all/f0000_overlay.png,0,0.0,0,0.0,,,6.467190265655518
+1,cargo-only,all/f0001_overlay.png,64,0.0,0,0.0,,,11.336408376693726
+2,context-rich,all/f0002_overlay.png,1676,1.0,0,0.0,,,22.140578508377075
+3,controlled-occlusion,all/f0003_overlay.png,0,1.0,228,0.19537258492039322,,,41.190797328948975
+4,context-rich,all/f0004_overlay.png,223,1.0,0,0.0,,,27.240599870681763
+5,controlled-occlusion,all/f0005_overlay.png,84,1.0,12513,0.27312834436863037,,,53.542211055755615
+6,clean-static,all/f0006_overlay.png,0,0.0,0,0.0,,,4.96879506111145
+7,cargo-only,all/f0007_overlay.png,832,0.0,0,0.0,,,11.755192279815674
+8,context-rich,all/f0008_overlay.png,0,0.6666666666666666,0,0.0,,,24.853123903274536
+9,controlled-occlusion,all/f0009_overlay.png,0,1.0,193,0.14684539908486832,,,29.19108295440674

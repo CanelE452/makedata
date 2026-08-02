@@ -1,0 +1,88 @@
+{
+  "sources": {
+    "locked77": {
+      "path": "data/pallet/runs/diagnostics/_locked77_g1p6/replay_records.jsonl",
+      "records": 77,
+      "with_candidate_log": 77
+    },
+    "smoke100b": {
+      "path": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100b_seed7000_public/records.jsonl",
+      "records": 100,
+      "with_candidate_log": 30
+    }
+  },
+  "proposals_analyzed": 231,
+  "proposals_all_ext_zero": 53,
+  "proposals_with_accept": 79,
+  "recovered_after_zero_ext": 36,
+  "stage_rows": [
+    {
+      "cutoff_stage": "preprobe",
+      "rule_fired_proposals": 89,
+      "false_negatives": 33,
+      "safe_stops": 56,
+      "saved_candidate_evals": 1082,
+      "safe": false
+    },
+    {
+      "cutoff_stage": "primary",
+      "rule_fired_proposals": 52,
+      "false_negatives": 0,
+      "safe_stops": 52,
+      "saved_candidate_evals": 88,
+      "safe": true
+    },
+    {
+      "cutoff_stage": "prealign-primary",
+      "rule_fired_proposals": 41,
+      "false_negatives": 0,
+      "safe_stops": 41,
+      "saved_candidate_evals": 0,
+      "safe": true
+    },
+    {
+      "cutoff_stage": "target-seed",
+      "rule_fired_proposals": 47,
+      "false_negatives": 3,
+      "safe_stops": 44,
+      "saved_candidate_evals": 490,
+      "safe": false
+    },
+    {
+      "cutoff_stage": "gate-overlap-refine",
+      "rule_fired_proposals": 0,
+      "false_negatives": 0,
+      "safe_stops": 0,
+      "saved_candidate_evals": 0,
+      "safe": true
+    },
+    {
+      "cutoff_stage": "fine",
+      "rule_fired_proposals": 0,
+      "false_negatives": 0,
+      "safe_stops": 0,
+      "saved_candidate_evals": 0,
+      "safe": true
+    },
+    {
+      "cutoff_stage": "rescue",
+      "rule_fired_proposals": 4,
+      "false_negatives": 0,
+      "safe_stops": 4,
+      "saved_candidate_evals": 0,
+      "safe": true
+    },
+    {
+      "cutoff_stage": "corner-contact-refine",
+      "rule_fired_proposals": 9,
+      "false_negatives": 0,
+      "safe_stops": 9,
+      "saved_candidate_evals": 9,
+      "safe": true
+    }
+  ],
+  "earliest_safe_stage": "primary",
+  "EXT_OCC_EARLY_TERMINATION_READY": true,
+  "applied_to_pilot500": false,
+  "note": "자료 전용 — 이번 500 pilot 에 적용하지 않는다 (feature flag 없음)."
+}

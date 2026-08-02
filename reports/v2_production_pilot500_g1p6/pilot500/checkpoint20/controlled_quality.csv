@@ -1,0 +1,7 @@
+usable_id,f_explicit_target,f_explicit_actual,abs_error,occluder_side_target,occluder_side_actual,occluder_side_match,explicit_occluder_visible_pixels,runtime_s
+3,0.23841597266951697,,,right,right,True,8058,49.28431439399719
+5,0.19729726117221708,,,right,right,True,4874,53.29394793510437
+9,0.15380072366715544,,,left,left,True,10126,71.90200233459473
+13,0.23460343283020751,,,left,left,True,265,55.38606238365173
+15,0.13476290926564738,,,right,right,True,1671,36.14314293861389
+19,0.20882409673037297,,,left,left,True,603,61.498172998428345

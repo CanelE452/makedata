@@ -1,0 +1,34 @@
+{
+  "records_a": 20,
+  "records_b": 20,
+  "compared": 20,
+  "field_mismatch_total": 0,
+  "field_mismatch_by_key": {},
+  "frames_with_mismatch": 0,
+  "mode_counts_a": {
+    "clean-static": 4,
+    "cargo-only": 4,
+    "context-rich": 6,
+    "controlled-occlusion": 6
+  },
+  "mode_counts_b": {
+    "clean-static": 4,
+    "cargo-only": 4,
+    "context-rich": 6,
+    "controlled-occlusion": 6
+  },
+  "mode_counts_expected": {
+    "clean-static": 4,
+    "cargo-only": 4,
+    "context-rich": 6,
+    "controlled-occlusion": 6
+  },
+  "mode_schedule_ok": true,
+  "constraint_rescue_triggered_frames": 0,
+  "constraint_rescue_off_confirmed": true,
+  "constraint_rescue_mode_values": [
+    "None",
+    "off"
+  ],
+  "FIELD_COMPARISON_PASS": true
+}

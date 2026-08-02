@@ -1,0 +1,11 @@
+{
+  "dataset_path": "data/pallet/runs/diagnostics/v2_production_pilot500_seed7300_public",
+  "frozen_config_sha256": "ca9ac6ad17f735f089b73e039853565c36e95c35e4c97c6ac24b3def9cda3e89",
+  "commands_sha256": "ca5c5298db1b5b7f2fa525dc6f297c70f5a96d339a167e65e97e23c9630af6f3",
+  "code_lock_sha256": "854bd00ed32e8cc2a4086d0cccec05eb94bc3ef5029e23af14ec395e13eb53be",
+  "scene_sha256": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+  "asset_manifest_sha256": "327239153fddf5bc640072e3c52a5982f81fd4358e5651d72ae6c603081dde7e",
+  "head": "0ebb41cb26feed567558ad9e94e06016c5d17430",
+  "locked_at": "2026-08-02T15:15:32",
+  "note": "첫 pilot frame 생성 이후 이 값들은 변경 금지"
+}

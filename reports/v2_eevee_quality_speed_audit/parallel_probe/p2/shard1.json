@@ -1,0 +1,24 @@
+{
+ "shard": 1,
+ "elapsed_s": 181.99,
+ "frames": 3,
+ "attempts": 10,
+ "per_frame_s": 60.66,
+ "detail": [
+  {
+   "proposal": 200,
+   "mode": "clean-static",
+   "s": 4.954
+  },
+  {
+   "proposal": 201,
+   "mode": "cargo-only",
+   "s": 10.511
+  },
+  {
+   "proposal": 202,
+   "mode": "context-rich",
+   "s": 17.698
+  }
+ ]
+}

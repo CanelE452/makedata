@@ -1,0 +1,61 @@
+{
+  "git": {
+    "branch": "main",
+    "HEAD": "0ebb41cb26feed567558ad9e94e06016c5d17430",
+    "origin_main": "0ebb41cb26feed567558ad9e94e06016c5d17430",
+    "diff_sha256": "1018152c62e9aae1a67fd11ae49745f4661565040c95e40d1f316e1e82d0080a",
+    "dirty_entries": 31,
+    "unrelated": []
+  },
+  "production_scene": {
+    "path": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene_portable_stage2c2.blend",
+    "sha256": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+    "bytes": 358898838
+  },
+  "pilot_1449": {
+    "dataset_root": "data/pallet/runs/diagnostics/v2_pilot_2k_seed7000_public",
+    "read_only": true,
+    "records_jsonl_sha256": "d04283b279dca43d068451b6c9294210aacd8a510a6c737a1d3b361bc588a992",
+    "records_rejected_jsonl_sha256": "fa90ccb465fea50c4a5fc22cc10d9560a55aaf98736952decac3023090a06992",
+    "rgb": 1449,
+    "overlay": 0
+  },
+  "smoke100": {
+    "dataset_root": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100_seed7000_public",
+    "read_only": true,
+    "records_jsonl_sha256": "269a48a9f3f00c8da6fb7a9c01bc77b03b9391cc8ebfa7d7f415ed8bcf82286d",
+    "records_rejected_jsonl_sha256": "a3133abedae7f0aaff4602466e347b5b71146f75bf9a565d480a045f198d6419",
+    "rgb": 100,
+    "overlay": 0
+  },
+  "smoke100b": {
+    "dataset_root": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100b_seed7000_public",
+    "read_only": true,
+    "records_jsonl_sha256": "bf682c0aab51f96d5f335b435e6b8c04e3b228f639369a275bcda428645e77a7",
+    "records_rejected_jsonl_sha256": "865523d0b0219577994800d904e16952fa9a4942b4ad9c3417c3b9b00ac22e02",
+    "rgb": 100,
+    "overlay": 100
+  },
+  "locked77": {
+    "manifest": "35478cbee718d7913196a26a3b0eec8338b4b1c19a37032e4d2a111a5cf12016",
+    "g1p6_replay_records": "f682bf6430d5ff7d203b76ac95669e97776a3692a132b7342fdc2bd5f09cc20a",
+    "g1p6_final_gate": "26327a9a49375e57054364c21f2b3289eb3bd37fd356e0425a3ce9cae02fd247"
+  },
+  "g1p7_audit": {
+    "acceptance_contract.json": "9db0d67c6ddb62c107bdf12bd58d17acf75782a0b717c269a5ba7d3767da5f97",
+    "acceptance_contract.md": "6011702a64dfa8ac34cddff0ce9793b8807ce90ffcf32dfcb4515a94a0c2982f",
+    "binding_candidates.csv": "48ddfa75a672963f50e05eaa6acb89976e6570c213c2835fc490f6f2fc8f2c4d",
+    "binding_cases.csv": "1c27637c3c08559b2a02ac30b27feb19a9894aa838ddcd3aad516792de8b513e",
+    "binding_runtime.csv": "78bbe98a4f760bd4b1dd4f7007931c0f403f75be879b81f0301dc17cbba44410",
+    "binding_runtime.md": "befcb257dc7c627568ad8039932394ca13ca01f72c925043c2175525531b9244",
+    "binding_summary.json": "b33f27564931aa7e841387542d3ed2d7904ffee9e83d84faaedb82499ea0db9b",
+    "binding_summary.md": "90edf5b004db299b000067c368ae6429594b4cb715c86357bb2bffa43ed8e772",
+    "candidate_dedup_audit.csv": "e0d5aadac7dda29770962b96255a2d88d67031694a9c185328e5ede707ae81d6",
+    "candidate_dedup_audit.md": "19448bb8e315dfa513ddac3b59e214ec16ee6b0e0cf76480140e03e7ce22f239",
+    "candidate_schema_audit.md": "11ba4544af74c1359b96be826fcef7c745e6b7e5ccb12b4c1e84f1376104576e",
+    "constraint_margins.md": "f1297a0e4d8af3d8ad54e16f7fef124afa101ea3dcb393f8b300b22145709c82",
+    "instrumentation_equivalence.csv": "f5bdb3837c4b00cd2ab21a4e9924bf9fe32c488f17cad44de66ac2a454a6b25e",
+    "rescue_readiness.json": "d5d2ce7fb5ccca9e472701890e7a41c56ac493035c97032f1930a10b9df0dbca",
+    "rescue_readiness.md": "b2ada9bd864cea7ebec55a3711900262e704bc8e26bea739c56cca40ae6c523c"
+  }
+}

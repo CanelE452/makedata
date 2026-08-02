@@ -1,0 +1,7 @@
+gate,value,pass
+accepted_recall,30/30,True
+metrics_available,30/30,True
+explicit_visible_gt0,30/30,True
+side_match,30/30,True
+abs_error_median_within_plus_0.01,0.0360 <= 0.0460 (paired baseline 0.0360),True
+abs_error_p95_within_plus_0.02,0.1139 <= 0.1339 (paired baseline 0.1139),True

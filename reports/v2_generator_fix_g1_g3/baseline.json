@@ -1,0 +1,68 @@
+{
+  "phase": "v2_generator_fix_g1_g3",
+  "head": "0ebb41cb26feed567558ad9e94e06016c5d17430",
+  "branch": "main",
+  "origin_main": "0ebb41cb26feed567558ad9e94e06016c5d17430",
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.9",
+    "blender": "5.1.1 (hash b70da489d7f4, 2026-04-14)"
+  },
+  "tests": {
+    "registry_audit": {
+      "ok": 28,
+      "missing": 0
+    },
+    "unit": {
+      "passed": 802,
+      "skipped": 0,
+      "failed": 0
+    },
+    "local_integration": {
+      "passed": 31,
+      "skipped": 0,
+      "failed": 0
+    },
+    "golden_overlay": {
+      "passed": 51,
+      "skipped": 0,
+      "failed": 0
+    },
+    "frameSpec_5k": {
+      "accepted": 4313,
+      "rejected": 687,
+      "sha256": "938f387dd65258e0ee869d58b0f4f69046bddc5e8f56921fbb666ecf13d82a39",
+      "digest_prefix": "938f387d"
+    },
+    "proposal_5k": {
+      "accepted": 4439,
+      "digest": "3cd365eec96d1009428879f6a2636569c8d5bdb5e8d6e1488a1cda76c5bd30cd",
+      "digest_prefix": "3cd365ee",
+      "checks": "12/12"
+    },
+    "active_scene": {
+      "path": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene_portable_stage2c2.blend",
+      "sha256": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+      "sha256_prefix": "8cb4109a",
+      "bytes": 358898838,
+      "registry_missing": null,
+      "dist_roots": null,
+      "images_total": 603,
+      "images_missing": [],
+      "images_absolute": 0,
+      "node_image_missing": {
+        "count": 0,
+        "entries": []
+      }
+    }
+  },
+  "baseline_pilot": {
+    "root": "data/pallet/runs/diagnostics/v2_pilot_2k_seed7000_public",
+    "usable": 1449,
+    "rgb": 1449,
+    "labels": 1449,
+    "mask_amodal": 1449,
+    "mask_visible": 1449,
+    "records_jsonl_sha256": "d04283b279dca43d068451b6c9294210aacd8a510a6c737a1d3b361bc588a992"
+  }
+}

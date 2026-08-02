@@ -717,6 +717,7 @@ def _realize_constrained(
     lowres128 = SP2.aspect_preserving_lowres_size(W, H, base_height=128)
     lowres96_area = int(lowres96[0]) * int(lowres96[1])
     lowres128_long_edge = float(max(lowres128))
+    lowres_render_count_start = _LOWRES_RENDER_COUNT
 
     # Background/floor policy is selected before the target is assembled.
     _seed_stage(stage_seeds["background"])
@@ -1097,13 +1098,39 @@ def _realize_constrained(
             "H": int(H),
         }
     )
+    # CARGO 자체의 화면 가시성.  front/left/right_visibility_after_cargo 는 "팔레트가
+    # 가려졌는가"이지 "cargo 가 보이는가"가 아니고, public mask 는 팔레트 전용이라
+    # 그것으로도 추론할 수 없다.  context 와 똑같은 저해상도 holdout 을 쓰고 저장하지
+    # 않는다 (임시 PNG 는 _lowres_holdout 이 지운다).
+    cargo_visible_union = 0
+    cargo_visible_count = 0
+    if cargo_objs:
+        cargo_visible_union, _ = _lowres_holdout(
+            scene,
+            pobj,
+            only_white=cargo_objs,
+            token=f"{frame_seed}_cargo_union",
+            size=lowres96,
+        )
+        for cargo_idx, cargo_obj in enumerate(cargo_objs):
+            cargo_px, _ = _lowres_holdout(
+                scene,
+                pobj,
+                only_white=cargo_obj,
+                token=f"{frame_seed}_cargo_visible_{cargo_idx}",
+                size=lowres96,
+            )
+            cargo_visible_count += int(cargo_px >= 8)
+    cargo_visible_ratio = float(cargo_visible_union) / float(lowres96_area)
     stage_runtime["cargo"] = time.perf_counter() - cargo_t0
 
-    # Context objects are domain-filtered, disjoint from the planned explicit
-    # occluder, grounded, collision checked, screen-visible, and constrained to
-    # a small accidental-pallet-occlusion budget.
-    context_t0 = time.perf_counter()
-    _seed_stage(stage_seeds["context"])
+    # EXPLICIT FIRST (2026-08-01).  controlled-occlusion 에서 explicit 탐색이
+    # 실패하면 그 앞에서 배치한 context 비용이 통째로 낭비된다 (baseline: 실패
+    # 프레임의 context 단계 median 21초).  그래서 순서를 바꿨다 —
+    #   proposal 해석/공간 reserve -> explicit 탐색 -> (성공 시) context 배치.
+    # explicit 이 꺼진 mode 에서는 아래 블록이 통째로 no-op 이므로 순서 변경의
+    # 영향이 없다.
+    explicit_prep_t0 = time.perf_counter()
     explicit_proposals = []
     explicit_proposal_dimension_rejects = []
     explicit_proposal_dimension_normalizations = []
@@ -1254,190 +1281,9 @@ def _realize_constrained(
             )
             swept["proposal_object"] = proposal_name
             explicit_swept_reservations.append(swept)
-    context_requested = 3 if flags["context"] else 0
-    context_candidates = []
-    if context_requested:
-        rng = random.Random(stage_seeds["context"])
-        raw_candidates = dpool.select_distractor_object_names(
-            spec.scene_preset,
-            max(12, context_requested * 4),
-            rng,
-        )
-        for raw_name in raw_candidates:
-            resolved = _resolve_distractor_object_name(raw_name)
-            if (
-                resolved
-                and resolved not in explicit_candidate_names
-                and resolved not in context_candidates
-            ):
-                context_candidates.append(resolved)
-
-    pallet_center = np.asarray(
-        get_pallet_geometry(
-            spec.pallet_type,
-            pobj,
-            ORIENTATION_OVERRIDES,
-        )["centroid_world"],
-        dtype=np.float64,
+    stage_runtime["explicit_prep"] = (
+        time.perf_counter() - explicit_prep_t0
     )
-    context_baseline = None
-    if context_requested:
-        context_baseline = _lowres_stage_areas(
-            scene,
-            pobj,
-            cargo_objs,
-            [],
-            None,
-            token=f"{frame_seed}_context_base",
-            size=lowres96,
-        )
-    context_callback_attempts = {"count": 0}
-
-    def context_budget_callback(obj, placed, current_metrics):
-        context_callback_attempts["count"] += 1
-        area, _ = _lowres_holdout(
-            scene,
-            pobj,
-            extra_hide=(),
-            only_white=None,
-            token=f"{frame_seed}_ctx_pal_{context_callback_attempts['count']}",
-            size=lowres96,
-        )
-        visible_px, _ = _lowres_holdout(
-            scene,
-            pobj,
-            extra_hide=(),
-            only_white=obj,
-            token=f"{frame_seed}_ctx_obj_{context_callback_attempts['count']}",
-            size=lowres96,
-        )
-        m0 = context_baseline["mask_area_target_only"]
-        m2 = context_baseline["mask_area_after_cargo"]
-        f_context_now = (
-            max(0.0, float(m2 - area) / float(m0)) if m0 > 0 else 1.0
-        )
-        screen_ratio = float(visible_px) / float(lowres96_area)
-        corner_metrics = None
-        corner_reserve_pass = True
-        if enforce_explicit_corner_reserve:
-            corner_metrics = _candidate_corner_gate_metrics(
-                scene,
-                cam_pos,
-                cam_look,
-                pobj,
-                spec.pallet_type,
-                K,
-                int(W),
-                int(H),
-            )
-            corner_reserve_pass = SP2.explicit_corner_reserve_pass(
-                corner_metrics
-            )
-        return {
-            "accept": bool(
-                visible_px >= 8
-                and screen_ratio >= 0.0005
-                and f_context_now <= 0.12
-                and corner_reserve_pass
-            ),
-            "visible_pixels": int(visible_px),
-            "screen_area_ratio": screen_ratio,
-            "f_context": f_context_now,
-            "explicit_corner_reserve_pass": corner_reserve_pass,
-            "preexplicit_V_inframe": (
-                None
-                if corner_metrics is None
-                else corner_metrics["V_inframe"]
-            ),
-            "preexplicit_ext_occ_corners": (
-                None
-                if corner_metrics is None
-                else corner_metrics["ext_occ_corners"]
-            ),
-            "preexplicit_V_vis": (
-                None if corner_metrics is None else corner_metrics["V_vis"]
-            ),
-        }
-
-    context_result = {
-        "placed_objects": [],
-        "placed_names": [],
-        "metrics": {
-            "success": context_requested == 0,
-            "requested": context_requested,
-            "placed": 0,
-            "reject_counts": {},
-            "placements": [],
-        },
-    }
-    if context_requested:
-        context_result = SV2.place_context_objects(
-            context_candidates,
-            pobj,
-            cam_pos=cam_pos,
-            cam_look=cam_look,
-            floor_z=dynamic_ground_z,
-            floor_contact_tolerance=0.01,
-            support_objects=support_objects,
-            support_ray_start_z=support_ray_start_z,
-            support_ray_distance=20.0,
-            min_support_normal_z=0.5,
-            seed=stage_seeds["context"],
-            max_count=context_requested,
-            attempts_per_object=18,
-            candidate_poses=_context_candidate_poses(
-                pallet_center,
-                cam_pos,
-                cam_look,
-                K,
-                (int(W), int(H)),
-                dynamic_ground_z,
-                stage_seeds["context"],
-                attempts=18,
-            ),
-            static_objects=[
-                *static_objects,
-                *explicit_reservation_objects,
-            ],
-            cargo_objects=cargo_objs,
-            reserved_aabbs=explicit_swept_reservations,
-            camera_clearance=SP2.camera_clearance_for_role(SP2.ROLE_CONTEXT),
-            camera_clearance_exact=True,
-            broad_aabb_inflate=0.0,
-            occlusion_budget_callback=context_budget_callback,
-        )
-    context_objs = list(context_result["placed_objects"])
-    context_attempts = (
-        sum(context_result["metrics"].get("reject_counts", {}).values())
-        + len(context_objs)
-    )
-    context_visible_count = 0
-    context_visible_union = 0
-    if context_objs:
-        context_visible_union, _ = _lowres_holdout(
-            scene,
-            pobj,
-            only_white=context_objs,
-            token=f"{frame_seed}_context_union",
-            size=lowres96,
-        )
-        for obj_idx, obj in enumerate(context_objs):
-            visible_px, _ = _lowres_holdout(
-                scene,
-                pobj,
-                only_white=obj,
-                token=f"{frame_seed}_context_visible_{obj_idx}",
-                size=lowres96,
-            )
-            context_visible_count += int(visible_px >= 8)
-    context_screen_ratio = float(context_visible_union) / float(lowres96_area)
-    context_visible_ratio = (
-        float(context_visible_count) / float(len(context_objs))
-        if context_objs
-        else 0.0
-    )
-    stage_runtime["context"] = time.perf_counter() - context_t0
-
     # The pure-solver pose is only the initial proposal.  A bounded, deterministic
     # low-resolution mask search selects the final collision-free placement.
     explicit_t0 = time.perf_counter()
@@ -1447,6 +1293,8 @@ def _realize_constrained(
     explicit_solver_fail = None
     explicit_visible_pixels = 0
     explicit_side_actual = None
+    explicit_target_mask_stats = None
+    explicit_actual_mask_stats = None
     explicit_target = float(spec.f_target) if flags["explicit"] else 0.0
     explicit_actual = 0.0
     explicit_error = abs(explicit_target - explicit_actual)
@@ -1468,11 +1316,12 @@ def _realize_constrained(
             for obj in explicit_objects:
                 set_render_visibility(obj, False)
 
+            # context 는 아직 배치 전이다 -> explicit 기여분만 고립해서 잰다.
             explicit_baseline = _lowres_stage_areas(
                 scene,
                 pobj,
                 cargo_objs,
-                context_objs,
+                [],
                 None,
                 token=f"{frame_seed}_explicit_base",
                 size=lowres128,
@@ -1715,6 +1564,35 @@ def _realize_constrained(
                 ):
                     global_best = candidate
 
+            # §4 탐색 계측.  coarse = 자세를 찾는 단계, fine = 목표 오차를 좁히는 단계.
+            FINE_STAGES = ("refine", "feedback", SP2.FINE_STAGE)
+            # §9 fine 과 rescue 가 같은 geometry 를 두 번 평가하지 않도록 공유한다.
+            rescue_state = {
+                "evals": 0, "triggered": False, "won": False,
+                "beam_size": 0, "duplicate_skips": 0, "runtime_s": 0.0,
+                "axis_sequence": [], "seed_types": [], "categories": [],
+                "binding_signatures": [], "constraint_before": None,
+                "constraint_after": None, "final_constraint_vector": None,
+            }
+            evaluated_geometry_keys = set()
+            # 평가 前 dedup 용 (plan, offset) 키.  evaluated_geometry_keys 는 평가
+            # 결과(center)가 있어야 만들 수 있어 constraint-rescue 에서만 쓸 수 있다.
+            evaluated_offset_keys = set()
+            fine_state = {
+                "evals": 0, "triggered": False, "trigger_reason": None,
+                "source_stage": None, "source_score": None,
+                "margin_before": None, "best_score": None,
+                "margin_after": None, "won": False, "runtime_s": 0.0,
+            }
+            search_stats = {
+                "search_seed_count": 0,
+                "coarse_eval_count": 0,
+                "fine_eval_count": 0,
+                "best_seed_score": None,
+                "final_seed_score": None,
+                "winning_stage": None,
+            }
+
             def run_search_stage(
                 obj,
                 proposal,
@@ -1728,16 +1606,49 @@ def _realize_constrained(
                     if candidate_offsets is None
                     else tuple(candidate_offsets)
                 )
-                attempted_for_proposal = sum(
-                    1
-                    for candidate in aggregate_log
-                    if candidate.get("proposal_index") == int(proposal_idx)
-                )
-                offsets = SP2.bounded_candidate_offsets(
-                    offsets,
-                    attempted=attempted_for_proposal,
-                    limit=SP2.EXPLICIT_CANDIDATE_LIMIT_PER_PROPOSAL,
-                )
+                if stage_name in (SP2.FINE_STAGE, SP2.CONSTRAINT_RESCUE_STAGE):
+                    # fine / constraint-rescue 는 **일반 예산을 통과하지 않는다** —
+                    # 자체 상한만 적용한다.  (일반 예산 검사를 같이 태우면, 예산이
+                    #  소진돼 실패한 프레임에서 이 단계가 항상 0개를 평가한다.
+                    #  G1.6 의 첫 sweep 이 실제로 그랬다.)
+                    if stage_name == SP2.FINE_STAGE:
+                        offsets = tuple(offsets)[:max(
+                            0, SP2.FINE_MAX_EVALS - fine_state["evals"])]
+                    else:
+                        offsets = tuple(offsets)[:max(
+                            0, int(SEARCH_TUNING["constraint_rescue_eval_max"])
+                            - rescue_state["evals"])]
+                    if not offsets:
+                        return {"success": False, "object": obj.name, "best": None,
+                                "best_rejected": None, "reject_counts": {},
+                                "candidates": 0, "candidate_log": [],
+                                "initial": None}
+                else:
+                    # 이미 평가한 (plan, offset) 조합은 결과가 같으므로 다시 렌더하지
+                    # 않는다.  primary 격자의 (0,0,0) 이 preprobe 와 겹치는 게 대표적
+                    # 이고, 실측 후보의 5.2%(primary 11.1% / prealign-primary 20.6%)가
+                    # 재평가였다.  **예산 trim 앞에서** 걸러야 빈 자리를 새 후보가 쓴다.
+                    offsets, _ = SP2.dedup_candidate_offsets(
+                        stage_plan,
+                        offsets,
+                        evaluated_offset_keys,
+                    )
+                    # ★ 해석적 seed 단계(target-seed)는 **앞 K개 unique 후보만** 예산에서
+                    # 면제된다 (G1.6).  K=None 이면 G1.5 의 무제한 면제와 같다.
+                    attempted_for_proposal = SP2.budgeted_attempt_count(
+                        aggregate_log,
+                        int(proposal_idx),
+                        SEARCH_TUNING["target_seed_free_cap"],
+                    )
+                    offsets = SP2.bounded_candidate_offsets(
+                        offsets,
+                        attempted=attempted_for_proposal,
+                        limit=SP2.EXPLICIT_CANDIDATE_LIMIT_PER_PROPOSAL,
+                    )
+                    # 예산에 살아남은 것만 기록한다 (잘린 것은 평가되지 않았다).
+                    for offset in offsets:
+                        evaluated_offset_keys.add(
+                            SP2.planned_offset_key(stage_plan, offset))
                 if not offsets:
                     result = {
                         "success": False,
@@ -2042,7 +1953,8 @@ def _realize_constrained(
                     score_callback=explicit_score,
                     static_objects=static_objects,
                     cargo_objects=cargo_objs,
-                    context_objects=context_objs,
+                    # context 는 explicit 뒤로 옮겨졌으므로 이 시점에는 아직 없다.
+                    context_objects=(),
                     candidate_offsets=offsets,
                     camera_clearance=SP2.camera_clearance_for_role(
                         SP2.ROLE_EXPLICIT_OCCLUDER
@@ -2068,6 +1980,30 @@ def _realize_constrained(
                     proposal,
                     stage_name,
                 )
+                evaluated = int(result.get("candidates") or 0)
+                for logged in (result.get("candidate_log") or []):
+                    evaluated_geometry_keys.add(
+                        SP2.candidate_geometry_key(logged))
+                if stage_name == SP2.CONSTRAINT_RESCUE_STAGE:
+                    rescue_state["evals"] += evaluated
+                elif stage_name in FINE_STAGES:
+                    search_stats["fine_eval_count"] += evaluated
+                    if stage_name == SP2.FINE_STAGE:
+                        fine_state["evals"] += evaluated
+                else:
+                    search_stats["coarse_eval_count"] += evaluated
+                for key in ("best", "best_rejected"):
+                    candidate = result.get(key) or {}
+                    score = candidate.get("score")
+                    if score is None:
+                        continue
+                    current = search_stats["best_seed_score"]
+                    if current is None or float(score) > float(current):
+                        search_stats["best_seed_score"] = float(score)
+                best = result.get("best") or {}
+                if best.get("score") is not None:
+                    # 최종 선택은 stage 단위 success 가 아니라 global_best 가 한다.
+                    search_stats["final_seed_score"] = float(best["score"])
                 return result
 
             def guided_bbox_alignment_offsets(result, side):
@@ -2160,7 +2096,29 @@ def _realize_constrained(
                     candidate_offsets=((0.0, 0.0, 0.0, 0.0),),
                 )
                 coarse_results = [primary]
+                search_stats["search_seed_count"] += 1
+                # ★ §4 (2026-08-01): target-mask-conditioned 정렬을 **맨 앞으로**.
+                # preprobe 한 번으로 얻은 실측(projected bbox·f_actual)을 목표 마스크
+                # 통계(centroid/bbox/area)에 맞추는 해석적 offset 이 가장 싼 수정이다.
+                # 예전에는 gate-overlap / corner-contact 휴리스틱 뒤에 있었고, 그
+                # 결과 실패 프레임의 절반(48.8%)이 score_callback 으로 죽었다.
                 if not primary.get("success"):
+                    seed_offsets = guided_bbox_alignment_offsets(
+                        primary,
+                        proposal.get("side"),
+                    )
+                    if seed_offsets:
+                        coarse_results.append(
+                            run_search_stage(
+                                proposal_obj,
+                                proposal,
+                                proposal_idx,
+                                "target-seed",
+                                occ_plan,
+                                candidate_offsets=seed_offsets,
+                            )
+                        )
+                if not any(result.get("success") for result in coarse_results):
                     gate_seed = (
                         SP2.best_explicit_gate_side_seed(primary)
                         or SP2.best_explicit_gate_seed(primary)
@@ -2221,24 +2179,11 @@ def _realize_constrained(
                             )
                         )
 
-                if not any(
-                    result.get("success") for result in coarse_results
-                ):
-                    prealign_offsets = guided_bbox_alignment_offsets(
-                        primary,
-                        proposal.get("side"),
-                    )
-                    if prealign_offsets:
-                        prealign = run_search_stage(
-                            proposal_obj,
-                            proposal,
-                            proposal_idx,
-                            "prealign",
-                            occ_plan,
-                            candidate_offsets=prealign_offsets,
-                        )
-                        coarse_results.append(prealign)
-
+                # (구 "prealign" 단계는 제거했다.  preprobe 결과로부터 같은 offset 을
+                #  계산하는 중복이었고, 위 "target-seed" 가 그 자리를 대신한다.
+                #  두 단계를 모두 두면 proposal 당 후보 예산을 두 배로 먹어
+                #  candidate_budget_exhausted 로 이어진다 — replay 에서 실제로
+                #  accepted 2건을 잃었다.)
                 if not any(result.get("success") for result in coarse_results):
                     primary = run_search_stage(
                         proposal_obj,
@@ -2330,6 +2275,130 @@ def _realize_constrained(
                                 candidate_offsets=feedback_offsets,
                             )
 
+                # §4 near-miss fine refinement — 목표 오차 **하나만** 막고 있고 그
+                # 간격이 작은 후보 1개에만, 자체 상한(FINE_MAX_EVALS) 안에서 돈다.
+                # coarse step 의 절반을 재사용하고 새 절대 단위를 만들지 않는다.
+                if (
+                    global_best is None
+                    and SEARCH_TUNING["near_miss_gap_threshold"] is not None
+                    and fine_state["evals"] < SP2.FINE_MAX_EVALS
+                ):
+                    seed = SP2.select_near_miss_seed(
+                        [c for c in aggregate_log
+                         if c.get("proposal_index") == int(proposal_idx)],
+                        SEARCH_TUNING["near_miss_gap_threshold"],
+                    )
+                    if seed is not None:
+                        fine_t0 = time.perf_counter()
+                        fine_state.update({
+                            "triggered": True,
+                            "trigger_reason": "target_error_only",
+                            "source_stage": seed["stage"],
+                            "source_score": seed["score"],
+                            "margin_before": seed["score_margin"],
+                        })
+                        refine = schedule["refine"]["candidates"]
+                        u_step = max(abs(float(o[0])) for o in refine) or 0.15
+                        v_step = max(abs(float(o[1])) for o in refine) or 0.15
+                        d_step = max(abs(float(o[2])) for o in refine) or 0.175
+                        plane, depth = SP2.fine_refinement_offsets(
+                            u_step, v_step, d_step)
+                        fine_plan = SP2.explicit_refine_plan(
+                            occ_plan, seed["candidate"])
+                        plane_result = run_search_stage(
+                            proposal_obj, proposal, proposal_idx,
+                            SP2.FINE_STAGE, fine_plan, candidate_offsets=plane)
+                        best_plane = SP2.best_explicit_search_seed(plane_result)
+                        depth_plan = (
+                            SP2.explicit_refine_plan(fine_plan, best_plane)
+                            if best_plane is not None else fine_plan)
+                        depth_result = run_search_stage(
+                            proposal_obj, proposal, proposal_idx,
+                            SP2.FINE_STAGE, depth_plan, candidate_offsets=depth)
+                        best_fine = (SP2.best_explicit_search_seed(depth_result)
+                                     or best_plane)
+                        if best_fine is not None:
+                            metrics = best_fine.get("score_callback") or {}
+                            fine_state["best_score"] = best_fine.get("score")
+                            error = metrics.get("abs_error")
+                            fine_state["margin_after"] = (
+                                None if error is None
+                                else SP2.EXPLICIT_TARGET_ABS_TOLERANCE - float(error))
+                        fine_state["won"] = bool(global_best is not None)
+                        fine_state["runtime_s"] += time.perf_counter() - fine_t0
+
+                # §7-§9 constraint-directed rescue — 기존 search 가 모두 실패한
+                # 뒤에만, 자체 상한 안에서 돈다.  acceptance gate 는 우회하지
+                # 않는다 (성공 판정은 평소와 같은 5조건 실측이다).
+                if (
+                    global_best is None
+                    and SEARCH_TUNING["constraint_rescue_mode"] != "off"
+                    and rescue_state["evals"]
+                    < int(SEARCH_TUNING["constraint_rescue_eval_max"])
+                ):
+                    proposal_log = [c for c in aggregate_log
+                                    if c.get("proposal_index") == int(proposal_idx)]
+                    refine_offsets = schedule["refine"]["candidates"]
+                    steps = (
+                        max(abs(float(o[0])) for o in refine_offsets) or 0.15,
+                        max(abs(float(o[1])) for o in refine_offsets) or 0.15,
+                        max(abs(float(o[2])) for o in refine_offsets) or 0.175,
+                    )
+                    target_bbox = (explicit_target_mask_stats or {}).get("bbox_px")
+                    plan_rescue = SP2.constraint_rescue_plan(
+                        proposal_log, target_bbox,
+                        (plan.occluder or {}).get("side"), steps,
+                        mode=SEARCH_TUNING["constraint_rescue_mode"],
+                        beam_max=SEARCH_TUNING["constraint_rescue_beam"],
+                        eval_max=(int(SEARCH_TUNING["constraint_rescue_eval_max"])
+                                  - rescue_state["evals"]),
+                        category_max=SEARCH_TUNING[
+                            "constraint_rescue_category_max"],
+                        evaluated_keys=evaluated_geometry_keys,
+                    )
+                    rescue_state["duplicate_skips"] += int(
+                        plan_rescue["duplicate_skips"])
+                    if plan_rescue["evaluations"]:
+                        rescue_t0 = time.perf_counter()
+                        rescue_state.update({
+                            "triggered": True,
+                            "beam_size": len(plan_rescue["beam"]),
+                        })
+                        rescue_state["axis_sequence"].extend(
+                            plan_rescue["axis_sequence"])
+                        rescue_state["categories"] = sorted(
+                            set(rescue_state["categories"])
+                            | set(plan_rescue["categories"]))
+                        first = plan_rescue["evaluations"][0]
+                        if rescue_state["constraint_before"] is None:
+                            rescue_state["constraint_before"] = dict(
+                                first["constraint_before"])
+                        rescue_state["binding_signatures"] = sorted(
+                            set(rescue_state["binding_signatures"])
+                            | {"ONE_MISS_%s" % e["category"].upper()
+                               for e in plan_rescue["evaluations"]})
+                        rescue_state["seed_types"].extend(
+                            e["seed_type"] for e in plan_rescue["evaluations"])
+                        rescue_plan_base = SP2.explicit_refine_plan(occ_plan, None)
+                        rescue_result = run_search_stage(
+                            proposal_obj, proposal, proposal_idx,
+                            SP2.CONSTRAINT_RESCUE_STAGE, rescue_plan_base,
+                            candidate_offsets=[e["offset"]
+                                               for e in plan_rescue["evaluations"]])
+                        best_rescue = SP2.best_explicit_search_seed(rescue_result)
+                        if best_rescue is not None:
+                            rescue_state["constraint_after"] = (
+                                SP2.candidate_constraint_vector(
+                                    best_rescue.get("score_callback") or {}))
+                        rescue_state["won"] = bool(global_best is not None)
+                        if global_best is not None:
+                            rescue_state["final_constraint_vector"] = (
+                                SP2.candidate_constraint_vector(
+                                    global_best["record"].get("score_callback")
+                                    or {}))
+                        rescue_state["runtime_s"] += (
+                            time.perf_counter() - rescue_t0)
+
                 set_render_visibility(proposal_obj, False)
                 if global_best is not None:
                     best_metrics = (
@@ -2379,6 +2448,22 @@ def _realize_constrained(
                     None if global_best is None else global_best["stage"]
                 ),
                 "target_mask_stats": explicit_target_mask_stats,
+                "search_stats": dict(
+                    search_stats,
+                    winning_stage=(None if global_best is None
+                                   else global_best["stage"]),
+                ),
+                "fine_state": dict(fine_state),
+                "rescue_state": dict(rescue_state),
+                "target_seed_budget": SP2.target_seed_budget_usage(
+                    aggregate_log, 0, SEARCH_TUNING["target_seed_free_cap"]),
+                "target_seed_budget_all": [
+                    SP2.target_seed_budget_usage(
+                        aggregate_log, idx,
+                        SEARCH_TUNING["target_seed_free_cap"])
+                    for idx in range(len(resolved_proposals))
+                ],
+                "tuning": dict(SEARCH_TUNING),
             }
             if global_best is not None:
                 explicit_name = global_best["object_name"]
@@ -2413,6 +2498,20 @@ def _realize_constrained(
                     explicit_before_mask,
                     final_mask,
                 )
+                # §2 저해상도 실제 가림 통계.  public 프로필은 M1~M3 를 저장하지
+                # 않아 마스크 분해로 f_explicit 을 얻을 수 없다.  탐색이 이미 찍은
+                # holdout 두 장의 차집합에서 숫자만 뽑는다 (파일 저장 없음).
+                explicit_lost_mask = (
+                    (np.asarray(explicit_before_mask) > 127)
+                    & ~(np.asarray(final_mask) > 127)
+                )
+                lost_rows, lost_cols = np.nonzero(explicit_lost_mask)
+                explicit_actual_mask_stats = SP2.mask_index_stats(
+                    lost_rows,
+                    lost_cols,
+                    height=explicit_lost_mask.shape[0],
+                    width=explicit_lost_mask.shape[1],
+                )
                 if explicit_visible_pixels <= 0:
                     set_render_visibility(occ_obj, False)
                     occ_obj = None
@@ -2424,6 +2523,238 @@ def _realize_constrained(
     elif flags["explicit"] and explicit_target > 0.0:
         explicit_solver_fail = "pure_plan_has_no_explicit_occluder"
     stage_runtime["explicit"] = time.perf_counter() - explicit_t0
+
+    # explicit 이 요구 조건을 못 맞춘 controlled 프레임은 여기서 context 를
+    # 아예 시도하지 않는다 — 어차피 버려질 프레임에 배치 비용을 쓰지 않는다.
+    explicit_blocked = bool(
+        flags["explicit"]
+        and SP2.explicit_requirement_failure(
+            flags["explicit"],
+            place_occluder,
+            explicit_target,
+            occ_obj is not None,
+            explicit_solver_fail,
+            explicit_actual=explicit_actual,
+            side_target=(plan.occluder or {}).get("side"),
+            side_actual=explicit_side_actual,
+            visible_pixels=explicit_visible_pixels,
+        )
+        is not None
+    )
+    explicit_placed_objects = [] if occ_obj is None else [occ_obj]
+    # explicit 이 이미 놓였다면 코너 기준을 "배치 전 여유 확보"에서 "배치 후 비열화"로
+    # 바꾼다.  가리는 것이 본업인 occluder 를 예약 계약으로 재평가하면 context 후보가
+    # 전멸한다 (replay 실측: context 14초 -> 225초, 저해상도 렌더 52 -> 351).
+    post_explicit_corner_reserve = None
+    if explicit_placed_objects:
+        post_explicit_corner_reserve = _candidate_corner_gate_metrics(
+            scene,
+            cam_pos,
+            cam_look,
+            pobj,
+            spec.pallet_type,
+            K,
+            int(W),
+            int(H),
+        )
+
+    # Context objects are domain-filtered, disjoint from the planned explicit
+    # occluder, grounded, collision checked, screen-visible, and constrained to
+    # a small accidental-pallet-occlusion budget.
+    context_t0 = time.perf_counter()
+    _seed_stage(stage_seeds["context"])
+    context_requested = 3 if flags["context"] else 0
+    context_candidates = []
+    if context_requested:
+        rng = random.Random(stage_seeds["context"])
+        raw_candidates = dpool.select_distractor_object_names(
+            spec.scene_preset,
+            max(12, context_requested * 4),
+            rng,
+        )
+        for raw_name in raw_candidates:
+            resolved = _resolve_distractor_object_name(raw_name)
+            if (
+                resolved
+                and resolved not in explicit_candidate_names
+                and resolved not in context_candidates
+            ):
+                context_candidates.append(resolved)
+
+    pallet_center = np.asarray(
+        get_pallet_geometry(
+            spec.pallet_type,
+            pobj,
+            ORIENTATION_OVERRIDES,
+        )["centroid_world"],
+        dtype=np.float64,
+    )
+    context_baseline = None
+    if context_requested and not explicit_blocked:
+        # explicit 은 이미 놓였다 -> m2 에서 가려 두고 context 기여분만 재도록 한다.
+        context_baseline = _lowres_stage_areas(
+            scene,
+            pobj,
+            cargo_objs,
+            [],
+            occ_obj,
+            token=f"{frame_seed}_context_base",
+            size=lowres96,
+        )
+    context_callback_attempts = {"count": 0}
+
+    def context_budget_callback(obj, placed, current_metrics):
+        context_callback_attempts["count"] += 1
+        # 배치된 explicit occluder 는 가리고 잰다 — 그래야 f_context 가 context
+        # 기여분만 담는다 (의도된 explicit 가림을 예산에 넣지 않는다).
+        area, _ = _lowres_holdout(
+            scene,
+            pobj,
+            extra_hide=explicit_placed_objects,
+            only_white=None,
+            token=f"{frame_seed}_ctx_pal_{context_callback_attempts['count']}",
+            size=lowres96,
+        )
+        visible_px, _ = _lowres_holdout(
+            scene,
+            pobj,
+            extra_hide=(),
+            only_white=obj,
+            token=f"{frame_seed}_ctx_obj_{context_callback_attempts['count']}",
+            size=lowres96,
+        )
+        m0 = context_baseline["mask_area_target_only"]
+        m2 = context_baseline["mask_area_after_cargo"]
+        f_context_now = (
+            max(0.0, float(m2 - area) / float(m0)) if m0 > 0 else 1.0
+        )
+        screen_ratio = float(visible_px) / float(lowres96_area)
+        corner_metrics = None
+        corner_reserve_pass = True
+        if enforce_explicit_corner_reserve:
+            corner_metrics = _candidate_corner_gate_metrics(
+                scene,
+                cam_pos,
+                cam_look,
+                pobj,
+                spec.pallet_type,
+                K,
+                int(W),
+                int(H),
+            )
+            corner_reserve_pass = (
+                SP2.explicit_corner_reserve_pass(corner_metrics)
+                if post_explicit_corner_reserve is None
+                else SP2.context_corner_no_regression(
+                    corner_metrics,
+                    post_explicit_corner_reserve,
+                )
+            )
+        return {
+            "accept": bool(
+                visible_px >= 8
+                and screen_ratio >= 0.0005
+                and f_context_now <= 0.12
+                and corner_reserve_pass
+            ),
+            "visible_pixels": int(visible_px),
+            "screen_area_ratio": screen_ratio,
+            "f_context": f_context_now,
+            "explicit_corner_reserve_pass": corner_reserve_pass,
+            "preexplicit_V_inframe": (
+                None
+                if corner_metrics is None
+                else corner_metrics["V_inframe"]
+            ),
+            "preexplicit_ext_occ_corners": (
+                None
+                if corner_metrics is None
+                else corner_metrics["ext_occ_corners"]
+            ),
+            "preexplicit_V_vis": (
+                None if corner_metrics is None else corner_metrics["V_vis"]
+            ),
+        }
+
+    context_result = {
+        "placed_objects": [],
+        "placed_names": [],
+        "metrics": {
+            "success": context_requested == 0,
+            "requested": context_requested,
+            "placed": 0,
+            "reject_counts": {},
+            "placements": [],
+        },
+    }
+    if context_requested and not explicit_blocked:
+        context_result = SV2.place_context_objects(
+            context_candidates,
+            pobj,
+            cam_pos=cam_pos,
+            cam_look=cam_look,
+            floor_z=dynamic_ground_z,
+            floor_contact_tolerance=0.01,
+            support_objects=support_objects,
+            support_ray_start_z=support_ray_start_z,
+            support_ray_distance=20.0,
+            min_support_normal_z=0.5,
+            seed=stage_seeds["context"],
+            max_count=context_requested,
+            attempts_per_object=18,
+            candidate_poses=_context_candidate_poses(
+                pallet_center,
+                cam_pos,
+                cam_look,
+                K,
+                (int(W), int(H)),
+                dynamic_ground_z,
+                stage_seeds["context"],
+                attempts=18,
+            ),
+            static_objects=[
+                *static_objects,
+                *explicit_placed_objects,
+            ],
+            cargo_objects=cargo_objs,
+            # occluder 는 이미 놓였으므로 후보 전체의 swept 예약은 필요 없다.
+            reserved_aabbs=(),
+            camera_clearance=SP2.camera_clearance_for_role(SP2.ROLE_CONTEXT),
+            camera_clearance_exact=True,
+            broad_aabb_inflate=0.0,
+            occlusion_budget_callback=context_budget_callback,
+        )
+    context_objs = list(context_result["placed_objects"])
+    context_attempts = (
+        sum(context_result["metrics"].get("reject_counts", {}).values())
+        + len(context_objs)
+    )
+    context_visible_count = 0
+    context_visible_union = 0
+    if context_objs:
+        context_visible_union, _ = _lowres_holdout(
+            scene,
+            pobj,
+            only_white=context_objs,
+            token=f"{frame_seed}_context_union",
+            size=lowres96,
+        )
+        for obj_idx, obj in enumerate(context_objs):
+            visible_px, _ = _lowres_holdout(
+                scene,
+                pobj,
+                only_white=obj,
+                token=f"{frame_seed}_context_visible_{obj_idx}",
+                size=lowres96,
+            )
+            context_visible_count += int(visible_px >= 8)
+    context_screen_ratio = float(context_visible_union) / float(lowres96_area)
+    context_visible_ratio = (
+        float(context_visible_count) / float(len(context_objs))
+        if context_objs
+        else 0.0
+    )
+    stage_runtime["context"] = time.perf_counter() - context_t0
 
     collision_t0 = time.perf_counter()
     forbidden_pairs = _forbidden_collision_pairs(
@@ -2619,6 +2950,10 @@ def _realize_constrained(
         ),
         "n_cargo_requested": int(cargo_requested),
         "n_cargo_placed": len(cargo_objs),
+        "n_cargo_visible": int(cargo_visible_count),
+        "cargo_visible_pixels": int(cargo_visible_union),
+        "cargo_visible_pixel_ratio": cargo_visible_ratio,
+        "cargo_visibility_measured": True,
         "cargo_placement_attempts": int(cargo_attempts),
         "cargo_support_pass": cargo_support_pass,
         "cargo_collision_pass": cargo_collisions == 0,
@@ -2678,6 +3013,24 @@ def _realize_constrained(
             if explicit_search is None
             else explicit_search.get("target_mask_stats")
         ),
+        # §2 저해상도 explicit 품질 지표 (숫자만, 마스크 파일은 저장하지 않는다).
+        # public 프로필은 M1~M3 를 렌더하지 않아 마스크 분해로 f_explicit 을 얻을 수
+        # 없다.  f_total 로 대체하면 cargo/context/static 이 섞이므로 금지 —
+        # 대신 탐색이 이미 찍은 두 장의 holdout 차집합에서 통계를 뽑는다.
+        **SP2.explicit_lowres_metrics(
+            explicit_target_mask_stats,
+            explicit_actual_mask_stats,
+            explicit_target,
+            explicit_actual,
+        ),
+        # §4 탐색 계측.  explicit 이 꺼진 mode 에서는 전부 None 이다.
+        **SP2.explicit_search_metrics(explicit_search),
+        # §3 target-seed 예산 회계 · §4 near-miss fine refinement 계측
+        **_target_seed_budget_fields(explicit_search),
+        **_fine_refinement_fields(explicit_search),
+        # §9 constraint-directed rescue 계측 (mode=off 면 triggered=False)
+        **_constraint_rescue_fields(explicit_search),
+        "context_skipped_due_to_explicit_failure": bool(explicit_blocked),
         "explicit_initial_proposal": (
             None
             if explicit_search is None
@@ -2725,6 +3078,9 @@ def _realize_constrained(
             (plan.occluder or {}).get("side"),
             explicit_side_actual,
         ) if flags["explicit"] and explicit_side_actual is not None else None,
+        # mode semantics 가 realize 안에서(=렌더 전에) 판정할 수 있도록, runner 가
+        # rs["occluder"] 로 유도하던 값을 metrics 에도 같이 남긴다.
+        "explicit_occluder_placed": bool(occ_obj is not None),
         "explicit_occluder_visible_pixels": int(explicit_visible_pixels),
         "explicit_collision_pass": not any(
             occ_obj is not None and occ_obj.name in hit
@@ -2746,6 +3102,14 @@ def _realize_constrained(
         "stage_runtime_s": {
             key: round(float(value), 6) for key, value in stage_runtime.items()
         },
+        # Blender 안에서 실제로 돌린 explicit 배치 탐색 횟수와 저해상도 렌더 횟수.
+        "realization_attempt_count": (
+            0 if explicit_search is None
+            else len(explicit_search.get("search_runs", []))
+        ),
+        "lowres_render_count": int(
+            _LOWRES_RENDER_COUNT - lowres_render_count_start
+        ),
     }
     explicit_requirement_failure = SP2.explicit_requirement_failure(
         flags["explicit"],
@@ -2763,16 +3127,31 @@ def _realize_constrained(
             metrics["explicit_solver_fail_reason"]
             or explicit_requirement_failure
         )
+    # MODE SEMANTICS — "이 프레임이 정말 그 mode 의 내용을 담고 있는가".  최종 RGB 를
+    # 렌더하기 전(=realize 반환 전)에 판정하므로, 의미가 빈 프레임은 렌더 비용을 쓰지
+    # 않고 버려진다.
+    semantics = SP2.mode_semantics_verdict(diagnostic_mode, metrics)
+    metrics["mode_semantics_pass"] = bool(semantics["pass"])
+    metrics["mode_semantics_conditions"] = dict(semantics["conditions"])
+    metrics["mode_semantics_failed_conditions"] = list(
+        semantics["failed_conditions"]
+    )
+    metrics["mode_semantics_unknown_conditions"] = list(
+        semantics["unknown_conditions"]
+    )
+    metrics["mode_semantics_reason"] = semantics["reason"]
     if (
         not collision_ok
         or not camera_ok
         or not overall_support_pass
         or explicit_requirement_failure is not None
+        or not semantics["pass"]
     ):
         metrics["failure_reason"] = (
             explicit_requirement_failure
             or metrics["collision_reject_reason"]
             or ("support_contact" if not overall_support_pass else None)
+            or semantics["reason"]
         )
         return {
             "realize_ok": False,
@@ -2845,6 +3224,53 @@ def _mask_mats():
     return _MASK_MATS["__V2_WHITE"], _MASK_MATS["__V2_BLACK"]
 
 
+#   engine : holdout 마스크(탐색용 저해상도 + 배포용 최종)를 어떤 엔진으로 뽑을지.
+#            기본은 "eevee" — controlled 6케이스 replay 에서 154.6s -> 84.1s (1.84배),
+#            6/6 accepted 판정 동일.  _render_holdout 이 렌더 직전에 모든 재질을
+#            순백/순흑 Emission 으로 갈아끼우고 world=None 이라 알파·투명 경로가 없고,
+#            남는 차이는 경계 래스터화뿐이라 실측 최대 3px(19,729 -> 19,728 / 73,793 ->
+#            73,796, 0.005%) 였다.  "cycles" 는 이전 정본이며 기존 데이터셋과 픽셀
+#            단위로 이어붙일 때 쓴다 (엔진이 다르면 exact-repro 락이 깨진다).
+HOLDOUT_ENGINES = ("cycles", "eevee")
+HOLDOUT_TUNING = {"engine": "eevee"}
+
+
+def set_holdout_engine(engine=None):
+    """holdout 마스크 렌더 엔진을 고른다 (프로세스당 1회, 렌더 시작 전)."""
+    value = "cycles" if engine is None else str(engine)
+    if value not in HOLDOUT_ENGINES:
+        raise ValueError("unknown holdout engine: %r" % (engine,))
+    HOLDOUT_TUNING["engine"] = value
+    return dict(HOLDOUT_TUNING)
+
+
+def _eevee_engine_name():
+    """이 Blender 빌드가 실제로 가진 EEVEE enum 이름 (없으면 None)."""
+    for name in ("BLENDER_EEVEE_NEXT", "BLENDER_EEVEE"):
+        try:
+            bpy.context.scene.render.engine = bpy.context.scene.render.engine
+        except Exception:
+            pass
+        if hasattr(bpy.types, "RenderSettings"):
+            items = [i.identifier for i in
+                     bpy.types.RenderSettings.bl_rna.properties["engine"]
+                     .enum_items]
+            if name in items:
+                return name
+    # enum_items 조회가 불완전한 빌드가 있다 (실측: CYCLES 가 목록에 없어도 동작).
+    # 그 경우 BLENDER_EEVEE 를 시도해 보고 설정이 먹으면 사용한다.
+    scene = bpy.context.scene
+    prev = scene.render.engine
+    try:
+        scene.render.engine = "BLENDER_EEVEE"
+        ok = scene.render.engine == "BLENDER_EEVEE"
+    except Exception:
+        ok = False
+    finally:
+        scene.render.engine = prev
+    return "BLENDER_EEVEE" if ok else None
+
+
 def _render_holdout(scene, pallet_root, path, extra_hide=(), only_white=None):
     """Binary holdout mask: pallet hierarchy=white, else=black, world=black. Occlusion is
     automatic (visible occluders paint black over the pallet). `extra_hide` objects are
@@ -2899,11 +3325,33 @@ def _render_holdout(scene, pallet_root, path, extra_hide=(), only_white=None):
     dbk = scene.cycles.use_denoising
     scene.cycles.samples = 1
     scene.cycles.use_denoising = False
+    # holdout 은 흑백 이진 마스크라 path tracing 이 필요 없다.  EEVEE 로 뽑으면
+    # 같은 픽셀을 2.2~5.4 배 빠르게 얻는다 (실측 15건 diff 0, 씬이 복잡할수록 큼).
+    # **기본은 OFF** — production 동작을 바꾸지 않는다.
+    ebk_engine = scene.render.engine
+    eevee_restore = {}
+    if HOLDOUT_TUNING["engine"] == "eevee":
+        target = _eevee_engine_name()
+        if target is not None:
+            scene.render.engine = target
+            ee = getattr(scene, "eevee", None)
+            if ee is not None:
+                for attr, value in (("taa_render_samples", 1),
+                                    ("use_gtao", False), ("use_ssr", False),
+                                    ("use_soft_shadows", False)):
+                    if hasattr(ee, attr):
+                        eevee_restore[attr] = getattr(ee, attr)
+                        setattr(ee, attr, value)
     scene.render.filepath = path
     scene.render.image_settings.color_mode = "BW"
     try:
         bpy.ops.render.render(write_still=True)
     finally:
+        _ee = getattr(scene, "eevee", None)
+        for attr, value in eevee_restore.items():
+            if _ee is not None:
+                setattr(_ee, attr, value)
+        scene.render.engine = ebk_engine
         scene.cycles.samples = sbk
         scene.cycles.use_denoising = dbk
         scene.render.filepath = fbk
@@ -2938,6 +3386,53 @@ def _mask_area(path):
     return int((arr > 127).sum()), arr
 
 
+# G1.6 탐색 조정값.  프로세스당 CLI 인자로 한 번만 설정하고, 모든 record 에 그대로
+# 기록되므로 어떤 설정으로 만든 프레임인지 사후에 확인할 수 있다.
+#   target_seed_free_cap : 앞 K개 unique target-seed 후보만 예산 면제 (None=무제한)
+#   near_miss_gap_threshold : 이 값 이하의 목표오차 간격만 fine refinement 대상
+#   constraint_rescue_* : G1.7 constraint-directed rescue.  기본은 "off" 이며
+#     production 동작을 바꾸지 않는다 (§5) — benchmark 에서만 "side_g1" 을 준다.
+SEARCH_TUNING = {
+    "target_seed_free_cap": None,
+    "near_miss_gap_threshold": None,
+    "constraint_rescue_mode": SP2.CONSTRAINT_RESCUE_DEFAULT_MODE,
+    "constraint_rescue_beam": SP2.RESCUE_BEAM_MAX,
+    "constraint_rescue_eval_max": SP2.RESCUE_EVAL_MAX_PER_CASE,
+    "constraint_rescue_category_max": SP2.RESCUE_EVAL_MAX_PER_CATEGORY,
+}
+
+
+def set_search_tuning(target_seed_free_cap=None, near_miss_gap_threshold=None,
+                      constraint_rescue_mode=None, constraint_rescue_beam=None,
+                      constraint_rescue_eval_max=None,
+                      constraint_rescue_category_max=None):
+    """탐색 조정값을 설정한다 (프로세스당 1회, 렌더 시작 전)."""
+    SEARCH_TUNING["target_seed_free_cap"] = (
+        None if target_seed_free_cap is None else int(target_seed_free_cap))
+    SEARCH_TUNING["near_miss_gap_threshold"] = (
+        None if near_miss_gap_threshold is None
+        else float(near_miss_gap_threshold))
+    mode = (SP2.CONSTRAINT_RESCUE_DEFAULT_MODE if constraint_rescue_mode is None
+            else str(constraint_rescue_mode))
+    if mode not in SP2.CONSTRAINT_RESCUE_MODES:
+        raise ValueError("unknown constraint_rescue_mode: %r" % (mode,))
+    SEARCH_TUNING["constraint_rescue_mode"] = mode
+    SEARCH_TUNING["constraint_rescue_beam"] = (
+        SP2.RESCUE_BEAM_MAX if constraint_rescue_beam is None
+        else int(constraint_rescue_beam))
+    SEARCH_TUNING["constraint_rescue_eval_max"] = (
+        SP2.RESCUE_EVAL_MAX_PER_CASE if constraint_rescue_eval_max is None
+        else int(constraint_rescue_eval_max))
+    SEARCH_TUNING["constraint_rescue_category_max"] = (
+        SP2.RESCUE_EVAL_MAX_PER_CATEGORY
+        if constraint_rescue_category_max is None
+        else int(constraint_rescue_category_max))
+    return dict(SEARCH_TUNING)
+
+
+_LOWRES_RENDER_COUNT = 0
+
+
 def _lowres_holdout(
     scene,
     pallet_root,
@@ -2946,6 +3441,10 @@ def _lowres_holdout(
     token="mask",
     size=128,
 ):
+    # 저해상도 holdout 이 controlled 파이프라인 비용의 대부분이다 (baseline: 실패
+    # 94건의 explicit 단계 3,118초).  프레임별로 몇 번 돌았는지 세어 record 에 남긴다.
+    global _LOWRES_RENDER_COUNT
+    _LOWRES_RENDER_COUNT += 1
     old_x = scene.render.resolution_x
     old_y = scene.render.resolution_y
     old_pct = scene.render.resolution_percentage
@@ -3166,6 +3665,110 @@ def _measure_front_opening_visibility(rs):
     base["left_opening_visibility"] = None if left is None else round(left, 4)
     base["right_opening_visibility"] = None if right is None else round(right, 4)
     return base
+
+
+def _target_seed_budget_fields(explicit_search):
+    """§3 target-seed 예산 회계를 프레임 단위로 합산해 record 에 남긴다."""
+    if explicit_search is None:
+        return {"target_seed_free_cap": None, "target_seed_unique_count": None,
+                "target_seed_free_used": None, "target_seed_paid_used": None,
+                "target_seed_duplicate_count": None}
+    per_proposal = explicit_search.get("target_seed_budget_all") or []
+    tuning = explicit_search.get("tuning") or {}
+    return {
+        "target_seed_free_cap": tuning.get("target_seed_free_cap"),
+        "target_seed_unique_count": sum(
+            int(entry.get("target_seed_unique_count") or 0)
+            for entry in per_proposal),
+        "target_seed_free_used": sum(
+            int(entry.get("target_seed_free_used") or 0)
+            for entry in per_proposal),
+        "target_seed_paid_used": sum(
+            int(entry.get("target_seed_paid_used") or 0)
+            for entry in per_proposal),
+        "target_seed_duplicate_count": sum(
+            int(entry.get("target_seed_duplicate_count") or 0)
+            for entry in per_proposal),
+    }
+
+
+def _fine_refinement_fields(explicit_search):
+    """§4 near-miss fine refinement 계측 (실행 안 됐으면 triggered=False)."""
+    keys = ("fine_triggered", "fine_trigger_reason", "fine_source_stage",
+            "fine_source_score", "fine_score_margin_before", "fine_eval_count",
+            "fine_best_score", "fine_score_margin_after", "fine_won",
+            "fine_runtime_s", "near_miss_gap_threshold")
+    if explicit_search is None:
+        return {key: None for key in keys}
+    state = explicit_search.get("fine_state") or {}
+    tuning = explicit_search.get("tuning") or {}
+    return {
+        "fine_triggered": bool(state.get("triggered")),
+        "fine_trigger_reason": state.get("trigger_reason"),
+        "fine_source_stage": state.get("source_stage"),
+        "fine_source_score": state.get("source_score"),
+        "fine_score_margin_before": state.get("margin_before"),
+        "fine_eval_count": int(state.get("evals") or 0),
+        "fine_best_score": state.get("best_score"),
+        "fine_score_margin_after": state.get("margin_after"),
+        "fine_won": bool(state.get("won")),
+        "fine_runtime_s": round(float(state.get("runtime_s") or 0.0), 6),
+        "near_miss_gap_threshold": tuning.get("near_miss_gap_threshold"),
+    }
+
+
+RESCUE_RECORD_KEYS = (
+    "rescue_triggered", "rescue_binding_signatures", "rescue_beam_size",
+    "rescue_eval_count", "rescue_duplicate_skips", "rescue_axis_sequence",
+    "rescue_seed_types", "rescue_categories", "rescue_constraint_before",
+    "rescue_constraint_after", "rescue_won", "rescue_runtime_s",
+    "rescue_final_constraint_vector", "constraint_rescue_mode",
+    "constraint_rescue_beam", "constraint_rescue_eval_max",
+    "constraint_rescue_category_max",
+)
+
+
+def _vector_summary(vector):
+    """record 에 넣을 constraint vector 요약 (JSON 직렬화 가능한 값만)."""
+    if not vector:
+        return None
+    keep = ("side_pass", "visibility_margin_px", "target_margin", "G1_margin",
+            "G2_margin", "acceptance_pass_count", "accepted")
+    out = {k: vector.get(k) for k in keep if k in vector}
+    if vector.get("violated") is not None:
+        out["violated"] = list(vector["violated"])
+    return out or None
+
+
+def _constraint_rescue_fields(explicit_search):
+    """§9 constraint-directed rescue 계측 (실행 안 됐으면 triggered=False)."""
+    if explicit_search is None:
+        return {key: None for key in RESCUE_RECORD_KEYS}
+    state = explicit_search.get("rescue_state") or {}
+    tuning = explicit_search.get("tuning") or {}
+    return {
+        "rescue_triggered": bool(state.get("triggered")),
+        "rescue_binding_signatures": list(state.get("binding_signatures") or ()),
+        "rescue_beam_size": int(state.get("beam_size") or 0),
+        "rescue_eval_count": int(state.get("evals") or 0),
+        "rescue_duplicate_skips": int(state.get("duplicate_skips") or 0),
+        "rescue_axis_sequence": list(state.get("axis_sequence") or ()),
+        "rescue_seed_types": list(state.get("seed_types") or ()),
+        "rescue_categories": list(state.get("categories") or ()),
+        "rescue_constraint_before": _vector_summary(
+            state.get("constraint_before")),
+        "rescue_constraint_after": _vector_summary(
+            state.get("constraint_after")),
+        "rescue_won": bool(state.get("won")),
+        "rescue_runtime_s": round(float(state.get("runtime_s") or 0.0), 6),
+        "rescue_final_constraint_vector": _vector_summary(
+            state.get("final_constraint_vector")),
+        "constraint_rescue_mode": tuning.get("constraint_rescue_mode"),
+        "constraint_rescue_beam": tuning.get("constraint_rescue_beam"),
+        "constraint_rescue_eval_max": tuning.get("constraint_rescue_eval_max"),
+        "constraint_rescue_category_max": tuning.get(
+            "constraint_rescue_category_max"),
+    }
 
 
 def _occlusion_side_from_masks(before, after):

@@ -1,0 +1,148 @@
+{
+  "rejected_cases": 43,
+  "rejected_wall_time_s": 2554.7,
+  "wall_field": "replay_wall_s",
+  "gate_A_top2_actionable": {
+    "categories": [
+      "ONE_MISS_SIDE",
+      "ONE_MISS_G1"
+    ],
+    "wall_time_s": 1385.2,
+    "fraction": 0.542206544212223,
+    "pass": true
+  },
+  "gate_B_near_feasible_4of5": {
+    "cases": 26,
+    "wall_time_s": 1803.0,
+    "fraction": 0.7057312155494126,
+    "pass": true
+  },
+  "hard_physical_only": {
+    "cases": 0,
+    "wall_fraction": 0.0
+  },
+  "multi_constraint_no_feasible": {
+    "cases": 11,
+    "wall_fraction": 0.16501601333361515
+  },
+  "budget_exhausted_with_near_feasible": {
+    "cases": 32,
+    "wall_time_s": 2133.2
+  },
+  "actionable_categories": [
+    {
+      "binding_signature": "ONE_MISS_SIDE",
+      "cases": 10,
+      "case_fraction": 0.23255813953488372,
+      "wall_time_s": 734.0,
+      "wall_fraction": 0.2873131027507236,
+      "wall_median_s": 67.3,
+      "wall_p95_s": 170.7,
+      "stage_runtime_s": 716.1,
+      "unique_candidates_median": 55.0,
+      "lowres_render_median": 114.5,
+      "budget_exhausted_cases": 10,
+      "near_feasible_4of5_cases": 10
+    },
+    {
+      "binding_signature": "ONE_MISS_G1",
+      "cases": 10,
+      "case_fraction": 0.23255813953488372,
+      "wall_time_s": 651.2,
+      "wall_fraction": 0.25488639575128014,
+      "wall_median_s": 49.1,
+      "wall_p95_s": 137.0,
+      "stage_runtime_s": 637.4,
+      "unique_candidates_median": 56.5,
+      "lowres_render_median": 107.5,
+      "budget_exhausted_cases": 10,
+      "near_feasible_4of5_cases": 10
+    },
+    {
+      "binding_signature": "ONE_MISS_G2",
+      "cases": 3,
+      "case_fraction": 0.06976744186046512,
+      "wall_time_s": 227.5,
+      "wall_fraction": 0.08904877432042169,
+      "wall_median_s": 67.7,
+      "wall_p95_s": 96.7,
+      "stage_runtime_s": 223.3,
+      "unique_candidates_median": 60,
+      "lowres_render_median": 135.0,
+      "budget_exhausted_cases": 3,
+      "near_feasible_4of5_cases": 3
+    },
+    {
+      "binding_signature": "TWO_MISS_G1_SIDE",
+      "cases": 3,
+      "case_fraction": 0.06976744186046512,
+      "wall_time_s": 180.6,
+      "wall_fraction": 0.07068334777703929,
+      "wall_median_s": 63.8,
+      "wall_p95_s": 71.9,
+      "stage_runtime_s": 177.4,
+      "unique_candidates_median": 55,
+      "lowres_render_median": 132.0,
+      "budget_exhausted_cases": 3,
+      "near_feasible_4of5_cases": 0
+    },
+    {
+      "binding_signature": "ONE_MISS_TARGET",
+      "cases": 2,
+      "case_fraction": 0.046511627906976744,
+      "wall_time_s": 97.0,
+      "wall_fraction": 0.037961112376729424,
+      "wall_median_s": 48.5,
+      "wall_p95_s": 53.4,
+      "stage_runtime_s": 94.6,
+      "unique_candidates_median": 50.0,
+      "lowres_render_median": 62.5,
+      "budget_exhausted_cases": 2,
+      "near_feasible_4of5_cases": 2
+    },
+    {
+      "binding_signature": "TWO_MISS_SIDE_TARGET",
+      "cases": 2,
+      "case_fraction": 0.046511627906976744,
+      "wall_time_s": 89.8,
+      "wall_fraction": 0.03516631398972735,
+      "wall_median_s": 44.9,
+      "wall_p95_s": 72.6,
+      "stage_runtime_s": 88.8,
+      "unique_candidates_median": 26.0,
+      "lowres_render_median": 37.0,
+      "budget_exhausted_cases": 2,
+      "near_feasible_4of5_cases": 0
+    }
+  ],
+  "not_dominated_by_hard_physical": true,
+  "not_dominated_by_no_feasible": true,
+  "RESCUE_READY": true,
+  "savings_ceiling": {
+    "primary_gate_s": 4279.0,
+    "current_total_wall_s": 4754.3,
+    "required_reduction_s": 475.3,
+    "method": "rescue 성공 proposal 이후 proposal 비용 (후보수 비례 배분) [추정]",
+    "strict_near_miss": {
+      "cases": 9,
+      "ceiling_s": 263.8,
+      "reaches_gate": false
+    },
+    "literal_4of5": {
+      "cases": 26,
+      "ceiling_s": 870.0,
+      "reaches_gate": true
+    },
+    "absolute": {
+      "cases": 43,
+      "ceiling_s": 1474.8,
+      "reaches_gate": true
+    },
+    "side_reachability": {
+      "no_measure": 12,
+      "hit": 22,
+      "never": 9
+    },
+    "note": "게이트 통과 != §23 통과. side 구제 성공 여부가 갈림길이며 [미검증]."
+  }
+}

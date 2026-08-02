@@ -1,0 +1,152 @@
+{
+  "correction_notes": [
+    "score_callback 은 reject count 다 — gate 1,722 (count) 로 판정, 시간은 별도.",
+    "K=8 은 per-proposal unique 최대(8)와 같아 unlimited 와 동작 동일 (paid_used=0) -> 효율 변화는 fine refinement 에만 귀속.",
+    "explicit 품질은 legacy accepted 30건 paired 비교 (회복분 제외).",
+    "runtime 은 77건 전체 (회복분 최종 렌더 비용 포함, 356 s)."
+  ],
+  "G1P6_ACCEPTED_RECALL_PASS": true,
+  "G1P6_EXPLICIT_QUALITY_PASS": true,
+  "G1P6_POST_CONTEXT_PASS": true,
+  "G1P6_LOCKED_EFFICIENCY_PASS": false,
+  "G1P6_LOCKED_PASS": false,
+  "G2C_MIXED100_PASS": "NOT_RUN",
+  "G3_REPRODUCIBILITY_PASS": "NOT_RUN",
+  "READY_FOR_NEW_500_PILOT": false,
+  "gates": {
+    "quality_paired_legacy30": {
+      "accepted_recall": {
+        "value": "30/30",
+        "pass": true
+      },
+      "metrics_available": {
+        "value": "30/30",
+        "pass": true
+      },
+      "explicit_visible_gt0": {
+        "value": "30/30",
+        "pass": true
+      },
+      "side_match": {
+        "value": "30/30",
+        "pass": true
+      },
+      "abs_error_median_within_plus_0.01": {
+        "value": "0.0360 <= 0.0460 (paired baseline 0.0360)",
+        "pass": true
+      },
+      "abs_error_p95_within_plus_0.02": {
+        "value": "0.1139 <= 0.1339 (paired baseline 0.1139)",
+        "pass": true
+      }
+    },
+    "efficiency_all77": {
+      "total_runtime_le_4518": {
+        "value": "4642 s (baseline 5020 s, -7.5%)",
+        "pass": false
+      },
+      "score_callback_reject_count_le_1722": {
+        "value": "2058 (baseline 2026)",
+        "pass": false
+      },
+      "accepted_median_runtime_within_plus_10pct": {
+        "value": "45.6 s <= 50.3 s",
+        "pass": true
+      },
+      "failed_context_waste_le_40": {
+        "value": "31.5 s",
+        "pass": true
+      },
+      "candidate_budget_not_increased": {
+        "value": "상한 무변경 · 누적 소진 434 -> 428",
+        "pass": true
+      }
+    }
+  },
+  "paired_quality": {
+    "baseline": {
+      "n": 30,
+      "min": 0.001571651211764613,
+      "median": 0.03596831537902992,
+      "p95": 0.11394467089924262,
+      "max": 0.11604323164489044,
+      "mean": 0.046465914374879964
+    },
+    "new": {
+      "n": 30,
+      "min": 0.001571651211764613,
+      "median": 0.03596831537902992,
+      "p95": 0.11394467089924262,
+      "max": 0.11604323164489044,
+      "mean": 0.04624220072834752
+    },
+    "changed_cases": [
+      18
+    ],
+    "delta_mean": -0.00022371364653243862,
+    "delta_max": 0.0
+  },
+  "totals_baseline": {
+    "cases": 77,
+    "accepted": 31,
+    "total_runtime_s": 5019.5,
+    "accepted_runtime_s": 2127.0,
+    "rejected_runtime_s": 2892.5,
+    "accepted_median_runtime_s": 45.7,
+    "explicit_stage_runtime_s": 3495.7,
+    "context_stage_runtime_s": 939.4,
+    "failed_context_waste_s": 31.8,
+    "fine_runtime_s": 0.0,
+    "score_callback_reject_count": 2026,
+    "candidate_budget_exhausted": 434,
+    "fine_triggered": 0,
+    "fine_evals": 0,
+    "fine_won": 0,
+    "target_seed_free_used": 0,
+    "target_seed_paid_used": 0,
+    "winning_stages": {
+      "target-seed": 21,
+      "preprobe": 3,
+      "primary": 2,
+      "gate-overlap-refine": 3,
+      "corner-contact-refine": 2
+    }
+  },
+  "totals_new": {
+    "cases": 77,
+    "accepted": 34,
+    "total_runtime_s": 4641.6,
+    "accepted_runtime_s": 2149.4,
+    "rejected_runtime_s": 2492.2,
+    "accepted_median_runtime_s": 45.6,
+    "explicit_stage_runtime_s": 3191.2,
+    "context_stage_runtime_s": 916.1,
+    "failed_context_waste_s": 31.5,
+    "fine_runtime_s": 61.2,
+    "score_callback_reject_count": 2058,
+    "candidate_budget_exhausted": 428,
+    "fine_triggered": 8,
+    "fine_evals": 50,
+    "fine_won": 4,
+    "target_seed_free_used": 1050,
+    "target_seed_paid_used": 0,
+    "winning_stages": {
+      "target-seed": 21,
+      "fine": 4,
+      "primary": 2,
+      "gate-overlap-refine": 3,
+      "corner-contact-refine": 2,
+      "preprobe": 2
+    }
+  },
+  "recovered": {
+    "ids": [
+      29,
+      80,
+      136,
+      183
+    ],
+    "new_runtime_s": 356.3,
+    "old_runtime_s": 295.2
+  }
+}

@@ -1,0 +1,23 @@
+# run_v2_scene_logic.py — 실제 parser 옵션 (소스에서 추출)
+# scripts/data_prep/blender/run_v2_scene_logic.py
+
+--out                              default="data/pallet/runs/diagnostics/_v2_scene_logic_500_seed7500"
+--seed                             type=int · default=7500
+--n                                type=int · default=500
+--completion-mode                  choices=COMPLETION_MODES · default="records"
+--max-attempts                     type=int · default=None
+--magenta-max-fraction             type=float · default=DEFAULT_MAGENTA_MAX_FRACTION
+--start                            type=int · default=0
+--count                            type=int · default=100
+--samples                          type=int · default=None
+--render-profile                   choices=tuple(vr.RENDER_PROFILES) · default=vr.DEFAULT_RENDER_PROFILE
+--noise-tier                       choices=("auto" · default="auto"
+--mask-profile                     choices=MP.MASK_PROFILES · default=MP.DEFAULT_MASK_PROFILE
+--target-seed-free-cap             type=int · default=None
+--near-miss-gap-threshold          type=float · default=None
+--constraint-rescue-mode           choices=SP2.CONSTRAINT_RESCUE_MODES · default=SP2.CONSTRAINT_RESCUE_DEFAULT_MODE
+--constraint-rescue-beam           type=int · default=SP2.RESCUE_BEAM_MAX
+--constraint-rescue-eval-max       type=int · default=SP2.RESCUE_EVAL_MAX_PER_CASE
+--constraint-rescue-category-max   type=int · default=SP2.RESCUE_EVAL_MAX_PER_CATEGORY
+--session-usable-cap               type=int · default=None
+--rerun-failures                   action=store_true

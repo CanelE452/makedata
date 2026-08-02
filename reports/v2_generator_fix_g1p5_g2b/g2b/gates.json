@@ -1,0 +1,200 @@
+{
+  "quality": {
+    "baseline_source": "locked replay (old accepted 30, 현재 코드로 재실행)",
+    "baseline_n": 30,
+    "new_n": 30,
+    "side_match": {
+      "baseline": 30,
+      "new": 30
+    },
+    "explicit_visible_gt0": {
+      "baseline": 30,
+      "new": 30
+    },
+    "metrics_available": {
+      "baseline": 30,
+      "new": 30
+    },
+    "explicit_visible_pixels": {
+      "baseline": {
+        "n": 30,
+        "min": 193.0,
+        "median": 895.0,
+        "p95": 11123.0,
+        "max": 12513.0,
+        "mean": 2748.4
+      },
+      "new": {
+        "n": 30,
+        "min": 193.0,
+        "median": 829.0,
+        "p95": 11123.0,
+        "max": 12513.0,
+        "mean": 2686.3333333333335
+      }
+    },
+    "f_explicit_target": {
+      "baseline": {
+        "n": 30,
+        "min": 0.10291382724138247,
+        "median": 0.2577233925098761,
+        "p95": 0.43973900871519656,
+        "max": 0.4495132565574447,
+        "mean": 0.2689835007368531
+      },
+      "new": {
+        "n": 30,
+        "min": 0.10291382724138247,
+        "median": 0.27312834436863037,
+        "p95": 0.43973900871519656,
+        "max": 0.4495132565574447,
+        "mean": 0.2747432801780412
+      }
+    },
+    "f_explicit_actual_lowres": {
+      "baseline": {
+        "n": 30,
+        "min": 0.02275960170697013,
+        "median": 0.22344827586206897,
+        "p95": 0.3848009650180941,
+        "max": 0.3869209809264305,
+        "mean": 0.23607125919026575
+      },
+      "new": {
+        "n": 30,
+        "min": 0.02275960170697013,
+        "median": 0.2607502287282708,
+        "p95": 0.3848009650180941,
+        "max": 0.3869209809264305,
+        "mean": 0.23858149274596185
+      }
+    },
+    "explicit_abs_error_lowres": {
+      "baseline": {
+        "n": 30,
+        "min": 0.001571651211764613,
+        "median": 0.03747784807828797,
+        "p95": 0.11394467089924262,
+        "max": 0.11604323164489044,
+        "mean": 0.046465914374879964
+      },
+      "new": {
+        "n": 30,
+        "min": 0.001571651211764613,
+        "median": 0.043422703671683854,
+        "p95": 0.11394467089924262,
+        "max": 0.11604323164489044,
+        "mean": 0.04843434393642296
+      }
+    },
+    "centroid_error_px_lowres": {
+      "baseline": {
+        "n": 30,
+        "min": 3.964825129976359,
+        "median": 14.845285003490531,
+        "p95": 44.7067571628996,
+        "max": 49.34177925544993,
+        "mean": 16.694804387189844
+      },
+      "new": {
+        "n": 30,
+        "min": 3.964825129976359,
+        "median": 13.069049393051555,
+        "p95": 44.7067571628996,
+        "max": 49.34177925544993,
+        "mean": 16.31939929297369
+      }
+    },
+    "gates": {
+      "side_match_all": true,
+      "explicit_visible_all": true,
+      "metrics_available_all": true,
+      "median_within_baseline_plus_0.01": true,
+      "p95_within_baseline_plus_0.02": true,
+      "all_pass": true
+    }
+  },
+  "efficiency": {
+    "A_usable_over_proposals": {
+      "old": 0.20833333333333334,
+      "new": 0.24390243902439024,
+      "old_ci95": [
+        0.15001005766064063,
+        0.28181427324486913
+      ],
+      "new_ci95": [
+        0.17652266116613055,
+        0.3267948624223452
+      ],
+      "old_counts": [
+        30,
+        144
+      ],
+      "new_counts": [
+        30,
+        123
+      ]
+    },
+    "B_usable_over_blender_attempts": {
+      "old": 0.38961038961038963,
+      "new": 0.4411764705882353,
+      "old_counts": [
+        30,
+        77
+      ],
+      "new_counts": [
+        30,
+        68
+      ]
+    },
+    "C_expensive_share": {
+      "old": 0.5053763440860215,
+      "new": 0.4810126582278481,
+      "old_ci95": [
+        0.40558333097011484,
+        0.6047428098619243
+      ],
+      "new_ci95": [
+        0.3742954498192782,
+        0.5894908604403015
+      ],
+      "old_counts": [
+        47,
+        93
+      ],
+      "new_counts": [
+        38,
+        79
+      ]
+    },
+    "D_total_blender_time_s": {
+      "old": 4949.1,
+      "new": 4241.2
+    },
+    "E_context_before_explicit_waste_s": {
+      "old": 1151.0,
+      "new": 44.4
+    },
+    "F_score_callback_rejects": {
+      "old": 1338,
+      "new": 1723
+    },
+    "G_wall_time_per_usable_controlled_s": {
+      "old": 164.97054715156554,
+      "new": 141.3754447142283
+    },
+    "runtime_ratio": {
+      "old": 1.7782526601118993,
+      "new": 1.330305421927326
+    },
+    "gates": {
+      "A_improved": true,
+      "C_improved": true,
+      "ratio_improved": true,
+      "A_strong_ge_35": false,
+      "C_strong_le_30": false,
+      "ratio_strong_le_1": false,
+      "strong_all": false
+    }
+  }
+}

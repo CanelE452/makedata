@@ -1,0 +1,6 @@
+gate,value,pass
+total_runtime_le_4518,"4642 s (baseline 5020 s, -7.5%)",False
+score_callback_reject_count_le_1722,2058 (baseline 2026),False
+accepted_median_runtime_within_plus_10pct,45.6 s <= 50.3 s,True
+failed_context_waste_le_40,31.5 s,True
+candidate_budget_not_increased,상한 무변경 · 누적 소진 434 -> 428,True

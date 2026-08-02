@@ -1,0 +1,25 @@
+metric,value
+usable,30
+all_proposals,123
+yield_all_proposals,0.24390243902439024
+yield_all_proposals_ci95,"[0.17652266116613055, 0.3267948624223452]"
+mode_filter_skips,44
+solve_rejects,1
+prefilter_exhausted_rejects,10
+attempts_excluding_mode_filter,79
+yield_attempts_excluding_mode_filter,0.379746835443038
+expensive_reject_share_excluding_mode_filter,0.4810126582278481
+blender_attempts,68
+yield_blender_attempts,0.4411764705882353
+yield_blender_attempts_ci95,"[0.329460449863809, 0.5591834556171379]"
+expensive_rejects,38
+expensive_reject_share_blender,0.5588235294117647
+reject_runtime_s,2421.2
+accepted_runtime_s,1820.0
+reject_over_accepted_runtime,1.330305421927326
+wall_time_per_usable_controlled_s,141.3754447142283
+stage_counts,"{""render"": 48, ""mode_filter"": 44, ""solve"": 1}"
+primary_reject_reason_counts,"{""usable_reject:rendered|usable_reject:realize_ok|mode_semantics:explicit_occluder_not_visible"": 46, ""proposal_skip:mode_requires_explicit_occluder"": 44, ""solve_reject:d_occ_fail"": 1, ""gate_fail:G3"": 2}"
+prefilter_reject_count_total,2041
+candidates_before_prefilter_total,5872
+candidates_after_prefilter_total,3831

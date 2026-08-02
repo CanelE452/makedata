@@ -1,0 +1,2723 @@
+diff --git a/_docs/history/.last-compact-resume.md b/_docs/history/.last-compact-resume.md
+index c924e33..2387746 100644
+--- a/_docs/history/.last-compact-resume.md
++++ b/_docs/history/.last-compact-resume.md
+@@ -1,11 +1,11 @@
+ # Last Compact Resume Context
+ 
+-Compact 시각: 2026-07-25 10:11:47
+-Trigger: auto
++Compact 시각: 2026-08-01 01:51:47
++Trigger: manual
+ Working directory: /e/CODING/GitHub/FoundationPose
+ 
+ ## 복원 안내
+ 
+-이전 세션이 compact되었습니다. `_docs/history/2026-07-25.md` 하단에서
+-"⚠️  Auto Compact (컨텍스트 한계 도달)" 마커 **위쪽**의 작업 내역을 확인하고 이어서 진행하세요.
++이전 세션이 compact되었습니다. `_docs/history/2026-08-01.md` 하단에서
++"Manual Compact (사용자 실행)" 마커 **위쪽**의 작업 내역을 확인하고 이어서 진행하세요.
+ 추가로 프로젝트 `memory/MEMORY.md` 및 관련 메모리 파일을 읽으면 완전한 맥락을 얻을 수 있습니다.
+diff --git a/_docs/history/2026-08-01.md b/_docs/history/2026-08-01.md
+index 857606f..f5c387c 100644
+--- a/_docs/history/2026-08-01.md
++++ b/_docs/history/2026-08-01.md
+@@ -210,3 +210,526 @@ sampler·gate·elevation bin·projected-size bin·거리 상한·f_target 분포
+    (d) usable gate 에 "그 모드의 물체가 실제로 놓였는가" 조건 추가 여부 검토
+ 2. 수정 후 같은 seed 로 재렌더해 이 1,449장과 비교 (baseline 으로 보존)
+ 3. 그 뒤에 §10~20 (replay probe · Figure · 최종 보고서)
++
++## [01:51:47] Manual Compact (사용자 실행)
++
++- Working directory: `/e/CODING/GitHub/FoundationPose`
++- Trigger: `manual`
++- Session ID: `3266d86f-94b3-40f9-a657-60e290fc1ee2`
++- Transcript: `C:\Users\User\.claude\projects\E--CODING-GitHub-FoundationPose\3266d86f-94b3-40f9-a657-60e290fc1ee2.jsonl`
++- Note: 사용자가 명시적으로 /compact 실행 — 작업 단위가 마무리된 시점일 가능성 높음
++
++**TODO (session resume)**: compact 이후 이 마커 위쪽의 작업 내역을 확인하고 이어서 진행
++
++
++---
++
++# v2 generator 수정 Phase G1–G3 (mode semantics + controlled 효율)
++
++지시서 §0~§28. **commit 0 · push 0 · baseline 1,449장 무변경.**
++전체 보고서: `reports/v2_generator_fix_g1_g3/final_report.md`
++
++## 0. 판정 요약
++
++```
++G1_MODE_SEMANTICS_COMPLETE          true
++G1_CONTROLLED_EFFICIENCY_COMPLETE   false   (G2 수율 20.8% < 35%)
++G2_MIXED100_PASS                    false   (§16 효율 게이트 3개 미달)
++G3_REPRODUCIBILITY_PASS             NOT_RUN (§18 에 따라 미실행)
++READY_FOR_NEW_PILOT                 false
++```
++
++의미가 빈 프레임 문제는 **해결**(mixed100 semantics 100/100). 남은 것은 효율이다.
++
++## 1. ★ 이전 진단 정정 2건
++
++1. "`realize_occluder` 는 렌더를 마친 뒤 판정한다" → **틀렸다.** 비싼 reject 94건은
++   `rendered=False` 로 RGB 를 한 장도 만들지 않았다. 비용은 Blender 안 저해상도
++   탐색(explicit 3,118초) + 그 앞의 context 배치(1,424초)다.
++   근거: `reports/v2_generator_fix_g1_g3/g1/controlled_failure_matrix.md`
++2. "controlled target 오차 median −0.003" → **explicit solver 정확도가 아니다.**
++   `f_total_from_mask − f_target` 이었고 f_total 에는 cargo/context/static 이 섞인다.
++   `f_explicit_actual` 은 baseline 49건도 신규 30건도 전부 None (public 프로필은
++   마스크 분해 불가). §15 정확도 게이트는 **BLOCKED** 로 보고했다.
++
++## 2. Phase G1 — 코드 수정 (렌더 없음)
++
++| 항목 | 파일 | 내용 |
++|---|---|---|
++| §3 mode interleave | `run_v2_scene_logic.py` | `USABLE_MODE_CYCLE=(0,1,2,3,2,3,0,1,2,3)`, `usable_diagnostic_modes()` 가 10장 주기 2/2/3/3. 총량은 기존 largest-remainder 그대로. records mode(20/500) 무변경 |
++| §4 cargo 자체 가시성 | `v2_realize.py` cargo 단계 | context 와 같은 `_lowres_holdout(only_white=...)` 재사용. 신규 필드 `n_cargo_visible` `cargo_visible_pixels` `cargo_visible_pixel_ratio` `cargo_visibility_measured`. 임시 PNG 는 finally 에서 삭제 → public 스키마 불변 |
++| §5 context fallback | `scene_placement_v2.image_space_context_poses()` | 저앙각에서 후보 전멸(기각 64% `camera_distance_out_of_band`, 22% `ray_up`). 같은 물리 제약 유지한 ground-ring fallback 추가, 1차 sampler 성공 시 미발동 |
++| §6 controlled fallback 제거 | `run_v2_scene_logic.run_usable()` | `CONTROLLED_MODE_MAX_SKIPS` 초과 시 `f_target=0` plan 을 렌더하던 경로 삭제, 명시적 `stop_reason` 으로 대체 |
++| §7 prefilter | `scene_placement_v2.controlled_prefilter_reason()` + `v2_pipeline.prepare_diagnostic_explicit_occluders(prefilter=True)` | 계획 기하만 쓰는 결정적 규칙 5개. nonce pool 을 6개 선정 **전에** 거른다 |
++| §8 계측 | `v2_realize.py` `run_v2_scene_logic.py` | `proposal_prepare_s` `candidates_before/after_prefilter` `prefilter_reject_count(_by_reason)` `realization_attempt_count` `lowres_render_count` |
++| §9 mode gate | `scene_placement_v2.mode_semantics_verdict()` | realize 안(렌더 전 `realize_ok=False`) + `usable_conditions`(최종 record) 이중 강제. None 은 통과 아님 |
++| §10 record/manifest | `run_v2_scene_logic.py` | records/rejected/manifest 에 16개 필드 추가 |
++
++### prefilter 규칙과 근거
++
++```
++side_geometry_infeasible      side=center                baseline 30회 시도 0회 성공
++floor_support_infeasible      bottom/높이 ∉[-0.60,1.90]  winner 범위 -0.535~1.751
++fill_ratio_too_low            fill < 0.45                winner 최소 0.480
++insufficient_projected_area   실루엣/A_target < 1.15      winner 최소 1.192
++                              실루엣/A_pallet > 22.0      winner 최대 19.92
++position_band_infeasible      band 밖                     기존 solver 제약 재확인
++```
++
++recall 실측: **accepted 49건의 승리 후보 49/49 보존**, accepted 프레임 탈락 0,
++비싼 실패 프레임 12/94 조기 배제, 후보 pool 29,725 → 20,013.
++회귀 픽스처 `tests/fixtures/controlled_prefilter_winners.json` 로 고정.
++
++### 신규 도구 (전부 CLI 인자, 하드코딩 경로 없음)
++
++```
++audit_v2_controlled_prefilter.py   baseline recall replay
++audit_v2_mode_semantics.py         mode semantics · 효율 · 무결성 전수 감사
++audit_v2_bpyfree_determinism.py    §20 bpy-free 결정성
++audit_v2_dataset_quality_probe.py  §23 same-machine replay
++build_v2_overlay_review.py         canonical overlay 전수 + contact sheet + 극단 사례
++```
++
++### 회귀
++
++```
++unit 865 passed (802 → 신규 63) skip 0 fail 0 · integration 31 · golden 51
++registry ok=28 missing=0 · active scene 8cb4109a 불변
++5k FrameSpec 938f387d 불변 · 5k proposal 3cd365ee 4,439 12/12 불변
++```
++
++## 3. Phase G2 — 100장 mixed-mode public smoke
++
++출력 `data/pallet/runs/diagnostics/v2_mode_semantics_smoke100_seed7000_public`
++seed 7000 · dataset-quality · samples 64 · **mask public** · magenta 0.0 · Blender 1개.
++세션 2회(10 + 90) 둘 다 exit 0, `usable_delivered=100` `complete=True`
++`render_attempts=162` `proposals_drawn=226`.
++
++### 통과
++
++```
++mode 배분            20/20/30/30 정확 · 10장 블록 위반 0
++mode semantics       100/100
++  cargo-only         placed 20/20 · visible px>0 20/20
++  context-rich       visible 30/30 · attempts=0  0/30   (baseline 39/600 → 0)
++  controlled         placed 30/30 · visible 30/30 · side match 30/30
++무결성                missing/dup/corrupt/empty/subset위반/magenta/>10m/invalid/gate 전부 0
++                     reproj max 4.55e-13 px
++public mask          amodal 100 · visible 100 · M1~M3 0 · 임시 마스크 잔존 0
++```
++
++### 미달 (§16 효율 게이트 3개 전부)
++
++```
++지표                                    baseline   mixed100   기준     판정
++A usable / 전체 proposal                 17.6%      20.8%     >=35%   FAIL
++C 비싼 reject / attempt(mode filter 제외) 54.4%      50.5%     <=30%   FAIL
++runtime reject/accepted                  2.02       1.78      <=1.0   FAIL
++usable controlled 1장당 실효 wall time    154.9 s    165.0 s
++```
++
++세 지표 모두 baseline 보다 개선됐지만 목표에는 못 미쳤다.
++
++### 원인 (비싼 실패 47건 전수 분해)
++
++```
++bounded search 후보 기각 사유 (누적 2,114회)
++   score_callback              1,032   48.8%   ← 놓을 수는 있으나 목표 가림률 미달
++   candidate_budget_exhausted    486   23.0%
++   support                       378   17.9%
++   camera_clearance              129    6.1%
++   collision                      89    4.2%
++
++실패 vs 성공 (pre-realize)
++   projected_size   실패 med 0.300 p95 0.901  |  성공 med 0.160 p95 0.528
++   camera_distance  실패 med 2.58 m           |  성공 med 4.97 m
++   candidates_after_prefilter  실패 128 / 성공 123   ← 후보 부족이 아니다
++   realization_attempts        실패 med 20(상한 21) / 성공 med 4
++```
++
++투영 크기가 큰(카메라가 가까운) 프레임이 실패한다. A_target 이 커져 접지된 occluder 로
++그 면적만 정확히 덮으면서 팔레트를 삼키지도 충돌하지도 않는 배치가 사실상 없다.
++계획 기하로 예측 가능한 실패가 아니라 **prefilter 로 더 줄일 수 없고**, 투영 크기로
++프레임을 거르는 것은 금지(분포 변경)다.
++
++⚠️ interleave 로 controlled 슬롯에 걸리는 proposal 자체가 달라졌다(baseline 은
++proposal 1,900~2,180, 신규는 0~226). 단계 runtime 차이를 코드 변경 탓으로만 돌리면 안 된다.
++
++## 4. Phase G3 — 미실행
++
++§18 에 따라 실행하지 않음. 사유와 준비된 도구는 `g3/NOT_RUN.md`.
++
++## 5. 다음 TODO
++
++1. 탐색 초기화를 `explicit_target_mask_stats`(목표 측면 마스크 bbox/centroid)로 시드해
++   `score_callback` 실패(48.8%)를 줄인다 — 남은 병목의 정면 공격.
++2. explicit 탐색을 context 배치 **앞으로** 옮겨 실패 시 context 비용(median 21초)을
++   물지 않게 한다 (runtime ratio 게이트에 직접 효과).
++3. 저해상도 `explicit_actual`/`explicit_error` 를 record 에 남겨 public 프로필에서도
++   §15 f_target 정확도 게이트를 계산 가능하게 한다.
++4. 위 3건 후 G2 재실행 → 통과 시 G3(재현성) → 그 뒤에야 500/2k.
++
++---
++
++# v2 controlled solver 개선 Phase G1.5 / G2b
++
++지시서 §0~§15. **commit 0 · push 0 · baseline 1,449 및 smoke100 무변경(SHA256 확인).**
++전체 보고서: `reports/v2_generator_fix_g1p5_g2b/final_report.md`
++
++## 0. 판정 요약
++
++```
++G1P5_EXPLICIT_METRICS_COMPLETE   true    replay 31/31 · smoke100b 30/30
++G1P5_ACCEPTED_RECALL_PASS        true    locked replay 30/30 (+ 회복 1)
++G1P5_QUALITY_PASS                true
++G1P5_RUNTIME_TARGET(-50%)        missed  +1.4% (locked 77건)
++G2B_SEMANTICS / INTEGRITY / OVERLAY / QUALITY   전부 PASS
++G2B_EFFICIENCY                   PARTIAL runtime 계열 개선 · 비율 계열 유의성 미확보
++G2B_MIXED100_PASS                false   §12 강한 기준 3개 미달
++READY_FOR_NEW_PILOT              false
++```
++
++## 1. §2 explicit 저해상도 품질 지표 — BLOCKED 해소
++
++public 프로필은 M1~M3 를 저장하지 않아 마스크 분해로 `f_explicit` 을 못 얻는다.
++직전 단계에서 controlled 품질 게이트가 그래서 BLOCKED 였다. 탐색이 **이미 찍는**
++holdout 두 장(`explicit_before_mask` / `final_mask`)의 **차집합**에서 숫자만 뽑아 해결.
++새 마스크 렌더 0 · 파일 저장 0 · public 스키마 무변경.
++
++신규 필드 11: `explicit_metrics_available` `explicit_target_pixels`
++`explicit_actual_pixels_lowres` `f_explicit_actual_lowres` `explicit_abs_error_lowres`
++`explicit_target_centroid_u/v` `explicit_actual_centroid_u/v_lowres`
++`explicit_target_bbox_u0v0u1v1` `explicit_actual_bbox_u0v0u1v1_lowres`.
++순수 함수 `scene_placement_v2.explicit_lowres_metrics()` 로 분리(bpy 없이 테스트).
++`f_total` 은 입력·출력 어디에도 없다 — 테스트로 고정.
++
++## 2. §3 controlled 단계 재배열
++
++```
++before  cargo -> context -> explicit 탐색   (실패 시 context 비용 전액 낭비)
++after   cargo -> explicit_prep -> explicit 탐색 -> (성공 시) context
++```
++
++`explicit_blocked` 이면 context 를 아예 시도하지 않는다. 부수 정합성 4건:
++explicit baseline 에서 context 제거 / context 예산 측정 시 배치된 occluder 를
++`extra_hide` / swept 예약 대신 실제 배치 occluder 를 static 으로 / `stage_runtime_s` 에
++`explicit_prep` 분리.
++
++### ★ 재배열이 만든 회귀 1건 (1차 replay 20건에서 검출)
++
++`explicit_corner_reserve_pass` 는 배치 **전** 예약 계약(`ext_occ<=1`)이다. occluder 를
++먼저 놓자 **가리는 것이 본업인** 그 물체 때문에 조건이 깨져 context 후보가 전멸했다.
++
++```
++accepted 경로 context median  14.0 s -> 224.9 s (16배)
++저해상도 렌더 median            52 -> 351
++```
++
++배치 **후** 기준 `context_corner_no_regression(metrics, post_explicit)` 로 교체
++(V_inframe·V_vis 감소 없음 + ext_occ 증가 없음). explicit 이 없는 mode 는 기존 계약 그대로.
++게이트를 없앤 것이 아니라 의미를 맞춘 것 — 테스트 6개로 고정("예약 계약은 배치된
++occluder 를 거부한다"는 사실 자체를 테스트에 박음).
++
++## 3. §4 target-mask-conditioned seed
++
++목표 마스크 통계로 만드는 해석적 정렬을 `target-seed` 로 **preprobe 바로 다음**에 배치.
++같은 offset 을 뒤에서 계산하던 구 `prealign` 은 중복이라 제거. 계측 7종 추가.
++
++```
++승리 stage           구 smoke100(30)   locked replay(31)
++target-seed/prealign      16                21
++gate-overlap-refine        7                 3
++corner-contact-refine      3                 2
++```
++
++## 4. §5 locked controlled benchmark (77건 고정 입력)
++
++`build_controlled_case_lock.py`(입력 고정) · `replay_controlled_cases.py`(Blender 재실행) ·
++`audit_controlled_replay.py`(before/after) 3종 신규.
++
++```
++accepted recall              30 / 30    PASS
++expensive reject 에서 회복    1 건
++explicit_metrics_available   31 / 31
++side match                   31 / 31
++abs error (lowres)           med 0.0375 · p95 0.1139
++total Blender time           4,949 s -> 5,020 s  (+1.4%)
++실패 프레임 context 낭비      1,151 s ->    32 s  (-97%)
++```
++
++### ★ recall vs runtime — replay 3회로 확정한 트레이드오프
++
++```
++구성                                      recall   total time   context 낭비
++(1) target-seed 추가 + 구 prealign 유지     28/30    -23.3%       1,151 -> 31 s
++(2) 구 prealign 제거(중복)                  28/30    -22.1%       1,151 -> 32 s
++(3) target-seed 를 예산에서 제외  ★채택      30/30     +1.4%       1,151 -> 32 s
++```
++
++(1)(2)에서 잃은 2건(proposal 113·166)은 둘 다 `candidate_budget_exhausted`.
++`target-seed` 를 앞으로 옮기며 proposal 당 후보 예산을 먼저 먹어, 예전에 gate-overlap /
++corner-contact 로 살아나던 프레임이 죽은 것. 구 파이프라인도 **같은 offset 을 같은
++빈도로** 시도했으므로(위치만 뒤) 해석적 seed 를 예산 회계에서 빼는 것은 원상 복구다.
++§5 가 "미달이어도 recall 우선"이라 (3)을 채택.
++
++## 5. §7~14 G2b mixed100b
++
++출력 `data/pallet/runs/diagnostics/v2_mode_semantics_smoke100b_seed7000_public`
++(신규 디렉토리, 덮어쓰기 0). seed 7000 · dataset-quality · samples 64 · mask public ·
++세션 2회 exit 0 · delivered 100 · complete True · render_attempts 147 · proposals 201.
++
++```
++mode 배분        20/20/30/30 정확 · 10장 블록 위반 0
++semantics        100/100  (controlled metrics_available 30/30)
++무결성            missing/dup/corrupt/empty/subset/magenta/>10m/invalid/gate 전부 0
++                 reproj max 4.55e-13 px · _incomplete_attempts 0
++overlay          100/100 · 크기==해당 RGB 100 · 정보패널 100 · 축범례 100 · 실패 0
++품질(§11)         side match 30/30 · metrics 30/30 ·
++                 abs_err med 0.0375->0.0434(+0.01 이내) · p95 0.1139->0.1139(+0.02 이내)
++```
++
++### 효율(§12) — PARTIAL
++
++```
++지표                          구 smoke100   smoke100b   강한 기준
++A usable / 전체 proposal        20.8%        24.4%      >=35%   미달
++C 비싼 reject / attempt         50.5%        48.1%      <=30%   미달
++runtime reject/accepted          1.78         1.33      <=1.0   미달
++D controlled 총 시간           4,949 s      4,241 s     —      -14.3%
++E context-before-explicit 낭비 1,151 s         44 s     —      -96.1%  ★
++F score_callback reject         1,338        1,723      —      +28.8%
++G usable 1장당 wall time        165.0 s      141.4 s    —      -14.3%
++```
++
++A(+3.6pt)·C(-2.4pt)는 방향은 맞지만 **95% CI 가 크게 겹쳐**(A 0.150~0.282 -> 0.177~0.327,
++C 0.406~0.605 -> 0.374~0.589) 유의하다고 말할 수 없다. runtime 계열은 합계라 그 문제가
++없고 폭도 크다. F 증가는 recall 을 지키려 예산 면제를 준 대가다.
++
++## 6. ★ overlay 해상도 전제 정정
++
++지시서 §8/§13 은 "640x480 원본 크기"라 했지만 이 generator 는 **프레임마다 해상도가
++다르다**(aspect 랜덤화). smoke100b 실측 `640x480 48 · 720x480 17 · 960x540 27 ·
++560x560 8`. 640x480 고정은 52%를 리사이즈하는 것이라 같은 문장의 "원본 크기"와 모순.
++→ **native 해상도**로 만들고 감사 항목을 "overlay 크기 == 그 프레임 RGB 크기"로 변경.
++
++overlay 는 데이터셋(`…/overlay/`)과 보고서(`g2b/overlay_review/all/`) 두 곳에 100장씩.
++정본 `draw_archive_style_overlay()`+`archive_metadata()` 만 사용, usable 확정 **후**
++후처리 생성이라 generator semantics 무영향.
++
++## 7. 검증
++
++```
++unit 865 -> 888 passed (skip 0 fail 0) · integration 31 · golden 51 · registry ok=28
++5k FrameSpec 938f387d 불변 · 5k proposal 3cd365ee 4,439 12/12 불변
++active scene 8cb4109a 불변
++baseline 1,449 records.jsonl SHA256 불변 · smoke100 records.jsonl SHA256 불변
++```
++
++## 8. 남은 병목과 다음 TODO
++
++`score_callback` 이 여전히 실패의 주 사유(누적 1,723)이고 투영 크기가 큰 프레임에
++몰려 있다. 투영 크기로 프레임을 거르는 것은 분포 변경이라 금지.
++
++1. **target-seed 예산 면제를 상한 있는 허용치로** — 후보 수 median 16 · max 24 인데
++   보호가 필요했던 두 프레임은 8개만 썼다. 상한을 두면 recall 을 지키면서 F(+28.8%)와
++   총시간을 되찾을 여지. (replay 1회 ≈ 66분)
++2. **fine feedback 활성화** — 현재 `fine_eval_count` 가 대부분 0. coarse 가 목표에
++   근접했을 때 미세 조정을 돌리면 score_callback 실패를 줄일 수 있다.
++3. 위 둘 뒤 mixed100c 재측정 → 강한 기준 재판정 → 통과 시 G3(exact20).
++
++---
++
++# v2 controlled solver Phase G1.6 (G2c·G3 미실행)
++
++지시서 §0~§28. **commit 0 · push 0 · baseline 3종(1,449 / smoke100 / smoke100b) SHA256 불변.**
++보고서: `reports/v2_generator_fix_g1p6_g2c_g3/final_report.md`
++
++## 0. 판정
++
++```
++G1P6_SCORE_GAP_AUDIT_COMPLETE   true
++G1P6_CONFIG_SELECTED            true    K=8 · near-miss threshold 0.0607(p25)
++G1P6_ACCEPTED_RECALL_PASS       true    원 accepted 30/30
++G1P6_EXPLICIT_QUALITY_PASS      true    metrics/visible/side 34/34 · 오차 게이트 통과
++G1P6_POST_CONTEXT_PASS          true    mode semantics 34/34
++G1P6_LOCKED_EFFICIENCY_PASS     false   total runtime · score_callback 미달
++────────────────────────────────────────────────────────────────
++G1P6_LOCKED_PASS                false   -> §8 대로 G2c·exact20 미실행
++READY_FOR_NEW_500_PILOT         false
++```
++
++## 1. §2 score-gap 감사 — 전제 2건 정정
++
++★ **`score` 에는 임계가 없다** [확인]. 코드의 실제 수락 조건은 불리언 4개의 논리곱이다.
++
++```python
++accept = side_match AND visible_px>=8 AND abs_error<=0.12 AND (G1_pass AND G2_pass)
++score  = -(error + roi + 0.25*corner + screen + visibility)   # 랭킹용 음수 비용
++```
++
++canonical margin 을 유일하게 임계가 있는 축에 뒀다: `score_margin = 0.12 − abs_error`.
++
++★ **"score_callback runtime 1,723초"는 초가 아니라 개수다.** 직전 보고서의
++`F score_callback reject 1,338→1,723` 은 reject 카운트였고 코드에 해당 타이머가 없다.
++측정 가능한 초 단위는 explicit 단계 시간(locked 3,496s / smoke100b 3,020s)이다.
++또 locked 77 모집단의 baseline 은 **2,026**(1,723 은 smoke100b 값)이다.
++
++★ **fine 이 손댈 수 있는 후보는 6.9%뿐**. 막고 있는 조건 조합(locked 2,892 후보):
++`side|target|corner` 778(26.9%) · `side|visible|target|corner` 260 · `corner 만` 215 ·
++**`target_error_ok 만` 199(6.9%)**. near-miss gap 은 p25 0.0607 · median 0.1114 로,
++median 은 허용치(0.12)의 약 1.9배라 ±0.5×coarse step 으로 좁힌다고 가정할 수 없다.
++
++## 2. §3-4 구현
++
++| 항목 | 내용 |
++|---|---|
++| target-seed bounded allowance | `SP2.target_seed_budget_usage` / `budgeted_attempt_count` — 앞 K개 **unique** 후보만 free, 중복은 free 슬롯을 새로 소비하지 않음. record 5필드 + `--target-seed-free-cap` |
++| near-miss fine refinement | `SP2.near_miss_candidates` / `select_near_miss_seed` / `fine_refinement_offsets` — 목표오차만 막고 있고 gap ≤ threshold 인 후보 **1개**만, `FINE_MAX_EVALS=8` 안에서 coarse step 의 ±0.5배로 u/v→depth 순차(전체 grid 아님). record 11필드 + `--near-miss-gap-threshold` |
++| 기본값 | 둘 다 `None` = G1.5 동작과 동일 (CLI 를 빼면 즉시 원복) |
++| 테스트 | `test_target_seed_budget_and_fine.py` 31개 → unit 888 → **919** |
++
++## 3. §5-6 subset + sweep — 1차 sweep 이 실제로 측정하지 못한 것 2가지
++
++subset 22건(규칙 기반, manual pick 0). 1차 6 config 실행 후 발견:
++
++★ **(a) target-seed 상한은 proposal 단위이고 실제 개수는 8이다.** §2 보고의
++"free eval median 16 · max 24"는 **프레임당 합계**(proposal 최대 3개 × 8)였다.
++per-proposal unique 는 8(38 proposal)·7(1). 따라서 **K=8·K=12 는 무제한과 동일**(paid 0)이고
++물리는 것은 K=4 뿐인데 K=4 는 protection 6/7(proposal 113 손실)로 탈락 — **이 축은 소진됐다**.
++
++★ **(b) fine 이 한 번도 평가하지 못했다** (`fine_triggered` 4~6, `fine_eval_count` 0).
++구현 결함 — fine 단계도 일반 예산 검사(`bounded_candidate_offsets`)를 통과하게 돼 있어
++**예산이 소진돼 실패한 프레임(=fine 이 필요한 바로 그 프레임)에서 항상 0개**였다.
++자체 상한만 적용하도록 수정하고 테스트로 고정. 1차 sweep 의 p25/p50 비교는 무효.
++
++수정 후 확인 run 1회 추가(총 7 config). **p50 은 p25 의 상위집합**이라 한 번으로 두
++threshold 의 답이 모두 나온다 — p25 는 p50 과 같은 3건을 회복하면서 trigger 1건
++(pi 184, margin −0.1106)과 그 8 eval 을 아낀다. → **K=8 · p25 채택**.
++
++## 4. §7-8 locked 77 replay (1회)
++
++```
++지표                        G1.5        G1.6        기준          판정
++─────────────────────────────────────────────────────────────────────
++원 accepted recall          30/30       30/30       = 30/30       PASS
++accepted 총계                31          34
++expensive reject 회복        1           4
++metrics/visible/side        31/31       34/34       = accepted    PASS
++abs error median            0.0375      0.0405      ≤ legacy+0.01 PASS
++abs error p95               0.1139      0.1145      ≤ legacy+0.02 PASS
++mode semantics              31/31       34/34       = accepted    PASS
++total runtime               5,020 s     4,642 s     ≤ 4,518 s     FAIL
++score_callback (개수)        2,026       2,058       ≤ 1,465       FAIL
++accepted median runtime     45.7 s      45.6 s      ≤ +10%        PASS
++실패 프레임 context 낭비      32 s        32 s        ≤ 40 s        PASS
++candidate budget 소진        434         428
++```
++
++승리 stage: target-seed 21 · **fine 4** · gate-overlap 3 · primary 2 ·
++corner-contact 2 · preprobe 2 — §4 가 노린 near-miss 회복이 실제로 동작한다.
++
++⚠️ accepted 34 중 **1건(pi 136)은 context 배치 0**(180회 시도, support 165 로 전부 탈락).
++이번에 새로 회복된 controlled 프레임이고 controlled 의 semantics 계약은 explicit
++occluder 에 대한 것이라 gate 는 정당하게 통과한다. baseline 에 같은 사례 0건이므로
++**회귀가 아니라 신규 사례**다.
++
++## 5. 왜 효율 gate 를 못 넘었나
++
++1. **target-seed 축은 소진** — per-proposal 후보가 8개뿐이라 상한을 둘 여지가 없다.
++2. **fine 은 품질·수율을 올리지만 총시간을 늘린다** — trigger 8건에 50 eval(120초)을
++   더 쓰고 4건을 회복했고, 회복된 프레임은 최종 RGB 까지 렌더한다. 품질과 총시간이
++   상충하며 우선순위상 품질이 이긴다.
++
++총시간은 그럼에도 −7.5%(5,020→4,642) 줄었다. fine 이 살린 프레임이 이전에는 탐색
++상한까지 다 쓰고 버려졌기 때문이다. 다만 −10% 기준에는 못 미친다.
++
++## 6. 검증
++
++```
++unit 919 passed(skip 0 fail 0) · integration 31 · golden 51 · registry ok=28
++5k FrameSpec 938f387d 불변 · 5k proposal 3cd365ee 4,439 12/12 불변
++active scene 8cb4109a 불변 · baseline 3종 records.jsonl SHA256 불변
++public mask schema 무변경
++```
++
++## 8. ★ §8 재판정 — 5가지 정정 기준 적용 (재렌더 없음)
++
++replay 완료(`DONE 77 cases in 4754.4 s`, exit 0) 후 코드·scene·process 를 건드리지 않은
++상태에서 기존 record 만 재집계했다.
++
++```
++1. score_callback 은 runtime 초가 아니라 **reject count** -> gate <= 1,722(count).
++   시간은 explicit_stage_runtime_s / fine_runtime_s / total_runtime_s 로 별도 보고.
++2. K=8 은 per-proposal unique 최대(8)와 같아 unlimited 와 동작 동일
++   (실측 target_seed_paid_used = 0) -> 효율 변화는 **fine refinement 에만** 귀속.
++3. explicit 품질은 legacy accepted **30건 paired** 비교 (회복분 제외).
++4. runtime 은 **77건 전체** (회복분 최종 렌더 비용 포함).
++5. hard gate 하나라도 실패하면 G2c·G3 미시작.
++```
++
++### ★ 품질 정정 — paired 로 보면 변화가 없다
++
++```
++지표                 baseline   G1.6      기준            판정
++abs error median     0.0360     0.0360    <= base+0.01    PASS
++abs error p95        0.1139     0.1139    <= base+0.02    PASS
++metrics/visible/side 30/30      30/30     = 30/30         PASS
++값이 바뀐 case        —          [18]      개선 방향 (delta mean -0.000224)
++```
++
++앞서 "median 0.0375 -> 0.0405" 로 적었던 것은 **회복된 4건이 섞인 비교**였다.
++회복분은 원래 실패하던 프레임이라 오차가 크고, baseline 비교에 넣으면 품질이 나빠진
++것처럼 보인다. paired 로 보면 **품질 변화는 사실상 없다**.
++
++### 효율 (77건 전체) — 2/5 미달
++
++```
++게이트                          baseline   G1.6      기준          판정
++total runtime                   5,019.5 s  4,641.6 s <= 4,518 s    FAIL
++score_callback reject count     2,026      2,058     <= 1,722      FAIL
++accepted median runtime         45.7 s     45.6 s    <= +10%       PASS
++실패 프레임 context 낭비          31.8 s     31.5 s    <= 40 s       PASS
++candidate budget 상한 인상 없음   —          —         —             PASS
++```
++
++시간 분해:
++
++```
++지표                      baseline    G1.6       변화
++total_runtime_s           5,019.5     4,641.6    -7.5%
++  accepted 분             2,127.0     2,149.4    +1.1%
++  rejected 분             2,892.5     2,492.2    -13.8%
++explicit_stage_runtime_s  3,495.7     3,191.2    -8.7%
++context_stage_runtime_s     939.4       916.1    -2.5%
++fine_runtime_s                0.0        61.2    신규
++```
++
++### 효율 변화의 귀속 — 전부 fine refinement
++
++`target_seed_paid_used = 0` 이라 K=8 은 한 번도 물리지 않았다. 따라서 아래는 모두 fine 효과다.
++
++```
++fine triggered / evals / won   8 / 50 / 4
++회복 case                       [29, 80, 136, 183]   렌더 비용 구 295 s -> 신 356 s
++accepted 총계                   31 -> 34
++```
++
++총시간이 378초 줄었는데 fine 자체는 61초를 더 썼다. 순감의 출처는 **rejected 분**
++(2,892.5 -> 2,492.2 s, -13.8%)이다 — 예전에는 탐색 상한까지 다 쓰고 버려지던 4건이
++이제 fine 으로 일찍 성공한다. 그래도 -10% 기준에는 못 미친다.
++
++`score_callback` count 는 2,026 -> 2,058(+1.6%)로 늘었다. fine 이 near-miss 후보를
++**추가로** 평가하므로 이 지표는 구조적으로 증가한다. gate 1,722 는 baseline(2,026)보다도
++낮아 **이번 두 메커니즘으로는 도달할 수 없다**.
++
++### 조치
++
++기준 5 에 따라 G2c·G3 **미시작**. 보고 후 중단.
++
++## 7. 다음 TODO
++
++`score_callback` 은 여전히 주 실패 사유이고 이번 두 메커니즘으로는 줄지 않는다.
++효율을 더 얻으려면 **후보를 더 잘 고르는 것이 아니라 후보 자체를 덜 만드는** 방향이
++필요하다 — 예: 목표 마스크 통계로 proposal 자체를 사전 랭킹, 또는
++`corner_joint_pass`(단독 차단 215건 · 조합 포함 1,300건 이상)를 배치 단계에서 미리
++만족시키는 규칙. 이번 지시 범위 밖이라 **자동으로 시도하지 않았다**.
+diff --git a/_docs/history/changelog.md b/_docs/history/changelog.md
+index 15c728e..3799168 100644
+--- a/_docs/history/changelog.md
++++ b/_docs/history/changelog.md
+@@ -154,3 +154,7 @@
+ - 2026-07-31: data/pallet Stage 2-D1.2(D11B·D11C 실제 이동, D11 범위 종료) — **D12B_COMPLETE ✅ / D12C_COMPLETE ✅ / D11_SCOPE_COMPLETE ✅ / FULL_DATA_PALLET_LAYOUT_POLICY_COMPLETE ❌ / FULL_PHYSICAL_MINIMAL_TREE ❌**. D1.1 이 예산 때문에 못 옮긴 2 cohort 를 승인 예산(D12B 36 + D12C 34 = 70 GiB)으로 실제 이동: **8 row / 132,049 파일 / 32,922,799,213 B(30.66 GiB)**, hash-mode all·workers 1·same-volume rename, pre 30.66 + post 30.66 = **total hash read 61.32/70 GiB**, SHA256 mismatch 0 · unhashed 0 · failures 0 · 삭제 0 · overwrite 0 · `data/pallet` 파일수 **363,090 불변**(bytes +11,790 = assets/README.md 621 + manifests 10,754 + exclude 415, 자산·데이터셋 0바이트 변경 — 보호영역 blend/weight/package/dataset SHA256 전수 문제 0, read 9.48GiB). D12B 4건(sandbox blend 1 + train_palletobj_v3 · training_data · v3_post_v1)은 D1.1 이 깔아둔 registry 전환 덕에 **실행 표면 무수정, pallet_paths.yaml 값 4줄만** 바꿔 이동(ok=28 missing=0, src_gone 4/4). D12C 4건(v4 파생 GREYBUG·bg1bak·emptywood·pilotA)은 `archive/legacy_datasets/noai_baked/` 로 → **NoAI baked 8종이 한곳에 집결**. ★**live reference 재측정으로 오탐 4건을 걸렀다** — D1.1 CSV 의 current_runtime_test_refs 를 그대로 복사하니 4건 전부 LIVE_REF 로 잡혔는데 그 값은 **registry 전환 이전**이라 무효였다. 지금 실행 표면을 다시 재서(registry 정본 yaml·resolver docstring 은 경로 소유자라 제외) 3건 0, 1건(`generate_all.sh:42` 낡은 주석)은 **진짜라서 갱신**. 그대로 믿었으면 이동을 못 했거나 진짜 stale 을 놓쳤다. ★**chain 은 자기 mapping 만 책임진다**: C2C 원장에서 D1.1 이 10개·D1.2 가 1개를 빼내 재검증 시 11 MISSING — D11A chain 만 주면 failures 2, D12 chain 만 주면 failures 11, **둘 다 줘야 0**(`successor chain: 11 file(s) from 2 chain(s)`). `--successor-ledger-chain` 을 반복 지정 가능(action=append)하게 고치고 중복 prior key 주장은 exit 2 로 거부. D1.1 chain 파일은 무수정. prior ledger 소속은 "chain 이 없으니 없겠지"로 넘기지 않고 8건 전부 직접 조회(D1-003 만 S2C2002 소속). 신규 policy `stage2d12-final-moves`(+241줄) — 기존 stage2d11 policy 가 `KeyError: 'scope'` 를 냈지만 **고치지 않고 새로 추가**(고치면 검증 끝난 원장의 재검증 의미가 바뀐다), scope SHA 결속·cohort 분할 거부·live ref 0·PROVEN_NOAI 는 noai_baked 외 목적지 거부(/redistributable//packages//unidentified//release//partial/)·registry_final_value==destination 강제. **ledger B8 해소**: v4 파생 4종 PROVEN_NOAI 확정(라벨 JSON 13,122개=프레임 13,120 전수, NoAI 9,634=73.4%, emptywood 100%·Pallet_1 없음, mtime 2026-06-16~18 = 재-bake 이전) — "미확정이라 보수적 제외" → **"확정돼서 제외"**. exclusion 은 D12C 직후 검증기가 **STALE_ENTRY 4건을 실제로 잡아** 갱신(entries 16/problems 0/leaks 0/stale 0); 주석의 "13,122 프레임"도 라벨 개수와 프레임 수를 혼동한 것이라 정정. ★**참조 감사 범위를 처음 넓혔다** — canonical(=.gitignore 준수, 이전 단계와 동일 범위)은 fix_required **0 / 530행**으로 D1·D1.1 과 동일하지만, `--no-ignore` 로 `data/pallet` 내부까지 보니 11건이 나왔고 그중 5건이 진짜였다: `data/pallet/assets/README.md` 의 "CURRENT 위치(2026-07-28 기준)" 열이 지금 하나도 없는 구 경로(models_usd/·distractors/·textures_wood/·blender_scene/)를 가리키고 있어 **열 자체를 registry key 로 교체**. 나머지 6건(진단 코드 스냅샷 2·archive 일회성 3·NoAI provenance README 1)은 고치면 안 되는 것이라 근거와 함께 남겼다(현역 v2_pipeline.py 는 scripts/ 쪽이고 스냅샷 import 0건 확인). 구조 감사는 D1.2 목적지가 semantic 컨테이너의 **손자**라 depth 3 까지면 안 보여 **depth 4 추가(233→277 entry)**; 파생 중 낸 실수 2개를 잡았다 — 분류 우선순위를 바꾸다 plan 분기를 죽여 RESIDUAL_DATASET_DIR 가 107 로 부풀었고(원복), 배경 원본 ZIP 3개가 depth 4 에서 `UNEXPECTED_TOP_LEVEL_ZIP` 오탐(원장 목록을 PRIOR_LEDGERS 전체로 넓히고 ZIP 규칙을 depth 1 한정으로) → 최종 UNKNOWN 0. filesystem_before 는 새로 재지 않고 D1.1 after 를 쓰되 **after+이동 역산==D1.1 after** 로 검증(mismatch 0). 검증: unit 745·integration 31·golden 51 skip 0, registry ok=28, 기존 원장 9종 failures 0, 신규 D12B/D12C failures 0, 5k 938f387d(4,313)/3cd365ee(4,439,12-12) 전후 동일, Blender no-render abs 0·missing 0·Dist_ 209, **재검증 후 원장 dirty 0(멱등성 유지)**. 잔여: 권장 구조 밖 200개(depth1 65 + archive depth2 135, 5.47GiB, 전부 Stage 2-A 계획 있으나 executed=no) · KEEP/quarantine 2 · 빈 폴더 7(삭제 금지) · BLOCKED 0 · UNKNOWN 0. 삭제 0 · ZIP 삭제/수정/해제 0 · weight 이동 0 · isaac_assets 이동 0 · NoAI USD 이동 0 · Blender 렌더 0 · 학습 0 · **commit 0 · push 0**. 상세 [2026-07-31.md](2026-07-31.md).
+ - 2026-07-31: data/pallet Stage 2-D2(레이아웃 정리 종료) — **D2_SCOPE_COMPLETE ✅ / FULL_DATA_PALLET_LAYOUT_POLICY_COMPLETE ✅ / FULL_PHYSICAL_MINIMAL_TREE ✅ / DATA_PALLET_CLEANUP_COMPLETE ✅**. Stage 2-A 계획에 destination 이 있으나 executed=no 로 남아 있던 물리 잔여를 최종 destination 으로 이동: **199 row / 23,284 파일 / 5,876,337,378 B(5.47GiB)**, hash-mode all·same-volume rename, pre 5.47 + post 5.47 = **10.95/16 GiB**, mismatch 0 · unhashed 0 · failures 0 · 삭제 0 · overwrite 0 · `data/pallet` 파일수 **363,090 불변**(bytes +150,544 = manifests 150,286 + exclusion 258 로 전액 특정). cohort 는 destination semantic root 로 유도 — D2_SUPERSEDED_RUNS 135(21,321파일/5,025MiB) · D2_LEGACY_DATASETS 64(1,963파일/579MiB). archive depth-1 **134 감소/0 증가**, top-level unexpected 0 · ZIP 0 · residual_after 0. ★**잔여를 세 자료로 재계산**(파일시스템 201 / stage2d12 final_tree 207 / archive.csv plan 183) 후 차이를 전부 규명: `B−A=8` 은 **D1.2 분류기 결함**(semantic 하위 container noai_baked·redistributable·snapshots·dataset_bundles 와 archive/README.md 를 RESIDUAL 로 세던 허수 — D2 에서 SUBCONTAINERS 규칙으로 수정), `A−C=18` 중 17 은 Stage 2-A 계획 수립 **이후** 생성된 v2 진단 run·로그라 row 가 없었고 계획된 동종 48건과 분류·destination 이 같아 D2 plan row 신설(plan_origin=D2_PLAN_ADDITION). ★**참조 실측에서 내 스캐너 오탐 145건을 잡았다** — join-form 패턴이 leaf 의 첫 세그먼트만 요구해 `os.path.join("data","pallet","archive","training_data")` 한 줄(merge_and_validate.py:18)이 archive/* 후보 120건에 전부 걸렸다. "모든 세그먼트 요구"로 고쳐 **145→14**. 실제 14건은 역할별로 전환(38 치환): **WRITE(--out/out_dir/DEFAULT_OUT) → runs/{diagnostics,eval}/ · READ(--dir/--records/DEFAULT_DIR/config input/docstring) → archive/superseded_runs/**. 출력 기본값을 archive 로 보내면 재실행이 아카이브를 오염시키고 옛 레이아웃이 되살아난다(D0.1 gen_palletobj_v1.py:569 함정) — 도구에 이미 EXPLICIT_EXCLUSIONS 로 v2_dryrun_audit 이 그 이유로 막혀 있었는데 D2 는 **함정 자체를 해소**하고 RESOLVED_EXCLUSIONS 에 기록(가드 삭제 아님). 전환 후 이동 대상 199건 live ref=0. 사용자 결정 3건: eval_results 는 옮기고 출력 기본값을 runs/eval 로 / isaac_assets·_noai_quarantine_usd 는 **둘 다 유지**(§12 "plan 과 라이선스 근거가 모두 있을 때만 이동" — plan row 없음, management allowlist 에 역할·참조·유지근거 명시) / 미계획 17건은 plan row 신설 후 이동. ★**도구 결함 1건 실측 검출**: 첫 verify 가 `failures 0` 을 보고했는데 원장 verified_at 이 199행 전부 비어 있었다 — `is_d1` schema 화이트리스트에 stage2d2.1 이 빠져 post-hash·verified_at 기록 경로를 통째로 건너뛴 것(선언≠실제). D2_SCHEMA_VERSION 추가 후 199/199 기록 + 재검증 SHA 불변(멱등) 확인. 신규 policy `stage2d2-layout-completion`(frozen plan SHA 결속·cohort 분할 거부·live ref 0 강제·제한라이선스 목적지 차단·policy container 이동 금지·중첩 source 거부 등 16조건), 기존 policy 6개 **무수정**. 신규 테스트 33개 → unit **745→778** skip 0, integration 31, golden 51. 빈 디렉토리 420개는 **STALE_EMPTY_SOURCE=0**(policy container 19 + 최종 구조 안 payload 하위폴더 401) 이라 삭제 0·이동 0, `archive/legacy_layout/empty_sources/` 미생성. exclusion 은 검증기가 **stale 4건을 실제로 잡아** 새 경로로 갱신(16/0/0/0), gitignored 이므로 tracked 재구축 명세 `distribution_exclusion_rebuild_spec.md` 신설. archive.csv **source 존재 승인 row 중 executed=no = 0**(잔여 executed=no 는 KEEP_QUARANTINE 1·ALREADY_MOVED_BY_PRIOR_STAGE 12·NO_SOURCE_ROW 3 로 final_status 명시). 검증: 기존 원장 12종 failures 0 · C2C chain x2 로 11 file(s) failures 0 · 5k 938f387d(4,313)/3cd365ee(4,439,12-12) · active scene 8cb4109a·abs 0·missing 0·Dist_ 209 · registry ok=28 · canonical broken ref 0(이동 직후 16 → 현재 문서 40 치환 후 0) · extended actionable 0. 삭제 0 · ZIP 수정 0 · 압축해제 0 · weight 삭제 0 · Blender 렌더 0 · 학습 0 · **commit 0 · push 0**. **폴더 정리 프로젝트 종료 — 추가 Stage 2-D3 없음.** 상세 [2026-07-31.md](2026-07-31.md).
+ - 2026-08-01: v2 논문용 pilot(seed 7000, public mask) — **PILOT_DIAGNOSTIC_COMPLETE ✅ / PILOT_2K_COMPLETE ❌ / SUITABLE_FOR_FINAL_PAPER_FIGURES ❌ / SUITABLE_AS_GENERATOR_BASELINE ✅ / SUFFICIENT_FIX_GENERATOR ✅**. 2,000장 목표였으나 **1,449장에서 안전 중단**하고 generator 병목을 확정했다(clean-static 400·cargo-only 400·context-rich 600 완료, controlled-occlusion 49/600). 신규: `run_v2_scene_logic.py --session-usable-cap K`(K장 전달 후 정상 저장·exit 0·`session_paused=true`, 기본 None이면 기존 동작 불변 — resume 자체는 `_resume_state()`+`iter_proposals()`로 **이미 구현돼 있었고** quota가 accept 시점에만 advance라 replay가 안전함을 코드로 확인), wrapper `run_v2_pilot_2k_repro.py`(registry로만 scene 해석·순차 세션·progress 미증가 시 중단·병렬 Blender 금지), 테스트 `test_v2_pilot_resume_reproducibility.py` 24개 → **unit 778→802 skip 0**. ★**exact20 재현성 게이트 PASS** — diagnostic-exact CPU로 20프레임 2회 독립 실행, FrameSpec/Plan/record/label/RGB/mask **전부 mismatch 0**. 1차에 mask 18/18 불일치가 났으나 FAIL로 보고하지 않고 파고들어 **PNG IDAT·numpy array_equal은 동일하고 tEXt의 Date/RenderTime/cycles.*_time만 다름**을 확인 — 지시 §6이 정규화 제외를 허용한 wall-clock·runtime과 정확히 일치해 이미지 판정을 파일바이트→**픽셀 내용**으로 정정(완화 아님, 파일바이트 결과도 병기). ★**mask profile을 full-audit으로 잘못 시작해 460장 폐기** — 지시문 고정설정은 full-audit이었으나 **과거 합의(`mask_profiles.py`의 public: mask_amodal/+mask_visible/ 2장·폴더 분리, changelog 2026-07-28 "public은 M1~M3 렌더 자체를 안 함")**와 충돌했고 그걸 알아채고 확인했어야 했다. 사용자 지적으로 중단→public 재시작, 구 출력 434MB는 지시로 삭제. ★**Figure 2(c)를 정본 overlay로 교체** — projection은 `frame_geometry()`/`project_cam_points()`를 재사용했으나 overlay 그리기를 직접 만들어 pose축·Pitch/Yaw/Roll 패널이 빠졌다 → `overlay_archive_trunc_style.draw_archive_style_overlay()`+`archive_metadata()` 호출로 교체(golden reference·51 golden 테스트가 고정하는 정본). 부수 수정: 화면 밖 cuboid가 썸네일 축을 늘리는 문제, ECDF symlog 판독불가(log+게이트 1e-4·1px 기준선), numpy 타입 canonical JSON 누출. **중단은 강제 종료 없이** — wrapper(python)만 종료해 다음 세션을 막고(subprocess.run은 job object 미사용이라 Blender 생존 [확인]), Blender에 AttachConsole+CTRL_BREAK(taskkill /F 미사용), records.jsonl과 progress.json이 **같은 시각 flush**되어 프레임 경계 정지 확인, 부분 산출물 0건. ★**감사에서 내 이전 판정을 정정** — 1차에 "cargo 실제 가림 326장(81.5%)"으로 적었으나 **public mask는 pallet 전용**이라 visible_fraction<1로 cargo 가시성을 추론한 것이 잘못이었다(지시가 명시적으로 금지한 추론). generator 전용 지표(front/left/right_visibility_after_cargo)로 재계산하니 **15장(3.8%)** — cargo는 팔레트 위에 놓이되 카메라 시선에서 가리지 않는다. 전수 감사: cargo-only 400(placed 87.2%·no-cargo 12.8%·실패 attempts median 50 max 114·수율 71.0% Wilson 67.2~74.6), context-rich 600(placed=visible 93.5%·absent 6.5%인데 **attempts=0으로 시도조차 안 함**, cargo가 대신 있는 프레임 13, solver 내부 실패 support 14,840·collision 3,145·occlusion_budget 1,977·수율 69.7%), controlled-occlusion 49(**기능은 정상** — placed 49/49·visible px>0 49/49·side target==actual 49/49·f_target 오차 median −0.003, 그러나 **분모별 수율 proposal 17.6%(13.6~22.5)/render attempt 27.2%(21.2~34.1)·비싼 reject 98/180=54.4%**, `realize_occluder`가 렌더 후 판정이라 reject runtime 4,936초 = accepted 2,445초의 2.0배, 남은 551장에 실측 약 44시간). 무결성 1,449 전수 이상 없음(연속·missing 0·duplicate 0·4종 파일 각 1,449·corrupt 0·visible⊆amodal 위반 0·magenta 0·>10m 0·path mismatch 0·reproj max 1.46e-11 px gate 통과). 재현성 lock: environment/code(16파일+diff patch)/scene(8cb4109a)/asset(1,379파일 3.13GiB 전수 SHA256)/command. sampler·gate·bin·거리상한·f_target·mode 분포 **전부 무변경**, generator 수정 0·재렌더 0·학습 0·40k 0. §10 replay probe·§11~16 Figure/EDA·§17~20 최종보고서는 **미실행**(controlled 49/600으로 분포가 치우쳐 지금 Figure를 확정하면 데이터를 잘못 대표). 데이터 1,449장은 삭제하지 않고 수정 전 baseline으로 보존. 상세 [2026-08-01.md](2026-08-01.md).
++- 2026-08-01: v2 generator 수정 Phase G1–G3(mode semantics + controlled 효율) — **G1_MODE_SEMANTICS_COMPLETE ✅ / G1_CONTROLLED_EFFICIENCY_COMPLETE ❌ / G2_MIXED100_PASS ❌ / G3_REPRODUCIBILITY_PASS NOT_RUN / READY_FOR_NEW_PILOT ❌**. 의미가 빈 프레임이 usable 로 통과하던 결함은 **해결**(100장 smoke 에서 mode semantics 100/100), 남은 것은 controlled 생성 **효율**이다. ★**이전 진단 2건 정정**: (a) "`realize_occluder` 는 렌더를 마친 뒤 판정한다"는 **틀렸다** — 비싼 reject 94건은 `rendered=False` 로 RGB 를 한 장도 만들지 않았고 비용은 Blender 안 저해상도 탐색(explicit 3,118초)+그 앞 context 배치(1,424초)다. 그래서 수정 방향을 "렌더 앞으로 당기기"가 아니라 **"Blender 를 열기 전에 거르기"**로 잡았다. (b) "controlled target 오차 median −0.003"은 **explicit solver 정확도가 아니다** — `f_total_from_mask − f_target` 이었고 f_total 에는 cargo/context/static 이 섞인다. `f_explicit_actual` 은 baseline 49건도 신규 30건도 전부 None(public 은 마스크 분해 불가)이라 §15 정확도 게이트는 **BLOCKED** 로 보고(f_total 대체 금지 준수). **G1 수정**: §3 `USABLE_MODE_CYCLE` 로 10장 주기 2/2/3/3 interleave(총량 largest-remainder 그대로, n=1..250 전수 일치, records mode 20/500 무변경) — 어디서 멈춰도 prefix 가 대표성을 갖는다 / §4 cargo 자체 가시성을 context 와 **같은** `_lowres_holdout(only_white=...)` 로 측정(신규 4필드, 임시 PNG 는 finally 삭제, public 스키마 불변, hard gate `>0`) / §5 context `attempts=0` 39장의 원인을 **재현으로 규명** — `image_space_context_poses` 가 이미지 좌우 띠 픽셀→지면 교점으로 푸는데 저앙각에서 광선이 지평선 위로 가거나 교점이 `max_camera_distance=8m` 밖(후보 22,464개 기각 사유 64.2% camera_distance_out_of_band·22.5% ray_up) → 같은 물리 제약 유지한 **ground-ring fallback**(1차 sampler 성공 시 미발동, 기존 561장 무영향) / §6 `CONTROLLED_MODE_MAX_SKIPS` 초과 시 `f_target=0` plan 을 controlled 슬롯에 렌더하던 fallback 제거 / §7 **controlled feasibility prefilter** — `prepare_diagnostic_explicit_occluders` 가 nonce 0..640 후보를 6개로 고르기 **전에** 계획 기하만으로 거른다(side=center·bottom/높이 ∉[-0.60,1.90]·fill<0.45·실루엣/A_target<1.15·실루엣/A_pallet>22.0·band 밖; ML 아님·frame blacklist 아님·seed 무관) / §9 `mode_semantics_verdict()` 를 realize 안(렌더 전 `realize_ok=False`)과 `usable_conditions`(최종 record) **두 곳에서** 강제(None 은 통과 아님, short-circuit 없음). ★**prefilter recall 실측 49/49** — accepted 49건의 승리 후보를 하나도 버리지 않았고 accepted 프레임 탈락 0, 비싼 실패 프레임 12/94(12.8%) 를 **0초에** 조기 배제, 후보 pool 29,725→20,013(32.7%). 회귀 픽스처 `tests/fixtures/controlled_prefilter_winners.json` 로 고정(임계 바꾸면 `BaselineRecall` 이 먼저 깨진다). 신규 도구 5종(`audit_v2_controlled_prefilter.py`·`audit_v2_mode_semantics.py`·`audit_v2_bpyfree_determinism.py`·`audit_v2_dataset_quality_probe.py`·`build_v2_overlay_review.py`, 전부 CLI 인자), 신규 테스트 2파일 54개 + 기존 보강 → **unit 802→865 skip 0 fail 0**. **G2 100장 smoke**(seed 7000·dataset-quality·samples 64·mask public·magenta 0.0·Blender 1개, 세션 2회 exit 0, delivered 100/complete True/render_attempts 162/proposals 226): 통과 — mode 배분 20/20/30/30 정확·10장 블록 위반 0, semantics **100/100**(cargo placed 20/20·visible 20/20, context visible 30/30·**attempts=0 이 39/600→0/30**, controlled placed·visible·side match 각 30/30), 무결성 전 항목 0(reproj max 4.55e-13 px), public mask amodal 100·visible 100·M1~M3 0·임시 마스크 잔존 0. **미달 — §16 효율 게이트 3개 전부**: A(usable/proposal) 17.6%→**20.8%**(<35%), C(비싼 reject/attempt) 54.4%→**50.5%**(>30%), runtime ratio 2.02→**1.78**(>1.0). 셋 다 baseline 보다 개선됐으나 목표 미달 → §18 대로 **Phase G3 미실행**. ★**원인 전수 분해(비싼 실패 47건)**: bounded search 후보 기각 사유 누적 2,114회 중 **score_callback 48.8%**(놓을 수는 있는데 목표 가림률 미달) · candidate_budget_exhausted 23.0% · support 17.9%. 실패 vs 성공의 pre-realize 차이는 **투영 크기**(실패 med 0.300/p95 0.901 vs 성공 med 0.160/p95 0.528)와 카메라 거리(2.58m vs 4.97m)뿐이고, `candidates_after_prefilter` 는 실패 128 / 성공 123 으로 **후보 부족이 아니다**(실패는 탐색 상한 21회를 다 쓴다). 즉 계획 기하로 예측 가능한 실패가 아니라 prefilter 로 더 줄일 수 없고, 투영 크기로 프레임을 거르는 것은 분포 변경이라 금지. ⚠️ interleave 로 controlled 슬롯에 걸리는 proposal 자체가 달라져(baseline proposal 1,900~2,180 vs 신규 0~226) 단계 runtime 차이를 코드 변경 탓으로만 돌릴 수 없다. 다음 TODO: (1) 탐색 초기화를 `explicit_target_mask_stats` 로 시드해 score_callback 실패 공략, (2) explicit 탐색을 context 배치 **앞으로** 옮겨 실패 시 context 비용(med 21초) 회피, (3) 저해상도 `explicit_actual/error` 를 record 에 남겨 public 에서도 §15 게이트 계산 가능하게. 검증: unit 865·integration 31·golden 51 skip 0, registry ok=28, active scene 8cb4109a 불변, 5k FrameSpec 938f387d(4,313/687)·proposal 3cd365ee(4,439, 12/12) **불변**. sampler·gate·elevation/projected-size bin·거리 상한·f_target 분포·scene mode 분포 **전부 무변경**, baseline 1,449장 무변경, 500/2k/40k 0 · 모델 학습·추론 0 · **commit 0 · push 0**. 상세 [2026-08-01.md](2026-08-01.md).
++- 2026-08-01: v2 controlled solver 개선 Phase G1.5/G2b — **G1P5_EXPLICIT_METRICS_COMPLETE ✅ / G1P5_ACCEPTED_RECALL_PASS ✅ (30/30, +회복 1) / G1P5_QUALITY_PASS ✅ / G1P5_RUNTIME_TARGET(-50%) ❌(+1.4%) / G2B_SEMANTICS·INTEGRITY·OVERLAY·QUALITY ✅ / G2B_EFFICIENCY PARTIAL / G2B_MIXED100_PASS ❌ / READY_FOR_NEW_PILOT ❌**. ★**직전 단계의 BLOCKED 를 해소했다** — public 프로필은 M1~M3 를 저장하지 않아 마스크 분해로 `f_explicit` 을 못 얻어 controlled 품질 게이트가 계산 불가였는데, 탐색이 **이미 찍는** holdout 두 장(`explicit_before_mask`/`final_mask`)의 **차집합**에서 숫자만 뽑아 해결(새 마스크 렌더 0·파일 저장 0·public 스키마 무변경). 신규 필드 11종(`explicit_metrics_available`·`explicit_target_pixels`·`explicit_actual_pixels_lowres`·`f_explicit_actual_lowres`·`explicit_abs_error_lowres`·target/actual centroid u,v·target/actual bbox)을 순수 함수 `scene_placement_v2.explicit_lowres_metrics()` 로 분리해 bpy 없이 테스트하고, **`f_total` 이 입력·출력 어디에도 없다는 것 자체를 테스트로 고정**. §3 controlled 단계를 `cargo→context→explicit` 에서 `cargo→explicit_prep→explicit→(성공 시)context` 로 재배열하고 `explicit_blocked` 이면 context 를 아예 시도하지 않게 함 — **실패 프레임의 context 낭비 1,151초→32초(-97%)**. ★**재배열이 만든 회귀 1건을 1차 replay(20건)에서 검출·수정**: `explicit_corner_reserve_pass` 는 배치 **전** 예약 계약(`ext_occ<=1`)이라 가리는 것이 본업인 occluder 를 먼저 놓자 모든 context 후보가 탈락(accepted 경로 context median 14.0→224.9초, 저해상도 렌더 52→351) → 배치 **후** 기준 `context_corner_no_regression`(V_inframe·V_vis 감소 없음 + ext_occ 증가 없음)으로 교체, explicit 없는 mode 는 기존 계약 유지, 테스트 6개로 고정. §4 target-mask-conditioned 정렬을 `target-seed` 로 **preprobe 바로 다음**에 배치(같은 offset 을 뒤에서 계산하던 구 `prealign` 은 중복이라 제거) → 승리 stage 가 prealign 16 → target-seed 21 로 이동. ★**locked controlled benchmark 신설**(`build_controlled_case_lock.py`·`replay_controlled_cases.py`·`audit_controlled_replay.py`) — 구 smoke100 의 controlled 77건(accepted 30 + expensive reject 47)을 **같은 seed·FrameSpec·Plan** 으로 재실행해 before/after 를 잰다. **replay 3회로 recall↔runtime 트레이드오프를 확정**: (1)target-seed 추가+구 prealign 유지 28/30·-23.3% (2)구 prealign 제거 28/30·-22.1% (3)**target-seed 를 후보 예산에서 제외 30/30·+1.4% ★채택**. (1)(2)에서 잃은 2건(proposal 113·166)은 둘 다 `candidate_budget_exhausted` — target-seed 를 앞으로 옮기며 proposal 당 예산을 먼저 먹어 gate-overlap/corner-contact 로 살아나던 프레임이 죽은 것이고, 구 파이프라인도 **같은 offset 을 같은 빈도로** 시도했으므로(위치만 뒤) 예산 회계에서 빼는 것은 원상 복구지 게이트 완화가 아니다. §5 가 "미달이어도 recall 우선"이라 (3) 채택. **G2b mixed100b**(신규 디렉토리 `v2_mode_semantics_smoke100b_seed7000_public`, 덮어쓰기 0, 세션 2회 exit 0, delivered 100/complete True/render_attempts 147/proposals 201): mode 20/20/30/30 정확·10장 블록 위반 0, **semantics 100/100**(controlled `metrics_available` 30/30), 무결성 전 항목 0(reproj 4.55e-13·incomplete 0), **overlay 100/100**(크기==해당 RGB·정보패널·축범례 전부), 품질 side match 30/30·abs_err med 0.0375→0.0434(+0.01 이내)·p95 0.1139→0.1139(+0.02 이내). 효율은 A 20.8%→**24.4%**(강한 기준 35% 미달) · C 50.5%→**48.1%**(30% 미달) · ratio 1.78→**1.33**(1.0 미달) · D 총시간 4,949→4,241초(-14.3%) · E context 낭비 1,151→44초(-96.1%) · F score_callback 1,338→1,723(+28.8%, recall 을 지킨 대가) · G usable 1장당 165.0→141.4초(-14.3%). **A·C 는 95% CI 가 크게 겹쳐**(A 0.150~0.282→0.177~0.327, C 0.406~0.605→0.374~0.589) 유의하다고 말할 수 없어 `G2B_EFFICIENCY=PARTIAL` 로 정확히 보고. ★**지시서 전제 1건 정정**: "overlay 640x480 원본 크기"는 성립하지 않는다 — 이 generator 는 프레임마다 해상도가 다르고(실측 640x480 48·720x480 17·960x540 27·560x560 8) 640x480 고정은 52%를 리사이즈하는 것이라 같은 문장의 "원본 크기"와 모순 → **native 해상도**로 만들고 감사 항목을 "overlay 크기 == 그 프레임 RGB 크기"로 변경. overlay 는 데이터셋(`…/overlay/`)과 보고서 두 곳에 100장씩, 정본 `draw_archive_style_overlay()`+`archive_metadata()` 만 사용하고 usable 확정 **후** 후처리 생성이라 generator semantics 무영향. 검증: unit 865→**888 passed**(skip 0 fail 0)·integration 31·golden 51·registry ok=28·5k FrameSpec 938f387d 및 proposal 3cd365ee(4,439,12/12) **불변**·active scene 8cb4109a 불변·**baseline 1,449 및 smoke100 의 records.jsonl SHA256 불변**. 남은 병목은 여전히 `score_callback`(누적 1,723, 투영 크기 큰 프레임에 집중 — 투영 크기로 프레임을 거르는 것은 분포 변경이라 금지). 다음: (1) target-seed 예산 면제를 **상한 있는 허용치**로(후보 수 median 16·max 24 인데 보호가 필요했던 2건은 8개만 씀) (2) `fine_eval_count` 가 대부분 0 인 fine feedback 활성화 (3) mixed100c 재측정 후 강한 기준 재판정 → 통과 시 G3(exact20). exact20 0 · 500/2k/40k 0 · 모델 학습·추론 0 · **commit 0 · push 0**. 상세 [2026-08-01.md](2026-08-01.md).
++- 2026-08-01: v2 controlled solver Phase G1.6 (G2c·G3 미실행) — **G1P6_ACCEPTED_RECALL_PASS ✅(30/30) / G1P6_EXPLICIT_QUALITY_PASS ✅ / G1P6_POST_CONTEXT_PASS ✅ / G1P6_LOCKED_EFFICIENCY_PASS ❌ / G1P6_LOCKED_PASS ❌ / READY_FOR_NEW_500_PILOT ❌**. ★**score-gap 감사에서 전제 2건을 정정했다**: (a) **`score` 에는 임계가 없다** — 코드의 실제 수락 조건은 `side_match AND visible_px>=8 AND abs_error<=0.12 AND (G1 AND G2)` 라는 불리언 4개의 논리곱이고 `score` 는 랭킹용 음수 비용이다. 그래서 canonical margin 을 유일하게 임계가 있는 축에 뒀다(`0.12 − abs_error`). (b) **"score_callback runtime 1,723초"는 초가 아니라 개수** — 직전 보고서의 reject 카운트였고 코드에 해당 타이머가 없다(측정 가능한 초는 explicit 단계 시간 locked 3,496s / smoke100b 3,020s). 또 locked 77 모집단의 baseline 은 1,723 이 아니라 **2,026** 이다. ★**fine 이 손댈 수 있는 후보는 6.9%뿐** — 막고 있는 조건 조합에서 `target_error_ok 만` 199/2,892 이고 나머지는 side/코너/가시성이 함께 막아 좌표 미세조정으로 살아나지 않는다. near-miss gap 은 p25 0.0607 · median 0.1114 로 median 은 허용치의 1.9배. **§3 구현**: target-seed 앞 K개 **unique** 후보만 예산 면제(중복은 free 슬롯 재소비 안 함), record 5필드 + `--target-seed-free-cap`. **§4 구현**: 목표오차만 막고 gap ≤ threshold 인 후보 **1개**만 `FINE_MAX_EVALS=8` 안에서 coarse step 의 ±0.5배로 u/v→depth 순차 탐색(전체 grid 아님), record 11필드 + `--near-miss-gap-threshold`. 둘 다 기본값 None = G1.5 동작이라 **CLI 를 빼면 즉시 원복**된다. 테스트 31개 추가 → unit 888→**919**. ★**1차 sweep(6 config)이 실제로 측정하지 못한 것 2가지를 잡았다**: (a) **target-seed 상한은 proposal 단위**이고 per-proposal unique 후보는 실측 8(38 proposal)·7(1) — §2 의 "median 16 · max 24"는 프레임당 합계였다. 따라서 K=8·K=12 는 무제한과 동일(paid 0)이고 물리는 K=4 는 protection 6/7(proposal 113 손실)로 탈락 → **이 축은 소진**. (b) **fine 이 한 번도 평가하지 못했다**(triggered 4~6, eval 0) — fine 단계도 일반 예산 검사를 통과하게 돼 있어 **예산이 소진돼 실패한 프레임(=fine 이 필요한 바로 그 프레임)에서 항상 0개**였다. 자체 상한만 적용하도록 수정하고 테스트로 고정, 1차 sweep 의 p25/p50 비교는 무효 처리. 수정 후 확인 run 1회 추가(총 7 config) — **p50 은 p25 의 상위집합**이라 한 번으로 두 threshold 답이 모두 나오고, p25 가 같은 3건을 회복하면서 trigger 1건(margin −0.1106)과 8 eval 을 아껴 **K=8 · p25 채택**. **§7 locked 77 replay 1회**: 원 accepted recall **30/30**, accepted 31→**34**(expensive reject 회복 1→4), metrics/visible/side **34/34**, abs error median 0.0375→0.0405(≤+0.01)·p95 0.1139→0.1145(≤+0.02), mode semantics 34/34, 실패 프레임 context 낭비 32s, accepted median runtime 45.7→45.6s — **품질 hard gate 전부 통과**. 효율은 total runtime 5,020→**4,642s**(−7.5%, 기준 ≤4,518 **FAIL**) · score_callback **2,026→2,058**(기준 ≤1,465 **FAIL**) → §8 대로 **G2c·exact20 미실행**. 승리 stage 는 target-seed 21 · **fine 4** · gate-overlap 3 · primary 2 · corner-contact 2 · preprobe 2 로 §4 가 노린 near-miss 회복이 실제로 동작한다. ⚠️ accepted 34 중 1건(pi 136)은 context 배치 0(180회 시도·support 165 탈락)인데, 새로 회복된 controlled 프레임이고 controlled 의 semantics 계약은 explicit occluder 에 대한 것이라 gate 는 정당히 통과 — baseline 에 같은 사례 0건이므로 회귀가 아니라 신규 사례. **효율 미달의 원인**: target-seed 축은 소진됐고, fine 은 품질·수율을 올리지만 회복된 프레임이 최종 RGB 까지 렌더하므로 총시간을 늘린다(품질↔총시간 상충, 우선순위상 품질 우선). 검증: unit 919·integration 31·golden 51 skip 0, registry ok=28, 5k FrameSpec 938f387d·proposal 3cd365ee(4,439,12/12) 불변, active scene 8cb4109a 불변, **baseline 3종(1,449·smoke100·smoke100b) records.jsonl SHA256 불변**, public mask schema 무변경. 다음: 후보를 더 잘 고르는 게 아니라 **후보 자체를 덜 만드는** 방향(목표 마스크로 proposal 사전 랭킹, `corner_joint_pass` 를 배치 단계에서 미리 만족) — 범위 밖이라 자동 시도 안 함. mixed100c 0 · exact20 0 · 500/2k/40k 0 · 모델 학습·추론 0 · **commit 0 · push 0**. 상세 [2026-08-01.md](2026-08-01.md).
++- 2026-08-01: v2 G1.6 §8 **재판정** (사용자 정정 기준 5가지, 재렌더 0) — replay 완료 후 코드·scene·process 무변경 상태에서 기존 record 만 재집계했다. ★**품질 정정**: explicit 품질을 legacy accepted **30건 paired** 로만 비교하니 abs error median **0.0360 → 0.0360**, p95 **0.1139 → 0.1139** 로 **완전히 동일**하고 값이 바뀐 case 는 1건(pi 18, 개선 방향, delta mean −0.000224)뿐이다. 앞서 "median 0.0375→0.0405" 로 적었던 것은 **회복된 4건이 섞인 비교**였고, 회복분은 원래 실패하던 프레임이라 오차가 커서 baseline 비교에 넣으면 품질이 나빠진 것처럼 보인다 — paired 로 보면 **품질 변화는 사실상 없다**. ★**score_callback 은 reject count** 이므로 gate 를 ≤1,722(count)로 적용: 2,026 → **2,058(+1.6%) FAIL**. gate 1,722 는 이 모집단 baseline(2,026)보다도 낮고, fine 은 near-miss 후보를 **추가로** 평가하므로 이 지표는 구조적으로 증가한다 — 이번 두 메커니즘으로는 도달 불가. 시간은 별도 지표로 보고: total_runtime 5,019.5→**4,641.6s(−7.5%, 기준 ≤4,518 FAIL)** · explicit_stage 3,495.7→3,191.2s(−8.7%) · context_stage 939.4→916.1s · **fine_runtime 61.2s(신규)** · accepted 분 2,127.0→2,149.4s(+1.1%) · **rejected 분 2,892.5→2,492.2s(−13.8%)**. ★**효율 변화는 전부 fine refinement 에 귀속** — `target_seed_paid_used = 0` 으로 K=8 이 한 번도 물리지 않았음을 실측 확인(per-proposal unique 최대가 8). fine triggered/evals/won **8/50/4**, 회복 [29,80,136,183](렌더 비용 구 295s→신 356s), accepted 31→34. 총시간 378초 순감의 출처는 rejected 분이다 — 예전에는 탐색 상한까지 다 쓰고 버려지던 4건이 fine 으로 일찍 성공한다. runtime 은 지시대로 **77건 전체**(회복분 최종 렌더 비용 미제외)로 비교했다. 최종: `G1P6_ACCEPTED_RECALL_PASS ✅(paired 30/30) / G1P6_EXPLICIT_QUALITY_PASS ✅ / G1P6_POST_CONTEXT_PASS ✅ / G1P6_LOCKED_EFFICIENCY_PASS ❌ / G1P6_LOCKED_PASS ❌` → 기준 5 대로 **G2c·G3 미시작**. 산출 `g1p6/{final_gate.json, locked77_report.md, locked77_quality.csv, locked77_quality_paired.csv, locked77_efficiency.csv}` 갱신. baseline 3종 SHA256 불변 · 5k digest 불변 · scene 불변 · unit 919 · **commit 0 · push 0**. 상세 [2026-08-01.md](2026-08-01.md).
+diff --git a/scripts/data_prep/blender/run_v2_scene_logic.py b/scripts/data_prep/blender/run_v2_scene_logic.py
+index fe67deb..d1005b2 100644
+--- a/scripts/data_prep/blender/run_v2_scene_logic.py
++++ b/scripts/data_prep/blender/run_v2_scene_logic.py
+@@ -58,6 +58,7 @@ if _THIS not in sys.path:
+ 
+ # bpy-free (like the audit helpers below), so the unit tests can import this runner.
+ import mask_profiles as MP  # noqa: E402
++import scene_placement_v2 as SP2  # noqa: E402
+ 
+ 
+ DIAGNOSTIC_MODES = (
+@@ -75,6 +76,10 @@ DIAGNOSTIC_N_CHOICES = (20, 500)
+ # 100/100/150/150; the same shares are apportioned over an arbitrary usable target
+ # (largest-remainder), because diagnostic_mode_for_index only knows 20 and 500.
+ USABLE_MODE_FRACTIONS = (0.20, 0.20, 0.30, 0.30)
++# usable slot -> mode 배치는 큰 연속 블록이 아니라 10장 주기로 섞는다 (2/2/3/3).
++# 인덱스는 DIAGNOSTIC_MODES 순서. 첫 10장 안에 네 mode 가 모두 나오므로 중간에 멈춰도
++# 그때까지의 delivered set 이 이미 대표성을 갖는다.
++USABLE_MODE_CYCLE = (0, 1, 2, 3, 2, 3, 0, 1, 2, 3)
+ # Safety stops (no unbounded loop).  Exceeding either one aborts with an explicit error.
+ USABLE_RENDER_ATTEMPT_FACTOR = 30      # render attempts allowed per requested usable frame
+ USABLE_MIN_RENDER_ATTEMPTS = 60
+@@ -283,15 +288,29 @@ def apportion(n, fractions):
+ 
+ 
+ def usable_diagnostic_modes(n):
+-    """Diagnostic stratum for every usable SLOT (0..n-1), in DIAGNOSTIC_MODES block order.
++    """Diagnostic stratum for every usable SLOT (0..n-1), INTERLEAVED on a 10-frame cycle.
+ 
+     The slot -- not the proposal -- owns the stratum, so the delivered set always has the
+     prescribed composition no matter how many proposals each slot needed.
++
++    Modes used to be laid out as four long blocks (0..399 clean, 400..799 cargo, ...), which
++    meant a run stopped early carried only the first one or two strata.  The cycle below keeps
++    the SAME totals (largest-remainder apportionment, untouched) while making every 10 slots
++    2 clean / 2 cargo / 3 context / 3 controlled, so any prefix is already representative.
++    Deterministic and seed-independent: same n => same schedule.
+     """
+     counts = apportion(n, USABLE_MODE_FRACTIONS)
++    remaining = list(counts)
+     modes = []
+-    for mode, count in zip(DIAGNOSTIC_MODES, counts):
+-        modes.extend([mode] * count)
++    for slot in range(int(n)):
++        want = USABLE_MODE_CYCLE[slot % len(USABLE_MODE_CYCLE)]
++        if remaining[want] <= 0:
++            # That stratum is already full (only reachable when n is not a multiple of the
++            # cycle length).  Fall back to the mode with the most slots left, ties broken by
++            # DIAGNOSTIC_MODES order -- deterministic, and the totals stay exact.
++            want = max(range(len(remaining)), key=lambda i: (remaining[i], -i))
++        remaining[want] -= 1
++        modes.append(DIAGNOSTIC_MODES[want])
+     return modes
+ 
+ 
+@@ -393,6 +412,15 @@ def usable_conditions(record, magenta_max=DEFAULT_MAGENTA_MAX_FRACTION,
+     for gate in GATE_CONDITIONS:
+         conditions[gate] = _tri_state(record.get(GATE_RECORD_FIELDS[gate]))
+ 
++    # MODE SEMANTICS — "그 mode 의 물체가 실제로 화면에 있는가".  realize 가 렌더 전에
++    # 한 번 판정하지만, gate 는 최종 record 로 독립적으로 다시 본다 (fail-closed).
++    mode = record.get("diagnostic_mode")
++    semantics = None
++    if mode in SP2.MODE_SEMANTICS_CONDITIONS:
++        semantics = SP2.mode_semantics_verdict(mode, record)
++        for name in SP2.MODE_SEMANTICS_CONDITIONS[mode]:
++            conditions[f"mode_semantics:{name}"] = semantics["conditions"][name]
++
+     physical_names = (
+         [f"no_{field}" for field in PHYSICAL_NEGATED_FIELDS]
+         + list(PHYSICAL_TRUE_FIELDS)
+@@ -405,6 +433,10 @@ def usable_conditions(record, magenta_max=DEFAULT_MAGENTA_MAX_FRACTION,
+         suffix = ":unknown" if conditions[name] is None else ""
+         if name in GATE_CONDITIONS:
+             reasons.append(f"gate_fail:{name}{suffix}")
++        elif name.startswith("mode_semantics:"):
++            key = name.split(":", 1)[1]
++            reasons.append(
++                f"mode_semantics:{SP2.MODE_SEMANTICS_REASONS[key]}{suffix}")
+         else:
+             reasons.append(f"usable_reject:{name}{suffix}")
+ 
+@@ -414,6 +446,13 @@ def usable_conditions(record, magenta_max=DEFAULT_MAGENTA_MAX_FRACTION,
+         "failed_conditions": failed,
+         "unknown_conditions": unknown,
+         "reject_reasons": reasons,
++        "mode_semantics_pass": None if semantics is None else semantics["pass"],
++        "mode_semantics_conditions": (
++            None if semantics is None else dict(semantics["conditions"])),
++        "mode_semantics_failed_conditions": (
++            [] if semantics is None else list(semantics["failed_conditions"])),
++        "mode_semantics_unknown_conditions": (
++            [] if semantics is None else list(semantics["unknown_conditions"])),
+         "physical_valid": all(
+             conditions[name] is True for name in physical_names
+         ),
+@@ -547,6 +586,20 @@ def _args():
+              "(500-record diagnostics); public = keep only mask_amodal/ + mask_visible/ "
+              "(M1..M3 are never rendered, so f_static/f_cargo/f_context/f_explicit are None)",
+     )
++    parser.add_argument(
++        "--target-seed-free-cap",
++        type=int,
++        default=None,
++        help="controlled 탐색: 앞 K개 unique target-seed 후보만 후보 예산에서 "
++             "면제한다.  생략하면 무제한 면제(G1.5 동작).  0 이면 면제 없음.",
++    )
++    parser.add_argument(
++        "--near-miss-gap-threshold",
++        type=float,
++        default=None,
++        help="controlled 탐색: 목표오차만 막고 있고 그 간격이 이 값 이하인 후보 "
++             "1개에만 bounded fine refinement 를 돌린다.  생략하면 비활성.",
++    )
+     parser.add_argument(
+         "--session-usable-cap",
+         type=int,
+@@ -874,6 +927,10 @@ def _record_rendered(idx, frame_seed, mode, plan, rs, meas, gates, runtime_s,
+         ),
+         "n_cargo_requested": placement.get("n_cargo_requested", 0),
+         "n_cargo_placed": placement.get("n_cargo_placed", rs.get("n_cargo", 0)),
++        "n_cargo_visible": placement.get("n_cargo_visible"),
++        "cargo_visible_pixels": placement.get("cargo_visible_pixels"),
++        "cargo_visible_pixel_ratio": placement.get("cargo_visible_pixel_ratio"),
++        "cargo_visibility_measured": placement.get("cargo_visibility_measured"),
+         "cargo_on": bool(placement.get("n_cargo_requested", 0)),
+         "cargo_placement_attempts": placement.get("cargo_placement_attempts", 0),
+         "cargo_support_pass": placement.get("cargo_support_pass"),
+@@ -945,6 +1002,43 @@ def _record_rendered(idx, frame_seed, mode, plan, rs, meas, gates, runtime_s,
+             "explicit_reject_counts_by_reason", {}
+         ),
+         "explicit_candidate_log": placement.get("explicit_candidate_log", []),
++        # §2 explicit 저해상도 품질 지표 + §4 탐색 계측
++        # (public 프로필에서도 explicit 정확도를 계산할 수 있게 한다)
++        "explicit_metrics_available": placement.get("explicit_metrics_available"),
++        "explicit_target_pixels": placement.get("explicit_target_pixels"),
++        "explicit_actual_pixels_lowres": placement.get("explicit_actual_pixels_lowres"),
++        "f_explicit_actual_lowres": placement.get("f_explicit_actual_lowres"),
++        "explicit_abs_error_lowres": placement.get("explicit_abs_error_lowres"),
++        "explicit_target_centroid_u": placement.get("explicit_target_centroid_u"),
++        "explicit_target_centroid_v": placement.get("explicit_target_centroid_v"),
++        "explicit_actual_centroid_u_lowres": placement.get("explicit_actual_centroid_u_lowres"),
++        "explicit_actual_centroid_v_lowres": placement.get("explicit_actual_centroid_v_lowres"),
++        "explicit_target_bbox_u0v0u1v1": placement.get("explicit_target_bbox_u0v0u1v1"),
++        "explicit_actual_bbox_u0v0u1v1_lowres": placement.get("explicit_actual_bbox_u0v0u1v1_lowres"),
++        "search_init_strategy": placement.get("search_init_strategy"),
++        "search_seed_count": placement.get("search_seed_count"),
++        "coarse_eval_count": placement.get("coarse_eval_count"),
++        "best_seed_score": placement.get("best_seed_score"),
++        "final_seed_score": placement.get("final_seed_score"),
++        "search_winning_stage": placement.get("search_winning_stage"),
++        "target_seed_free_cap": placement.get("target_seed_free_cap"),
++        "target_seed_unique_count": placement.get("target_seed_unique_count"),
++        "target_seed_free_used": placement.get("target_seed_free_used"),
++        "target_seed_paid_used": placement.get("target_seed_paid_used"),
++        "target_seed_duplicate_count": placement.get("target_seed_duplicate_count"),
++        "fine_triggered": placement.get("fine_triggered"),
++        "fine_trigger_reason": placement.get("fine_trigger_reason"),
++        "fine_source_stage": placement.get("fine_source_stage"),
++        "fine_source_score": placement.get("fine_source_score"),
++        "fine_score_margin_before": placement.get("fine_score_margin_before"),
++        "fine_eval_count": placement.get("fine_eval_count"),
++        "fine_best_score": placement.get("fine_best_score"),
++        "fine_score_margin_after": placement.get("fine_score_margin_after"),
++        "fine_won": placement.get("fine_won"),
++        "fine_runtime_s": placement.get("fine_runtime_s"),
++        "near_miss_gap_threshold": placement.get("near_miss_gap_threshold"),
++        "refine_feedback_eval_count": placement.get("refine_feedback_eval_count"),
++        "context_skipped_due_to_explicit_failure": placement.get("context_skipped_due_to_explicit_failure"),
+         "explicit_target_mask_stats": placement.get(
+             "explicit_target_mask_stats"
+         ),
+@@ -1012,6 +1106,21 @@ def _record_rendered(idx, frame_seed, mode, plan, rs, meas, gates, runtime_s,
+         "reject_reason": _gate_reason(gates),
+         "runtime_s": float(runtime_s),
+         "stage_runtime_s": placement.get("stage_runtime_s"),
++        "proposal_prepare_s": placement.get("proposal_prepare_s"),
++        "candidates_before_prefilter": placement.get("candidates_before_prefilter"),
++        "candidates_after_prefilter": placement.get("candidates_after_prefilter"),
++        "prefilter_reject_count": placement.get("prefilter_reject_count"),
++        "prefilter_reject_counts_by_reason": placement.get(
++            "prefilter_reject_counts_by_reason"),
++        "realization_attempt_count": placement.get("realization_attempt_count"),
++        "lowres_render_count": placement.get("lowres_render_count"),
++        "mode_semantics_pass": placement.get("mode_semantics_pass"),
++        "mode_semantics_conditions": placement.get("mode_semantics_conditions"),
++        "mode_semantics_failed_conditions": placement.get(
++            "mode_semantics_failed_conditions"),
++        "mode_semantics_unknown_conditions": placement.get(
++            "mode_semantics_unknown_conditions"),
++        "mode_semantics_reason": placement.get("mode_semantics_reason"),
+         "rgb_path": os.path.abspath(rgb_path),
+         "label_path": os.path.abspath(label_path),
+         "mask_paths": {key: os.path.abspath(path) for key, path in mask_paths.items()},
+@@ -1075,6 +1184,10 @@ def _record_realize_failure(idx, frame_seed, mode, plan, runtime_s, detail):
+         ),
+         "n_cargo_requested": metrics.get("n_cargo_requested", 0),
+         "n_cargo_placed": metrics.get("n_cargo_placed", 0),
++        "n_cargo_visible": metrics.get("n_cargo_visible"),
++        "cargo_visible_pixels": metrics.get("cargo_visible_pixels"),
++        "cargo_visible_pixel_ratio": metrics.get("cargo_visible_pixel_ratio"),
++        "cargo_visibility_measured": metrics.get("cargo_visibility_measured"),
+         "cargo_placement_attempts": metrics.get("cargo_placement_attempts", 0),
+         "cargo_collision_pass": metrics.get("cargo_collision_pass"),
+         "front_visibility_after_cargo": metrics.get(
+@@ -1122,6 +1235,43 @@ def _record_realize_failure(idx, frame_seed, mode, plan, runtime_s, detail):
+             "explicit_reject_counts_by_reason", {}
+         ),
+         "explicit_candidate_log": metrics.get("explicit_candidate_log", []),
++        # §2 explicit 저해상도 품질 지표 + §4 탐색 계측
++        # (public 프로필에서도 explicit 정확도를 계산할 수 있게 한다)
++        "explicit_metrics_available": metrics.get("explicit_metrics_available"),
++        "explicit_target_pixels": metrics.get("explicit_target_pixels"),
++        "explicit_actual_pixels_lowres": metrics.get("explicit_actual_pixels_lowres"),
++        "f_explicit_actual_lowres": metrics.get("f_explicit_actual_lowres"),
++        "explicit_abs_error_lowres": metrics.get("explicit_abs_error_lowres"),
++        "explicit_target_centroid_u": metrics.get("explicit_target_centroid_u"),
++        "explicit_target_centroid_v": metrics.get("explicit_target_centroid_v"),
++        "explicit_actual_centroid_u_lowres": metrics.get("explicit_actual_centroid_u_lowres"),
++        "explicit_actual_centroid_v_lowres": metrics.get("explicit_actual_centroid_v_lowres"),
++        "explicit_target_bbox_u0v0u1v1": metrics.get("explicit_target_bbox_u0v0u1v1"),
++        "explicit_actual_bbox_u0v0u1v1_lowres": metrics.get("explicit_actual_bbox_u0v0u1v1_lowres"),
++        "search_init_strategy": metrics.get("search_init_strategy"),
++        "search_seed_count": metrics.get("search_seed_count"),
++        "coarse_eval_count": metrics.get("coarse_eval_count"),
++        "best_seed_score": metrics.get("best_seed_score"),
++        "final_seed_score": metrics.get("final_seed_score"),
++        "search_winning_stage": metrics.get("search_winning_stage"),
++        "target_seed_free_cap": metrics.get("target_seed_free_cap"),
++        "target_seed_unique_count": metrics.get("target_seed_unique_count"),
++        "target_seed_free_used": metrics.get("target_seed_free_used"),
++        "target_seed_paid_used": metrics.get("target_seed_paid_used"),
++        "target_seed_duplicate_count": metrics.get("target_seed_duplicate_count"),
++        "fine_triggered": metrics.get("fine_triggered"),
++        "fine_trigger_reason": metrics.get("fine_trigger_reason"),
++        "fine_source_stage": metrics.get("fine_source_stage"),
++        "fine_source_score": metrics.get("fine_source_score"),
++        "fine_score_margin_before": metrics.get("fine_score_margin_before"),
++        "fine_eval_count": metrics.get("fine_eval_count"),
++        "fine_best_score": metrics.get("fine_best_score"),
++        "fine_score_margin_after": metrics.get("fine_score_margin_after"),
++        "fine_won": metrics.get("fine_won"),
++        "fine_runtime_s": metrics.get("fine_runtime_s"),
++        "near_miss_gap_threshold": metrics.get("near_miss_gap_threshold"),
++        "refine_feedback_eval_count": metrics.get("refine_feedback_eval_count"),
++        "context_skipped_due_to_explicit_failure": metrics.get("context_skipped_due_to_explicit_failure"),
+         "explicit_target_mask_stats": metrics.get(
+             "explicit_target_mask_stats"
+         ),
+@@ -1145,6 +1295,21 @@ def _record_realize_failure(idx, frame_seed, mode, plan, runtime_s, detail):
+         "explicit_selected_object": metrics.get("explicit_selected_object"),
+         "explicit_selected_stage": metrics.get("explicit_selected_stage"),
+         "stage_runtime_s": metrics.get("stage_runtime_s"),
++        "proposal_prepare_s": metrics.get("proposal_prepare_s"),
++        "candidates_before_prefilter": metrics.get("candidates_before_prefilter"),
++        "candidates_after_prefilter": metrics.get("candidates_after_prefilter"),
++        "prefilter_reject_count": metrics.get("prefilter_reject_count"),
++        "prefilter_reject_counts_by_reason": metrics.get(
++            "prefilter_reject_counts_by_reason"),
++        "realization_attempt_count": metrics.get("realization_attempt_count"),
++        "lowres_render_count": metrics.get("lowres_render_count"),
++        "mode_semantics_pass": metrics.get("mode_semantics_pass"),
++        "mode_semantics_conditions": metrics.get("mode_semantics_conditions"),
++        "mode_semantics_failed_conditions": metrics.get(
++            "mode_semantics_failed_conditions"),
++        "mode_semantics_unknown_conditions": metrics.get(
++            "mode_semantics_unknown_conditions"),
++        "mode_semantics_reason": metrics.get("mode_semantics_reason"),
+         "runtime_s": float(runtime_s),
+     }
+ 
+@@ -1183,22 +1348,38 @@ def _process_frame(idx, plan, mode, args, assets, dirs, vp, vr, np,
+     keeps the labels of frames it actually delivers).
+     """
+     proposal_failure = None
++    stage_extra = {}
+     if (
+         mode == "controlled-occlusion"
+         and float(plan.spec.f_target) > 1e-6
+     ):
++        prepare_t0 = time.time()
+         adjusted_plan = vp.prepare_diagnostic_explicit_occluders(
+             plan,
+             assets,
+         )
++        # bpy-free 후보 준비(=feasibility prefilter + 선정)에 쓴 시간.  이 단계에서
++        # 걸러지면 Blender 는 아예 열리지 않는다.
++        stage_extra["proposal_prepare_s"] = round(time.time() - prepare_t0, 6)
+         if isinstance(adjusted_plan, vp.Reject):
+             proposal_failure = {
+                 "failure_reason": adjusted_plan.reason,
+                 "failure_detail": adjusted_plan.detail,
+                 "explicit_solver_fail_reason": adjusted_plan.reason,
++                "stage_runtime_s": dict(stage_extra),
+             }
+         else:
+             plan = adjusted_plan
++            occ = plan.occluder or {}
++            stage_extra.update({
++                "candidates_before_prefilter": occ.get(
++                    "candidates_before_prefilter"),
++                "candidates_after_prefilter": occ.get(
++                    "candidates_after_prefilter"),
++                "prefilter_reject_count": occ.get("prefilter_reject_count"),
++                "prefilter_reject_counts_by_reason": occ.get(
++                    "prefilter_reject_counts_by_reason"),
++            })
+     frame_seed = _frame_seed(args.seed, idx, plan.spec.frame_index)
+     random.seed(frame_seed)
+     np.random.seed(frame_seed & 0xFFFFFFFF)
+@@ -1228,6 +1409,13 @@ def _process_frame(idx, plan, mode, args, assets, dirs, vp, vr, np,
+                 flush=True,
+             )
+ 
++    # bpy-free 준비 단계의 계측을 record 로 흘려보낸다 (성공/실패 양쪽 경로).
++    if stage_extra:
++        if rs is not None:
++            rs.setdefault("constrained_metrics", {}).update(stage_extra)
++        elif isinstance(failure_detail, dict):
++            failure_detail = {**stage_extra, **failure_detail}
++
+     result = {
+         "record": None,
+         "rs": rs,
+@@ -1356,6 +1544,12 @@ def run():
+         elif args.rerun_failures and not prior.get("rendered"):
+             pending.append(idx)
+ 
++    # G1.6 탐색 조정값을 프로세스에 한 번 심는다 (모든 record 에 그대로 기록된다).
++    tuning = vr.set_search_tuning(
++        target_seed_free_cap=getattr(args, "target_seed_free_cap", None),
++        near_miss_gap_threshold=getattr(args, "near_miss_gap_threshold", None),
++    )
++    print(f"[TUNING] {tuning}", flush=True)
+     gpu = vr.enable_gpu()
+     assets = vp.load_assets()
+     generated_at = time.time()
+@@ -1471,6 +1665,23 @@ USABLE_MANIFEST_COLUMNS = (
+     "scene_preset",
+     "physical_valid",
+     "gate_valid",
++    # mode semantics — "그 mode 의 물체가 실제로 화면에 있었는가".  0 과 빈칸(=측정 안 됨)
++    # 을 혼동하지 않도록 없는 값은 빈칸으로 나간다.
++    "mode_semantics_pass",
++    "n_cargo_placed",
++    "n_cargo_visible",
++    "cargo_visible_pixels",
++    "cargo_visible_pixel_ratio",
++    "n_context_visible",
++    "context_visible_pixel_ratio",
++    "explicit_occluder_visible_pixels",
++    "occluder_side_match",
++    "explicit_metrics_available",
++    "f_explicit_target",
++    "f_explicit_actual_lowres",
++    "explicit_abs_error_lowres",
++    "prefilter_reject_count",
++    "realization_attempt_count",
+     "camera_distance_actual_m",
+     "camera_distance_limit_m",
+     "projected_size_actual",
+@@ -1786,6 +1997,12 @@ def run_usable(args, dirs, vp, vr, np):
+         if latest[key].get("mask_m0_content_sha256")
+     }
+ 
++    # G1.6 탐색 조정값을 프로세스에 한 번 심는다 (모든 record 에 그대로 기록된다).
++    tuning = vr.set_search_tuning(
++        target_seed_free_cap=getattr(args, "target_seed_free_cap", None),
++        near_miss_gap_threshold=getattr(args, "near_miss_gap_threshold", None),
++    )
++    print(f"[TUNING] {tuning}", flush=True)
+     gpu = vr.enable_gpu()
+     assets = vp.load_assets()
+     slot_modes = usable_diagnostic_modes(args.n)
+@@ -1873,13 +2090,13 @@ def run_usable(args, dirs, vp, vr, np):
+             })
+             continue
+ 
+-        if (
+-            mode == "controlled-occlusion"
+-            and float(plan.spec.f_target) <= 1e-6
+-            and consecutive_mode_skips < CONTROLLED_MODE_MAX_SKIPS
+-        ):
++        if mode == "controlled-occlusion" and float(plan.spec.f_target) <= 1e-6:
+             # A controlled-occlusion slot wants a plan that carries an explicit occluder;
+-            # plans are free, renders are not.  Bounded so the slot can always be filled.
++            # plans are free, renders are not.
++            # ★ 예전에는 CONTROLLED_MODE_MAX_SKIPS 를 넘기면 f_target=0 plan 을 그대로
++            #   렌더해 슬롯을 채웠다 — occluder 가 없는 프레임이 controlled-occlusion
++            #   으로 delivered 됐다는 뜻이다.  그 fallback 을 없앤다.  후보가 계속
++            #   없으면 슬롯을 잘못 채우는 대신 명시적으로 멈춘다.
+             consecutive_mode_skips += 1
+             state["mode_filter_skips"] += 1
+             reason = "proposal_skip:mode_requires_explicit_occluder"
+@@ -1895,6 +2112,13 @@ def run_usable(args, dirs, vp, vr, np):
+                 "reject_reasons": [reason],
+                 "f_target": float(plan.spec.f_target),
+             })
++            if consecutive_mode_skips >= CONTROLLED_MODE_MAX_SKIPS:
++                stop_reason = (
++                    f"{CONTROLLED_MODE_MAX_SKIPS} consecutive proposals carried no "
++                    f"explicit occluder for a controlled-occlusion slot "
++                    f"({state['delivered']}/{args.n} usable)"
++                )
++                break
+             continue
+         consecutive_mode_skips = 0
+ 
+@@ -1949,6 +2173,13 @@ def run_usable(args, dirs, vp, vr, np):
+         record["usable_failed_conditions"] = verdict["failed_conditions"]
+         record["usable_unknown_conditions"] = verdict["unknown_conditions"]
+         record["usable_reject_reasons"] = verdict["reject_reasons"]
++        # gate 가 최종 record 로 다시 판정한 mode semantics (realize 판정과 독립).
++        record["mode_semantics_pass"] = verdict["mode_semantics_pass"]
++        record["mode_semantics_conditions"] = verdict["mode_semantics_conditions"]
++        record["mode_semantics_failed_conditions"] = verdict[
++            "mode_semantics_failed_conditions"]
++        record["mode_semantics_unknown_conditions"] = verdict[
++            "mode_semantics_unknown_conditions"]
+         record["physical_valid"] = verdict["physical_valid"]
+         record["physical_violations"] = verdict["physical_violations"]
+         record["gate_valid"] = verdict["gate_valid"]
+diff --git a/scripts/data_prep/blender/scene_placement_v2.py b/scripts/data_prep/blender/scene_placement_v2.py
+index 8b95370..3c1cab8 100644
+--- a/scripts/data_prep/blender/scene_placement_v2.py
++++ b/scripts/data_prep/blender/scene_placement_v2.py
+@@ -131,6 +131,160 @@ def explicit_corner_reserve_pass(
+     )
+ 
+ 
++# ---------------------------------------------------------------------------
++# §3 target-seed bounded free allowance · §4 near-miss fine refinement
++# ---------------------------------------------------------------------------
++# G1.5 는 해석적 seed 단계(target-seed)를 후보 예산에서 **전부** 뺐다.  그래야
++# accepted recall 이 30/30 이 됐지만, 대신 실패 프레임이 후보를 더 많이 평가하게 됐다
++# (score_callback reject +28.8%).  여기서는 **앞 K개 unique 후보만** free 로 두고
++# 나머지는 일반 예산을 쓰게 한다.  K=None 이면 G1.5 동작(무제한)과 같다.
++TARGET_SEED_STAGE = "target-seed"
++FINE_STAGE = "fine"
++FINE_MAX_EVALS = 8
++FINE_STEP_SCALE = 0.5          # coarse step 의 절반 — 새 절대 단위를 만들지 않는다
++
++
++def candidate_geometry_key(candidate):
++    """같은 배치를 stage 이름만 바꿔 재평가한 것을 하나로 세기 위한 canonical key."""
++    center = candidate.get("center") or ()
++    parts = [str(candidate.get("proposal_object"))]
++    parts += ["%.6f" % float(value) for value in center]
++    for key in ("yaw_rad", "u_offset", "v_offset", "depth_offset", "yaw_offset"):
++        value = candidate.get(key)
++        parts.append("na" if value is None else "%.6f" % float(value))
++    return "|".join(parts)
++
++
++def target_seed_budget_usage(candidate_log, proposal_index, free_cap):
++    """target-seed 후보의 free / paid 사용량.
++
++    free_cap=None 이면 전부 free(G1.5 동작), 0 이면 전부 paid.
++    중복 geometry 는 free 슬롯을 **새로 소비하지 않는다** — 이미 free 인 key 의
++    중복은 free, paid 인 key 의 중복은 paid.
++    """
++    ranks, free_used, paid_used, total, duplicates = {}, 0, 0, 0, 0
++    for candidate in candidate_log:
++        if candidate.get("proposal_index") != proposal_index:
++            continue
++        if candidate.get("stage") != TARGET_SEED_STAGE:
++            continue
++        total += 1
++        key = candidate_geometry_key(candidate)
++        if key in ranks:
++            duplicates += 1
++        else:
++            ranks[key] = len(ranks)
++        if free_cap is None or ranks[key] < int(free_cap):
++            free_used += 1
++        else:
++            paid_used += 1
++    return {"target_seed_candidate_count": total,
++            "target_seed_unique_count": len(ranks),
++            "target_seed_duplicate_count": duplicates,
++            "target_seed_free_used": free_used,
++            "target_seed_paid_used": paid_used}
++
++
++def budgeted_attempt_count(candidate_log, proposal_index, free_cap):
++    """일반 후보 예산이 세는 시도 수 (target-seed 의 free 분과 fine 단계는 제외)."""
++    counted = 0
++    for candidate in candidate_log:
++        if candidate.get("proposal_index") != proposal_index:
++            continue
++        stage = candidate.get("stage")
++        if stage in (TARGET_SEED_STAGE, FINE_STAGE):
++            continue
++        counted += 1
++    usage = target_seed_budget_usage(candidate_log, proposal_index, free_cap)
++    return counted + usage["target_seed_paid_used"]
++
++
++def near_miss_candidates(candidate_log, tolerance=None, hard_reasons=(
++        "support", "collision", "camera_clearance")):
++    """목표 오차 **하나만** 막고 있는 후보만 돌려준다 (margin 작은 순).
++
++    side / 코너 / 가시성이 함께 막고 있으면 좌표 미세 조정으로 살아나지 않는다.
++    support·collision·camera_clearance 같은 hard 실패도 대상이 아니다.
++    """
++    tolerance = EXPLICIT_TARGET_ABS_TOLERANCE if tolerance is None else tolerance
++    out = []
++    for order, candidate in enumerate(candidate_log):
++        if candidate.get("reason") in hard_reasons:
++            continue
++        error = candidate.get("abs_error")
++        if error is None:
++            continue
++        if candidate.get("target_error_ok"):
++            continue
++        if not candidate.get("occluder_side_match"):
++            continue
++        visible = candidate.get("object_visible_pixels")
++        if visible is None or int(visible) < 8:
++            continue
++        g1, g2 = candidate.get("candidate_G1_pass"), candidate.get("candidate_G2_pass")
++        if not (g1 and g2):
++            continue
++        margin = float(tolerance) - float(error)
++        out.append({"order": order, "candidate": candidate,
++                    "abs_gap": abs(margin), "score_margin": margin,
++                    "score": candidate.get("score"),
++                    "stage": candidate.get("stage"),
++                    "object": candidate.get("proposal_object")})
++    return out
++
++
++def select_near_miss_seed(candidate_log, gap_threshold, tolerance=None):
++    """case 당 1개.  score 높은 순 -> 후보 순서 -> asset 이름 순으로 deterministic."""
++    if gap_threshold is None:
++        return None
++    pool = [c for c in near_miss_candidates(candidate_log, tolerance=tolerance)
++            if c["abs_gap"] <= float(gap_threshold)]
++    if not pool:
++        return None
++    pool.sort(key=lambda c: (-(c["score"] if c["score"] is not None else -1e9),
++                             c["order"], str(c["object"])))
++    return pool[0]
++
++
++def fine_refinement_offsets(coarse_u_step, coarse_v_step, coarse_depth_step,
++                            scale=FINE_STEP_SCALE):
++    """coarse step 의 ±scale 배로 만든 축별 이웃 — 전체 grid 를 만들지 않는다.
++
++    ((u,v,depth,yaw) 오프셋 목록, 축 경계) 를 돌려준다.  호출자는 offset 이웃을
++    먼저 평가하고 그중 best 를 기준으로 depth 이웃을 평가한다.
++    """
++    du = abs(float(coarse_u_step)) * float(scale)
++    dv = abs(float(coarse_v_step)) * float(scale)
++    dd = abs(float(coarse_depth_step)) * float(scale)
++    offsets = [(-du, 0.0, 0.0, 0.0), (du, 0.0, 0.0, 0.0),
++               (0.0, -dv, 0.0, 0.0), (0.0, dv, 0.0, 0.0)]
++    depth = [(0.0, 0.0, -dd, 0.0), (0.0, 0.0, dd, 0.0)]
++    return tuple(offsets), tuple(depth)
++
++
++def context_corner_no_regression(metrics, post_explicit_metrics):
++    """explicit 이 이미 놓인 뒤 context 가 코너를 더 나쁘게 만들지 않았는가.
++
++    `explicit_corner_reserve_pass` 는 **explicit 을 놓기 전** 코너 여유를 남겨 두는
++    계약이라 `ext_occ <= 1` 을 요구한다.  explicit 배치를 context 앞으로 옮긴 뒤
++    그 계약을 그대로 쓰면, 가리는 것이 본업인 occluder 때문에 거의 모든 context
++    후보가 탈락한다 (2026-08-01 replay: context 단계 14초 -> 225초).  배치 후에는
++    "explicit 만 있던 상태보다 나빠지지 않았는가"가 올바른 기준이다.
++    """
++    if not isinstance(metrics, Mapping):
++        raise TypeError("metrics must be a mapping")
++    if not isinstance(post_explicit_metrics, Mapping):
++        raise TypeError("post_explicit_metrics must be a mapping")
++    return bool(
++        int(metrics.get("V_inframe", 0))
++        >= int(post_explicit_metrics.get("V_inframe", 0))
++        and int(metrics.get("ext_occ_corners", 0))
++        <= int(post_explicit_metrics.get("ext_occ_corners", 0))
++        and int(metrics.get("V_vis", 0))
++        >= int(post_explicit_metrics.get("V_vis", 0))
++    )
++
++
+ def image_space_context_poses(
+     pallet_center,
+     camera_pos,
+@@ -244,6 +398,58 @@ def image_space_context_poses(
+                 "yaw_rad": rng.uniform(-math.pi, math.pi),
+             }
+         )
++    if poses:
++        return poses
++
++    # ★ 저앙각 구제 (2026-08-01).  위 sampler 는 "이미지 좌우 띠의 픽셀 -> 지면 교점"
++    # 방향으로 푼다.  카메라가 지면에 가까우면 그 띠의 광선이 지평선 위로 가거나 아주
++    # 멀리 떨어져 max_camera_distance 를 넘고, 32*attempts 후보가 전부 탈락해 빈 목록이
++    # 된다 -- baseline 에서 context-rich 600장 중 39장이 "배치를 시도조차 못 한" 원인이
++    # 바로 이것이다 (기각 사유 64% camera_distance_out_of_band, 22% ray_up).
++    # 같은 물리 제약(카메라 거리 밴드 · 팔레트 최소 이격)을 유지한 채 순서만 뒤집어,
++    # 지면 위 점을 먼저 고르고 그것이 화면 좌우 띠에 맺히는지 확인한다.  위 sampler 가
++    # 하나라도 성공하면 이 경로는 돌지 않으므로 기존 프레임의 배치는 변하지 않는다.
++    horizontal_forward = (forward[0], forward[1], 0.0)
++    if math.sqrt(dot(horizontal_forward, horizontal_forward)) <= 1e-9:
++        return poses
++    horizontal_forward = normalized(horizontal_forward)
++    base_yaw = math.atan2(horizontal_forward[1], horizontal_forward[0])
++    lo = max(float(min_camera_distance), float(min_target_distance))
++    hi = float(max_camera_distance)
++    if lo >= hi:
++        return poses
++    for index in range(max_candidates):
++        radius = lo + (hi - lo) * rng.random()
++        # 화면 좌우 띠에 대응하는 시야각 근처만 본다 (중앙 정면은 팔레트 자리다).
++        side = -1.0 if index % 2 == 0 else 1.0
++        offset = side * (0.25 + 0.55 * rng.random()) * (
++            math.atan2(0.5 * float(width), fx)
++        )
++        yaw = base_yaw + offset
++        point = (
++            camera[0] + radius * math.cos(yaw),
++            camera[1] + radius * math.sin(yaw),
++            float(ground_z),
++        )
++        if math.hypot(point[0] - pallet[0],
++                      point[1] - pallet[1]) < float(min_target_distance):
++            continue
++        to_point = subtract(point, camera)
++        if dot(to_point, forward) <= 1e-6:      # 카메라 뒤
++            continue
++        pixel_u = fx * dot(to_point, right) / dot(to_point, forward) + float(cx)
++        if not (0.0 <= pixel_u <= float(width - 1)):
++            continue
++        poses.append(
++            {
++                "x": float(point[0]),
++                "y": float(point[1]),
++                "yaw_rad": rng.uniform(-math.pi, math.pi),
++                "fallback": "ground_ring",
++            }
++        )
++        if len(poses) >= requested:
++            break
+     return poses
+ 
+ 
+@@ -1403,6 +1609,250 @@ def explicit_side_matches(target_side, actual_side):
+     return actual_side == target_side
+ 
+ 
++# ---------------------------------------------------------------------------
++# MODE SEMANTICS — "이 프레임이 정말 그 mode 의 내용을 담고 있는가"
++# ---------------------------------------------------------------------------
++# 지금까지 usable gate 는 물리·마스크 무결성만 봤다.  그래서 cargo-only 인데 cargo 가
++# 하나도 놓이지 않은 프레임, context-rich 인데 context 를 시도조차 안 한 프레임이
++# usable 로 통과했다 (2026-08-01 pilot 감사).  아래 조건은 mode 별로 "그 물체가 실제로
++# 화면에 있는가"를 판정한다.
++#
++# tri-state 규약:  True = 통과 · False = 실제 실패 · None = 측정 안 됨(=통과 아님).
++MODE_SEMANTICS_CONDITIONS = {
++    "clean-static": (
++        "no_explicit_occluder", "no_visible_cargo", "no_visible_context",
++    ),
++    "cargo-only": ("cargo_placed", "cargo_visible"),
++    "context-rich": ("context_requested", "context_placed", "context_visible"),
++    "controlled-occlusion": (
++        "explicit_target_positive", "explicit_occluder_placed",
++        "explicit_occluder_visible", "occluder_side_match",
++    ),
++}
++MODE_SEMANTICS_REASONS = {
++    "no_explicit_occluder": "clean_has_explicit_occluder",
++    "no_visible_cargo": "clean_has_visible_cargo",
++    "no_visible_context": "clean_has_visible_context",
++    "cargo_placed": "cargo_not_placed",
++    "cargo_visible": "cargo_not_visible",
++    "context_requested": "context_not_requested",
++    "context_placed": "context_not_placed",
++    "context_visible": "context_not_visible",
++    "explicit_target_positive": "explicit_target_not_positive",
++    "explicit_occluder_placed": "explicit_occluder_missing",
++    "explicit_occluder_visible": "explicit_occluder_not_visible",
++    "occluder_side_match": "occluder_side_mismatch",
++}
++
++
++def _semantics_number(value):
++    """숫자로 읽되, 없으면 None(=측정 안 됨).  0 은 진짜 0 이다."""
++    if value is None or isinstance(value, bool):
++        return None if value is None else float(value)
++    try:
++        return float(value)
++    except (TypeError, ValueError):
++        return None
++
++
++def _semantics_ge(value, threshold):
++    n = _semantics_number(value)
++    return None if n is None else bool(n >= threshold)
++
++
++def _semantics_gt(value, threshold):
++    n = _semantics_number(value)
++    return None if n is None else bool(n > threshold)
++
++
++def mode_semantics_conditions(diagnostic_mode, record):
++    """mode 별 내용 조건을 tri-state dict 로 평가한다 (bpy 없음).
++
++    record 는 realize 의 constrained_metrics 또는 runner 의 최종 record — 둘 다
++    같은 필드 이름을 쓴다.  short-circuit 하지 않고 전부 평가한다.
++    """
++    if diagnostic_mode not in MODE_SEMANTICS_CONDITIONS:
++        raise ValueError(f"unknown diagnostic mode: {diagnostic_mode!r}")
++    get = record.get
++    if diagnostic_mode == "clean-static":
++        placed = get("explicit_occluder_placed")
++        cargo_px = _semantics_number(get("cargo_visible_pixels"))
++        context_n = _semantics_number(get("n_context_visible"))
++        return {
++            "no_explicit_occluder": (None if placed is None else not bool(placed)),
++            "no_visible_cargo": (None if cargo_px is None else cargo_px == 0.0),
++            "no_visible_context": (None if context_n is None else context_n == 0.0),
++        }
++    if diagnostic_mode == "cargo-only":
++        return {
++            "cargo_placed": _semantics_ge(get("n_cargo_placed"), 1),
++            "cargo_visible": _semantics_gt(get("cargo_visible_pixels"), 0),
++        }
++    if diagnostic_mode == "context-rich":
++        return {
++            "context_requested": _semantics_ge(get("n_context_requested"), 1),
++            "context_placed": _semantics_ge(get("n_context_placed"), 1),
++            "context_visible": (
++                _semantics_ge(get("n_context_visible"), 1)
++                and _semantics_gt(get("context_visible_pixel_ratio"), 0.0)
++            ),
++        }
++    side_match = get("occluder_side_match")
++    return {
++        "explicit_target_positive": _semantics_gt(get("f_explicit_target"), 0.0),
++        "explicit_occluder_placed": (
++            None if get("explicit_occluder_placed") is None
++            else bool(get("explicit_occluder_placed"))
++        ),
++        "explicit_occluder_visible": _semantics_gt(
++            get("explicit_occluder_visible_pixels"), 0),
++        "occluder_side_match": (None if side_match is None else bool(side_match)),
++    }
++
++
++def mode_semantics_verdict(diagnostic_mode, record):
++    """{pass, conditions, failed, unknown, reason} — None 은 통과가 아니다."""
++    conditions = mode_semantics_conditions(diagnostic_mode, record)
++    failed = [name for name in MODE_SEMANTICS_CONDITIONS[diagnostic_mode]
++              if conditions.get(name) is False]
++    unknown = [name for name in MODE_SEMANTICS_CONDITIONS[diagnostic_mode]
++               if conditions.get(name) is None]
++    ordered = failed + unknown
++    return {
++        "pass": not ordered,
++        "conditions": conditions,
++        "failed_conditions": failed,
++        "unknown_conditions": unknown,
++        "reason": (f"mode_semantics:{MODE_SEMANTICS_REASONS[ordered[0]]}"
++                   if ordered else None),
++        "reasons": [f"mode_semantics:{MODE_SEMANTICS_REASONS[name]}"
++                    for name in ordered],
++    }
++
++
++# ---------------------------------------------------------------------------
++# CONTROLLED OCCLUDER FEASIBILITY PREFILTER (bpy-free, 결정적)
++# ---------------------------------------------------------------------------
++# Blender 의 bounded local search 는 비싸다 (baseline: 실패 94건에 4,936초, 그중
++# explicit 단계 3,118초 + 그 앞 context 배치 1,424초 — RGB 는 한 장도 렌더하지 않았다).
++# 아래 규칙은 상세 탐색에 넘기기 전에 "이 후보는 접지시키면 목표를 맞출 수 없다"를
++# 계획 단계 기하만으로 판정한다.  ML 아님 · frame-ID blacklist 아님 · seed 무관.
++#
++# 임계는 baseline 의 winner 49건(=프레임을 살린 후보)이 전부 통과하도록 잡고, 물리적
++# 여유를 더했다.  근거는 reports/v2_generator_fix_g1_g3/g1/controlled_failure_matrix.md.
++PREFILTER_BURIED_MAX = -0.60      # 계획 바닥이 자기 높이의 60% 넘게 지면 아래 (winner 최소 -0.535)
++PREFILTER_FLOAT_MAX = 1.90        # 계획 바닥이 자기 높이의 1.9배 넘게 공중 (winner 최대 1.751)
++PREFILTER_SILHOUETTE_MIN = 1.15   # 실루엣/요구 겹침면적 (winner 최소 1.192)
++PREFILTER_FILL_MIN = 0.45         # 성긴 실루엣은 조밀한 겹침을 못 만든다 (winner 최소 0.480)
++PREFILTER_SCREEN_OVER_PALLET_MAX = 22.0   # 팔레트 실루엣 대비 상한 (winner 최대 19.92)
++
++PREFILTER_REASONS = (
++    "prefilter_insufficient_projected_area",
++    "prefilter_fill_ratio_too_low",
++    "prefilter_side_geometry_infeasible",
++    "prefilter_floor_support_infeasible",
++    "prefilter_position_band_infeasible",
++)
++
++
++def controlled_prefilter_reason(candidate, pallet_silhouette_px2,
++                                screen_area_px2=None):
++    """계획된 explicit occluder 후보가 접지 상태로 목표를 맞출 수 있는가.
++
++    통과면 None, 아니면 PREFILTER_REASONS 중 하나.  입력은 전부 solve 단계에서 이미
++    알려진 값이다 (최종 RGB 를 보지 않는다).
++    """
++    if candidate is None:
++        return "prefilter_side_geometry_infeasible"
++    side = candidate.get("side")
++    if side == "center":
++        # center 는 실루엣 전체가 팔레트 안에 들어가야 하는데, 접지된 occluder 로는
++        # 깊이가 고정돼 탐색 여유가 없다.  baseline 에서 30번 시도해 0번 성공.
++        return "prefilter_side_geometry_infeasible"
++    if candidate.get("in_position_band") is False:
++        return "prefilter_position_band_infeasible"
++
++    fill = candidate.get("fill_ratio")
++    if fill is not None and float(fill) < PREFILTER_FILL_MIN:
++        return "prefilter_fill_ratio_too_low"
++
++    bmin = candidate.get("bmin")
++    bmax = candidate.get("bmax")
++    if bmin is not None and bmax is not None:
++        bottom = float(bmin[2])
++        height = float(bmax[2]) - bottom
++        if height > 1e-9:
++            ratio = bottom / height
++            if ratio < PREFILTER_BURIED_MAX or ratio > PREFILTER_FLOAT_MAX:
++                # 접지 스냅이 만들 변위가 bounded search 의 u/v/depth 범위를 넘는다.
++                return "prefilter_floor_support_infeasible"
++
++    target_px2 = candidate.get("overlap_target_px2")
++    if screen_area_px2 is not None and target_px2:
++        if float(screen_area_px2) / float(target_px2) < PREFILTER_SILHOUETTE_MIN:
++            return "prefilter_insufficient_projected_area"
++    if screen_area_px2 is not None and pallet_silhouette_px2:
++        over = float(screen_area_px2) / float(pallet_silhouette_px2)
++        if over > PREFILTER_SCREEN_OVER_PALLET_MAX:
++            return "prefilter_insufficient_projected_area"
++    return None
++
++
++def explicit_lowres_metrics(target_stats, actual_stats, f_target, f_actual):
++    """§2 explicit 저해상도 품질 지표 — 숫자만 돌려준다 (마스크 저장 없음).
++
++    측정 안 됨은 None 이고 0 과 구분된다.  `explicit_metrics_available` 이 False 면
++    나머지 값을 품질 판정에 쓰면 안 된다 (f_total 로 대체하는 것도 금지).
++    """
++    available = bool(target_stats is not None and actual_stats is not None)
++    target_stats = target_stats or {}
++    actual_stats = actual_stats or {}
++    target_centroid = target_stats.get("centroid_px") or [None, None]
++    actual_centroid = actual_stats.get("centroid_px") or [None, None]
++    error = (abs(float(f_actual) - float(f_target))
++             if available and f_actual is not None and f_target is not None
++             else None)
++    return {
++        "explicit_metrics_available": available,
++        "explicit_target_pixels": (target_stats.get("visible_pixels")
++                                   if available else None),
++        "explicit_actual_pixels_lowres": (actual_stats.get("visible_pixels")
++                                          if available else None),
++        "f_explicit_actual_lowres": float(f_actual) if available else None,
++        "explicit_abs_error_lowres": error,
++        "explicit_target_centroid_u": target_centroid[0] if available else None,
++        "explicit_target_centroid_v": target_centroid[1] if available else None,
++        "explicit_actual_centroid_u_lowres": (actual_centroid[0]
++                                              if available else None),
++        "explicit_actual_centroid_v_lowres": (actual_centroid[1]
++                                              if available else None),
++        "explicit_target_bbox_u0v0u1v1": (target_stats.get("bbox_px")
++                                          if available else None),
++        "explicit_actual_bbox_u0v0u1v1_lowres": (actual_stats.get("bbox_px")
++                                                 if available else None),
++    }
++
++
++EXPLICIT_SEARCH_INIT_STRATEGY = "target_mask_conditioned_prealign_first"
++
++
++def explicit_search_metrics(explicit_search):
++    """§4 탐색 계측 — 어떤 초기화 전략으로 몇 번 평가했고 어디서 이겼는가."""
++    stats = (explicit_search or {}).get("search_stats") or {}
++    return {
++        "search_init_strategy": (EXPLICIT_SEARCH_INIT_STRATEGY
++                                 if explicit_search is not None else None),
++        "search_seed_count": stats.get("search_seed_count"),
++        "coarse_eval_count": stats.get("coarse_eval_count"),
++        # refine/feedback/fine 을 합친 수.  §4 의 fine 단계만 센 값은 record 의
++        # `fine_eval_count` 로 따로 나간다 (이름 충돌을 피한다).
++        "refine_feedback_eval_count": stats.get("fine_eval_count"),
++        "best_seed_score": stats.get("best_seed_score"),
++        "final_seed_score": stats.get("final_seed_score"),
++        "search_winning_stage": stats.get("winning_stage"),
++    }
++
++
+ def explicit_requirement_failure(
+     include_explicit,
+     place_occluder,
+diff --git a/scripts/data_prep/blender/tests/test_scene_placement_v2.py b/scripts/data_prep/blender/tests/test_scene_placement_v2.py
+index 7d81d8e..95baaee 100644
+--- a/scripts/data_prep/blender/tests/test_scene_placement_v2.py
++++ b/scripts/data_prep/blender/tests/test_scene_placement_v2.py
+@@ -1671,5 +1671,61 @@ class MetadataValidationTests(unittest.TestCase):
+         self.assertTrue(any("order" in error for error in report["errors"]))
+ 
+ 
++class ContextPoseSamplerCoversLowElevation(unittest.TestCase):
++    """image_space_context_poses 가 저앙각에서 빈 목록을 돌려주던 결함 (2026-08-01).
++
++    baseline 에서 context-rich 600장 중 39장이 `context_placement_attempts=0` 이었다.
++    이미지 좌우 띠의 광선이 지평선 위로 가거나 지면 교점이 max_camera_distance 를
++    넘어 후보가 전멸했기 때문이다 (기각 사유 64% camera_distance_out_of_band).
++    """
++
++    # v2_pilot_2k_seed7000_public 의 proposal 1062 (elevation 0.83도, 절단 조준으로
++    # 시선이 위를 향한다) — baseline 에서 context 배치를 시도조차 못 한 실제 배치다.
++    LOW_ELEV = dict(
++        pallet_center=(0.0, 0.0, 0.075),
++        camera_pos=(1.586164, -2.729825, 0.120476),
++        camera_look=(0.0, 0.0, 1.456415),
++        fx=605.9065, fy=605.9065, cx=480.0, cy=270.0,
++        image_wh=(960, 540), ground_z=0.0, seed=1234,
++    )
++    NORMAL = dict(
++        pallet_center=(0.0, 0.0, 0.075),
++        camera_pos=(0.0, -3.0, 2.5),
++        camera_look=(0.0, 0.0, 0.075),
++        fx=600.0, fy=600.0, cx=320.0, cy=240.0,
++        image_wh=(640, 480), ground_z=0.0, seed=1234,
++    )
++
++    def test_normal_elevation_still_uses_the_image_band_sampler(self):
++        poses = scene.image_space_context_poses(**self.NORMAL)
++        self.assertTrue(poses)
++        self.assertTrue(all("fallback" not in pose for pose in poses))
++
++    def test_low_elevation_no_longer_returns_an_empty_list(self):
++        poses = scene.image_space_context_poses(**self.LOW_ELEV)
++        self.assertTrue(poses, "저앙각에서 후보가 하나도 나오지 않았다")
++
++    def test_low_elevation_is_served_by_the_fallback(self):
++        poses = scene.image_space_context_poses(**self.LOW_ELEV)
++        self.assertTrue(all(pose.get("fallback") == "ground_ring"
++                            for pose in poses))
++
++    def test_fallback_respects_the_pallet_clearance(self):
++        for pose in scene.image_space_context_poses(**self.LOW_ELEV):
++            self.assertGreaterEqual(math.hypot(pose["x"], pose["y"]),
++                                    0.70 - 1e-9)
++
++    def test_fallback_respects_the_camera_distance_band(self):
++        cam = self.LOW_ELEV["camera_pos"]
++        for pose in scene.image_space_context_poses(**self.LOW_ELEV):
++            distance = math.hypot(pose["x"] - cam[0], pose["y"] - cam[1])
++            self.assertGreaterEqual(distance, 0.50 - 1e-9)
++            self.assertLessEqual(distance, 8.0 + 1e-9)
++
++    def test_fallback_is_deterministic(self):
++        self.assertEqual(scene.image_space_context_poses(**self.LOW_ELEV),
++                         scene.image_space_context_poses(**self.LOW_ELEV))
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/scripts/data_prep/blender/tests/test_usable_completion_mode.py b/scripts/data_prep/blender/tests/test_usable_completion_mode.py
+index d8143b6..5d716e3 100644
+--- a/scripts/data_prep/blender/tests/test_usable_completion_mode.py
++++ b/scripts/data_prep/blender/tests/test_usable_completion_mode.py
+@@ -36,9 +36,34 @@ def _load_runner():
+     return module
+ 
+ 
+-# Frozen schema of a rendered record BEFORE Phase 7 (146 keys).  records mode must keep
+-# producing exactly this set; usable mode is only allowed to ADD keys on top.
++# Frozen schema of a rendered record.  records mode must keep producing exactly this set;
++# usable mode is only allowed to ADD keys on top.
++# 2026-08-01: mode semantics + cargo 자체 가시성 + controlled prefilter 계측 16개 추가.
++# 2026-08-01 (G1.5): explicit 저해상도 품질 지표 11 + 탐색 계측 6 + context skip 1 추가.
+ RECORD_RENDERED_KEYS = (
++    "explicit_metrics_available", "explicit_target_pixels",
++    "explicit_actual_pixels_lowres", "f_explicit_actual_lowres",
++    "explicit_abs_error_lowres", "explicit_target_centroid_u",
++    "explicit_target_centroid_v", "explicit_actual_centroid_u_lowres",
++    "explicit_actual_centroid_v_lowres", "explicit_target_bbox_u0v0u1v1",
++    "explicit_actual_bbox_u0v0u1v1_lowres",
++    "search_init_strategy", "search_seed_count", "coarse_eval_count",
++    "fine_eval_count", "best_seed_score", "final_seed_score",
++    "search_winning_stage", "context_skipped_due_to_explicit_failure",
++    # 2026-08-01 (G1.6): target-seed 예산 회계 5 + fine refinement 11 + 이름 정리 1
++    "target_seed_free_cap", "target_seed_unique_count", "target_seed_free_used",
++    "target_seed_paid_used", "target_seed_duplicate_count",
++    "fine_triggered", "fine_trigger_reason", "fine_source_stage",
++    "fine_source_score", "fine_score_margin_before", "fine_best_score",
++    "fine_score_margin_after", "fine_won", "fine_runtime_s",
++    "near_miss_gap_threshold", "refine_feedback_eval_count",
++    "cargo_visible_pixels", "cargo_visible_pixel_ratio", "cargo_visibility_measured",
++    "n_cargo_visible", "mode_semantics_pass", "mode_semantics_conditions",
++    "mode_semantics_failed_conditions", "mode_semantics_unknown_conditions",
++    "mode_semantics_reason", "proposal_prepare_s", "candidates_before_prefilter",
++    "candidates_after_prefilter", "prefilter_reject_count",
++    "prefilter_reject_counts_by_reason", "realization_attempt_count",
++    "lowres_render_count",
+     "G1_pass", "G2_pass", "G3_pass", "G4_pass", "G5_pass", "V_actual", "V_vis", "all_pass",
+     "anchor_attempts", "anchor_reject_counts_by_reason", "anchor_reject_reason",
+     "anchor_translation", "attempt_frame_index", "azimuth_bin", "background_asset",
+@@ -117,9 +142,34 @@ def passing_record(idx, mask_hash):
+         "luma_pallet_final": 18.0,
+         "bbox_vis_min_side_px": 120.0,
+         "visible_kp_count": 9,
++        # mode semantics (2026-08-01): clean-static 은 explicit occluder 도, 보이는
++        # cargo 도, 보이는 context 도 없어야 한다.  측정 안 됨(None)은 통과가 아니므로
++        # 통과 픽스처는 세 값을 명시한다.
++        "explicit_occluder_placed": False,
++        "cargo_visible_pixels": 0,
++        "n_context_visible": 0,
+     }
+ 
+ 
++def passing_mode_semantics(mode):
++    """그 mode 의 내용 조건을 만족시키는 최소 필드 (2026-08-01 mode semantics gate)."""
++    if mode == "cargo-only":
++        return {"n_cargo_placed": 2, "cargo_visible_pixels": 140,
++                "n_cargo_visible": 2, "cargo_visible_pixel_ratio": 0.02}
++    if mode == "context-rich":
++        return {"n_context_requested": 3, "n_context_placed": 3,
++                "n_context_visible": 3, "context_visible_pixel_ratio": 1.0,
++                "explicit_occluder_placed": False}
++    if mode == "controlled-occlusion":
++        return {"f_explicit_target": 0.2, "explicit_occluder_placed": True,
++                "explicit_occluder_visible_pixels": 120,
++                "occluder_side_match": True, "n_context_requested": 3,
++                "n_context_placed": 3, "n_context_visible": 3,
++                "context_visible_pixel_ratio": 1.0}
++    return {"explicit_occluder_placed": False, "cargo_visible_pixels": 0,
++            "n_context_visible": 0}
++
++
+ class UsableConditionTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+@@ -425,6 +475,11 @@ class FakeRealize:
+     def enable_gpu():
+         return "fake-gpu"
+ 
++    @staticmethod
++    def set_search_tuning(target_seed_free_cap=None, near_miss_gap_threshold=None):
++        return {"target_seed_free_cap": target_seed_free_cap,
++                "near_miss_gap_threshold": near_miss_gap_threshold}
++
+ 
+ def _fake_process_frame(overrides, salt=""):
+     """Patched _process_frame: writes placeholder files, returns a scripted record.
+@@ -456,6 +511,7 @@ def _fake_process_frame(overrides, salt=""):
+             "rgb_path": rgb_path,
+             "label_path": label_path,
+             "diagnostic_mode": mode,
++            **passing_mode_semantics(mode),
+         })
+         record.update(override)
+         calls.append({"idx": idx, "mode": mode, "attempt": attempt,
+@@ -586,9 +642,11 @@ class RunUsableTests(unittest.TestCase):
+         )
+ 
+     def test_controlled_slot_skips_plans_without_an_explicit_occluder(self):
+-        # slot 0 is clean-static (n=1 apportions the single slot to context-rich)
++        # n=10 의 interleave 는 slot 3/5/9 가 controlled-occlusion 이다.  proposal 3/4 를
++        # occluder 없는 plan 으로 두면 slot 3 을 채우려다 두 번 skip 하고 proposal 5 로
++        # 채운다.
+         args = self._args(n=10)
+-        script = ["plan"] * 7 + ["plan_no_occluder", "plan_no_occluder"] + ["plan"] * 40
++        script = ["plan"] * 3 + ["plan_no_occluder", "plan_no_occluder"] + ["plan"] * 40
+         summary, process, _ = self._run(lambda attempt: {}, script=script, args=args)
+         rejected = self._read_jsonl("records_rejected.jsonl")
+ 
+diff --git a/scripts/data_prep/blender/tests/test_v2_pilot_resume_reproducibility.py b/scripts/data_prep/blender/tests/test_v2_pilot_resume_reproducibility.py
+index 8af53aa..df188ef 100644
+--- a/scripts/data_prep/blender/tests/test_v2_pilot_resume_reproducibility.py
++++ b/scripts/data_prep/blender/tests/test_v2_pilot_resume_reproducibility.py
+@@ -151,6 +151,26 @@ class DiagnosticModeAllocation(unittest.TestCase):
+             rebuilt.extend(R.usable_diagnostic_modes(2000)[start:start + 100])
+         self.assertEqual(modes, rebuilt)
+ 
++    def test_interleaved_schedule_survives_a_resume(self):
++        """세션이 끊겨도 이어붙인 schedule 이 uninterrupted 와 완전히 같아야 한다."""
++        full = R.usable_diagnostic_modes(2000)
++        for cut in (1, 37, 100, 1449):
++            resumed = (R.usable_diagnostic_modes(2000)[:cut]
++                       + R.usable_diagnostic_modes(2000)[cut:])
++            self.assertEqual(full, resumed, f"cut={cut}")
++
++    def test_any_prefix_is_already_representative(self):
++        """블록 배치와 달리, 어디서 멈춰도 네 mode 가 모두 들어있다."""
++        modes = R.usable_diagnostic_modes(2000)
++        for prefix in (10, 37, 100, 1449):
++            self.assertEqual(set(modes[:prefix]), set(R.DIAGNOSTIC_MODES),
++                             f"prefix={prefix}")
++
++    def test_delivered_ids_have_no_duplicates(self):
++        modes = R.usable_diagnostic_modes(2000)
++        self.assertEqual(len(modes), len(list(range(len(modes)))))
++        self.assertEqual(sorted(range(2000)), sorted(range(len(modes))))
++
+ 
+ class ResumeState(unittest.TestCase):
+     def setUp(self):
+diff --git a/scripts/data_prep/blender/v2_pipeline.py b/scripts/data_prep/blender/v2_pipeline.py
+index 13e83ff..6cdd23c 100644
+--- a/scripts/data_prep/blender/v2_pipeline.py
++++ b/scripts/data_prep/blender/v2_pipeline.py
+@@ -1582,11 +1582,29 @@ def select_diagnostic_explicit_proposals(proposals, max_proposals):
+     return selected
+ 
+ 
++def occluder_screen_silhouette_px2(spec, candidate):
++    """계획된 occluder 실루엣의 화면 면적(px^2).  `_occluder_lateral` 이 depth 를 풀 때
++    쓴 것과 같은 식이다 (두 축 중 큰 둘 * scale * sqrt(fill), 원근 나눗셈).  Plan 의
++    occluder dict 를 건드리지 않으려고 여기서 되짚는다 (5k dry-run digest 보존)."""
++    bx, by, bz = candidate["bbox_m"]
++    dims = sorted([float(bx), float(by), float(bz)], reverse=True)
++    fill = float(candidate["fill_ratio"])
++    scale = float(candidate.get("scale", 1.0))
++    d_occ = float(candidate["d_occ_m"])
++    if d_occ <= 1e-9:
++        return None
++    sfr = math.sqrt(fill)
++    fx = float(spec.fx)
++    fy = float(getattr(spec, "fy", spec.fx))
++    return (dims[0] * scale * sfr * fx / d_occ) * (dims[1] * scale * sfr * fy / d_occ)
++
++
+ def prepare_diagnostic_explicit_occluders(
+     plan: Plan,
+     assets: Assets,
+     max_proposals=6,
+     max_nonce=640,
++    prefilter=True,
+ ):
+     """Prepare deterministic full-target proposals for controlled diagnostics.
+ 
+@@ -1638,6 +1656,8 @@ def prepare_diagnostic_explicit_occluders(
+     proposals = []
+     seen = set()
+     failures = []
++    prefilter_rejects = {}
++    candidates_before_prefilter = 0
+ 
+     for nonce in range(max_nonce + 1):
+         proposal = solve_placement(
+@@ -1691,10 +1711,33 @@ def prepare_diagnostic_explicit_occluders(
+         if key in seen:
+             continue
+         seen.add(key)
++        candidates_before_prefilter += 1
++        # FEASIBILITY PREFILTER (bpy-free): 접지시키면 목표를 맞출 수 없는 후보를
++        # Blender 상세 realization 에 넘기기 전에 버린다.  분포를 바꾸지 않는다 —
++        # FrameSpec 도 f_target 도 side 도 그대로고, 걸러지는 것은 "이 프레임에 쓸
++        # occluder 후보"뿐이다.
++        if prefilter:
++            screen_px2 = occluder_screen_silhouette_px2(proposal_spec, candidate)
++            reason = _sp2.controlled_prefilter_reason(
++                candidate,
++                plan.pallet_silhouette_px2,
++                screen_area_px2=screen_px2,
++            )
++            if reason is not None:
++                prefilter_rejects[reason] = prefilter_rejects.get(reason, 0) + 1
++                continue
+         proposals.append(candidate)
+ 
+     if not proposals:
+         detail = ",".join(failures[:8]) or "no same-side proposal"
++        if prefilter and prefilter_rejects:
++            detail = "prefilter:" + ",".join(
++                f"{k}={v}" for k, v in sorted(prefilter_rejects.items()))
++            return Reject(
++                spec=plan.spec,
++                reason="diagnostic_explicit_prefilter_exhausted",
++                detail=detail,
++            )
+         return Reject(
+             spec=plan.spec,
+             reason="diagnostic_explicit_proposal_failed",
+@@ -1719,6 +1762,13 @@ def prepare_diagnostic_explicit_occluders(
+     primary["diagnostic_resample_proposals"] = [
+         dict(candidate) for candidate in selected_alternatives
+     ]
++    primary["candidates_before_prefilter"] = int(candidates_before_prefilter)
++    primary["candidates_after_prefilter"] = int(len(proposals))
++    primary["prefilter_reject_count"] = int(
++        sum(prefilter_rejects.values())
++    )
++    primary["prefilter_reject_counts_by_reason"] = dict(prefilter_rejects)
++    primary["prefilter_enabled"] = bool(prefilter)
+     return replace(
+         plan,
+         f_need=float(plan.spec.f_target),
+diff --git a/scripts/data_prep/blender/v2_realize.py b/scripts/data_prep/blender/v2_realize.py
+index 5957d24..49ac396 100644
+--- a/scripts/data_prep/blender/v2_realize.py
++++ b/scripts/data_prep/blender/v2_realize.py
+@@ -717,6 +717,7 @@ def _realize_constrained(
+     lowres128 = SP2.aspect_preserving_lowres_size(W, H, base_height=128)
+     lowres96_area = int(lowres96[0]) * int(lowres96[1])
+     lowres128_long_edge = float(max(lowres128))
++    lowres_render_count_start = _LOWRES_RENDER_COUNT
+ 
+     # Background/floor policy is selected before the target is assembled.
+     _seed_stage(stage_seeds["background"])
+@@ -1097,13 +1098,39 @@ def _realize_constrained(
+             "H": int(H),
+         }
+     )
++    # CARGO 자체의 화면 가시성.  front/left/right_visibility_after_cargo 는 "팔레트가
++    # 가려졌는가"이지 "cargo 가 보이는가"가 아니고, public mask 는 팔레트 전용이라
++    # 그것으로도 추론할 수 없다.  context 와 똑같은 저해상도 holdout 을 쓰고 저장하지
++    # 않는다 (임시 PNG 는 _lowres_holdout 이 지운다).
++    cargo_visible_union = 0
++    cargo_visible_count = 0
++    if cargo_objs:
++        cargo_visible_union, _ = _lowres_holdout(
++            scene,
++            pobj,
++            only_white=cargo_objs,
++            token=f"{frame_seed}_cargo_union",
++            size=lowres96,
++        )
++        for cargo_idx, cargo_obj in enumerate(cargo_objs):
++            cargo_px, _ = _lowres_holdout(
++                scene,
++                pobj,
++                only_white=cargo_obj,
++                token=f"{frame_seed}_cargo_visible_{cargo_idx}",
++                size=lowres96,
++            )
++            cargo_visible_count += int(cargo_px >= 8)
++    cargo_visible_ratio = float(cargo_visible_union) / float(lowres96_area)
+     stage_runtime["cargo"] = time.perf_counter() - cargo_t0
+ 
+-    # Context objects are domain-filtered, disjoint from the planned explicit
+-    # occluder, grounded, collision checked, screen-visible, and constrained to
+-    # a small accidental-pallet-occlusion budget.
+-    context_t0 = time.perf_counter()
+-    _seed_stage(stage_seeds["context"])
++    # EXPLICIT FIRST (2026-08-01).  controlled-occlusion 에서 explicit 탐색이
++    # 실패하면 그 앞에서 배치한 context 비용이 통째로 낭비된다 (baseline: 실패
++    # 프레임의 context 단계 median 21초).  그래서 순서를 바꿨다 —
++    #   proposal 해석/공간 reserve -> explicit 탐색 -> (성공 시) context 배치.
++    # explicit 이 꺼진 mode 에서는 아래 블록이 통째로 no-op 이므로 순서 변경의
++    # 영향이 없다.
++    explicit_prep_t0 = time.perf_counter()
+     explicit_proposals = []
+     explicit_proposal_dimension_rejects = []
+     explicit_proposal_dimension_normalizations = []
+@@ -1254,190 +1281,9 @@ def _realize_constrained(
+             )
+             swept["proposal_object"] = proposal_name
+             explicit_swept_reservations.append(swept)
+-    context_requested = 3 if flags["context"] else 0
+-    context_candidates = []
+-    if context_requested:
+-        rng = random.Random(stage_seeds["context"])
+-        raw_candidates = dpool.select_distractor_object_names(
+-            spec.scene_preset,
+-            max(12, context_requested * 4),
+-            rng,
+-        )
+-        for raw_name in raw_candidates:
+-            resolved = _resolve_distractor_object_name(raw_name)
+-            if (
+-                resolved
+-                and resolved not in explicit_candidate_names
+-                and resolved not in context_candidates
+-            ):
+-                context_candidates.append(resolved)
+-
+-    pallet_center = np.asarray(
+-        get_pallet_geometry(
+-            spec.pallet_type,
+-            pobj,
+-            ORIENTATION_OVERRIDES,
+-        )["centroid_world"],
+-        dtype=np.float64,
++    stage_runtime["explicit_prep"] = (
++        time.perf_counter() - explicit_prep_t0
+     )
+-    context_baseline = None
+-    if context_requested:
+-        context_baseline = _lowres_stage_areas(
+-            scene,
+-            pobj,
+-            cargo_objs,
+-            [],
+-            None,
+-            token=f"{frame_seed}_context_base",
+-            size=lowres96,
+-        )
+-    context_callback_attempts = {"count": 0}
+-
+-    def context_budget_callback(obj, placed, current_metrics):
+-        context_callback_attempts["count"] += 1
+-        area, _ = _lowres_holdout(
+-            scene,
+-            pobj,
+-            extra_hide=(),
+-            only_white=None,
+-            token=f"{frame_seed}_ctx_pal_{context_callback_attempts['count']}",
+-            size=lowres96,
+-        )
+-        visible_px, _ = _lowres_holdout(
+-            scene,
+-            pobj,
+-            extra_hide=(),
+-            only_white=obj,
+-            token=f"{frame_seed}_ctx_obj_{context_callback_attempts['count']}",
+-            size=lowres96,
+-        )
+-        m0 = context_baseline["mask_area_target_only"]
+-        m2 = context_baseline["mask_area_after_cargo"]
+-        f_context_now = (
+-            max(0.0, float(m2 - area) / float(m0)) if m0 > 0 else 1.0
+-        )
+-        screen_ratio = float(visible_px) / float(lowres96_area)
+-        corner_metrics = None
+-        corner_reserve_pass = True
+-        if enforce_explicit_corner_reserve:
+-            corner_metrics = _candidate_corner_gate_metrics(
+-                scene,
+-                cam_pos,
+-                cam_look,
+-                pobj,
+-                spec.pallet_type,
+-                K,
+-                int(W),
+-                int(H),
+-            )
+-            corner_reserve_pass = SP2.explicit_corner_reserve_pass(
+-                corner_metrics
+-            )
+-        return {
+-            "accept": bool(
+-                visible_px >= 8
+-                and screen_ratio >= 0.0005
+-                and f_context_now <= 0.12
+-                and corner_reserve_pass
+-            ),
+-            "visible_pixels": int(visible_px),
+-            "screen_area_ratio": screen_ratio,
+-            "f_context": f_context_now,
+-            "explicit_corner_reserve_pass": corner_reserve_pass,
+-            "preexplicit_V_inframe": (
+-                None
+-                if corner_metrics is None
+-                else corner_metrics["V_inframe"]
+-            ),
+-            "preexplicit_ext_occ_corners": (
+-                None
+-                if corner_metrics is None
+-                else corner_metrics["ext_occ_corners"]
+-            ),
+-            "preexplicit_V_vis": (
+-                None if corner_metrics is None else corner_metrics["V_vis"]
+-            ),
+-        }
+-
+-    context_result = {
+-        "placed_objects": [],
+-        "placed_names": [],
+-        "metrics": {
+-            "success": context_requested == 0,
+-            "requested": context_requested,
+-            "placed": 0,
+-            "reject_counts": {},
+-            "placements": [],
+-        },
+-    }
+-    if context_requested:
+-        context_result = SV2.place_context_objects(
+-            context_candidates,
+-            pobj,
+-            cam_pos=cam_pos,
+-            cam_look=cam_look,
+-            floor_z=dynamic_ground_z,
+-            floor_contact_tolerance=0.01,
+-            support_objects=support_objects,
+-            support_ray_start_z=support_ray_start_z,
+-            support_ray_distance=20.0,
+-            min_support_normal_z=0.5,
+-            seed=stage_seeds["context"],
+-            max_count=context_requested,
+-            attempts_per_object=18,
+-            candidate_poses=_context_candidate_poses(
+-                pallet_center,
+-                cam_pos,
+-                cam_look,
+-                K,
+-                (int(W), int(H)),
+-                dynamic_ground_z,
+-                stage_seeds["context"],
+-                attempts=18,
+-            ),
+-            static_objects=[
+-                *static_objects,
+-                *explicit_reservation_objects,
+-            ],
+-            cargo_objects=cargo_objs,
+-            reserved_aabbs=explicit_swept_reservations,
+-            camera_clearance=SP2.camera_clearance_for_role(SP2.ROLE_CONTEXT),
+-            camera_clearance_exact=True,
+-            broad_aabb_inflate=0.0,
+-            occlusion_budget_callback=context_budget_callback,
+-        )
+-    context_objs = list(context_result["placed_objects"])
+-    context_attempts = (
+-        sum(context_result["metrics"].get("reject_counts", {}).values())
+-        + len(context_objs)
+-    )
+-    context_visible_count = 0
+-    context_visible_union = 0
+-    if context_objs:
+-        context_visible_union, _ = _lowres_holdout(
+-            scene,
+-            pobj,
+-            only_white=context_objs,
+-            token=f"{frame_seed}_context_union",
+-            size=lowres96,
+-        )
+-        for obj_idx, obj in enumerate(context_objs):
+-            visible_px, _ = _lowres_holdout(
+-                scene,
+-                pobj,
+-                only_white=obj,
+-                token=f"{frame_seed}_context_visible_{obj_idx}",
+-                size=lowres96,
+-            )
+-            context_visible_count += int(visible_px >= 8)
+-    context_screen_ratio = float(context_visible_union) / float(lowres96_area)
+-    context_visible_ratio = (
+-        float(context_visible_count) / float(len(context_objs))
+-        if context_objs
+-        else 0.0
+-    )
+-    stage_runtime["context"] = time.perf_counter() - context_t0
+-
+     # The pure-solver pose is only the initial proposal.  A bounded, deterministic
+     # low-resolution mask search selects the final collision-free placement.
+     explicit_t0 = time.perf_counter()
+@@ -1447,6 +1293,8 @@ def _realize_constrained(
+     explicit_solver_fail = None
+     explicit_visible_pixels = 0
+     explicit_side_actual = None
++    explicit_target_mask_stats = None
++    explicit_actual_mask_stats = None
+     explicit_target = float(spec.f_target) if flags["explicit"] else 0.0
+     explicit_actual = 0.0
+     explicit_error = abs(explicit_target - explicit_actual)
+@@ -1468,11 +1316,12 @@ def _realize_constrained(
+             for obj in explicit_objects:
+                 set_render_visibility(obj, False)
+ 
++            # context 는 아직 배치 전이다 -> explicit 기여분만 고립해서 잰다.
+             explicit_baseline = _lowres_stage_areas(
+                 scene,
+                 pobj,
+                 cargo_objs,
+-                context_objs,
++                [],
+                 None,
+                 token=f"{frame_seed}_explicit_base",
+                 size=lowres128,
+@@ -1715,6 +1564,23 @@ def _realize_constrained(
+                 ):
+                     global_best = candidate
+ 
++            # §4 탐색 계측.  coarse = 자세를 찾는 단계, fine = 목표 오차를 좁히는 단계.
++            FINE_STAGES = ("refine", "feedback", SP2.FINE_STAGE)
++            fine_state = {
++                "evals": 0, "triggered": False, "trigger_reason": None,
++                "source_stage": None, "source_score": None,
++                "margin_before": None, "best_score": None,
++                "margin_after": None, "won": False, "runtime_s": 0.0,
++            }
++            search_stats = {
++                "search_seed_count": 0,
++                "coarse_eval_count": 0,
++                "fine_eval_count": 0,
++                "best_seed_score": None,
++                "final_seed_score": None,
++                "winning_stage": None,
++            }
++
+             def run_search_stage(
+                 obj,
+                 proposal,
+@@ -1728,16 +1594,30 @@ def _realize_constrained(
+                     if candidate_offsets is None
+                     else tuple(candidate_offsets)
+                 )
+-                attempted_for_proposal = sum(
+-                    1
+-                    for candidate in aggregate_log
+-                    if candidate.get("proposal_index") == int(proposal_idx)
+-                )
+-                offsets = SP2.bounded_candidate_offsets(
+-                    offsets,
+-                    attempted=attempted_for_proposal,
+-                    limit=SP2.EXPLICIT_CANDIDATE_LIMIT_PER_PROPOSAL,
+-                )
++                if stage_name == SP2.FINE_STAGE:
++                    # fine 은 **일반 예산을 통과하지 않는다** — 자체 상한만 적용한다.
++                    # (일반 예산 검사를 같이 태우면, 예산이 소진돼 실패한 프레임에서
++                    #  fine 이 항상 0개를 평가한다.  첫 sweep 이 실제로 그랬다.)
++                    offsets = tuple(offsets)[:max(
++                        0, SP2.FINE_MAX_EVALS - fine_state["evals"])]
++                    if not offsets:
++                        return {"success": False, "object": obj.name, "best": None,
++                                "best_rejected": None, "reject_counts": {},
++                                "candidates": 0, "candidate_log": [],
++                                "initial": None}
++                else:
++                    # ★ 해석적 seed 단계(target-seed)는 **앞 K개 unique 후보만** 예산에서
++                    # 면제된다 (G1.6).  K=None 이면 G1.5 의 무제한 면제와 같다.
++                    attempted_for_proposal = SP2.budgeted_attempt_count(
++                        aggregate_log,
++                        int(proposal_idx),
++                        SEARCH_TUNING["target_seed_free_cap"],
++                    )
++                    offsets = SP2.bounded_candidate_offsets(
++                        offsets,
++                        attempted=attempted_for_proposal,
++                        limit=SP2.EXPLICIT_CANDIDATE_LIMIT_PER_PROPOSAL,
++                    )
+                 if not offsets:
+                     result = {
+                         "success": False,
+@@ -2042,7 +1922,8 @@ def _realize_constrained(
+                     score_callback=explicit_score,
+                     static_objects=static_objects,
+                     cargo_objects=cargo_objs,
+-                    context_objects=context_objs,
++                    # context 는 explicit 뒤로 옮겨졌으므로 이 시점에는 아직 없다.
++                    context_objects=(),
+                     candidate_offsets=offsets,
+                     camera_clearance=SP2.camera_clearance_for_role(
+                         SP2.ROLE_EXPLICIT_OCCLUDER
+@@ -2068,6 +1949,25 @@ def _realize_constrained(
+                     proposal,
+                     stage_name,
+                 )
++                evaluated = int(result.get("candidates") or 0)
++                if stage_name in FINE_STAGES:
++                    search_stats["fine_eval_count"] += evaluated
++                    if stage_name == SP2.FINE_STAGE:
++                        fine_state["evals"] += evaluated
++                else:
++                    search_stats["coarse_eval_count"] += evaluated
++                for key in ("best", "best_rejected"):
++                    candidate = result.get(key) or {}
++                    score = candidate.get("score")
++                    if score is None:
++                        continue
++                    current = search_stats["best_seed_score"]
++                    if current is None or float(score) > float(current):
++                        search_stats["best_seed_score"] = float(score)
++                best = result.get("best") or {}
++                if best.get("score") is not None:
++                    # 최종 선택은 stage 단위 success 가 아니라 global_best 가 한다.
++                    search_stats["final_seed_score"] = float(best["score"])
+                 return result
+ 
+             def guided_bbox_alignment_offsets(result, side):
+@@ -2160,7 +2060,29 @@ def _realize_constrained(
+                     candidate_offsets=((0.0, 0.0, 0.0, 0.0),),
+                 )
+                 coarse_results = [primary]
++                search_stats["search_seed_count"] += 1
++                # ★ §4 (2026-08-01): target-mask-conditioned 정렬을 **맨 앞으로**.
++                # preprobe 한 번으로 얻은 실측(projected bbox·f_actual)을 목표 마스크
++                # 통계(centroid/bbox/area)에 맞추는 해석적 offset 이 가장 싼 수정이다.
++                # 예전에는 gate-overlap / corner-contact 휴리스틱 뒤에 있었고, 그
++                # 결과 실패 프레임의 절반(48.8%)이 score_callback 으로 죽었다.
+                 if not primary.get("success"):
++                    seed_offsets = guided_bbox_alignment_offsets(
++                        primary,
++                        proposal.get("side"),
++                    )
++                    if seed_offsets:
++                        coarse_results.append(
++                            run_search_stage(
++                                proposal_obj,
++                                proposal,
++                                proposal_idx,
++                                "target-seed",
++                                occ_plan,
++                                candidate_offsets=seed_offsets,
++                            )
++                        )
++                if not any(result.get("success") for result in coarse_results):
+                     gate_seed = (
+                         SP2.best_explicit_gate_side_seed(primary)
+                         or SP2.best_explicit_gate_seed(primary)
+@@ -2221,24 +2143,11 @@ def _realize_constrained(
+                             )
+                         )
+ 
+-                if not any(
+-                    result.get("success") for result in coarse_results
+-                ):
+-                    prealign_offsets = guided_bbox_alignment_offsets(
+-                        primary,
+-                        proposal.get("side"),
+-                    )
+-                    if prealign_offsets:
+-                        prealign = run_search_stage(
+-                            proposal_obj,
+-                            proposal,
+-                            proposal_idx,
+-                            "prealign",
+-                            occ_plan,
+-                            candidate_offsets=prealign_offsets,
+-                        )
+-                        coarse_results.append(prealign)
+-
++                # (구 "prealign" 단계는 제거했다.  preprobe 결과로부터 같은 offset 을
++                #  계산하는 중복이었고, 위 "target-seed" 가 그 자리를 대신한다.
++                #  두 단계를 모두 두면 proposal 당 후보 예산을 두 배로 먹어
++                #  candidate_budget_exhausted 로 이어진다 — replay 에서 실제로
++                #  accepted 2건을 잃었다.)
+                 if not any(result.get("success") for result in coarse_results):
+                     primary = run_search_stage(
+                         proposal_obj,
+@@ -2330,6 +2239,58 @@ def _realize_constrained(
+                                 candidate_offsets=feedback_offsets,
+                             )
+ 
++                # §4 near-miss fine refinement — 목표 오차 **하나만** 막고 있고 그
++                # 간격이 작은 후보 1개에만, 자체 상한(FINE_MAX_EVALS) 안에서 돈다.
++                # coarse step 의 절반을 재사용하고 새 절대 단위를 만들지 않는다.
++                if (
++                    global_best is None
++                    and SEARCH_TUNING["near_miss_gap_threshold"] is not None
++                    and fine_state["evals"] < SP2.FINE_MAX_EVALS
++                ):
++                    seed = SP2.select_near_miss_seed(
++                        [c for c in aggregate_log
++                         if c.get("proposal_index") == int(proposal_idx)],
++                        SEARCH_TUNING["near_miss_gap_threshold"],
++                    )
++                    if seed is not None:
++                        fine_t0 = time.perf_counter()
++                        fine_state.update({
++                            "triggered": True,
++                            "trigger_reason": "target_error_only",
++                            "source_stage": seed["stage"],
++                            "source_score": seed["score"],
++                            "margin_before": seed["score_margin"],
++                        })
++                        refine = schedule["refine"]["candidates"]
++                        u_step = max(abs(float(o[0])) for o in refine) or 0.15
++                        v_step = max(abs(float(o[1])) for o in refine) or 0.15
++                        d_step = max(abs(float(o[2])) for o in refine) or 0.175
++                        plane, depth = SP2.fine_refinement_offsets(
++                            u_step, v_step, d_step)
++                        fine_plan = SP2.explicit_refine_plan(
++                            occ_plan, seed["candidate"])
++                        plane_result = run_search_stage(
++                            proposal_obj, proposal, proposal_idx,
++                            SP2.FINE_STAGE, fine_plan, candidate_offsets=plane)
++                        best_plane = SP2.best_explicit_search_seed(plane_result)
++                        depth_plan = (
++                            SP2.explicit_refine_plan(fine_plan, best_plane)
++                            if best_plane is not None else fine_plan)
++                        depth_result = run_search_stage(
++                            proposal_obj, proposal, proposal_idx,
++                            SP2.FINE_STAGE, depth_plan, candidate_offsets=depth)
++                        best_fine = (SP2.best_explicit_search_seed(depth_result)
++                                     or best_plane)
++                        if best_fine is not None:
++                            metrics = best_fine.get("score_callback") or {}
++                            fine_state["best_score"] = best_fine.get("score")
++                            error = metrics.get("abs_error")
++                            fine_state["margin_after"] = (
++                                None if error is None
++                                else SP2.EXPLICIT_TARGET_ABS_TOLERANCE - float(error))
++                        fine_state["won"] = bool(global_best is not None)
++                        fine_state["runtime_s"] += time.perf_counter() - fine_t0
++
+                 set_render_visibility(proposal_obj, False)
+                 if global_best is not None:
+                     best_metrics = (
+@@ -2379,6 +2340,21 @@ def _realize_constrained(
+                     None if global_best is None else global_best["stage"]
+                 ),
+                 "target_mask_stats": explicit_target_mask_stats,
++                "search_stats": dict(
++                    search_stats,
++                    winning_stage=(None if global_best is None
++                                   else global_best["stage"]),
++                ),
++                "fine_state": dict(fine_state),
++                "target_seed_budget": SP2.target_seed_budget_usage(
++                    aggregate_log, 0, SEARCH_TUNING["target_seed_free_cap"]),
++                "target_seed_budget_all": [
++                    SP2.target_seed_budget_usage(
++                        aggregate_log, idx,
++                        SEARCH_TUNING["target_seed_free_cap"])
++                    for idx in range(len(resolved_proposals))
++                ],
++                "tuning": dict(SEARCH_TUNING),
+             }
+             if global_best is not None:
+                 explicit_name = global_best["object_name"]
+@@ -2413,6 +2389,20 @@ def _realize_constrained(
+                     explicit_before_mask,
+                     final_mask,
+                 )
++                # §2 저해상도 실제 가림 통계.  public 프로필은 M1~M3 를 저장하지
++                # 않아 마스크 분해로 f_explicit 을 얻을 수 없다.  탐색이 이미 찍은
++                # holdout 두 장의 차집합에서 숫자만 뽑는다 (파일 저장 없음).
++                explicit_lost_mask = (
++                    (np.asarray(explicit_before_mask) > 127)
++                    & ~(np.asarray(final_mask) > 127)
++                )
++                lost_rows, lost_cols = np.nonzero(explicit_lost_mask)
++                explicit_actual_mask_stats = SP2.mask_index_stats(
++                    lost_rows,
++                    lost_cols,
++                    height=explicit_lost_mask.shape[0],
++                    width=explicit_lost_mask.shape[1],
++                )
+                 if explicit_visible_pixels <= 0:
+                     set_render_visibility(occ_obj, False)
+                     occ_obj = None
+@@ -2425,6 +2415,238 @@ def _realize_constrained(
+         explicit_solver_fail = "pure_plan_has_no_explicit_occluder"
+     stage_runtime["explicit"] = time.perf_counter() - explicit_t0
+ 
++    # explicit 이 요구 조건을 못 맞춘 controlled 프레임은 여기서 context 를
++    # 아예 시도하지 않는다 — 어차피 버려질 프레임에 배치 비용을 쓰지 않는다.
++    explicit_blocked = bool(
++        flags["explicit"]
++        and SP2.explicit_requirement_failure(
++            flags["explicit"],
++            place_occluder,
++            explicit_target,
++            occ_obj is not None,
++            explicit_solver_fail,
++            explicit_actual=explicit_actual,
++            side_target=(plan.occluder or {}).get("side"),
++            side_actual=explicit_side_actual,
++            visible_pixels=explicit_visible_pixels,
++        )
++        is not None
++    )
++    explicit_placed_objects = [] if occ_obj is None else [occ_obj]
++    # explicit 이 이미 놓였다면 코너 기준을 "배치 전 여유 확보"에서 "배치 후 비열화"로
++    # 바꾼다.  가리는 것이 본업인 occluder 를 예약 계약으로 재평가하면 context 후보가
++    # 전멸한다 (replay 실측: context 14초 -> 225초, 저해상도 렌더 52 -> 351).
++    post_explicit_corner_reserve = None
++    if explicit_placed_objects:
++        post_explicit_corner_reserve = _candidate_corner_gate_metrics(
++            scene,
++            cam_pos,
++            cam_look,
++            pobj,
++            spec.pallet_type,
++            K,
++            int(W),
++            int(H),
++        )
++
++    # Context objects are domain-filtered, disjoint from the planned explicit
++    # occluder, grounded, collision checked, screen-visible, and constrained to
++    # a small accidental-pallet-occlusion budget.
++    context_t0 = time.perf_counter()
++    _seed_stage(stage_seeds["context"])
++    context_requested = 3 if flags["context"] else 0
++    context_candidates = []
++    if context_requested:
++        rng = random.Random(stage_seeds["context"])
++        raw_candidates = dpool.select_distractor_object_names(
++            spec.scene_preset,
++            max(12, context_requested * 4),
++            rng,
++        )
++        for raw_name in raw_candidates:
++            resolved = _resolve_distractor_object_name(raw_name)
++            if (
++                resolved
++                and resolved not in explicit_candidate_names
++                and resolved not in context_candidates
++            ):
++                context_candidates.append(resolved)
++
++    pallet_center = np.asarray(
++        get_pallet_geometry(
++            spec.pallet_type,
++            pobj,
++            ORIENTATION_OVERRIDES,
++        )["centroid_world"],
++        dtype=np.float64,
++    )
++    context_baseline = None
++    if context_requested and not explicit_blocked:
++        # explicit 은 이미 놓였다 -> m2 에서 가려 두고 context 기여분만 재도록 한다.
++        context_baseline = _lowres_stage_areas(
++            scene,
++            pobj,
++            cargo_objs,
++            [],
++            occ_obj,
++            token=f"{frame_seed}_context_base",
++            size=lowres96,
++        )
++    context_callback_attempts = {"count": 0}
++
++    def context_budget_callback(obj, placed, current_metrics):
++        context_callback_attempts["count"] += 1
++        # 배치된 explicit occluder 는 가리고 잰다 — 그래야 f_context 가 context
++        # 기여분만 담는다 (의도된 explicit 가림을 예산에 넣지 않는다).
++        area, _ = _lowres_holdout(
++            scene,
++            pobj,
++            extra_hide=explicit_placed_objects,
++            only_white=None,
++            token=f"{frame_seed}_ctx_pal_{context_callback_attempts['count']}",
++            size=lowres96,
++        )
++        visible_px, _ = _lowres_holdout(
++            scene,
++            pobj,
++            extra_hide=(),
++            only_white=obj,
++            token=f"{frame_seed}_ctx_obj_{context_callback_attempts['count']}",
++            size=lowres96,
++        )
++        m0 = context_baseline["mask_area_target_only"]
++        m2 = context_baseline["mask_area_after_cargo"]
++        f_context_now = (
++            max(0.0, float(m2 - area) / float(m0)) if m0 > 0 else 1.0
++        )
++        screen_ratio = float(visible_px) / float(lowres96_area)
++        corner_metrics = None
++        corner_reserve_pass = True
++        if enforce_explicit_corner_reserve:
++            corner_metrics = _candidate_corner_gate_metrics(
++                scene,
++                cam_pos,
++                cam_look,
++                pobj,
++                spec.pallet_type,
++                K,
++                int(W),
++                int(H),
++            )
++            corner_reserve_pass = (
++                SP2.explicit_corner_reserve_pass(corner_metrics)
++                if post_explicit_corner_reserve is None
++                else SP2.context_corner_no_regression(
++                    corner_metrics,
++                    post_explicit_corner_reserve,
++                )
++            )
++        return {
++            "accept": bool(
++                visible_px >= 8
++                and screen_ratio >= 0.0005
++                and f_context_now <= 0.12
++                and corner_reserve_pass
++            ),
++            "visible_pixels": int(visible_px),
++            "screen_area_ratio": screen_ratio,
++            "f_context": f_context_now,
++            "explicit_corner_reserve_pass": corner_reserve_pass,
++            "preexplicit_V_inframe": (
++                None
++                if corner_metrics is None
++                else corner_metrics["V_inframe"]
++            ),
++            "preexplicit_ext_occ_corners": (
++                None
++                if corner_metrics is None
++                else corner_metrics["ext_occ_corners"]
++            ),
++            "preexplicit_V_vis": (
++                None if corner_metrics is None else corner_metrics["V_vis"]
++            ),
++        }
++
++    context_result = {
++        "placed_objects": [],
++        "placed_names": [],
++        "metrics": {
++            "success": context_requested == 0,
++            "requested": context_requested,
++            "placed": 0,
++            "reject_counts": {},
++            "placements": [],
++        },
++    }
++    if context_requested and not explicit_blocked:
++        context_result = SV2.place_context_objects(
++            context_candidates,
++            pobj,
++            cam_pos=cam_pos,
++            cam_look=cam_look,
++            floor_z=dynamic_ground_z,
++            floor_contact_tolerance=0.01,
++            support_objects=support_objects,
++            support_ray_start_z=support_ray_start_z,
++            support_ray_distance=20.0,
++            min_support_normal_z=0.5,
++            seed=stage_seeds["context"],
++            max_count=context_requested,
++            attempts_per_object=18,
++            candidate_poses=_context_candidate_poses(
++                pallet_center,
++                cam_pos,
++                cam_look,
++                K,
++                (int(W), int(H)),
++                dynamic_ground_z,
++                stage_seeds["context"],
++                attempts=18,
++            ),
++            static_objects=[
++                *static_objects,
++                *explicit_placed_objects,
++            ],
++            cargo_objects=cargo_objs,
++            # occluder 는 이미 놓였으므로 후보 전체의 swept 예약은 필요 없다.
++            reserved_aabbs=(),
++            camera_clearance=SP2.camera_clearance_for_role(SP2.ROLE_CONTEXT),
++            camera_clearance_exact=True,
++            broad_aabb_inflate=0.0,
++            occlusion_budget_callback=context_budget_callback,
++        )
++    context_objs = list(context_result["placed_objects"])
++    context_attempts = (
++        sum(context_result["metrics"].get("reject_counts", {}).values())
++        + len(context_objs)
++    )
++    context_visible_count = 0
++    context_visible_union = 0
++    if context_objs:
++        context_visible_union, _ = _lowres_holdout(
++            scene,
++            pobj,
++            only_white=context_objs,
++            token=f"{frame_seed}_context_union",
++            size=lowres96,
++        )
++        for obj_idx, obj in enumerate(context_objs):
++            visible_px, _ = _lowres_holdout(
++                scene,
++                pobj,
++                only_white=obj,
++                token=f"{frame_seed}_context_visible_{obj_idx}",
++                size=lowres96,
++            )
++            context_visible_count += int(visible_px >= 8)
++    context_screen_ratio = float(context_visible_union) / float(lowres96_area)
++    context_visible_ratio = (
++        float(context_visible_count) / float(len(context_objs))
++        if context_objs
++        else 0.0
++    )
++    stage_runtime["context"] = time.perf_counter() - context_t0
++
+     collision_t0 = time.perf_counter()
+     forbidden_pairs = _forbidden_collision_pairs(
+         pobj,
+@@ -2619,6 +2841,10 @@ def _realize_constrained(
+         ),
+         "n_cargo_requested": int(cargo_requested),
+         "n_cargo_placed": len(cargo_objs),
++        "n_cargo_visible": int(cargo_visible_count),
++        "cargo_visible_pixels": int(cargo_visible_union),
++        "cargo_visible_pixel_ratio": cargo_visible_ratio,
++        "cargo_visibility_measured": True,
+         "cargo_placement_attempts": int(cargo_attempts),
+         "cargo_support_pass": cargo_support_pass,
+         "cargo_collision_pass": cargo_collisions == 0,
+@@ -2678,6 +2904,22 @@ def _realize_constrained(
+             if explicit_search is None
+             else explicit_search.get("target_mask_stats")
+         ),
++        # §2 저해상도 explicit 품질 지표 (숫자만, 마스크 파일은 저장하지 않는다).
++        # public 프로필은 M1~M3 를 렌더하지 않아 마스크 분해로 f_explicit 을 얻을 수
++        # 없다.  f_total 로 대체하면 cargo/context/static 이 섞이므로 금지 —
++        # 대신 탐색이 이미 찍은 두 장의 holdout 차집합에서 통계를 뽑는다.
++        **SP2.explicit_lowres_metrics(
++            explicit_target_mask_stats,
++            explicit_actual_mask_stats,
++            explicit_target,
++            explicit_actual,
++        ),
++        # §4 탐색 계측.  explicit 이 꺼진 mode 에서는 전부 None 이다.
++        **SP2.explicit_search_metrics(explicit_search),
++        # §3 target-seed 예산 회계 · §4 near-miss fine refinement 계측
++        **_target_seed_budget_fields(explicit_search),
++        **_fine_refinement_fields(explicit_search),
++        "context_skipped_due_to_explicit_failure": bool(explicit_blocked),
+         "explicit_initial_proposal": (
+             None
+             if explicit_search is None
+@@ -2725,6 +2967,9 @@ def _realize_constrained(
+             (plan.occluder or {}).get("side"),
+             explicit_side_actual,
+         ) if flags["explicit"] and explicit_side_actual is not None else None,
++        # mode semantics 가 realize 안에서(=렌더 전에) 판정할 수 있도록, runner 가
++        # rs["occluder"] 로 유도하던 값을 metrics 에도 같이 남긴다.
++        "explicit_occluder_placed": bool(occ_obj is not None),
+         "explicit_occluder_visible_pixels": int(explicit_visible_pixels),
+         "explicit_collision_pass": not any(
+             occ_obj is not None and occ_obj.name in hit
+@@ -2746,6 +2991,14 @@ def _realize_constrained(
+         "stage_runtime_s": {
+             key: round(float(value), 6) for key, value in stage_runtime.items()
+         },
++        # Blender 안에서 실제로 돌린 explicit 배치 탐색 횟수와 저해상도 렌더 횟수.
++        "realization_attempt_count": (
++            0 if explicit_search is None
++            else len(explicit_search.get("search_runs", []))
++        ),
++        "lowres_render_count": int(
++            _LOWRES_RENDER_COUNT - lowres_render_count_start
++        ),
+     }
+     explicit_requirement_failure = SP2.explicit_requirement_failure(
+         flags["explicit"],
+@@ -2763,16 +3016,31 @@ def _realize_constrained(
+             metrics["explicit_solver_fail_reason"]
+             or explicit_requirement_failure
+         )
++    # MODE SEMANTICS — "이 프레임이 정말 그 mode 의 내용을 담고 있는가".  최종 RGB 를
++    # 렌더하기 전(=realize 반환 전)에 판정하므로, 의미가 빈 프레임은 렌더 비용을 쓰지
++    # 않고 버려진다.
++    semantics = SP2.mode_semantics_verdict(diagnostic_mode, metrics)
++    metrics["mode_semantics_pass"] = bool(semantics["pass"])
++    metrics["mode_semantics_conditions"] = dict(semantics["conditions"])
++    metrics["mode_semantics_failed_conditions"] = list(
++        semantics["failed_conditions"]
++    )
++    metrics["mode_semantics_unknown_conditions"] = list(
++        semantics["unknown_conditions"]
++    )
++    metrics["mode_semantics_reason"] = semantics["reason"]
+     if (
+         not collision_ok
+         or not camera_ok
+         or not overall_support_pass
+         or explicit_requirement_failure is not None
++        or not semantics["pass"]
+     ):
+         metrics["failure_reason"] = (
+             explicit_requirement_failure
+             or metrics["collision_reject_reason"]
+             or ("support_contact" if not overall_support_pass else None)
++            or semantics["reason"]
+         )
+         return {
+             "realize_ok": False,
+@@ -2938,6 +3206,29 @@ def _mask_area(path):
+     return int((arr > 127).sum()), arr
+ 
+ 
++# G1.6 탐색 조정값.  프로세스당 CLI 인자로 한 번만 설정하고, 모든 record 에 그대로
++# 기록되므로 어떤 설정으로 만든 프레임인지 사후에 확인할 수 있다.
++#   target_seed_free_cap : 앞 K개 unique target-seed 후보만 예산 면제 (None=무제한)
++#   near_miss_gap_threshold : 이 값 이하의 목표오차 간격만 fine refinement 대상
++SEARCH_TUNING = {
++    "target_seed_free_cap": None,
++    "near_miss_gap_threshold": None,
++}
++
++
++def set_search_tuning(target_seed_free_cap=None, near_miss_gap_threshold=None):
++    """탐색 조정값을 설정한다 (프로세스당 1회, 렌더 시작 전)."""
++    SEARCH_TUNING["target_seed_free_cap"] = (
++        None if target_seed_free_cap is None else int(target_seed_free_cap))
++    SEARCH_TUNING["near_miss_gap_threshold"] = (
++        None if near_miss_gap_threshold is None
++        else float(near_miss_gap_threshold))
++    return dict(SEARCH_TUNING)
++
++
++_LOWRES_RENDER_COUNT = 0
++
++
+ def _lowres_holdout(
+     scene,
+     pallet_root,
+@@ -2946,6 +3237,10 @@ def _lowres_holdout(
+     token="mask",
+     size=128,
+ ):
++    # 저해상도 holdout 이 controlled 파이프라인 비용의 대부분이다 (baseline: 실패
++    # 94건의 explicit 단계 3,118초).  프레임별로 몇 번 돌았는지 세어 record 에 남긴다.
++    global _LOWRES_RENDER_COUNT
++    _LOWRES_RENDER_COUNT += 1
+     old_x = scene.render.resolution_x
+     old_y = scene.render.resolution_y
+     old_pct = scene.render.resolution_percentage
+@@ -3168,6 +3463,56 @@ def _measure_front_opening_visibility(rs):
+     return base
+ 
+ 
++def _target_seed_budget_fields(explicit_search):
++    """§3 target-seed 예산 회계를 프레임 단위로 합산해 record 에 남긴다."""
++    if explicit_search is None:
++        return {"target_seed_free_cap": None, "target_seed_unique_count": None,
++                "target_seed_free_used": None, "target_seed_paid_used": None,
++                "target_seed_duplicate_count": None}
++    per_proposal = explicit_search.get("target_seed_budget_all") or []
++    tuning = explicit_search.get("tuning") or {}
++    return {
++        "target_seed_free_cap": tuning.get("target_seed_free_cap"),
++        "target_seed_unique_count": sum(
++            int(entry.get("target_seed_unique_count") or 0)
++            for entry in per_proposal),
++        "target_seed_free_used": sum(
++            int(entry.get("target_seed_free_used") or 0)
++            for entry in per_proposal),
++        "target_seed_paid_used": sum(
++            int(entry.get("target_seed_paid_used") or 0)
++            for entry in per_proposal),
++        "target_seed_duplicate_count": sum(
++            int(entry.get("target_seed_duplicate_count") or 0)
++            for entry in per_proposal),
++    }
++
++
++def _fine_refinement_fields(explicit_search):
++    """§4 near-miss fine refinement 계측 (실행 안 됐으면 triggered=False)."""
++    keys = ("fine_triggered", "fine_trigger_reason", "fine_source_stage",
++            "fine_source_score", "fine_score_margin_before", "fine_eval_count",
++            "fine_best_score", "fine_score_margin_after", "fine_won",
++            "fine_runtime_s", "near_miss_gap_threshold")
++    if explicit_search is None:
++        return {key: None for key in keys}
++    state = explicit_search.get("fine_state") or {}
++    tuning = explicit_search.get("tuning") or {}
++    return {
++        "fine_triggered": bool(state.get("triggered")),
++        "fine_trigger_reason": state.get("trigger_reason"),
++        "fine_source_stage": state.get("source_stage"),
++        "fine_source_score": state.get("source_score"),
++        "fine_score_margin_before": state.get("margin_before"),
++        "fine_eval_count": int(state.get("evals") or 0),
++        "fine_best_score": state.get("best_score"),
++        "fine_score_margin_after": state.get("margin_after"),
++        "fine_won": bool(state.get("won")),
++        "fine_runtime_s": round(float(state.get("runtime_s") or 0.0), 6),
++        "near_miss_gap_threshold": tuning.get("near_miss_gap_threshold"),
++    }
++
++
+ def _occlusion_side_from_masks(before, after):
+     before = np.asarray(before) > 127
+     after = np.asarray(after) > 127

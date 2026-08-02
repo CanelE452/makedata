@@ -1,0 +1,39 @@
+{
+  "rgb": {
+    "files": 20,
+    "total_bytes": 8984692,
+    "mean_bytes": 449234,
+    "p95_bytes": 875685
+  },
+  "labels": {
+    "files": 20,
+    "total_bytes": 656248,
+    "mean_bytes": 32812,
+    "p95_bytes": 157444
+  },
+  "mask_amodal": {
+    "files": 20,
+    "total_bytes": 1821902,
+    "mean_bytes": 91095,
+    "p95_bytes": 134079
+  },
+  "mask_visible": {
+    "files": 20,
+    "total_bytes": 1831393,
+    "mean_bytes": 91569,
+    "p95_bytes": 134079
+  },
+  "overlay": {
+    "files": 0,
+    "total_bytes": 0,
+    "mean_bytes": 0,
+    "p95_bytes": 0
+  },
+  "projection": {
+    "per_frame_bytes_raw": 664710,
+    "per_frame_bytes_with_overlay": 664710,
+    "target_total": 500,
+    "raw_total_mb": 332.4,
+    "with_overlay_total_mb": 332.4
+  }
+}

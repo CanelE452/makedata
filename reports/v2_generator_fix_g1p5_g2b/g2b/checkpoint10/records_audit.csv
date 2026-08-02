@@ -1,0 +1,11 @@
+usable_id,diagnostic_mode,semantics_pass,failed,unknown,recorded_pass,n_cargo_requested,n_cargo_placed,n_cargo_visible,cargo_visible_pixels,cargo_visible_pixel_ratio,n_context_requested,n_context_placed,n_context_visible,context_visible_pixel_ratio,explicit_occluder_placed,explicit_occluder_visible_pixels,occluder_side_target,occluder_side_actual,occluder_side_match,f_explicit_target,f_explicit_actual,explicit_metrics_available,f_explicit_actual_lowres,explicit_abs_error_lowres,explicit_target_pixels,explicit_actual_pixels_lowres,explicit_target_centroid_u,explicit_target_centroid_v,explicit_actual_centroid_u_lowres,explicit_actual_centroid_v_lowres,search_winning_stage,coarse_eval_count,fine_eval_count,runtime_s
+0,clean-static,True,,,True,0,0,0,0,0.0,0,0,0,0.0,False,0,,,,0.0,,False,,,,,,,,,,,,7.094091415405273
+1,cargo-only,True,,,True,2,2,2,64,0.004629629629629629,0,0,0,0.0,False,0,,,,0.0,,False,,,,,,,,,,,,11.370739698410034
+2,context-rich,True,,,True,2,2,2,1676,0.13639322916666666,3,1,1,1.0,False,0,,,,0.0,,False,,,,,,,,,,,,21.989343881607056
+3,controlled-occlusion,True,,,True,0,0,0,0,0.0,3,2,2,1.0,True,228,left,left,True,0.19537258492039322,,True,0.15789473684210525,0.03747784807828797,38,6,85.71052631578948,37.0,79.5,37.0,target-seed,9,0,41.9253044128418
+4,context-rich,True,,,True,2,2,2,223,0.01613136574074074,3,3,3,1.0,False,0,,,,0.0,,False,,,,,,,,,,,,26.808188915252686
+5,controlled-occlusion,True,,,True,2,1,1,84,0.005116959064327485,3,3,3,1.0,True,12513,right,right,True,0.27312834436863037,,True,0.15918367346938775,0.11394467089924262,204,39,112.98039215686275,124.84803921568627,131.46153846153845,124.66666666666667,target-seed,18,0,60.205660581588745
+6,clean-static,True,,,True,0,0,0,0,0.0,0,0,0,0.0,False,0,,,,0.0,,False,,,,,,,,,,,,4.953212022781372
+7,cargo-only,True,,,True,2,2,2,832,0.06018518518518518,0,0,0,0.0,False,0,,,,0.0,,False,,,,,,,,,,,,11.264337539672852
+8,context-rich,True,,,True,0,0,0,0,0.0,3,3,2,0.6666666666666666,False,0,,,,0.0,,False,,,,,,,,,,,,24.678026914596558
+9,controlled-occlusion,True,,,True,0,0,0,0,0.0,3,3,3,1.0,True,193,bottom,bottom,True,0.14684539908486832,,True,0.040268456375838924,0.1065769427090294,298,12,86.71476510067114,81.09731543624162,87.66666666666667,91.16666666666667,preprobe,21,0,28.363297939300537

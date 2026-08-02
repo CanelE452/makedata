@@ -151,6 +151,26 @@ class DiagnosticModeAllocation(unittest.TestCase):
             rebuilt.extend(R.usable_diagnostic_modes(2000)[start:start + 100])
         self.assertEqual(modes, rebuilt)
 
+    def test_interleaved_schedule_survives_a_resume(self):
+        """세션이 끊겨도 이어붙인 schedule 이 uninterrupted 와 완전히 같아야 한다."""
+        full = R.usable_diagnostic_modes(2000)
+        for cut in (1, 37, 100, 1449):
+            resumed = (R.usable_diagnostic_modes(2000)[:cut]
+                       + R.usable_diagnostic_modes(2000)[cut:])
+            self.assertEqual(full, resumed, f"cut={cut}")
+
+    def test_any_prefix_is_already_representative(self):
+        """블록 배치와 달리, 어디서 멈춰도 네 mode 가 모두 들어있다."""
+        modes = R.usable_diagnostic_modes(2000)
+        for prefix in (10, 37, 100, 1449):
+            self.assertEqual(set(modes[:prefix]), set(R.DIAGNOSTIC_MODES),
+                             f"prefix={prefix}")
+
+    def test_delivered_ids_have_no_duplicates(self):
+        modes = R.usable_diagnostic_modes(2000)
+        self.assertEqual(len(modes), len(list(range(len(modes)))))
+        self.assertEqual(sorted(range(2000)), sorted(range(len(modes))))
+
 
 class ResumeState(unittest.TestCase):
     def setUp(self):

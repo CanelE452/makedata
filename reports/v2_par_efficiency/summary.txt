@@ -1,0 +1,4 @@
+base 188
+thr 192
+gpu 177
+both 177

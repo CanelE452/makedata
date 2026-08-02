@@ -33,14 +33,26 @@ v3 palletobj / trunc_addon / addon_v1 attribution만   팔레트=자작 OBJ + oc
 
 ---
 
-## ⚠️ BLOCKERS — 공개 전 반드시 해결 (B1·B2·B3·B4 해소, 잔여 = B5·B6 + ★occlusion 선택 재배선)
+## ⚠️ BLOCKERS — 공개 전 반드시 해결 (B1·B2·B3·B4 + ★재배선 해소, 잔여 = B5·B6 절차 2건)
+
+> **갱신 2026-08-02 (★occlusion 선택 재배선 = 해소 확인)**: 아래 07-24 시점의 "★재배선 필요"는
+> **v2 파이프라인 코드에서 이미 완료**됨을 코드 실물로 확인 [확인]. `v2_realize.py:61`·`v2_pipeline.py:53`이
+> `distractor_pool_v2`(209 CC0/CC-BY manifest 기반)를 import 하고 occluder/context 선택을
+> `dpool.select_distractor_object_names()`(v2_realize.py:2554)로 수행 — 209 풀에 `Sketchfab_model*`이
+> 없으므로 **선택 자체가 불가능**(`distractor_pool_v2.py:19-21` 명시). 레거시 `DISTRACTOR_NAMES`
+> (`config/synthetic/blender.yaml:35-41`)도 현재 **5종**(Barrel_01·Barrel_1·concrete_road_barrier·
+> TrafficCone_1·TrafficCone_2)뿐이며 `Sketchfab_model` 없음. 추적 파일 전체 `git grep "Sketchfab_model"`
+> → **주석 3곳뿐, 선택 목록 0건**. → **잔여 = B5(attribution)·B6(isaac_assets 제외) 절차 2건 + 구 데이터셋 v2 재생성.**
+>
+> **한정 [미검증]**: 확인 범위는 *선택 경로*(코드)다. blend 파일 내부에 `Sketchfab_model` 오브젝트가
+> 물리적으로 남아 있는지는 Blender를 열어야 확인 가능 — 선택되지 않으므로 렌더 산출물 영향은 없다 `[추정]`.
+> **새 미검증 항목 `?`**: 위 레거시 5종(Barrel_01 등)의 라이선스는 이 원장에 명시 기록이 없다(그룹 7 참조).
 
 > **갱신 2026-07-24 (팔레트 교체·blend 재-bake 완료 + B2 오탐 정정)**: 목재 P2/P3(`scene_2/3.usd`) 격리 →
 > 새 목재 2종(J-Toastie CC-BY3.0 + EUR-Pallet BlenderKit CC0) 투입, **프로덕션 blend 재-bake로 NoAI 목재
 > 완전 제거 + 로더 repoint 완료 → B1 파이프라인 관문 해소**. **B2는 오탐으로 종료**(Isaac 지문 0, occluder=
-> Poly Haven CC0). **잔여 = B5(attribution)·B6(isaac_assets 제외)** + **★occlusion 선택 재배선**(현 occlusion
-> 선택 `DISTRACTOR_NAMES`(8)에 옛 `Sketchfab_model`×3(라이선스 불명)이 남아 실제 가림 렌더에 들어감 →
-> 209 CC0/CC-BY 풀로 재배선 전까지 유효). distractor 209는 blend에 import+tag 완료(에셋 가용), 선택 배선은 다음 phase.
+> Poly Haven CC0). distractor 209는 blend에 import+tag 완료(에셋 가용), 선택 배선은 다음 phase.
+> (당시 서술된 "★occlusion 선택 재배선 필요"는 위 2026-08-02 확인으로 **해소**.)
 
 ```
 #    상태            블로커                                                          영향 범위
@@ -53,6 +65,8 @@ B5   미해결 MEDIUM   CC-BY 저작자표시 의무 미이행 시 위반(첨부
 B6   미해결 LOW      isaac_assets/(NVIDIA 창고 USD) 트리에 존재 — 배포물서 제외 필요     소스 에셋(렌더 산출물 아님)
 B7   해소            NoAI dataset 압축본이 exclusion 에서 빠져 ZIP 경로로 누출 가능     train_4pallet_mask_v1.zip
 B8   해소            v4 계열 파생 4종 = PROVEN_NOAI 확정 (라벨 전수) + noai_baked 격리   GREYBUG·bg1bak·emptywood·pilotA
+★    해소(08-02)     occlusion 선택에 라이선스 불명 Sketchfab_model×3 → 209 풀 재배선    v2 선택 경로 코드 확인
+?    미검증          레거시 DISTRACTOR_NAMES 5종(Barrel/TrafficCone/road_barrier) 라이선스 원장 기록 없음(그룹 7)
 ```
 
 **B7 (해소 2026-07-30, Stage 2-D0.1)** — `archive/train_4pallet_mask_v1/`(NoAI baked)은
@@ -178,11 +192,21 @@ asset          저장경로                              출처         저작�
 ──────────────────────────────────────────────────────────────────────────────────────────────────────
 pallet_full    data/palletobj/pallet_full.obj(.mtl)  본인 촬영    사용자(본인)   본인 IP(자작) Y     -
   +diffuse텍스  data/palletobj/laydown_u1_v1_diffuse  photogram.   사용자(본인)   본인 IP      Y     -
-P0 scene.usd   data/pallet/assets/pallets/models/models_usd/scene.usd      Sketchfab    (플라스틱)     CC-BY 4.0    Y*    B5(표시)
-P1 scene_1.usd data/pallet/assets/pallets/models/models_usd/scene_1.usd    Sketchfab    billy3D(추정)  CC-BY 4.0    Y*    B5(표시)
+P0 scene.usd   data/pallet/assets/pallets/models/models_usd/scene.usd      Sketchfab    herisuwardi71  CC-BY 4.0    Y*    B5(표시)
+P1 scene_1.usd data/pallet/assets/pallets/models/models_usd/scene_1.usd    Sketchfab    billy3D        CC-BY 4.0    Y*    B5(표시)
 scene_noemit   data/pallet/assets/pallets/models/models_usd/scene_noemit   scene.usd파생 (P0 동일)       (P0 상속)    Y*    B5(표시)
-usd텍스처       data/pallet/assets/pallets/models/models_usd/textures/*.png Sketchfab파생 blinn1(P0/P1)  (P0/P1 상속) Y*    B5(표시)
+blinn1_*.png   data/pallet/assets/pallets/models/models_usd/textures/blinn1_*  P1 참조   billy3D        (P1 상속)    Y*    B5(표시)
+lambert16_*.png data/pallet/assets/pallets/models/models_usd/textures/lambert16_* P2 참조 미확정        미확정        ?     ★신규(아래)
 ```
+- **★ P0/P1 원출처 확정 [강한 정황, 2026-08-02 Sketchfab API 역검색]** — 아래 §"source URL 상태" 참조.
+- **★ `lambert16_*.png` 3개 = 격리된 P2 의 텍스처 [확인, 2026-08-02]**: USD 바이트 스캔 결과
+  `lambert16` 토큰은 **`scene_2.usd`(격리본)에만** 있고 P0/P1/P3 엔 없다(`blinn1` 은 P1 에만).
+  즉 이전 기록 "blinn1_*/lambert16_* 원자재는 P0/P1 상속"은 **lambert16 에 한해 오류** —
+  P2 는 andree(CC-BY)/Luka Feric(NoAI) 중 어느 쪽인지 **미확정**이므로 이 3개 png 는
+  **NoAI 텍스처일 가능성이 남아 있다**. 게다가 (a) `_DISTRIBUTION_EXCLUDE.txt` 에
+  `models_usd/textures/` 가 없어 **배포 시 포함**되고, (b) `randomizers.py:121` 이 이름
+  `lambert16` 머티리얼을 조회한다(없으면 fallback). → **P2/P3 판정 전까지 미해결**.
+  판정법은 §"source URL 상태" 의 정점수 대조.
 **격리 (목재 2종 — NoAI 원천 제거, `_noai_quarantine_usd/`로 이동, 보관만)**
 ```
 asset          저장경로(신)                                   출처       라이선스              공개  블로커
@@ -196,13 +220,32 @@ P3 scene_3.usd data/pallet/archive/_noai_quarantine_usd/scene_3.usd   Sketchfab 
 - **시드 4모델 [시드]**: "pallet 2606"(herisuwardi71) CC-BY4.0 / "Plastic Pallet"(billy3D) CC-BY4.0 /
   "Pallet"(andree/maestronoov) CC-BY4.0 / **"Old Wooden Pallet"(Luka Feric) = Free Standard+NoAI = B1**.
   → 플라스틱 2종(P0/P1)은 이 중 billy3D "Plastic Pallet" + 나머지 CC-BY 하나로 매핑됨(둘 다 CC-BY, 표시 대상).
-- **★ source URL 상태 (재발견성)**:
-  - **유지 P0/P1: canonical URL 미보유**(models_usd에 SOURCES/LICENSE 없음, USD=baked crate 메타 0,
-    원본 아카이브 미발견). P1 후보 URL(billy3D "Plastic Pallet", `pallets_v2_add/SOURCES.txt` 기록):
-    https://sketchfab.com/3d-models/plastic-pallet-0699da1b0dd04c13b5c6731c8dda75d1 . P0는 title/author
-    단서만 → 정확 재발견 보장 안 됨. **B5 저작자표시를 위해 CC-BY 원출처 URL 확정 권장**.
-  - **격리 P2/P3: URL 미보유** — provenance는 `_noai_quarantine_usd/README.md`에 보관. NoAI라 재발견해도
-    사용 금지.
+- **★ source URL 상태 — 2026-08-02 Sketchfab API 역검색으로 P0/P1 확정 [강한 정황]**:
+  내부 조사 먼저 수행했으나 **history 는 2026-03-25 부터**라 USD 확보일(2026-03-04) 기록이 없고
+  원본 ZIP 도 아카이브에 없음 [확인]. → 외부 Sketchfab API(`api.sketchfab.com/v3/models/<uid>`)로
+  시드 4모델의 실측 폴리곤·라이선스를 받아 우리 USD 파일 크기와 대조.
+  ```
+  Sketchfab 모델                   faces     verts    라이선스        → 슬롯   USD 크기
+  ─────────────────────────────────────────────────────────────────────────────────────
+  "pallet 2606"  herisuwardi71    426,540  209,960   CC-BY          P0       20.9 MB
+  "Plastic Pallet"  billy3D         4,392    1,958   CC-BY          P1        0.33 MB
+  "Old Wooden Pallet"  Luka Feric   3,024    1,568   Free Standard  P2|P3     0.17 / 0.57 MB
+  "Pallet"  andree(maestronoov)     2,160    1,120   CC-BY          P2|P3
+  ```
+  - **P0 = "pallet 2606" (herisuwardi71), CC-BY** —
+    https://sketchfab.com/3d-models/pallet-2606-9fc3dca70fdb466e87602d3721d1075a
+    근거: 4모델 중 **유일한 고폴리(426k faces, 나머지 전부 5k 미만)** ↔ 우리 P0 만 유일하게 20.9MB
+    (나머지 3개는 ≤0.6MB) + 썸네일 형상(둥근 모서리 사각 플라스틱·격자 리브·막힌 상판)이 카탈로그
+    `_pallet_catalog_0123/pallet_0123_row.png` 의 P0 와 일치. **[강한 정황] — 바이트/지오메트리
+    동일성 확인은 아님**(Sketchfab 다운로드에 로그인 필요).
+  - **P1 = "Plastic Pallet" (billy3D/billyNG), CC-BY** —
+    https://sketchfab.com/3d-models/plastic-pallet-0699da1b0dd04c13b5c6731c8dda75d1
+    기존 후보 URL 이 폴리곤 대조(4,392 faces ↔ 0.33MB)로 뒷받침됨.
+  - **격리 P2/P3: 매핑 여전히 미확정** — 목재 2모델은 Luka Feric(3,024 f, **NoAI**) + andree(2,160 f, CC-BY).
+    파일 크기로는 못 가른다(P3 가 P2 의 3.3배인데 faces 는 1.4배 차 = 텍스처 임베드 여부로 갈릴 수 있음).
+    **확정법**: Blender 로 두 격리 USD 를 임포트해 **정점수를 세면 1,568 vs 1,120 으로 1:1 판명**된다.
+    → 판정되면 (a) CC-BY 쪽은 격리 해제 가능, (b) `lambert16_*.png`(P2 텍스처) 귀속도 동시 종결.
+  - Luka Feric 모델 라이선스 재확인 [확인]: API `license.label = "Free Standard"` — 시드 감사 기록과 일치.
 - `scene_noemit.usd` = scene.usd(P0)의 emissive 제거 변형 → P0(CC-BY) 상속. `models_usd/textures/`의
   `blinn1_*`/`lambert16_*` 원자재도 소스 모델 상속(파이프라인은 DR 머티리얼로 덮어써 렌더엔 미사용).
 - **repoint 완료 [확인, 2026-07-24]**: 로더 `randomizers.py`에 `.glb` 분기 추가 + `config/synthetic/
@@ -320,10 +363,15 @@ group                저장경로                          출처            저
 floor 텍스처 ×14      data/pallet/assets/materials/floor/textures_floor/*.png  Poly Haven      Poly Haven  CC0 1.0(확정)    Y     B4 해소
 _procedural_textures  data/pallet/archive/_procedural_textures/ 절차생성(자작)  스크립트     자작(CC0급)      Y     -(현 미사용)
 ```
-- **목재 9종 [확인, 검증완료]**: `_tmp_ph/*_files.json` 6개가 `dl.polyhaven.org`(CC0) 다운로드 매니페스트
-  (brown_planks_04/dark_planks/plank_flooring_03/weathered_planks/wood_planks/wood_planks_grey). 나머지 3종
-  (weathered_brown_planks/worn_planks/brown_planks_03)은 history 2026-06-16에 "Polyhaven 실사 png"로 명기.
-  → 전 9종 Poly Haven CC0.
+- **목재 9종 [확인, API 전수 검증 완료 2026-08-02]**: `textures_wood/{LICENSE.txt, SOURCES.txt}` 생성 =
+  **9/9 CONFIRMED Poly Haven CC0, 0 UNVERIFIED**. floor 14종과 **동일 기준**(`https://api.polyhaven.com/
+  info/<slug>` 200 + human-readable name 일치 + `type:1`)으로 9 slug 전수 조회. 저자: Rob Tuytel(4) ·
+  Dimitrios Savva(2, 공동) · Jenelle van Heerden+Matterfield · Dario Barresi · Amal Kumar · Rico Cilliers.
+  - **이전 근거 상태(해소 전)**: 폴더에 LICENSE/SOURCES **부재**, 근거는 (a) `_tmp_ph/*_files.json` 6개
+    (`dl.polyhaven.org` 다운로드 매니페스트: brown_planks_04·dark_planks·plank_flooring_03·weathered_planks·
+    wood_planks·wood_planks_grey) + (b) 나머지 3종(brown_planks_03·weathered_brown_planks·worn_planks)은
+    history 2026-06-16 서술뿐(artifact 없음)이었다. **08-02 검증에서 그 3종도 200/name일치/type:1 통과** →
+    provenance gap 종료. 파일 내용은 무수정(floor 처럼 교체한 것 아님).
   - **★ source URL (재발견용)**: URL 패턴 `https://polyhaven.com/a/<name>` (name = 파일명에서 `_diff/_nor_gl/
     _rough` 접미 제거). 예: https://polyhaven.com/a/wood_planks , https://polyhaven.com/a/plank_flooring_03 ,
     https://polyhaven.com/a/weathered_planks . (다운로드 CDN URL 원본은 `data/pallet/archive/superseded_runs/_tmp_ph/*_files.json`.)
@@ -360,13 +408,28 @@ cargo(배럴/카드보드)  production blend (baked, CARGO_SOURCES)            P
   + Sketchfab CC-BY 산업 prop(8추정, B5 표시대상) + 불명 3. 이전의 "`WetFloorSign_01`=Isaac `S_WetFloorSign
   .usd`" 단정은 **파일명 이름-충돌 오탐**(verify 누락)이었음. → NVIDIA 무관, occluder는 CC0/CC-BY.
   (정의: `gen_palletobj_scenarios.py:48 OCCLUDER_TIERS`.) 잔여 = 불명 3종 출처 확정 + CC-BY 8종 attribution(B5).
-- **★ 현 occlusion 선택 라이선스 갭 (2026-07-24, 재배선 필요)**: 메인 `synth_data_scene.blend`의 occlusion
-  선택 `DISTRACTOR_NAMES`(8)에 옛 **`Sketchfab_model`×3(라이선스 불명)**이 포함 → **실제 가림 렌더에 unknown-
-  license 자산이 들어감** [확인]. (위 OCCLUDER_POOL "불명 3"과 동일 계열.) → **릴리스/v2 재생성 전 occlusion
-  선택을 209 CC0/CC-BY 풀로 재배선 필수**. Standard/비-CC일 수 있어 attribution(B5)만으로 불충분할 수 있음 =
-  교체가 안전. **distractor 209 통합 상태**: `synth_data_scene.blend`에 unpacked append + 태그 완료
-  (`is_distractor_v2`=209, `size_class` 메타 209, GSO magenta 0, blend 342MB<1GB) = **에셋 가용화 완료**;
-  선택 배선(`DISTRACTOR_NAMES`→209)은 **다음 phase(Placement)**.
+- **★ 현 occlusion 선택 라이선스 갭 → 해소 [확인, 2026-08-02 코드 재검증]**: 07-24 시점 서술은
+  "occlusion 선택 `DISTRACTOR_NAMES`(8)에 옛 `Sketchfab_model`×3(라이선스 불명) 포함 → 실 가림 렌더 오염,
+  209 풀 재배선 필수"였다. **그 재배선은 이후 완료되었고 원장만 갱신이 밀려 있었다.** 확인 근거:
+  ```
+  근거                                                        파일:라인
+  ────────────────────────────────────────────────────────────────────────────────────────
+  v2 선택 소스 = distractor_pool_v2 (209 manifest)             v2_realize.py:61, v2_pipeline.py:53
+  occluder/context 선택 호출                                   v2_realize.py:2554 select_distractor_object_names()
+  209 풀에 Sketchfab_model 부재 → 선택 불가 (모듈 docstring)     distractor_pool_v2.py:19-21, :124
+  레거시 DISTRACTOR_NAMES = 5종, Sketchfab_model 없음           config/synthetic/blender.yaml:35-41
+  추적 파일 전체 grep → 주석 3곳뿐, 선택 목록 0건                git grep "Sketchfab_model" -- scripts/ config/
+  구 생성기도 209 풀로 전환됨(주석 명시)                          gen_4pallet_mask.py:119, gen_dataset_v4.py:105
+  ```
+  **한정**: 위는 *선택 경로*(코드) 기준 [확인]. blend 내부에 해당 오브젝트가 물리적으로 잔존하는지는
+  미검증 — 선택되지 않으므로 렌더 산출물에는 들어가지 않는다 `[추정]`. **distractor 209 통합 상태**:
+  `synth_data_scene.blend`에 unpacked append + 태그 완료(`is_distractor_v2`=209, `size_class` 메타 209,
+  GSO magenta 0, blend 342MB<1GB) = 에셋 가용화 완료 → **선택 배선까지 완료(본 항목 종료)**.
+- **`?` 레거시 DISTRACTOR_NAMES 5종 — 라이선스 기록 없음 [미검증, 2026-08-02 신규]**:
+  `config/synthetic/blender.yaml:35-41`의 `Barrel_01`·`Barrel_1`·`concrete_road_barrier`·`TrafficCone_1`·
+  `TrafficCone_2`. v2 경로는 이 목록을 occluder 선택에 쓰지 않으나(위 참조) **레거시 생성기 경로에서는
+  참조 가능**(`randomizers.py:954`). 이름상 Poly Haven CC0 계열로 보이지만 **원장·LICENSE 파일에 대응
+  기록이 없다** → 추정으로 단정하지 않고 `?`로 남긴다. 구 데이터셋 v2 재생성 시 209 풀만 쓰면 무의미해짐.
 - **isaac_assets/ (B6 유지)**: full_warehouse.usd + warehouse*.usd + Props(S_AisleSign/S_TrafficCone/
   S_WetFloorSign/SM_CratePlastic 등) + Materials(*.mdl). NVIDIA Isaac Sim 배포 에셋 → **배포물서 제외**.
   단 이 폴더는 **occluder 소스가 아님**(occluder는 Poly Haven) — Isaac 파이프라인(v4 USD) 잔재. 재취득 경로 =
@@ -423,12 +486,12 @@ real_data (실촬영)                data/pallet/reference/real_images/real_data
 - `_noai_quarantine_usd/`(격리된 scene_2/3.usd + README) → 그룹 1(격리 표).
 - `models_usd/textures/`(blinn1/lambert16 원자재), `scene_noemit.usd` → 그룹 1로 편입.
 - `_procedural_textures/`(자작 21) → 그룹 6.
-- **baked Sketchfab_model — ⚠️ 정정(2026-07-24 심층 확인)**: "Sketchfab_model"은 (a) CC-BY 배경
+- **baked Sketchfab_model — 정정(07-24) 후 해소(08-02)**: "Sketchfab_model"은 (a) CC-BY 배경
   (modular_buildings/parking_lot) 임포트 루트(정상, 표시 의무 B5)이면서, **동시에 (b) 옛 baked distractor
-  오브젝트 ×3의 이름**이기도 함. **(b) 3개가 현 occlusion 선택 `DISTRACTOR_NAMES`(8)에 포함 = 라이선스 불명
-  자산이 실제 가림 렌더에 들어감** [확인]. 초기 토큰-grep은 (a)와 (b)를 구분 못 해 "증거 없음"이라 했으나
-  오판 — **selection 레벨에선 3개 실재**. modern_city_block 토큰은 여전히 0(비-CC 배경 baked 아님). → **B5/릴리스
-  관문: v2 재생성·공개 전 occlusion 선택을 209 CC0/CC-BY 풀로 재배선 필수**(아래 그룹 7, 종합판정).
+  오브젝트 ×3의 이름**이기도 함. 초기 토큰-grep은 (a)와 (b)를 구분 못 해 "증거 없음"이라 했으나 오판 —
+  07-24 당시 **selection 레벨에선 3개 실재**했다. **→ 2026-08-02 확인: 선택 배선이 209 CC0/CC-BY 풀로
+  교체되어 (b)는 더 이상 선택되지 않는다** [확인, 그룹 7 근거표]. (a)는 CC-BY 배경이라 B5 표시 대상으로 유지.
+  modern_city_block 토큰은 여전히 0(비-CC 배경 baked 아님).
 - **occluder [B2 오탐 종료]**: 프로덕션 blend 157MB 해제 grep Isaac 지문 0 → occluder=Poly Haven CC0
   (이름충돌 오탐) → 그룹 7. **isaac_assets/ NVIDIA(B6, occluder 소스 아님·v4 잔재)** → 그룹 7.
 - **★ blend baked 팔레트 [task5→재-bake 완료, B1 해소]**: `synth_data_scene.blend`(zstd)에 Pallet_0~3
@@ -438,23 +501,36 @@ real_data (실촬영)                data/pallet/reference/real_images/real_data
 
 ---
 
-## 공개가능 종합판정 (갱신 2026-07-24)
+## 공개가능 종합판정 (갱신 2026-08-02)
 
-**현재 상태: 팔레트 블로커(B1/B3) 전부 해소, B2 오탐·B4 해소. 잔여 = B5·B6(절차) + ★occlusion 선택 재배선 + 구 데이터셋 v2 재생성.**
+**현재 상태: 에셋 블로커 전부 해소(B1/B2/B3/B4 + ★재배선). 잔여 = B5·B6 절차 2건 + 구 데이터셋 v2 재생성.**
 
 **B1 해소**(blend 재-bake로 NoAI 원천 제거, 3부 조건 완료 + legacy-purge 강건화). **B2 오탐 종료**(occluder=
-Poly Haven CC0). **B3 해소**(재질 확정). **B4 해소**(floor 14/14 CC0 확정). **잔여 = B5(CC-BY 표시)·B6
-(isaac_assets 제외)** + **★occlusion 선택 재배선**(현 `DISTRACTOR_NAMES`(8)에 라이선스 불명 `Sketchfab_model`
-×3 포함 → 실 가림 렌더 오염, 209 CC0/CC-BY 풀로 교체 필요). distractor 209는 blend import+tag 완료(에셋 가용),
-선택 배선은 다음 phase.
+Poly Haven CC0). **B3 해소**(재질 확정). **B4 해소**(floor 14/14 CC0 확정). **★occlusion 선택 재배선 해소**
+(2026-08-02 코드 확인 — v2 선택 소스가 `distractor_pool_v2` 209 CC0/CC-BY 풀이며 `Sketchfab_model*`은
+선택 불가; 근거표는 그룹 7). **잔여 = B5(CC-BY 표시)·B6(isaac_assets 제외)** — 둘 다 **배포 시점 절차**이지
+현재 생성 파이프라인의 오염 요인이 아니다.
+
+**★ 현재 "생성/학습" 단계 판정**: 신규 v2 생성분은 **라이선스 클린** — NoAI 미사용, unknown-license
+occluder 미선택, isaac_assets 미참조(occluder 소스 아님·v4 잔재). **B5는 배포 시점에 발생하는 의무**이므로
+사내 생성·학습만 하는 현 단계에서는 위반이 아니다. 단 **구 데이터셋(noai_baked 8종)을 학습에 재사용하면
+그 시점에 오염**되므로 격리 유지가 전제.
 
 **공개(Y) 도달 조건 — 갱신 해결 순서**
 ```
-1) ★occlusion 선택 재배선: DISTRACTOR_NAMES(8) 중 Sketchfab_model×3(라이선스 불명) 제거 → 209 CC0/CC-BY
-   풀로 교체. v2 재생성 전 필수(안 하면 unknown-license가 가림 렌더에 baked).
-2) v2 재생성: 재-bake된 클린 blend(+재배선된 occlusion)로 v4/v4_split/4pallet_mask 재생성(구 산출물 폐기).
+1) [해소 08-02] occlusion 선택 재배선 → 209 CC0/CC-BY 풀 (v2_realize.py:2554 / distractor_pool_v2)
+2) v2 재생성: 재-bake된 클린 blend(+209 풀 occlusion)로 v4/v4_split/4pallet_mask 재생성(구 산출물 폐기).
 3) B5: CC-BY 전 항목(P0/P1 플라스틱·배경2·GSO≈128·Sketchfab16·J-Toastie·occluder CC-BY 8) 통합 attribution 동봉.
 4) B6: isaac_assets/ 원본을 공개 배포 트리에서 제외(`_DISTRIBUTION_EXCLUDE.txt` 등재됨).
+```
+
+**근거가 약한 잔여 (공개 전 보강 권장, 블로커 아님)**
+```
+항목                      현 근거                                      필요 조치
+──────────────────────────────────────────────────────────────────────────────────────
+[해소 08-02] wood 9종     API 9/9 CONFIRMED + LICENSE/SOURCES.txt 생성  없음 (종료)
+레거시 DISTRACTOR 5종     기록 없음 (`?`)                              v2 재생성으로 무의미화되면 종료
+P0 canonical URL          title/author 단서만                          B5 표기용 원출처 URL 확정 권장
 ```
 
 **즉시 공개 가능(클린) 자산** — HDRI 30(CC0), Poly Haven distractor 65(CC0)·occluder CC0, 목재 텍스처 9(CC0),
@@ -464,15 +540,16 @@ real_data(본인 IP). CC-BY 자산(팔레트 P0/P1·배경2·GSO≈128·Sketchfa
 
 **종료된 항목(잔여에서 제외)**: B1(blend 재-bake + legacy-purge로 NoAI 파이프라인 제거) / B2(Isaac occluder,
 오탐) / B3(USD 매핑, 재질 확정) / B4(floor 14/14 CC0 확정) / paper_s2 실학습셋 확인(v2 재생성으로 대체 →
-불필요) / C3 실 평가셋 clutter 분포(이 머신 범위 밖) / distractor 209 **에셋 통합(import+tag 완료)**. **다음
-phase**: occlusion 선택 배선(`DISTRACTOR_NAMES`→209, Placement). **보류(지금 결정 안 함)**: 20+ clutter 복제로직.
+불필요) / C3 실 평가셋 clutter 분포(이 머신 범위 밖) / distractor 209 **에셋 통합(import+tag 완료)** /
+**★occlusion 선택 배선(→209 풀, 2026-08-02 코드 확인으로 종료)**. **보류(지금 결정 안 함)**: 20+ clutter 복제로직.
 
-**핵심 리스크 요약(갱신)**: (1) NoAI 리스크는 목재 2종 격리 + **blend 재-bake**(scene_2/3.usd·Legacy_Pallet_2/3
-전부 grep 0) + **legacy-purge**(로더 삭제-on-성공, Legacy_Pallet_0/1 제거 = 재-bake 누적원인 차단)로 **파이프라인서
-원천 제거 완료** — 단 **구 데이터셋(v4/4pallet_mask)은 NoAI가 이미 baked라 v2 재생성 전까지 공개 불가**.
-(2) "occluder=Isaac" 우려는 **오탐으로 종료**(occluder=Poly Haven CC0). (3) **★현 occlusion 선택에 라이선스 불명
-`Sketchfab_model`×3 잔존** → 209 CC0/CC-BY 풀 재배선 전까지 실 가림 렌더가 unknown-license 오염 = **릴리스/v2
-재생성 전 필수 처리**. 실질 남은 것 = **B5·B6 + occlusion 재배선**.
+**핵심 리스크 요약(갱신 2026-08-02)**: (1) NoAI 리스크는 목재 2종 격리 + **blend 재-bake**(scene_2/3.usd·
+Legacy_Pallet_2/3 전부 grep 0) + **legacy-purge**(로더 삭제-on-성공, Legacy_Pallet_0/1 제거 = 재-bake 누적원인
+차단)로 **파이프라인서 원천 제거 완료** — 단 **구 데이터셋(v4/4pallet_mask)은 NoAI가 이미 baked라 v2 재생성
+전까지 공개 불가·재학습 금지**. (2) "occluder=Isaac" 우려는 **오탐으로 종료**(occluder=Poly Haven CC0).
+(3) **★occlusion 선택의 unknown-license 오염은 해소** — v2 선택 소스가 209 CC0/CC-BY 풀로 교체되어
+`Sketchfab_model*`은 선택 불가 [확인, 그룹 7 근거표]. 실질 남은 것 = **B5·B6(배포 시점 절차) + 구 데이터셋
+v2 재생성**. 생성 파이프라인 자체에는 라이선스 오염 요인이 남아 있지 않다.
 
 ---
 

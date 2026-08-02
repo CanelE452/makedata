@@ -1,0 +1,42 @@
+{
+  "measured_run": "k8_p50fix (K=8, threshold=p50 0.1114)",
+  "derivation": "p50 은 p25 의 상위집합이므로 이 한 run 으로 두 threshold 의 결과를 모두 확정할 수 있다 — p25 결과는 |margin| <= 0.0607 인 trigger 만 남긴 것과 정확히 같다.",
+  "protection": {
+    "kept": 7,
+    "of": 7,
+    "lost": [],
+    "recovered": [
+      29,
+      136
+    ]
+  },
+  "p50": {
+    "triggers": 5,
+    "wins": 3,
+    "evals": 34,
+    "won_ids": [
+      18,
+      29,
+      136
+    ]
+  },
+  "p25": {
+    "triggers": 4,
+    "wins": 3,
+    "evals": 26,
+    "won_ids": [
+      18,
+      29,
+      136
+    ]
+  },
+  "k_axis": "per-proposal unique target-seed 후보가 실측 8(38 proposal)·7(1) 이라 K=8·K=12 는 무제한과 동일(paid 0)하고 K=4 만 물리는데 K=4 는 protection 6/7 로 탈락한다. -> K=8 (물리는 최소 상한) 채택.",
+  "selected": {
+    "target_seed_free_cap": 8,
+    "near_miss_gap_threshold": 0.0607,
+    "near_miss_gap_threshold_label": "p25",
+    "fine_max_evals": 8,
+    "fine_candidates_per_case": 1,
+    "reason": "p25 는 p50 과 **같은 3건을 회복**하면서 trigger 1건(pi 184, margin -0.1106)과 그 8 eval 을 아낀다."
+  }
+}

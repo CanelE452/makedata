@@ -1,0 +1,173 @@
+{
+  "dir": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100b_seed7000_public",
+  "n_usable": 100,
+  "mode_counts": {
+    "clean-static": 20,
+    "cargo-only": 20,
+    "context-rich": 30,
+    "controlled-occlusion": 30
+  },
+  "mode_counts_expected": {
+    "clean-static": 20,
+    "cargo-only": 20,
+    "context-rich": 30,
+    "controlled-occlusion": 30
+  },
+  "mode_counts_match": true,
+  "ten_block_violations": [],
+  "mode_semantics_failures": 0,
+  "mode_semantics_disagreements": [],
+  "per_mode": {
+    "clean-static": {
+      "n": 20,
+      "semantics_pass": 20
+    },
+    "cargo-only": {
+      "n": 20,
+      "semantics_pass": 20,
+      "placed_ge1": 20,
+      "visible_px_gt0": 20,
+      "visible_pixels": {
+        "n": 20,
+        "min": 16.0,
+        "p05": 16.0,
+        "median": 237.0,
+        "p95": 1906.0,
+        "max": 1906.0
+      },
+      "visible_ratio": {
+        "n": 20,
+        "min": 0.0013020833333333333,
+        "p05": 0.0013020833333333333,
+        "median": 0.014437134502923976,
+        "p95": 0.15511067708333334,
+        "max": 0.15511067708333334
+      }
+    },
+    "context-rich": {
+      "n": 30,
+      "semantics_pass": 30,
+      "visible_ge1": 30,
+      "ratio_gt0": 30,
+      "visible_ratio": {
+        "n": 30,
+        "min": 0.6666666666666666,
+        "p05": 0.6666666666666666,
+        "median": 1.0,
+        "p95": 1.0,
+        "max": 1.0
+      }
+    },
+    "controlled-occlusion": {
+      "n": 30,
+      "semantics_pass": 30,
+      "placed": 30,
+      "visible_px_gt0": 30,
+      "side_match": 30,
+      "abs_target_error": {},
+      "metrics_available": 30,
+      "abs_target_error_lowres": {
+        "n": 30,
+        "min": 0.001571651211764613,
+        "p05": 0.001571651211764613,
+        "median": 0.043422703671683854,
+        "p95": 0.11394467089924262,
+        "max": 0.11604323164489044
+      },
+      "centroid_error_px_lowres": {
+        "n": 30,
+        "min": 3.964825129976359,
+        "p05": 3.964825129976359,
+        "median": 13.069049393051555,
+        "p95": 44.7067571628996,
+        "max": 49.34177925544993
+      },
+      "winning_stage": {
+        "target-seed": 20,
+        "preprobe": 4,
+        "primary": 2,
+        "gate-overlap-refine": 3,
+        "corner-contact-refine": 1
+      }
+    }
+  },
+  "controlled_efficiency": {
+    "usable": 30,
+    "all_proposals": 123,
+    "yield_all_proposals": 0.24390243902439024,
+    "yield_all_proposals_ci95": [
+      0.17652266116613055,
+      0.3267948624223452
+    ],
+    "mode_filter_skips": 44,
+    "solve_rejects": 1,
+    "prefilter_exhausted_rejects": 10,
+    "attempts_excluding_mode_filter": 79,
+    "yield_attempts_excluding_mode_filter": 0.379746835443038,
+    "expensive_reject_share_excluding_mode_filter": 0.4810126582278481,
+    "blender_attempts": 68,
+    "yield_blender_attempts": 0.4411764705882353,
+    "yield_blender_attempts_ci95": [
+      0.329460449863809,
+      0.5591834556171379
+    ],
+    "expensive_rejects": 38,
+    "expensive_reject_share_blender": 0.5588235294117647,
+    "reject_runtime_s": 2421.2,
+    "accepted_runtime_s": 1820.0,
+    "reject_over_accepted_runtime": 1.330305421927326,
+    "wall_time_per_usable_controlled_s": 141.3754447142283,
+    "stage_counts": {
+      "render": 48,
+      "mode_filter": 44,
+      "solve": 1
+    },
+    "primary_reject_reason_counts": {
+      "usable_reject:rendered|usable_reject:realize_ok|mode_semantics:explicit_occluder_not_visible": 46,
+      "proposal_skip:mode_requires_explicit_occluder": 44,
+      "solve_reject:d_occ_fail": 1,
+      "gate_fail:G3": 2
+    },
+    "prefilter_reject_count_total": 2041,
+    "candidates_before_prefilter_total": 5872,
+    "candidates_after_prefilter_total": 3831
+  },
+  "baseline_controlled": {
+    "n": 49,
+    "abs_error_median": 0.04491846912562675,
+    "abs_error_p95": 0.23012316443291617,
+    "side_match_rate": 1.0,
+    "visible_pixels": {
+      "n": 49,
+      "min": 43.0,
+      "p05": 55.0,
+      "median": 1552.0,
+      "p95": 8688.0,
+      "max": 12324.0
+    }
+  },
+  "integrity": {
+    "id_min": 0,
+    "id_max": 99,
+    "contiguous": true,
+    "missing": [],
+    "duplicate": [],
+    "file_counts": {
+      "rgb": 100,
+      "labels": 100,
+      "mask_amodal": 100,
+      "mask_visible": 100
+    },
+    "visible_subset_amodal_violations": [],
+    "empty_amodal": [],
+    "corrupt": [],
+    "magenta_frames": [],
+    "camera_distance_over_10m": [],
+    "annotation_invalid": 0,
+    "reproj_max_px": 4.547473508864641e-13,
+    "reproj_median_px": 1.1368683772161603e-13,
+    "reproj_gate_px": 0.0001,
+    "reproj_gate_pass": true,
+    "gate_failures": []
+  }
+}

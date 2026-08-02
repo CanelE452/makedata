@@ -1,0 +1,19 @@
+{
+  "engine_eevee": "BLENDER_EEVEE",
+  "cycles_samples": 64,
+  "eevee_samples": 32,
+  "pairs": [
+    {
+      "pair": 0,
+      "mode": "clean-static",
+      "proposal_index": 0,
+      "cycles_png": "E:\\CODING\\GitHub\\FoundationPose\\reports\\v2_eevee_renderonly100\\comparison\\pairs\\pair00_clean_cycles.png",
+      "eevee_png": "E:\\CODING\\GitHub\\FoundationPose\\reports\\v2_eevee_renderonly100\\comparison\\pairs\\pair00_clean_eevee.png",
+      "cycles_s": 1.299,
+      "eevee_s": 0.814,
+      "speedup": 1.6,
+      "width": 640,
+      "height": 480
+    }
+  ]
+}

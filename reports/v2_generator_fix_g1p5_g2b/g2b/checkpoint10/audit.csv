@@ -1,0 +1,11 @@
+usable_id,diagnostic_mode,semantics_pass,n_cargo_placed,cargo_visible_pixels,n_context_visible,explicit_occluder_visible_pixels,occluder_side_match,explicit_metrics_available,explicit_abs_error_lowres,search_winning_stage,runtime_s,overlay_w,overlay_h,overlay_size_matches_rgb,overlay_panel_drawn,overlay_legend_drawn,overlay_ok
+0,clean-static,True,0,0,0,0,,False,,,7.094091415405273,640,480,True,True,True,True
+1,cargo-only,True,2,64,0,0,,False,,,11.370739698410034,720,480,True,True,True,True
+2,context-rich,True,2,1676,1,0,,False,,,21.989343881607056,640,480,True,True,True,True
+3,controlled-occlusion,True,0,0,2,228,True,True,0.03747784807828797,target-seed,41.9253044128418,640,480,True,True,True,True
+4,context-rich,True,2,223,3,0,,False,,,26.808188915252686,720,480,True,True,True,True
+5,controlled-occlusion,True,1,84,3,12513,True,True,0.11394467089924262,target-seed,60.205660581588745,960,540,True,True,True,True
+6,clean-static,True,0,0,0,0,,False,,,4.953212022781372,640,480,True,True,True,True
+7,cargo-only,True,2,832,0,0,,False,,,11.264337539672852,720,480,True,True,True,True
+8,context-rich,True,0,0,2,0,,False,,,24.678026914596558,960,540,True,True,True,True
+9,controlled-occlusion,True,0,0,3,193,True,True,0.1065769427090294,preprobe,28.363297939300537,560,560,True,True,True,True

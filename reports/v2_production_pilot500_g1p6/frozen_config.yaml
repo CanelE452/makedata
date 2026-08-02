@@ -1,0 +1,118 @@
+# v2 production pilot 500 — frozen config
+#
+# 모든 값은 **실제 코드/parser 에서 읽어** 채웠다.  존재하지 않는 flag 를 만들지
+# 않았고, 이름이 다르면 실제 구현명을 그대로 썼다 (아래 cli_flag 열 참조).
+# 근거: reports/v2_production_pilot500_g1p6/preflight/cli_schema.txt
+
+PRODUCTION_CANDIDATE_NAME: g1p6_explicit_first_target_seed_bounded_fine_rescue_off
+
+lock:
+  head: 0ebb41cb26feed567558ad9e94e06016c5d17430
+  code_lock_sha256: 854bd00ed32e            # preflight/code_hashes.csv 의 결합 해시
+  scene_sha256: 8cb4109adc6d                # preflight/scene_lock.json
+  asset_manifest_sha256: 327239153fdd       # 209 rows
+  diff_sha256_file: preflight/current_diff_sha256.txt
+
+entrypoint:
+  generator: scripts/data_prep/blender/run_v2_scene_logic.py
+  invocation: blender -b <scene> --python <generator> -- <args>
+  blender_executable: "C:/Program Files/Blender Foundation/Blender 5.1/blender.exe"
+  blender_version: "5.1.1"
+  scene_path: data/pallet/assets/scenes/production/blender_scene/synth_data_scene_portable_stage2c2.blend
+  scene_registry_key: production_scene
+  asset_registry: config/synthetic/pallet_paths.yaml
+  asset_manifest: data/pallet/assets/distractors/library/distractors_manifest.csv
+
+# ---- 500 pilot 실행 인자 (cli_flag = 실제 parser 이름) -----------------
+pilot500:
+  out:              data/pallet/runs/diagnostics/v2_production_pilot500_seed7300_public
+  seed:             7300              # cli_flag: --seed
+  n:                500               # cli_flag: --n        (usable target)
+  completion_mode:  usable            # cli_flag: --completion-mode
+  render_profile:   dataset-quality   # cli_flag: --render-profile  (samples 64, OIDN)
+  mask_profile:     public            # cli_flag: --mask-profile    (기본값은 full-audit 이라 명시 필수)
+  magenta_max_fraction: 0.0           # cli_flag: --magenta-max-fraction
+  noise_tier:       auto              # cli_flag: --noise-tier
+  samples:          null              # cli_flag: --samples (null = 프로필값 64 사용)
+  session_usable_cap: <checkpoint 별로 지정>   # cli_flag: --session-usable-cap
+  process_count:    1
+
+# ---- exact20 A/B 실행 인자 --------------------------------------------
+exact20:
+  seed:             7290
+  n:                20
+  completion_mode:  usable
+  render_profile:   diagnostic-exact  # samples 16, deterministic CPU
+  mask_profile:     public
+  out_a:            data/pallet/runs/diagnostics/v2_production_exact20_a_seed7290_public
+  out_b:            data/pallet/runs/diagnostics/v2_production_exact20_b_seed7290_public
+
+# ---- solver 고정값 -----------------------------------------------------
+solver:
+  target_seed_free_cap:      8         # cli_flag: --target-seed-free-cap
+  near_miss_gap_threshold:   0.0607    # cli_flag: --near-miss-gap-threshold
+  constraint_rescue_mode:    "off"     # cli_flag: --constraint-rescue-mode  (코드 기본값도 off)
+  # 아래는 CLI 가 아니라 코드 상수 — 이번 pilot 에서 변경하지 않는다
+  FINE_MAX_EVALS:                        8      # scene_placement_v2
+  FINE_STEP_SCALE:                       0.5
+  EXPLICIT_TARGET_ABS_TOLERANCE:         0.12
+  EXPLICIT_PROPOSAL_SEARCH_LIMIT:        3
+  EXPLICIT_CANDIDATE_LIMIT_PER_PROPOSAL: 12
+  EXPLICIT_MIN_PROPOSALS_BEFORE_TOLERANCE_STOP: 2
+  EXPLICIT_PRECISE_ABS_TOLERANCE:        0.05
+  explicit_before_context:               true   # G1.5 stage reorder
+  context_no_regression_gate:            true   # SP2.context_corner_no_regression
+
+# ---- 분포/샘플러 (변경 금지, 현재 코드값 유지) --------------------------
+sampler:
+  unchanged: true
+  frozen_axes:
+    - ELEV_BIN_FRAC
+    - V_FRAC
+    - PROJ_SIZE_FRAC
+    - F_TARGET_FRAC
+    - MAX_CAMERA_DISTANCE_M
+    - mode_proportions
+    - asset_pool
+  verification:
+    frame_spec_digest_prefix: 938f387d    # accepted 4,313 / rejected 687
+    proposal_digest_prefix:   3cd365ee    # accepted 4,439 / checks 12-12
+
+# ---- mode interleave ---------------------------------------------------
+mode_interleave:
+  source_constant: run_v2_scene_logic.USABLE_MODE_CYCLE
+  cycle: [0, 1, 2, 3, 2, 3, 0, 1, 2, 3]
+  index_map:
+    0: clean-static
+    1: cargo-only
+    2: context-rich
+    3: controlled-occlusion
+  per_10_frames: {clean-static: 2, cargo-only: 2, context-rich: 3, controlled-occlusion: 3}
+  per_500_frames: {clean-static: 100, cargo-only: 100, context-rich: 150, controlled-occlusion: 150}
+
+# ---- 출력 스키마 -------------------------------------------------------
+output:
+  resolution_policy: native-per-frame     # 프레임마다 해상도가 다르다 (resize 금지)
+  public_mask_schema:
+    profile: public
+    stages: [m0, m4]
+    directories: [mask_amodal, mask_visible]
+    note: M1~M3 는 저장하지 않는다 — public mask 로 cargo/context 가시성을 추론하지 말 것
+  usable_ids: 0..499
+
+# ---- checkpoint 정책 ---------------------------------------------------
+checkpoints:
+  - {usable: 20,  expect: {clean: 4,  cargo: 4,  context: 6,  controlled: 6}}
+  - {usable: 100, expect: {clean: 20, cargo: 20, context: 30, controlled: 30}}
+  - {usable: 250, expect: {clean: 50, cargo: 50, context: 75, controlled: 75}}
+  - {usable: 500, expect: {clean: 100, cargo: 100, context: 150, controlled: 150}}
+  mechanism: --session-usable-cap 로 clean stop 후 같은 out 으로 resume
+  max_session_wall_hours: 24
+  blender_processes: 1
+
+# ---- 이번 pilot 에서 하지 않는 것 --------------------------------------
+disabled:
+  constraint_rescue_side_g1: true       # G1.7 micro-gate FAIL 로 OFF 유지
+  ext_occ_zero_early_termination: true  # offline 자료만 만들고 미적용
+  sampler_distribution_change: true
+  generator_auto_fix_from_500_result: true

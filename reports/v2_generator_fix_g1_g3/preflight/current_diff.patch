@@ -1,0 +1,39 @@
+diff --git a/_docs/history/.last-compact-resume.md b/_docs/history/.last-compact-resume.md
+index c924e33..2387746 100644
+--- a/_docs/history/.last-compact-resume.md
++++ b/_docs/history/.last-compact-resume.md
+@@ -1,11 +1,11 @@
+ # Last Compact Resume Context
+ 
+-Compact 시각: 2026-07-25 10:11:47
+-Trigger: auto
++Compact 시각: 2026-08-01 01:51:47
++Trigger: manual
+ Working directory: /e/CODING/GitHub/FoundationPose
+ 
+ ## 복원 안내
+ 
+-이전 세션이 compact되었습니다. `_docs/history/2026-07-25.md` 하단에서
+-"⚠️  Auto Compact (컨텍스트 한계 도달)" 마커 **위쪽**의 작업 내역을 확인하고 이어서 진행하세요.
++이전 세션이 compact되었습니다. `_docs/history/2026-08-01.md` 하단에서
++"Manual Compact (사용자 실행)" 마커 **위쪽**의 작업 내역을 확인하고 이어서 진행하세요.
+ 추가로 프로젝트 `memory/MEMORY.md` 및 관련 메모리 파일을 읽으면 완전한 맥락을 얻을 수 있습니다.
+diff --git a/_docs/history/2026-08-01.md b/_docs/history/2026-08-01.md
+index 857606f..90ba7ee 100644
+--- a/_docs/history/2026-08-01.md
++++ b/_docs/history/2026-08-01.md
+@@ -210,3 +210,14 @@ sampler·gate·elevation bin·projected-size bin·거리 상한·f_target 분포
+    (d) usable gate 에 "그 모드의 물체가 실제로 놓였는가" 조건 추가 여부 검토
+ 2. 수정 후 같은 seed 로 재렌더해 이 1,449장과 비교 (baseline 으로 보존)
+ 3. 그 뒤에 §10~20 (replay probe · Figure · 최종 보고서)
++
++## [01:51:47] Manual Compact (사용자 실행)
++
++- Working directory: `/e/CODING/GitHub/FoundationPose`
++- Trigger: `manual`
++- Session ID: `3266d86f-94b3-40f9-a657-60e290fc1ee2`
++- Transcript: `C:\Users\User\.claude\projects\E--CODING-GitHub-FoundationPose\3266d86f-94b3-40f9-a657-60e290fc1ee2.jsonl`
++- Note: 사용자가 명시적으로 /compact 실행 — 작업 단위가 마무리된 시점일 가능성 높음
++
++**TODO (session resume)**: compact 이후 이 마커 위쪽의 작업 내역을 확인하고 이어서 진행
++

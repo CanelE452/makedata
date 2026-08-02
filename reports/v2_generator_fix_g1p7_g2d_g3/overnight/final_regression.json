@@ -1,0 +1,43 @@
+{
+  "framespec_digest": "938f387d",
+  "framespec_rows": 4999,
+  "framespec_unchanged": true,
+  "proposal_digest": "3cd365ee",
+  "proposal_accepted": 4439,
+  "proposal_checks": "12/12",
+  "proposal_unchanged": true,
+  "scene_sha256": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+  "scene_unchanged": true,
+  "baseline_datasets": {
+    "pilot_1449": {
+      "records_sha256": "d04283b279dca43d068451b6c9294210aacd8a510a6c737a1d3b361bc588a992",
+      "unchanged": true
+    },
+    "smoke100": {
+      "records_sha256": "269a48a9f3f00c8da6fb7a9c01bc77b03b9391cc8ebfa7d7f415ed8bcf82286d",
+      "unchanged": true
+    },
+    "smoke100b": {
+      "records_sha256": "bf682c0aab51f96d5f335b435e6b8c04e3b228f639369a275bcda428645e77a7",
+      "unchanged": true
+    }
+  },
+  "baseline_modified": 0,
+  "locked77_baseline_unchanged": true,
+  "public_mask_stages": [
+    "m0",
+    "m4"
+  ],
+  "public_mask_dirs": [
+    "mask_amodal",
+    "mask_visible"
+  ],
+  "public_schema_unchanged": true,
+  "blender_processes": 0,
+  "dirty_entries": 37,
+  "head": "0ebb41cb26feed567558ad9e94e06016c5d17430",
+  "head_unchanged": true,
+  "commits_made": 0,
+  "pushes_made": 0,
+  "ALL_PASS": true
+}

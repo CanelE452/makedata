@@ -1,0 +1,43 @@
+{
+  "mode": "context-rich",
+  "repeat": 5,
+  "resolution": [
+    640,
+    480
+  ],
+  "results": {
+    "cycles_1spp": {
+      "available": true,
+      "engine": "CYCLES",
+      "median_s": 0.2998,
+      "min_s": 0.2905,
+      "max_s": 0.3071,
+      "pixels_identical": true,
+      "diff_pixels": 0,
+      "white_px": 67,
+      "speedup_vs_cycles": 1.0
+    },
+    "eevee": {
+      "available": true,
+      "engine": "BLENDER_EEVEE",
+      "median_s": 0.1044,
+      "min_s": 0.1016,
+      "max_s": 0.5425,
+      "pixels_identical": true,
+      "diff_pixels": 0,
+      "white_px": 67,
+      "speedup_vs_cycles": 2.87
+    },
+    "workbench": {
+      "available": true,
+      "engine": "BLENDER_WORKBENCH",
+      "median_s": 0.0588,
+      "min_s": 0.0549,
+      "max_s": 0.0661,
+      "pixels_identical": false,
+      "diff_pixels": 10352,
+      "white_px": 10391,
+      "speedup_vs_cycles": 5.1
+    }
+  }
+}

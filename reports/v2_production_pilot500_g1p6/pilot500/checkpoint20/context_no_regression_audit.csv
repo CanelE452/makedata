@@ -1,0 +1,7 @@
+idx,mode,explicit_visible_px,side_match,context_skipped,no_regression_ok
+3,controlled-occlusion,8058,True,False,True
+5,controlled-occlusion,4874,True,False,True
+9,controlled-occlusion,10126,True,False,True
+13,controlled-occlusion,265,True,False,True
+15,controlled-occlusion,1671,True,False,True
+19,controlled-occlusion,603,True,False,True

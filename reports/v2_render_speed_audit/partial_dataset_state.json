@@ -1,0 +1,21 @@
+{
+  "dataset": "data/pallet/runs/diagnostics/v2_production_pilot500_seed7300_public",
+  "records": 45,
+  "ids": [
+    0,
+    44
+  ],
+  "file_counts": {
+    "rgb": 45,
+    "labels": 45,
+    "mask_amodal": 45,
+    "mask_visible": 45
+  },
+  "mode_counts": {
+    "clean-static": 9,
+    "cargo-only": 9,
+    "context-rich": 14,
+    "controlled-occlusion": 13
+  },
+  "read_only_from_now": true
+}

@@ -1,0 +1,19 @@
+{
+  "manifest": {
+    "path": "reports/v2_generator_fix_g1p6_g2c_g3/g1p6/locked_controlled_cases_ref.json",
+    "sha256": "35478cbee718d7913196a26a3b0eec8338b4b1c19a37032e4d2a111a5cf12016",
+    "n_cases": 77,
+    "n_accepted": 30,
+    "n_expensive_reject": 47,
+    "seed": 7000
+  },
+  "g1p6_replay_records": {
+    "path": "data/pallet/runs/diagnostics/_locked77_g1p6/replay_records.jsonl",
+    "sha256": "f682bf6430d5ff7d203b76ac95669e97776a3692a132b7342fdc2bd5f09cc20a",
+    "records": 77
+  },
+  "g1p6_final_gate": {
+    "path": "reports/v2_generator_fix_g1p6_g2c_g3/g1p6/final_gate.json",
+    "sha256": "26327a9a49375e57054364c21f2b3289eb3bd37fd356e0425a3ce9cae02fd247"
+  }
+}

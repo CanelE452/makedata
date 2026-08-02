@@ -1,0 +1,89 @@
+{
+  "phase": "v2_generator_fix_g1p5_g2b",
+  "branch": "main",
+  "head": "0ebb41cb26feed567558ad9e94e06016c5d17430",
+  "origin_main": "0ebb41cb26feed567558ad9e94e06016c5d17430",
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.9",
+    "blender": "5.1.1 (hash b70da489d7f4, 2026-04-14)"
+  },
+  "tests": {
+    "registry_audit": {
+      "ok": 28,
+      "missing": 0
+    },
+    "unit": {
+      "passed": 865,
+      "skipped": 0,
+      "failed": 0
+    },
+    "local_integration": {
+      "passed": 31,
+      "skipped": 0,
+      "failed": 0
+    },
+    "golden_overlay": {
+      "passed": 51,
+      "skipped": 0,
+      "failed": 0
+    },
+    "frameSpec_5k": {
+      "accepted": 4313,
+      "rejected": 687,
+      "digest_prefix": "938f387d"
+    },
+    "proposal_5k": {
+      "accepted": 4439,
+      "digest_prefix": "3cd365ee",
+      "checks": "12/12"
+    },
+    "active_scene": {
+      "path": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene_portable_stage2c2.blend",
+      "sha256": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+      "sha256_prefix": "8cb4109a",
+      "bytes": 358898838,
+      "registry_missing": null,
+      "dist_roots": null,
+      "images_missing": [],
+      "images_absolute": 0,
+      "node_image_missing": {
+        "count": 0,
+        "entries": []
+      }
+    }
+  },
+  "locked_baselines": {
+    "pilot_1449": {
+      "dataset_root": "data/pallet/runs/diagnostics/v2_pilot_2k_seed7000_public",
+      "read_only": true,
+      "records_jsonl_sha256": "d04283b279dca43d068451b6c9294210aacd8a510a6c737a1d3b361bc588a992",
+      "records_rejected_jsonl_sha256": "fa90ccb465fea50c4a5fc22cc10d9560a55aaf98736952decac3023090a06992",
+      "rgb_count": 1449,
+      "label_count": 1449,
+      "mask_amodal_count": 1449,
+      "mask_visible_count": 1449,
+      "overlay_count": 0,
+      "total_files": 5805,
+      "total_bytes": 1038106969
+    },
+    "smoke100": {
+      "dataset_root": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100_seed7000_public",
+      "read_only": true,
+      "records_jsonl_sha256": "269a48a9f3f00c8da6fb7a9c01bc77b03b9391cc8ebfa7d7f415ed8bcf82286d",
+      "records_rejected_jsonl_sha256": "a3133abedae7f0aaff4602466e347b5b71146f75bf9a565d480a045f198d6419",
+      "rgb_count": 100,
+      "label_count": 100,
+      "mask_amodal_count": 100,
+      "mask_visible_count": 100,
+      "overlay_count": 0,
+      "total_files": 408,
+      "total_bytes": 80811427,
+      "report_dir": "reports/v2_generator_fix_g1_g3/g2",
+      "final_report_sha256": "cbf30b4a8fc489b383b074626d690639ada1729f3b854defaf82dd681d167747",
+      "audit_summary_sha256": "a8bee0d488347088d01fafcb857fda3f5c6aabe4b8ba3918a09fd348b2190652",
+      "report_overlay_count": 100
+    }
+  },
+  "render_resolution_note": "smoke100 의 RGB 해상도는 640x480 48 · 720x480 18 · 960x540 26 · 560x560 8 로 프레임마다 다르다. overlay 는 각 프레임의 NATIVE 해상도로 만든다 — 640x480 으로 고정하면 52%가 리사이즈되어 '원본 크기'가 아니게 된다."
+}

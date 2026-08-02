@@ -1,0 +1,8 @@
+config,cases,accepted,rejected,explicit_metrics_available,side_match,explicit_visible_gt0,semantics_pass,context_visible_ge1,abs_error_median,abs_error_p95,total_runtime_s,accepted_runtime_median_s,rejected_runtime_s,score_callback_rejects,candidate_budget_exhausted,total_candidate_evals,fine_triggered,fine_won,fine_eval_count,fine_runtime_s,target_seed_free_used,target_seed_paid_used,explicit_stage_runtime_s,protection_kept,protection_of,protection_recall_pass,recovered_cases,lost_cases,quality_pass,post_context_pass
+baseline_g1p5,22,7,15,7,7,7,7,7,0.0876768390511304,0.1065769427090294,1339.0,40.0,833.6,616,143,904,0,0,0,0.0,0,0,1017.6,7,7,True,0,[],True,True
+k12_p25,22,7,15,7,7,7,7,7,0.0876768390511304,0.1065769427090294,1322.9,40.6,828.9,616,155,904,4,0,0,0.0,311,0,1002.1,7,7,True,0,[],True,True
+k12_p50,22,7,15,7,7,7,7,7,0.0876768390511304,0.1065769427090294,1310.0,39.7,820.5,616,159,904,5,0,0,0.0,311,0,993.0,7,7,True,0,[],True,True
+k4_p25,22,6,16,6,6,6,6,6,0.0897438847865625,0.1065769427090294,1115.5,36.2,774.7,515,182,782,5,0,0,0.0,156,155,871.6,6,7,False,0,[113],True,True
+k4_p50,22,6,16,6,6,6,6,6,0.0897438847865625,0.1065769427090294,1089.1,35.8,763.8,515,186,782,6,0,0,0.0,156,155,849.2,6,7,False,0,[113],True,True
+k8_p25,22,7,15,7,7,7,7,7,0.0876768390511304,0.1065769427090294,1333.0,40.2,836.4,616,155,904,4,0,0,0.0,311,0,1009.5,7,7,True,0,[],True,True
+k8_p50,22,7,15,7,7,7,7,7,0.0876768390511304,0.1065769427090294,1310.6,40.2,821.7,616,159,904,5,0,0,0.0,311,0,993.0,7,7,True,0,[],True,True

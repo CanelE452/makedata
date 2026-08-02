@@ -1,0 +1,25 @@
+{
+  "expected_usable": 20,
+  "actual_usable": 20,
+  "ids_contiguous": true,
+  "rescue_triggered_frames": [],
+  "rescue_mode_values_controlled": {
+    "off": 6
+  },
+  "rescue_off_confirmed": true,
+  "context_no_regression_fail": 0,
+  "context_no_regression_unknown": 0,
+  "public_schema_ok": true,
+  "reprojection_median_px": 8.038873388460929e-14,
+  "reprojection_max_px": 2.3437142008433856e-13,
+  "reprojection_gate_px": 0.0001,
+  "reprojection_gate_pass": true,
+  "reprojection_source": "audit_v2_mode_semantics (label 재투영 계산)",
+  "resolution_counts": {
+    "640x480": 12,
+    "960x540": 4,
+    "560x560": 2,
+    "720x480": 2
+  },
+  "SUPPLEMENTARY_PASS": true
+}

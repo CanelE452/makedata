@@ -1,0 +1,98 @@
+{
+  "phase": "v2_generator_fix_g1p6_g2c_g3",
+  "branch": "main",
+  "head": "0ebb41cb26feed567558ad9e94e06016c5d17430",
+  "origin_main": "0ebb41cb26feed567558ad9e94e06016c5d17430",
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.9",
+    "blender": "5.1.1 (hash b70da489d7f4, 2026-04-14)"
+  },
+  "tests": {
+    "registry": {
+      "ok": 28,
+      "missing": 0
+    },
+    "unit": {
+      "passed": 888,
+      "skipped": 0,
+      "failed": 0
+    },
+    "local_integration": {
+      "passed": 31,
+      "skipped": 0,
+      "failed": 0
+    },
+    "golden_overlay": {
+      "passed": 51,
+      "skipped": 0,
+      "failed": 0
+    },
+    "frameSpec_5k": {
+      "accepted": 4313,
+      "rejected": 687,
+      "digest_prefix": "938f387d"
+    },
+    "proposal_5k": {
+      "accepted": 4439,
+      "digest_prefix": "3cd365ee",
+      "checks": "12/12"
+    },
+    "active_scene": {
+      "sha256_prefix": "8cb4109a",
+      "bytes": 358898838,
+      "images_absolute": 0,
+      "images_missing": [],
+      "dist_roots": 209
+    }
+  },
+  "locks": {
+    "production_scene": {
+      "path": "data/pallet/assets/scenes/production/blender_scene/synth_data_scene_portable_stage2c2.blend",
+      "sha256": "8cb4109adc6d3213920babda2a8e5845831aa359a2be8d017520661e8150907e",
+      "bytes": 358898838
+    },
+    "pilot_1449": {
+      "dataset_root": "data/pallet/runs/diagnostics/v2_pilot_2k_seed7000_public",
+      "read_only": true,
+      "records_jsonl_sha256": "d04283b279dca43d068451b6c9294210aacd8a510a6c737a1d3b361bc588a992",
+      "records_rejected_jsonl_sha256": "fa90ccb465fea50c4a5fc22cc10d9560a55aaf98736952decac3023090a06992",
+      "rgb": 1449,
+      "labels": 1449,
+      "mask_amodal": 1449,
+      "mask_visible": 1449,
+      "overlay": 0
+    },
+    "smoke100": {
+      "dataset_root": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100_seed7000_public",
+      "read_only": true,
+      "records_jsonl_sha256": "269a48a9f3f00c8da6fb7a9c01bc77b03b9391cc8ebfa7d7f415ed8bcf82286d",
+      "records_rejected_jsonl_sha256": "a3133abedae7f0aaff4602466e347b5b71146f75bf9a565d480a045f198d6419",
+      "rgb": 100,
+      "labels": 100,
+      "mask_amodal": 100,
+      "mask_visible": 100,
+      "overlay": 0
+    },
+    "smoke100b": {
+      "dataset_root": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100b_seed7000_public",
+      "read_only": true,
+      "records_jsonl_sha256": "bf682c0aab51f96d5f335b435e6b8c04e3b228f639369a275bcda428645e77a7",
+      "records_rejected_jsonl_sha256": "865523d0b0219577994800d904e16952fa9a4942b4ad9c3417c3b9b00ac22e02",
+      "rgb": 100,
+      "labels": 100,
+      "mask_amodal": 100,
+      "mask_visible": 100,
+      "overlay": 100
+    }
+  },
+  "locked_cases": {
+    "path": "reports/v2_generator_fix_g1p5_g2b/g1p5/locked_controlled_cases.json",
+    "sha256": "35478cbee718d7913196a26a3b0eec8338b4b1c19a37032e4d2a111a5cf12016",
+    "n_cases": 77,
+    "n_accepted": 30,
+    "n_expensive_reject": 47,
+    "seed": 7000,
+    "source_run": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100_seed7000_public"
+  }
+}

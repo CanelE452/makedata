@@ -1,0 +1,22 @@
+{
+  "directories": [
+    "labels",
+    "logs",
+    "mask_amodal",
+    "mask_visible",
+    "rgb"
+  ],
+  "forbidden_dirs": [],
+  "mask_amodal": 20,
+  "mask_visible": 20,
+  "m1_m2_m3_dirs": [],
+  "temporary_holdout_files": [],
+  "occlusion_decomposition_available_values": [
+    false
+  ],
+  "mask_profile_values": [
+    "public"
+  ],
+  "render_profile": "dataset-quality",
+  "schema_ok": true
+}

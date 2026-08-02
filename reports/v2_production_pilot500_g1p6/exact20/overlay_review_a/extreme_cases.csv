@@ -1,0 +1,13 @@
+selection,quantile,usable_id,diagnostic_mode,metric,value,rule
+cargo_visible_pixels,min,17,cargo-only,cargo_visible_pixels,26,sort by cargo_visible_pixels asc; take min
+cargo_visible_pixels,median,11,cargo-only,cargo_visible_pixels,149,sort by cargo_visible_pixels asc; take median
+cargo_visible_pixels,max,7,cargo-only,cargo_visible_pixels,1513,sort by cargo_visible_pixels asc; take max
+context_visible_ratio,min,2,context-rich,context_visible_pixel_ratio,1.0,sort by context_visible_pixel_ratio asc; take min
+context_visible_ratio,median,12,context-rich,context_visible_pixel_ratio,1.0,sort by context_visible_pixel_ratio asc; take median
+context_visible_ratio,max,18,context-rich,context_visible_pixel_ratio,1.0,sort by context_visible_pixel_ratio asc; take max
+controlled_f_target_error,min,5,controlled-occlusion,abs_target_error,0.014465492027504578,sort by abs_target_error asc; take min
+controlled_f_target_error,median,13,controlled-occlusion,abs_target_error,0.041766723427358945,sort by abs_target_error asc; take median
+controlled_f_target_error,max,15,controlled-occlusion,abs_target_error,0.11930599051388827,sort by abs_target_error asc; take max
+controlled_runtime,min,19,controlled-occlusion,runtime_s,48.976439476013184,sort by runtime_s asc; take min
+controlled_runtime,median,3,controlled-occlusion,runtime_s,78.71400356292725,sort by runtime_s asc; take median
+controlled_runtime,max,5,controlled-occlusion,runtime_s,80.45790982246399,sort by runtime_s asc; take max

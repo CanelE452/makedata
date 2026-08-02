@@ -1671,5 +1671,61 @@ class MetadataValidationTests(unittest.TestCase):
         self.assertTrue(any("order" in error for error in report["errors"]))
 
 
+class ContextPoseSamplerCoversLowElevation(unittest.TestCase):
+    """image_space_context_poses 가 저앙각에서 빈 목록을 돌려주던 결함 (2026-08-01).
+
+    baseline 에서 context-rich 600장 중 39장이 `context_placement_attempts=0` 이었다.
+    이미지 좌우 띠의 광선이 지평선 위로 가거나 지면 교점이 max_camera_distance 를
+    넘어 후보가 전멸했기 때문이다 (기각 사유 64% camera_distance_out_of_band).
+    """
+
+    # v2_pilot_2k_seed7000_public 의 proposal 1062 (elevation 0.83도, 절단 조준으로
+    # 시선이 위를 향한다) — baseline 에서 context 배치를 시도조차 못 한 실제 배치다.
+    LOW_ELEV = dict(
+        pallet_center=(0.0, 0.0, 0.075),
+        camera_pos=(1.586164, -2.729825, 0.120476),
+        camera_look=(0.0, 0.0, 1.456415),
+        fx=605.9065, fy=605.9065, cx=480.0, cy=270.0,
+        image_wh=(960, 540), ground_z=0.0, seed=1234,
+    )
+    NORMAL = dict(
+        pallet_center=(0.0, 0.0, 0.075),
+        camera_pos=(0.0, -3.0, 2.5),
+        camera_look=(0.0, 0.0, 0.075),
+        fx=600.0, fy=600.0, cx=320.0, cy=240.0,
+        image_wh=(640, 480), ground_z=0.0, seed=1234,
+    )
+
+    def test_normal_elevation_still_uses_the_image_band_sampler(self):
+        poses = scene.image_space_context_poses(**self.NORMAL)
+        self.assertTrue(poses)
+        self.assertTrue(all("fallback" not in pose for pose in poses))
+
+    def test_low_elevation_no_longer_returns_an_empty_list(self):
+        poses = scene.image_space_context_poses(**self.LOW_ELEV)
+        self.assertTrue(poses, "저앙각에서 후보가 하나도 나오지 않았다")
+
+    def test_low_elevation_is_served_by_the_fallback(self):
+        poses = scene.image_space_context_poses(**self.LOW_ELEV)
+        self.assertTrue(all(pose.get("fallback") == "ground_ring"
+                            for pose in poses))
+
+    def test_fallback_respects_the_pallet_clearance(self):
+        for pose in scene.image_space_context_poses(**self.LOW_ELEV):
+            self.assertGreaterEqual(math.hypot(pose["x"], pose["y"]),
+                                    0.70 - 1e-9)
+
+    def test_fallback_respects_the_camera_distance_band(self):
+        cam = self.LOW_ELEV["camera_pos"]
+        for pose in scene.image_space_context_poses(**self.LOW_ELEV):
+            distance = math.hypot(pose["x"] - cam[0], pose["y"] - cam[1])
+            self.assertGreaterEqual(distance, 0.50 - 1e-9)
+            self.assertLessEqual(distance, 8.0 + 1e-9)
+
+    def test_fallback_is_deterministic(self):
+        self.assertEqual(scene.image_space_context_poses(**self.LOW_ELEV),
+                         scene.image_space_context_poses(**self.LOW_ELEV))
+
+
 if __name__ == "__main__":
     unittest.main()

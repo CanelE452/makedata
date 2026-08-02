@@ -41,6 +41,11 @@ A, B, OUT = _abs(_args.a), _abs(_args.b), _abs(_args.out)
 VOLATILE = {
     "runtime_s", "stage_runtime_s", "rgb_path", "label_path", "mask_paths",
     "session_elapsed_s", "elapsed_s", "timestamp", "created_at", "gpu",
+    # G1 에서 추가된 elapsed 계측 (controlled frame 에만 존재).  §6/§8 이 정규화
+    # 제외를 허용하는 "per-session elapsed" 와 같은 성격이라 값이 아니라 측정
+    # 환경이다.  이것이 빠져 있어 controlled 6장이 record/label mismatch 로
+    # 잡혔다 (geometry/pose/pixel 은 전부 동일했다).
+    "proposal_prepare_s",
 }
 
 

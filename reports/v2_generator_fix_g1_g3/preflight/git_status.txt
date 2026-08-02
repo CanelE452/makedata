@@ -1,0 +1,19 @@
+branch      main
+HEAD        0ebb41cb26feed567558ad9e94e06016c5d17430
+origin/main 0ebb41cb26feed567558ad9e94e06016c5d17430
+
+--- git status --porcelain ---
+ M _docs/history/.last-compact-resume.md
+ M _docs/history/2026-08-01.md
+
+--- git diff --stat ---
+ _docs/history/.last-compact-resume.md |  8 ++++----
+ _docs/history/2026-08-01.md           | 11 +++++++++++
+ 2 files changed, 15 insertions(+), 4 deletions(-)
+
+--- 최근 5 커밋 ---
+0ebb41c chore: pilot 감사 스크립트 3종을 정식 도구로 편입 (경로 하드코딩 제거)
+3599114 feat: v2 논문용 pilot — 진단 완료, generator 수정 필요 판정 (1,449/2,000 에서 안전 중단)
+7540428 feat: data/pallet Stage 2-D2 — 레이아웃 정리 종료 (DATA_PALLET_CLEANUP_COMPLETE)
+d5e1ba1 feat: data/pallet Stage 2-D1.2 — D11B/D11C 실이동으로 D11 범위 종료
+3a6ade5 feat: data/pallet Stage 2-D1.1 — 원장 연쇄(chained-ledger) 도입 + D1D 10건 이동 · registry 전환 · v4 파생 NoAI 확정

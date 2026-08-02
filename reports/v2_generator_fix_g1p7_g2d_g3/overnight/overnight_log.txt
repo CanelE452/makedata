@@ -1,0 +1,19 @@
+[2026-08-01T23:52:51] overnight 시작 · HEAD 0ebb41cb26fe
+[2026-08-01T23:52:51] PRE_FLIGHT/snapshot                      RUNNING      §1 정본 잠금
+[2026-08-01T23:53:43] PRE_FLIGHT/snapshot                      PASS         UNRELATED=0 · blender=0 · HEAD==origin/main
+[2026-08-01T23:53:43] BASELINE/regression                      RUNNING      A-F
+[2026-08-01T23:59:26] BASELINE/regression                      PASS         registry ok=28 · unit 919 · integ 31 · golden 51 · 938f387d/4313 · 3cd365ee/4439 12-12 · scene 8cb4109a
+[2026-08-02T00:19:04] G1P7B/implement                          PASS         SP2 rescue layer + v2_realize stage + runner/replay CLI · unit 955 pass
+[2026-08-02T00:19:04] G1P7B/mechanism_subset                   RUNNING      
+[2026-08-02T00:21:51] G1P7B/mechanism_configA                  RUNNING      
+[2026-08-02T00:26:54] G1P7B/seed_sign_defect                   FAIL         side_specific_lift 의 bottom 분기가 dv_dy 실측 대신 부호를 추측함 — Config A 완료 후 수정, 사전 trial 로 문서화
+[2026-08-02T00:54:37] G1P7B/mechanism_configA_prefix           FAIL         wall +288.5s · act_saving -137.1s · trig 12 won 1 · 품질 보존 · 부호결함 포함 trial
+[2026-08-02T01:59:00] G1P7B/mechanism_configA                  PASS         완주 · 품질1-3 PASS · micro-gate FAIL(-129.2s)
+[2026-08-02T01:59:00] G1P7B/mechanism_configB                  PASS         완주 · 품질1-3 PASS · micro-gate FAIL(-149.1s)
+[2026-08-02T01:59:00] G1P7B/micro_gate                         FAIL         MICRO_GATE_PASS=false · 필요 +211.5s vs 실측 -129.2/-149.1s
+[2026-08-02T01:59:00] OFFLINE_CLOSURE/atlas                    RUNNING      
+[2026-08-02T02:04:50] OFFLINE_CLOSURE/atlas                    PASS         failure_atlas 5종 + upper_bound + next_design_options
+[2026-08-02T02:04:50] OFFLINE_CLOSURE/regression               PASS         unit 959 · integ 31 · golden 51 · 5k 불변 · scene 불변 · baseline 0 수정
+[2026-08-02T02:04:50] OFFLINE_CLOSURE/final_summary            COMPLETE     OFFLINE_CLOSURE_COMPLETE=true · commit 0 push 0
+[2026-08-02T02:08:45] OFFLINE_CLOSURE/docs                     COMPLETE     final_report · rollback_plan · history · changelog · memory
+[2026-08-02T02:08:57] G1P7B/mechanism_subset                   PASS         24건 확정 (accepted 11 protection + rejected 13)

@@ -1,0 +1,3920 @@
+{
+  "source_run": "data/pallet/runs/diagnostics/v2_mode_semantics_smoke100_seed7000_public",
+  "seed": 7000,
+  "n_cases": 77,
+  "n_accepted": 30,
+  "n_expensive_reject": 47,
+  "cases": [
+    {
+      "proposal_index": 3,
+      "usable_slot": 3,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "9c77bc4da902a95bfaf431eb05b0df77216f12183bd5d498ba2c0cc935e4b8ed",
+      "plan_canonical_sha256": "f6fd610f85e53791efeb3b0df4fc82147121b9d8973b07b6c18fd86dec00f174",
+      "frame_seed": 13049913855521875379,
+      "attempt_seed": 13049913855521875379,
+      "target_side": "right",
+      "f_target": 0.20730570984469082,
+      "elevation_deg": 52.90708284128163,
+      "projected_size_ratio": 0.5505824081795355,
+      "camera_distance_m": 1.2609699370506304,
+      "selected_assets": [
+        "Dist_traffic_barricade_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_sledgehammer_01",
+        "Dist_concrete_road_barrier_02"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 12854,
+        "bbox_px": [
+          33,
+          8,
+          210,
+          127
+        ],
+        "centroid_px": [
+          118.21067372024272,
+          71.06099268710129
+        ],
+        "centroid_norm": [
+          0.5207518666089987,
+          0.5595353754889866
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 19,
+      "old_lowres_render_count": 72,
+      "old_runtime_s": 130.52551126480103,
+      "old_stage_cargo_s": 0.015809,
+      "old_stage_context_s": 73.07156,
+      "old_stage_explicit_s": 49.870431,
+      "old_reject_counts": "{\"camera_clearance\": 7, \"candidate_budget_exhausted\": 10, \"collision\": 6, \"score_callback\": 14, \"support\": 9}"
+    },
+    {
+      "proposal_index": 4,
+      "usable_slot": 3,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "3b7ea34fb8ab9d347771215c5d5d71e6665a30a830ad94182118146f1afc4553",
+      "plan_canonical_sha256": "044a64fb5c6833cf12a41ea09cc1a240419ada3f383f4f11235044995e5178d8",
+      "frame_seed": 15602878787975640301,
+      "attempt_seed": 15602878787975640301,
+      "target_side": "right",
+      "f_target": 0.42654963055699835,
+      "elevation_deg": 4.38273518067479,
+      "projected_size_ratio": 0.2575001502880079,
+      "camera_distance_m": 2.3163719422255102,
+      "selected_assets": [
+        "Dist_korean_fire_extinguisher_01",
+        "Dist_chinese_screen_panels",
+        "Dist_water_dispenser_01",
+        "Dist_Shelf_01",
+        "Dist_forklift_02",
+        "Dist_wooden_bookshelf_worn"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 583,
+        "bbox_px": [
+          73,
+          121,
+          162,
+          127
+        ],
+        "centroid_px": [
+          115.96397941680961,
+          124.1286449399657
+        ],
+        "centroid_norm": [
+          0.5108545348758132,
+          0.9773909050391
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 133,
+      "old_runtime_s": 74.4275176525116,
+      "old_stage_cargo_s": 0.019995,
+      "old_stage_context_s": 37.016078,
+      "old_stage_explicit_s": 35.411834,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 12, \"score_callback\": 34, \"support\": 2}"
+    },
+    {
+      "proposal_index": 7,
+      "usable_slot": 3,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "1b13799d11e98d0dd87c1ecc23697dbb6f9c39fadce665b494f32ac784752071",
+      "plan_canonical_sha256": "d8220c3125043a7f36423db671708aa11e23a7fb0a1709fa4d503c55f68f4015",
+      "frame_seed": 11332079460337894273,
+      "attempt_seed": 11332079460337894273,
+      "target_side": "bottom",
+      "f_target": 0.2629645435228422,
+      "elevation_deg": 60.28642245884304,
+      "projected_size_ratio": 0.9008782028473707,
+      "camera_distance_m": 1.1559851193907036,
+      "selected_assets": [
+        "Dist_old_tyre"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 10591,
+        "bbox_px": [
+          26,
+          12,
+          170,
+          127
+        ],
+        "centroid_px": [
+          108.6858653573789,
+          76.49900859220092
+        ],
+        "centroid_norm": [
+          0.6393286197492877,
+          0.6023543983637868
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 5,
+      "old_lowres_render_count": 35,
+      "old_runtime_s": 40.633838415145874,
+      "old_stage_cargo_s": 9.49761,
+      "old_stage_context_s": 20.705099,
+      "old_stage_explicit_s": 9.233334,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 2, \"collision\": 6, \"score_callback\": 3, \"support\": 3}"
+    },
+    {
+      "proposal_index": 8,
+      "usable_slot": 3,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "dcacb59bea00dc691dd384b20322d6259f3af7e20e2caf31c2214f047c5a2b55",
+      "plan_canonical_sha256": "a2e3f6482978a9d6251049a216858c8f16985068ccef6a848bf4874cbd2914dd",
+      "frame_seed": 11535155129451680862,
+      "attempt_seed": 11535155129451680862,
+      "target_side": "left",
+      "f_target": 0.19537258492039322,
+      "elevation_deg": 2.962271122006416,
+      "projected_size_ratio": 0.08450913319032577,
+      "camera_distance_m": 7.323799118759979,
+      "selected_assets": [
+        "Dist_fire_hydrant",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_industrial_storage_cart",
+        "Dist_forklift_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 38,
+        "bbox_px": [
+          79,
+          36,
+          92,
+          38
+        ],
+        "centroid_px": [
+          85.71052631578948,
+          37.0
+        ],
+        "centroid_norm": [
+          0.5041795665634675,
+          0.29133858267716534
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 228,
+      "old_side_actual": "left",
+      "old_side_match": true,
+      "old_realization_attempt_count": 2,
+      "old_lowres_render_count": 38,
+      "old_runtime_s": 41.190797328948975,
+      "old_stage_cargo_s": 0.020121,
+      "old_stage_context_s": 13.441722,
+      "old_stage_explicit_s": 19.844992,
+      "old_reject_counts": "{\"score_callback\": 3}"
+    },
+    {
+      "proposal_index": 11,
+      "usable_slot": 5,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "fd8a2914d8740a4d65a94f9730df6ae276e89da0c135f64d0617ba00007a2040",
+      "plan_canonical_sha256": "932b73f89bf2a4e9f24582d0ec4d4f2006be5fe78feabb8e7286eb6583f8026f",
+      "frame_seed": 2583724101822358085,
+      "attempt_seed": 2583724101822358085,
+      "target_side": "right",
+      "f_target": 0.27312834436863037,
+      "elevation_deg": 8.711781295350534,
+      "projected_size_ratio": 0.12662179445888,
+      "camera_distance_m": 5.483004466571469,
+      "selected_assets": [
+        "Dist_metal_trash_can",
+        "Dist_chinese_screen_panels",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_drawer_cabinet",
+        "Dist_cargo_truck_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 204,
+        "bbox_px": [
+          92,
+          121,
+          135,
+          127
+        ],
+        "centroid_px": [
+          112.98039215686275,
+          124.84803921568627
+        ],
+        "centroid_norm": [
+          0.49771097866459363,
+          0.9830554268951675
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 12513,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 9,
+      "old_lowres_render_count": 95,
+      "old_runtime_s": 53.542211055755615,
+      "old_stage_cargo_s": 5.200449,
+      "old_stage_context_s": 17.686679,
+      "old_stage_explicit_s": 23.865339,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 5, \"score_callback\": 20}"
+    },
+    {
+      "proposal_index": 18,
+      "usable_slot": 9,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "3441f1ef6f5dab50753dc28a6cd13fecd0147023e967d4c9a935616729969720",
+      "plan_canonical_sha256": "86ac154a5fbd707e4afef6eaf4a9b22fc646a501e43ada4b81d1d7693179d236",
+      "frame_seed": 14916702543800982362,
+      "attempt_seed": 14916702543800982362,
+      "target_side": "bottom",
+      "f_target": 0.14684539908486832,
+      "elevation_deg": 65.9858010901019,
+      "projected_size_ratio": 0.1358814663770036,
+      "camera_distance_m": 5.20196505599571,
+      "selected_assets": [
+        "Dist_covered_car",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_water_dispenser_01",
+        "Dist_delivery_truck_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 298,
+        "bbox_px": [
+          74,
+          69,
+          99,
+          93
+        ],
+        "centroid_px": [
+          86.71476510067114,
+          81.09731543624162
+        ],
+        "centroid_norm": [
+          0.6827934259895365,
+          0.6385615388680442
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 193,
+      "old_side_actual": "bottom",
+      "old_side_match": true,
+      "old_realization_attempt_count": 8,
+      "old_lowres_render_count": 43,
+      "old_runtime_s": 29.19108295440674,
+      "old_stage_cargo_s": 0.02125,
+      "old_stage_context_s": 7.95999,
+      "old_stage_explicit_s": 14.779701,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 5, \"score_callback\": 9, \"support\": 3}"
+    },
+    {
+      "proposal_index": 26,
+      "usable_slot": 13,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "e0df99e06b023d156b3b122736adc960518654d623ba650a1378fa99eccd5790",
+      "plan_canonical_sha256": "06e2ca7d67ba794dfbe353b18f62afcb5a5558366859e48300a885de2d029c32",
+      "frame_seed": 9487154585097155991,
+      "attempt_seed": 9487154585097155991,
+      "target_side": "left",
+      "f_target": 0.39950323821430234,
+      "elevation_deg": 3.462683678820705,
+      "projected_size_ratio": 0.09439136881623088,
+      "camera_distance_m": 8.61625821288446,
+      "selected_assets": [
+        "Dist_compost_bags",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_wooden_bookshelf_worn",
+        "Dist_forklift_02",
+        "Dist_chinese_screen_panels"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 65,
+        "bbox_px": [
+          74,
+          27,
+          96,
+          30
+        ],
+        "centroid_px": [
+          84.58461538461539,
+          28.723076923076924
+        ],
+        "centroid_norm": [
+          0.4975565610859729,
+          0.22616596002422776
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 455,
+      "old_side_actual": "left",
+      "old_side_match": true,
+      "old_realization_attempt_count": 4,
+      "old_lowres_render_count": 59,
+      "old_runtime_s": 32.514846324920654,
+      "old_stage_cargo_s": 0.018152,
+      "old_stage_context_s": 6.783348,
+      "old_stage_explicit_s": 19.862133,
+      "old_reject_counts": "{\"score_callback\": 14}"
+    },
+    {
+      "proposal_index": 29,
+      "usable_slot": 15,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "5352bd82d4f43a194f1f8e423979b19eac350e592a23768a0e12f3633aac6c14",
+      "plan_canonical_sha256": "60d358f7c5f381353bc64023e990e127e0cdc4769cae2b2a0cd18766a6e5f770",
+      "frame_seed": 1412974724993754688,
+      "attempt_seed": 1412974724993754688,
+      "target_side": "right",
+      "f_target": 0.42607351843249974,
+      "elevation_deg": 22.618060782944863,
+      "projected_size_ratio": 0.3995691078192138,
+      "camera_distance_m": 2.6382608352813337,
+      "selected_assets": [
+        "Dist_drawer_cabinet",
+        "Dist_construction_sign_01",
+        "Dist_Shelf_01",
+        "Dist_utility_box_01",
+        "Dist_wooden_bookshelf_worn",
+        "Dist_forklift_02"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 2326,
+        "bbox_px": [
+          38,
+          47,
+          132,
+          92
+        ],
+        "centroid_px": [
+          87.66251074806534,
+          66.75193465176268
+        ],
+        "centroid_norm": [
+          0.5156618279297961,
+          0.5256057846595487
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 19,
+      "old_lowres_render_count": 56,
+      "old_runtime_s": 43.14216208457947,
+      "old_stage_cargo_s": 0.017971,
+      "old_stage_context_s": 16.047018,
+      "old_stage_explicit_s": 25.084327,
+      "old_reject_counts": "{\"camera_clearance\": 19, \"candidate_budget_exhausted\": 11, \"score_callback\": 16, \"support\": 1}"
+    },
+    {
+      "proposal_index": 30,
+      "usable_slot": 15,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "23c11431c5932bc81b617b1be89f7b24e5a895eedd3ca93f3871825efc6d5919",
+      "plan_canonical_sha256": "6334dc293a197325b830fc9c68c456bece9222cbcf0d44acd9315c0ddeaf9c96",
+      "frame_seed": 14768758417700336945,
+      "attempt_seed": 14768758417700336945,
+      "target_side": "left",
+      "f_target": 0.21813793003112078,
+      "elevation_deg": 4.427951783379555,
+      "projected_size_ratio": 0.7993471181563221,
+      "camera_distance_m": 1.1580582016060776,
+      "selected_assets": [
+        "Dist_wooden_crate_01",
+        "Dist_chinese_screen_panels",
+        "Dist_water_dispenser_01",
+        "Dist_portable_welding_cart",
+        "Dist_painted_wooden_cabinet",
+        "Dist_industrial_storage_cart"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 4434,
+        "bbox_px": [
+          0,
+          53,
+          103,
+          110
+        ],
+        "centroid_px": [
+          57.002931889941365,
+          76.86671177266577
+        ],
+        "centroid_norm": [
+          0.29844466958084487,
+          0.6052496989973682
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 17,
+      "old_lowres_render_count": 68,
+      "old_runtime_s": 56.53138089179993,
+      "old_stage_cargo_s": 5.099218,
+      "old_stage_context_s": 20.572548,
+      "old_stage_explicit_s": 29.059582,
+      "old_reject_counts": "{\"camera_clearance\": 6, \"candidate_budget_exhausted\": 8, \"score_callback\": 15, \"support\": 15}"
+    },
+    {
+      "proposal_index": 32,
+      "usable_slot": 15,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "0c1ec032c753f4e849c5ca01e5ef70ba6be680b1dcb08689325f6e01e2daea30",
+      "plan_canonical_sha256": "b5eaf4776bb07579a74e5ee3c84bdb0f6a1a59d06b0caec6015296030f5ec12d",
+      "frame_seed": 8223865498954692682,
+      "attempt_seed": 8223865498954692682,
+      "target_side": "right",
+      "f_target": 0.17802966484806917,
+      "elevation_deg": 53.23170958929934,
+      "projected_size_ratio": 0.3331675541161875,
+      "camera_distance_m": 1.9850498297175045,
+      "selected_assets": [
+        "Dist_concrete_road_barrier",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_forklift_02",
+        "Dist_concrete_road_barrier_02"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 4213,
+        "bbox_px": [
+          55,
+          73,
+          163,
+          127
+        ],
+        "centroid_px": [
+          111.41941609304534,
+          104.81011155945882
+        ],
+        "centroid_norm": [
+          0.490834432127953,
+          0.8252764689721167
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 20,
+      "old_lowres_render_count": 41,
+      "old_runtime_s": 49.7745840549469,
+      "old_stage_cargo_s": 0.015683,
+      "old_stage_context_s": 22.36654,
+      "old_stage_explicit_s": 26.176577,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 11, \"collision\": 1, \"score_callback\": 10, \"support\": 25}"
+    },
+    {
+      "proposal_index": 34,
+      "usable_slot": 15,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "4c0b263b6aee3208d47f8e38f7578a4838138dd2ea3ae709382515e3cfc2ee83",
+      "plan_canonical_sha256": "54cbe57d14b6f9f8c59e1a08bb8afb66df2a6745530ace6555163439d7d5b2b8",
+      "frame_seed": 17870343514830591386,
+      "attempt_seed": 17870343514830591386,
+      "target_side": "bottom",
+      "f_target": 0.2343686197213216,
+      "elevation_deg": 20.05358022549826,
+      "projected_size_ratio": 0.4823709757869806,
+      "camera_distance_m": 2.172961447355471,
+      "selected_assets": [
+        "Dist_cement_bag",
+        "Dist_utility_box_01",
+        "Dist_portable_welding_cart",
+        "Dist_potted_plant_01",
+        "Dist_metal_tool_chest",
+        "Dist_fire_hydrant"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 2817,
+        "bbox_px": [
+          0,
+          24,
+          109,
+          74
+        ],
+        "centroid_px": [
+          47.22719204827831,
+          47.8136315228967
+        ],
+        "centroid_norm": [
+          0.27780701204869596,
+          0.3764852875818638
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 20,
+      "old_lowres_render_count": 76,
+      "old_runtime_s": 69.23617172241211,
+      "old_stage_cargo_s": 5.195386,
+      "old_stage_context_s": 25.72855,
+      "old_stage_explicit_s": 36.5374,
+      "old_reject_counts": "{\"camera_clearance\": 10, \"candidate_budget_exhausted\": 11, \"score_callback\": 26}"
+    },
+    {
+      "proposal_index": 38,
+      "usable_slot": 15,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "0243c4af4dfff03103ac24b68acc21843a1efecdafe0b83d7b0228fa59ee625b",
+      "plan_canonical_sha256": "f319358a5d447dce7d8d31be1cc6329344f967cc3a3e1774821d12ca9e5c0913",
+      "frame_seed": 17229999639078709411,
+      "attempt_seed": 17229999639078709411,
+      "target_side": "right",
+      "f_target": 0.4082084078182895,
+      "elevation_deg": 9.273834357212912,
+      "projected_size_ratio": 0.4474370943787678,
+      "camera_distance_m": 2.2807806147179273,
+      "selected_assets": [
+        "Dist_construction_sign_01",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_utility_box_01",
+        "Dist_wooden_bookshelf_worn",
+        "Dist_forklift_02"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 2302,
+        "bbox_px": [
+          5,
+          85,
+          98,
+          117
+        ],
+        "centroid_px": [
+          47.32102519548219,
+          99.751954821894
+        ],
+        "centroid_norm": [
+          0.27835897173813057,
+          0.7854484631645197
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 11123,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 2,
+      "old_lowres_render_count": 41,
+      "old_runtime_s": 44.293997049331665,
+      "old_stage_cargo_s": 0.014927,
+      "old_stage_context_s": 14.038016,
+      "old_stage_explicit_s": 24.083392,
+      "old_reject_counts": "{\"score_callback\": 8}"
+    },
+    {
+      "proposal_index": 46,
+      "usable_slot": 19,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "94fabd0991f0cc615e66d7dd19c3fb273a7b20e791e3151da34f700065e233f7",
+      "plan_canonical_sha256": "c8ac3336135c715f7fd456ca36359c1162b074e604d7f98d781f46dc64e7e3ee",
+      "frame_seed": 769699537563328487,
+      "attempt_seed": 769699537563328487,
+      "target_side": "bottom",
+      "f_target": 0.2577233925098761,
+      "elevation_deg": 49.0424517121717,
+      "projected_size_ratio": 0.5275030930859046,
+      "camera_distance_m": 1.4090866145145038,
+      "selected_assets": [
+        "Dist_old_tyre",
+        "Dist_utility_box_01",
+        "Dist_sledgehammer_01",
+        "Dist_old_military_compressor",
+        "Dist_barrel_stove",
+        "Dist_wine_barrel_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 6794,
+        "bbox_px": [
+          46,
+          36,
+          170,
+          114
+        ],
+        "centroid_px": [
+          101.96114218428025,
+          73.99219899911687
+        ],
+        "centroid_norm": [
+          0.5997714246134133,
+          0.5826157401505265
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 5284,
+      "old_side_actual": "bottom",
+      "old_side_match": true,
+      "old_realization_attempt_count": 9,
+      "old_lowres_render_count": 60,
+      "old_runtime_s": 76.24449396133423,
+      "old_stage_cargo_s": 0.01453,
+      "old_stage_context_s": 32.655833,
+      "old_stage_explicit_s": 37.973927,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 4, \"collision\": 1, \"score_callback\": 22}"
+    },
+    {
+      "proposal_index": 54,
+      "usable_slot": 23,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "df5b8bb35f4c4973e6397a7b59ad72856a291574f16975ed7217bfa0f1e2de7a",
+      "plan_canonical_sha256": "df06672dbc3c098570c1417b2dc7469ec1642c9ff3f51293c7db3b47fdb1840d",
+      "frame_seed": 6844711298320961668,
+      "attempt_seed": 6844711298320961668,
+      "target_side": "bottom",
+      "f_target": 0.29172857383466516,
+      "elevation_deg": 74.79273345743304,
+      "projected_size_ratio": 0.5190747706870723,
+      "camera_distance_m": 1.7833470983107558,
+      "selected_assets": [
+        "Dist_chinese_screen_panels",
+        "Dist_construction_sign_01",
+        "Dist_utility_box_01",
+        "Dist_concrete_road_barrier_02",
+        "Dist_old_military_compressor",
+        "Dist_metal_trash_can"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 6137,
+        "bbox_px": [
+          52,
+          10,
+          139,
+          125
+        ],
+        "centroid_px": [
+          95.70571940687633,
+          74.71973276845364
+        ],
+        "centroid_norm": [
+          0.5010770649574677,
+          0.5883443525075089
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 15,
+      "old_lowres_render_count": 38,
+      "old_runtime_s": 45.981489419937134,
+      "old_stage_cargo_s": 7.127292,
+      "old_stage_context_s": 21.028372,
+      "old_stage_explicit_s": 16.563303,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 6, \"collision\": 4, \"score_callback\": 6, \"support\": 26}"
+    },
+    {
+      "proposal_index": 55,
+      "usable_slot": 23,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "b2b587d26d12ba9b5de57b6060a090bc006c6c7c41d3735d170abaa9d27e15ef",
+      "plan_canonical_sha256": "b5d6e5bd242f8fb1cd45e2f1055c37f2a258557230da6d6ac0abc2fede1dec44",
+      "frame_seed": 3739135692304709437,
+      "attempt_seed": 3739135692304709437,
+      "target_side": "bottom",
+      "f_target": 0.13080422137872902,
+      "elevation_deg": 6.826041722591379,
+      "projected_size_ratio": 0.7695802147735195,
+      "camera_distance_m": 1.1747225526819662,
+      "selected_assets": [
+        "Dist_bleach_bottle",
+        "Dist_adjustable_wrench",
+        "Dist_can_rusted"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 7547,
+        "bbox_px": [
+          7,
+          56,
+          170,
+          121
+        ],
+        "centroid_px": [
+          90.29362660659865,
+          82.07777925003313
+        ],
+        "centroid_norm": [
+          0.5311389800388155,
+          0.6462817263782137
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 19,
+      "old_lowres_render_count": 47,
+      "old_runtime_s": 68.83458995819092,
+      "old_stage_cargo_s": 0.015625,
+      "old_stage_context_s": 31.392485,
+      "old_stage_explicit_s": 36.297151,
+      "old_reject_counts": "{\"camera_clearance\": 20, \"candidate_budget_exhausted\": 11, \"score_callback\": 14, \"support\": 2}"
+    },
+    {
+      "proposal_index": 58,
+      "usable_slot": 23,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "ade6632167b040fa71b20af955ad63cc83d61a710981d6700ca8c3af2e433708",
+      "plan_canonical_sha256": "0fc8cf799775f393d9256de2ad9bcc46251feef75e8e3fe47be7b7099123e7e3",
+      "frame_seed": 11762645058778497946,
+      "attempt_seed": 11762645058778497946,
+      "target_side": "bottom",
+      "f_target": 0.14775433727293127,
+      "elevation_deg": 17.402284079926485,
+      "projected_size_ratio": 0.2782466542773299,
+      "camera_distance_m": 3.1458783342966057,
+      "selected_assets": [
+        "Dist_traffic_barricade_01",
+        "Dist_utility_box_01",
+        "Dist_water_dispenser_01",
+        "Dist_portable_welding_cart",
+        "Dist_barrel_stove",
+        "Dist_fire_hydrant"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 1447,
+        "bbox_px": [
+          0,
+          96,
+          70,
+          127
+        ],
+        "centroid_px": [
+          31.411886662059434,
+          110.30269523151348
+        ],
+        "centroid_norm": [
+          0.18477580389446727,
+          0.8685251593032558
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 103,
+      "old_runtime_s": 50.215322494506836,
+      "old_stage_cargo_s": 0.019727,
+      "old_stage_context_s": 9.498187,
+      "old_stage_explicit_s": 38.809261,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 12, \"score_callback\": 36}"
+    },
+    {
+      "proposal_index": 59,
+      "usable_slot": 23,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "4f6bdcc9bb96e7f156fee82a0864ef5b7f1d2fb4ea629764b63483f1a30747e9",
+      "plan_canonical_sha256": "84153e686265f4dfb32da1c7cae541fab77125dcdf81cd2f8506593e36332bfa",
+      "frame_seed": 956378932268611329,
+      "attempt_seed": 956378932268611329,
+      "target_side": "left",
+      "f_target": 0.23646578345592215,
+      "elevation_deg": 30.99525013743029,
+      "projected_size_ratio": 0.14531975365031694,
+      "camera_distance_m": 4.92473231483055,
+      "selected_assets": [
+        "Dist_concrete_road_barrier",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_modular_chainlink_fence",
+        "Dist_covered_car"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 195,
+        "bbox_px": [
+          51,
+          82,
+          75,
+          93
+        ],
+        "centroid_px": [
+          63.2,
+          88.0974358974359
+        ],
+        "centroid_norm": [
+          0.4976377952755906,
+          0.6936805976176055
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 323,
+      "old_side_actual": "left",
+      "old_side_match": true,
+      "old_realization_attempt_count": 8,
+      "old_lowres_render_count": 59,
+      "old_runtime_s": 46.748077630996704,
+      "old_stage_cargo_s": 7.398722,
+      "old_stage_context_s": 10.413602,
+      "old_stage_explicit_s": 23.614857,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 3, \"collision\": 8, \"score_callback\": 5, \"support\": 1}"
+    },
+    {
+      "proposal_index": 62,
+      "usable_slot": 25,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "2a8fab812ee1ad69a6066d6f95e2d21ea79b28662e5832759fd1a5d1ac7d8970",
+      "plan_canonical_sha256": "48c817b61119098859ce0e13e2a779679f4151fb84a5e838f4242b4dc5ebdb99",
+      "frame_seed": 9708573600006714967,
+      "attempt_seed": 9708573600006714967,
+      "target_side": "right",
+      "f_target": 0.3765922942059385,
+      "elevation_deg": 7.686600856575149,
+      "projected_size_ratio": 0.2784652824470185,
+      "camera_distance_m": 1.6440798969790578,
+      "selected_assets": [
+        "Dist_old_tyre",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_portable_welding_cart",
+        "Dist_forklift_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 2397,
+        "bbox_px": [
+          114,
+          26,
+          227,
+          58
+        ],
+        "centroid_px": [
+          173.9770546516479,
+          39.42177722152691
+        ],
+        "centroid_norm": [
+          0.7664187429588013,
+          0.3104076946576922
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 31,
+      "old_runtime_s": 63.97418832778931,
+      "old_stage_cargo_s": 0.021241,
+      "old_stage_context_s": 38.603657,
+      "old_stage_explicit_s": 21.476127,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 13, \"collision\": 8, \"score_callback\": 8, \"support\": 20}"
+    },
+    {
+      "proposal_index": 65,
+      "usable_slot": 25,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "3a92db3d665bf2356d44504fcaef5e8929595882e51f2a078689676013bf107e",
+      "plan_canonical_sha256": "c562715918c620b053ff5c9bd003ca45db2ea9f578346a0df77ce99b0dd5941f",
+      "frame_seed": 17269721638879513107,
+      "attempt_seed": 17269721638879513107,
+      "target_side": "bottom",
+      "f_target": 0.12697100401716757,
+      "elevation_deg": 68.01749432743385,
+      "projected_size_ratio": 0.09583352150426934,
+      "camera_distance_m": 9.659360019133517,
+      "selected_assets": [
+        "Dist_barrel_stove",
+        "Dist_chinese_screen_panels",
+        "Dist_water_dispenser_01",
+        "Dist_wooden_bookshelf_worn",
+        "Dist_delivery_truck_01",
+        "Dist_delivery_van_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 277,
+        "bbox_px": [
+          122,
+          97,
+          145,
+          118
+        ],
+        "centroid_px": [
+          133.31768953068593,
+          108.34657039711192
+        ],
+        "centroid_norm": [
+          0.697998374506209,
+          0.8531226015520623
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 187,
+      "old_side_actual": "bottom",
+      "old_side_match": true,
+      "old_realization_attempt_count": 4,
+      "old_lowres_render_count": 101,
+      "old_runtime_s": 82.286048412323,
+      "old_stage_cargo_s": 5.880872,
+      "old_stage_context_s": 28.929931,
+      "old_stage_explicit_s": 39.245868,
+      "old_reject_counts": "{\"score_callback\": 14}"
+    },
+    {
+      "proposal_index": 69,
+      "usable_slot": 29,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "737d8a755b94abcac77bdaecf6a69e49a30e233244a3efa7b053ef58815544e0",
+      "plan_canonical_sha256": "f6b2e7be4ca48ffd37faa7ab39c723e9ff45e9d6ad7d1d232cfc006f087d10aa",
+      "frame_seed": 8545843960201566619,
+      "attempt_seed": 8545843960201566619,
+      "target_side": "right",
+      "f_target": 0.19727292210701583,
+      "elevation_deg": 9.649987264338122,
+      "projected_size_ratio": 0.3282420514463391,
+      "camera_distance_m": 3.1726641735458694,
+      "selected_assets": [
+        "Dist_utility_box_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_portable_welding_cart",
+        "Dist_covered_car",
+        "Dist_forklift_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 1057,
+        "bbox_px": [
+          102,
+          58,
+          170,
+          80
+        ],
+        "centroid_px": [
+          138.13434247871334,
+          68.01229895931883
+        ],
+        "centroid_norm": [
+          0.8125549557571373,
+          0.5355299130655026
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 95,
+      "old_runtime_s": 65.00836300849915,
+      "old_stage_cargo_s": 0.013563,
+      "old_stage_context_s": 12.501767,
+      "old_stage_explicit_s": 51.28225,
+      "old_reject_counts": "{\"camera_clearance\": 1, \"candidate_budget_exhausted\": 12, \"score_callback\": 34, \"support\": 1}"
+    },
+    {
+      "proposal_index": 70,
+      "usable_slot": 29,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "1fcad045fb2189c8d84065325c6054eaf47206d2ee348ee17fd76d98b1851ab1",
+      "plan_canonical_sha256": "c78b7c76edab0ebb480f3acba2fe845aaf459930bdb28aa3b38a80521d03b328",
+      "frame_seed": 17779752310335643489,
+      "attempt_seed": 17779752310335643489,
+      "target_side": "right",
+      "f_target": 0.3343477429268502,
+      "elevation_deg": 31.60214153285133,
+      "projected_size_ratio": 0.17333188576893707,
+      "camera_distance_m": 3.4362160197396814,
+      "selected_assets": [
+        "Dist_metal_tool_chest",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_Shelf_01",
+        "Dist_utility_box_01",
+        "Dist_forklift_02"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 705,
+        "bbox_px": [
+          97,
+          60,
+          136,
+          85
+        ],
+        "centroid_px": [
+          118.10921985815602,
+          71.60425531914893
+        ],
+        "centroid_norm": [
+          0.6947601168126825,
+          0.5638130340090467
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 5081,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 8,
+      "old_lowres_render_count": 62,
+      "old_runtime_s": 69.9708514213562,
+      "old_stage_cargo_s": 0.02055,
+      "old_stage_context_s": 31.806203,
+      "old_stage_explicit_s": 29.525998,
+      "old_reject_counts": "{\"camera_clearance\": 6, \"candidate_budget_exhausted\": 3, \"score_callback\": 14}"
+    },
+    {
+      "proposal_index": 76,
+      "usable_slot": 33,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "fa56250ff7d1c56e58e683c843ffa07817763b1f8acd321108a4ec1175e27f5d",
+      "plan_canonical_sha256": "a7ed7a4af32af3e3a66b54530c0869bcc20b3d442616ad25a4da6fbae255a2de",
+      "frame_seed": 18212778798860344993,
+      "attempt_seed": 18212778798860344993,
+      "target_side": "left",
+      "f_target": 0.19524197566885365,
+      "elevation_deg": 18.312258064288823,
+      "projected_size_ratio": 0.13100746503586896,
+      "camera_distance_m": 4.97277099150134,
+      "selected_assets": [
+        "Dist_chinese_screen_panels",
+        "Dist_construction_sign_01",
+        "Dist_utility_box_01",
+        "Dist_modular_chainlink_fence",
+        "Dist_forklift_02",
+        "Dist_forklift_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 343,
+        "bbox_px": [
+          94,
+          25,
+          131,
+          37
+        ],
+        "centroid_px": [
+          113.30320699708454,
+          31.0466472303207
+        ],
+        "centroid_norm": [
+          0.4991330704717381,
+          0.24446178921512363
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 4409,
+      "old_side_actual": "left",
+      "old_side_match": true,
+      "old_realization_attempt_count": 2,
+      "old_lowres_render_count": 48,
+      "old_runtime_s": 41.1987624168396,
+      "old_stage_cargo_s": 4.716158,
+      "old_stage_context_s": 12.089845,
+      "old_stage_explicit_s": 17.470266,
+      "old_reject_counts": "{\"score_callback\": 4}"
+    },
+    {
+      "proposal_index": 79,
+      "usable_slot": 35,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "1caacfc98167011029145e8835e5ca9cddecdbe23bcbe175fb34249d0facd3da",
+      "plan_canonical_sha256": "17b2cd328b3439ec4157f06ed86a341a692a3705da06c76734aa796bbd9edf3d",
+      "frame_seed": 3350248196321884863,
+      "attempt_seed": 3350248196321884863,
+      "target_side": "bottom",
+      "f_target": 0.1658813642859568,
+      "elevation_deg": 65.60052332068551,
+      "projected_size_ratio": 0.5624476235036654,
+      "camera_distance_m": 0.7475212815816372,
+      "selected_assets": [
+        "Dist_metal_tool_chest",
+        "Dist_old_tyre",
+        "Dist_metal_jerrycan"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 13652,
+        "bbox_px": [
+          48,
+          0,
+          218,
+          127
+        ],
+        "centroid_px": [
+          119.5543510108409,
+          70.24992675065924
+        ],
+        "centroid_norm": [
+          0.526671149827493,
+          0.5531490295327499
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 16,
+      "old_lowres_render_count": 49,
+      "old_runtime_s": 66.66828656196594,
+      "old_stage_cargo_s": 8.986627,
+      "old_stage_context_s": 38.361478,
+      "old_stage_explicit_s": 18.11909,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 7, \"collision\": 2, \"score_callback\": 8, \"support\": 26}"
+    },
+    {
+      "proposal_index": 80,
+      "usable_slot": 35,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "055c5f0aa3d6eadb68ebcca3798a78b71571dc6f8bf2eb1b3eec7453d7fa7436",
+      "plan_canonical_sha256": "2e773b89ad39d3b85076c2844789dc974b180b1555b38c370bfd314ea7b56cea",
+      "frame_seed": 995114775180071907,
+      "attempt_seed": 995114775180071907,
+      "target_side": "right",
+      "f_target": 0.4392823720272658,
+      "elevation_deg": 2.1053113674106356,
+      "projected_size_ratio": 0.09434438575511322,
+      "camera_distance_m": 9.96332767532945,
+      "selected_assets": [
+        "Dist_Shelf_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_water_dispenser_01",
+        "Dist_utility_box_01",
+        "Dist_wooden_bookshelf_worn"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 58,
+        "bbox_px": [
+          148,
+          13,
+          170,
+          15
+        ],
+        "centroid_px": [
+          158.94827586206895,
+          14.0
+        ],
+        "centroid_norm": [
+          0.9349898580121703,
+          0.11023622047244094
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 20,
+      "old_lowres_render_count": 73,
+      "old_runtime_s": 52.3843457698822,
+      "old_stage_cargo_s": 0.013948,
+      "old_stage_context_s": 19.835379,
+      "old_stage_explicit_s": 31.205169,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 12, \"score_callback\": 19, \"support\": 17}"
+    },
+    {
+      "proposal_index": 82,
+      "usable_slot": 35,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "bcda648acd351539deb75de56f26c675880a10a4ed5b847d89bb59a0868c0dec",
+      "plan_canonical_sha256": "01d25b51509ef1e56388f5d9a5e6e6ea1ae9a3c3836b1bfa399dbbe7deaa6e93",
+      "frame_seed": 18243628291163035490,
+      "attempt_seed": 18243628291163035490,
+      "target_side": "left",
+      "f_target": 0.3350807686779613,
+      "elevation_deg": 7.908830539183718,
+      "projected_size_ratio": 0.28077039004679494,
+      "camera_distance_m": 3.7090869756651825,
+      "selected_assets": [
+        "Dist_metal_toolbox",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_forklift_02",
+        "Dist_forklift_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 847,
+        "bbox_px": [
+          0,
+          59,
+          64,
+          77
+        ],
+        "centroid_px": [
+          29.223140495867767,
+          66.93742621015349
+        ],
+        "centroid_norm": [
+          0.171900826446281,
+          0.5270663481114448
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 2655,
+      "old_side_actual": "left",
+      "old_side_match": true,
+      "old_realization_attempt_count": 4,
+      "old_lowres_render_count": 68,
+      "old_runtime_s": 47.629260540008545,
+      "old_stage_cargo_s": 0.016047,
+      "old_stage_context_s": 9.961312,
+      "old_stage_explicit_s": 32.328276,
+      "old_reject_counts": "{\"score_callback\": 14}"
+    },
+    {
+      "proposal_index": 91,
+      "usable_slot": 39,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "6e102747f262f4b5ac10d5d31b78fdbf5f5687df6f48d92d919c5b75a62f4008",
+      "plan_canonical_sha256": "ff533057314698c693ea574f37bcf1618120eb306f90de561d4f6ca54e5fb261",
+      "frame_seed": 4533354311068888575,
+      "attempt_seed": 4533354311068888575,
+      "target_side": "bottom",
+      "f_target": 0.14280944862934175,
+      "elevation_deg": 12.899869454444794,
+      "projected_size_ratio": 0.09935461304438288,
+      "camera_distance_m": 9.946925993944028,
+      "selected_assets": [
+        "Dist_korean_fire_extinguisher_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_forklift_02",
+        "Dist_portable_welding_cart"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 125,
+        "bbox_px": [
+          0,
+          68,
+          20,
+          78
+        ],
+        "centroid_px": [
+          9.92,
+          72.048
+        ],
+        "centroid_norm": [
+          0.05193717277486911,
+          0.5673070866141733
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 20,
+      "old_lowres_render_count": 77,
+      "old_runtime_s": 40.85218667984009,
+      "old_stage_cargo_s": 0.020277,
+      "old_stage_context_s": 8.346577,
+      "old_stage_explicit_s": 30.254879,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 11, \"score_callback\": 28, \"support\": 8}"
+    },
+    {
+      "proposal_index": 93,
+      "usable_slot": 39,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "4b7bf797b1a99ed477f2d3cde8f4fa7e238f83afa1559e7b2cea6c7f0be7b15f",
+      "plan_canonical_sha256": "783e496cd998a6f2d24cad3495f125487069d9b168daff3fd1359634745d0270",
+      "frame_seed": 13383096694457243242,
+      "attempt_seed": 13383096694457243242,
+      "target_side": "left",
+      "f_target": 0.43973900871519656,
+      "elevation_deg": 23.730594734218588,
+      "projected_size_ratio": 0.5316154620952647,
+      "camera_distance_m": 2.019006213554514,
+      "selected_assets": [
+        "Dist_plastic_crate_03",
+        "Dist_chinese_screen_panels",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_drawer_cabinet",
+        "Dist_wooden_bookshelf_worn"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 4721,
+        "bbox_px": [
+          20,
+          7,
+          151,
+          50
+        ],
+        "centroid_px": [
+          85.08536327049354,
+          28.689048930311376
+        ],
+        "centroid_norm": [
+          0.5005021368852561,
+          0.2258980230733179
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 6220,
+      "old_side_actual": "left",
+      "old_side_match": true,
+      "old_realization_attempt_count": 10,
+      "old_lowres_render_count": 64,
+      "old_runtime_s": 72.17171239852905,
+      "old_stage_cargo_s": 0.020398,
+      "old_stage_context_s": 52.960811,
+      "old_stage_explicit_s": 13.40905,
+      "old_reject_counts": "{\"camera_clearance\": 9, \"candidate_budget_exhausted\": 4, \"collision\": 2, \"score_callback\": 7, \"support\": 5}"
+    },
+    {
+      "proposal_index": 98,
+      "usable_slot": 43,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "1ec85b87632f041d484ef8e3eb19e3689e57492e0c7345d066dddcc579853f44",
+      "plan_canonical_sha256": "2ab1860afe2b32fba37148ba17a09297047bddab1a2ab99759a265f688f17b1e",
+      "frame_seed": 4911681048712625802,
+      "attempt_seed": 4911681048712625802,
+      "target_side": "left",
+      "f_target": 0.24634478013907238,
+      "elevation_deg": 1.5348919886208212,
+      "projected_size_ratio": 0.1613355722507961,
+      "camera_distance_m": 6.454880237175106,
+      "selected_assets": [
+        "Dist_metal_toolbox",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_wooden_bookshelf_worn",
+        "Dist_forklift_02",
+        "Dist_forklift_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 120,
+        "bbox_px": [
+          145,
+          63,
+          170,
+          67
+        ],
+        "centroid_px": [
+          158.16666666666666,
+          64.83333333333333
+        ],
+        "centroid_norm": [
+          0.930392156862745,
+          0.5104986876640419
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 109,
+      "old_runtime_s": 132.66266751289368,
+      "old_stage_cargo_s": 0.016203,
+      "old_stage_context_s": 37.271742,
+      "old_stage_explicit_s": 87.600684,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 12, \"score_callback\": 36}"
+    },
+    {
+      "proposal_index": 100,
+      "usable_slot": 43,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "a980da2ac0a5a5d76fe1eaf183e05997ef7df2deca422d4981e507bf1cb0a395",
+      "plan_canonical_sha256": "f9acfb44e2a81c1516c9cc01d44c539b05fb43d282ebfcd1430b282e67e2d54a",
+      "frame_seed": 305631411752025835,
+      "attempt_seed": 305631411752025835,
+      "target_side": "right",
+      "f_target": 0.4010295429731762,
+      "elevation_deg": 15.716883134243286,
+      "projected_size_ratio": 0.09591812620867338,
+      "camera_distance_m": 7.088904979143278,
+      "selected_assets": [
+        "Dist_traffic_barricade_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_modular_chainlink_fence",
+        "Dist_forklift_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 167,
+        "bbox_px": [
+          97,
+          120,
+          129,
+          127
+        ],
+        "centroid_px": [
+          112.76646706586827,
+          124.59281437125749
+        ],
+        "centroid_norm": [
+          0.4967685773826796,
+          0.9810457824508464
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 20,
+      "old_lowres_render_count": 99,
+      "old_runtime_s": 78.04946494102478,
+      "old_stage_cargo_s": 7.143439,
+      "old_stage_context_s": 16.410545,
+      "old_stage_explicit_s": 53.26272,
+      "old_reject_counts": "{\"camera_clearance\": 1, \"candidate_budget_exhausted\": 12, \"collision\": 2, \"score_callback\": 28, \"support\": 5}"
+    },
+    {
+      "proposal_index": 102,
+      "usable_slot": 43,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "e78ac2f9bd1c864e4884438487eb1b01d8e2572926cde1cd85b302931ecb78d3",
+      "plan_canonical_sha256": "cf4670af2ccaee8375d62707169f4b32388641e0f2217818be5f71e59b52f471",
+      "frame_seed": 11899528229399266260,
+      "attempt_seed": 11899528229399266260,
+      "target_side": "left",
+      "f_target": 0.1852509059040689,
+      "elevation_deg": 59.62077705163087,
+      "projected_size_ratio": 0.7975812203283549,
+      "camera_distance_m": 1.4922285678352316,
+      "selected_assets": [
+        "Dist_wine_barrel_01",
+        "Dist_water_dispenser_01",
+        "Dist_old_military_compressor",
+        "Dist_compost_bags",
+        "Dist_metal_tool_chest",
+        "Dist_old_tyre"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 9403,
+        "bbox_px": [
+          14,
+          16,
+          127,
+          127
+        ],
+        "centroid_px": [
+          64.80133999787301,
+          73.0944379453366
+        ],
+        "centroid_norm": [
+          0.5102467716367954,
+          0.5755467554750913
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 20,
+      "old_lowres_render_count": 64,
+      "old_runtime_s": 68.78973269462585,
+      "old_stage_cargo_s": 15.127102,
+      "old_stage_context_s": 12.482393,
+      "old_stage_explicit_s": 40.02274,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 11, \"collision\": 10, \"score_callback\": 14, \"support\": 12}"
+    },
+    {
+      "proposal_index": 104,
+      "usable_slot": 43,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "ec2df12aa0f05a8570d11aba6abd46435a8c127109a9e3aa14b2c48c24b0bc85",
+      "plan_canonical_sha256": "d9b8a7b1c16bb32e197f02ed4370ee56e4bcee14e7575c5cafbececf7c2981ca",
+      "frame_seed": 5894307878539910023,
+      "attempt_seed": 5894307878539910023,
+      "target_side": "right",
+      "f_target": 0.38540231592339785,
+      "elevation_deg": 6.147659877183431,
+      "projected_size_ratio": 0.072204918555971,
+      "camera_distance_m": 8.251786435528693,
+      "selected_assets": [
+        "Dist_potted_plant_01",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_drawer_cabinet",
+        "Dist_covered_car",
+        "Dist_forklift_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 63,
+        "bbox_px": [
+          49,
+          63,
+          69,
+          67
+        ],
+        "centroid_px": [
+          58.507936507936506,
+          64.85714285714286
+        ],
+        "centroid_norm": [
+          0.30632427491066233,
+          0.5106861642294713
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 368,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 2,
+      "old_lowres_render_count": 45,
+      "old_runtime_s": 24.649908781051636,
+      "old_stage_cargo_s": 0.019944,
+      "old_stage_context_s": 7.905428,
+      "old_stage_explicit_s": 10.563049,
+      "old_reject_counts": "{\"score_callback\": 7}"
+    },
+    {
+      "proposal_index": 109,
+      "usable_slot": 45,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "b27d4e8bda1eb1645636be2fea0c045ce765a8812c9103f734c14078b8ef707d",
+      "plan_canonical_sha256": "29f3561318d181181260c38851f462e3037223d38a874d16307edfee9cadcd0a",
+      "frame_seed": 1870921691707869833,
+      "attempt_seed": 1870921691707869833,
+      "target_side": "bottom",
+      "f_target": 0.3356562823526332,
+      "elevation_deg": 14.87498907323841,
+      "projected_size_ratio": 0.24560665379937663,
+      "camera_distance_m": 3.3287307544464713,
+      "selected_assets": [
+        "Dist_portable_generator",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_drawer_cabinet",
+        "Dist_metal_trash_can",
+        "Dist_metal_office_desk"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 790,
+        "bbox_px": [
+          57,
+          0,
+          107,
+          23
+        ],
+        "centroid_px": [
+          83.30253164556962,
+          10.353164556962025
+        ],
+        "centroid_norm": [
+          0.49001489203276244,
+          0.08152098076348051
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 20,
+      "old_lowres_render_count": 64,
+      "old_runtime_s": 60.395020723342896,
+      "old_stage_cargo_s": 0.013725,
+      "old_stage_context_s": 18.852338,
+      "old_stage_explicit_s": 40.315314,
+      "old_reject_counts": "{\"camera_clearance\": 10, \"candidate_budget_exhausted\": 11, \"score_callback\": 26}"
+    },
+    {
+      "proposal_index": 112,
+      "usable_slot": 45,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "4f20595a8e322464916a64cf45814d870db5d737a44ca2a27a0bd41e05b16882",
+      "plan_canonical_sha256": "e237b3aac9fa4d23909ead4f93b2a09f09c293440ea5a8a2130a503425c68275",
+      "frame_seed": 18357971808264495477,
+      "attempt_seed": 18357971808264495477,
+      "target_side": "right",
+      "f_target": 0.40366298099237796,
+      "elevation_deg": 1.8472352295917198,
+      "projected_size_ratio": 0.5255443670771405,
+      "camera_distance_m": 1.9815678030512336,
+      "selected_assets": [
+        "Dist_chinese_screen_panels",
+        "Dist_construction_sign_01",
+        "Dist_utility_box_01",
+        "Dist_portable_welding_cart",
+        "Dist_forklift_01",
+        "Dist_metal_trash_can"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 1571,
+        "bbox_px": [
+          0,
+          57,
+          117,
+          75
+        ],
+        "centroid_px": [
+          58.894334818586884,
+          65.60152768936983
+        ],
+        "centroid_norm": [
+          0.3464372636387464,
+          0.5165474621210223
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 20,
+      "old_lowres_render_count": 68,
+      "old_runtime_s": 60.97867155075073,
+      "old_stage_cargo_s": 3.51707,
+      "old_stage_context_s": 29.590096,
+      "old_stage_explicit_s": 25.980726,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 11, \"collision\": 1, \"score_callback\": 23, \"support\": 12}"
+    },
+    {
+      "proposal_index": 113,
+      "usable_slot": 45,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "754eec000b40244fddcf72d4868be5f3cb03e7b0880d143e188a3043bce2acde",
+      "plan_canonical_sha256": "0ddbdb57a0ad41f8e23d08bb3b55d994839baf7ce2808dfbece25c258efc0a22",
+      "frame_seed": 7697057700150369961,
+      "attempt_seed": 7697057700150369961,
+      "target_side": "left",
+      "f_target": 0.3290793167680911,
+      "elevation_deg": 15.272581086458707,
+      "projected_size_ratio": 0.28382261093391215,
+      "camera_distance_m": 4.468842698138117,
+      "selected_assets": [
+        "Dist_portable_generator",
+        "Dist_Shelf_01",
+        "Dist_wooden_bookshelf_worn",
+        "Dist_covered_car",
+        "Dist_forklift_02",
+        "Dist_forklift_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 699,
+        "bbox_px": [
+          37,
+          0,
+          90,
+          19
+        ],
+        "centroid_px": [
+          63.359084406294706,
+          8.414878397711016
+        ],
+        "centroid_norm": [
+          0.4988904283960213,
+          0.06625888502134658
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 805,
+      "old_side_actual": "left",
+      "old_side_match": true,
+      "old_realization_attempt_count": 8,
+      "old_lowres_render_count": 59,
+      "old_runtime_s": 65.30609941482544,
+      "old_stage_cargo_s": 0.015585,
+      "old_stage_context_s": 21.320899,
+      "old_stage_explicit_s": 37.63962,
+      "old_reject_counts": "{\"camera_clearance\": 9, \"candidate_budget_exhausted\": 3, \"score_callback\": 13}"
+    },
+    {
+      "proposal_index": 118,
+      "usable_slot": 49,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "c44bf43fca925dc2ba999c595eff55e5b04d61268ff19b46d207d67a1a23f9e5",
+      "plan_canonical_sha256": "e91b52100755dd7997196173d5a89536f2c613e6cb95018426e2b13f30d5e39a",
+      "frame_seed": 10779393065448705651,
+      "attempt_seed": 10779393065448705651,
+      "target_side": "right",
+      "f_target": 0.2957990747707349,
+      "elevation_deg": 12.466014624131162,
+      "projected_size_ratio": 0.43762620573597755,
+      "camera_distance_m": 2.115253780459358,
+      "selected_assets": [
+        "Dist_forklift_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_potted_plant_01",
+        "Dist_concrete_road_barrier_02"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 2284,
+        "bbox_px": [
+          0,
+          25,
+          112,
+          61
+        ],
+        "centroid_px": [
+          47.52101576182137,
+          39.753502626970224
+        ],
+        "centroid_norm": [
+          0.2488011296430438,
+          0.313019705724175
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 20,
+      "old_lowres_render_count": 75,
+      "old_runtime_s": 72.83314037322998,
+      "old_stage_cargo_s": 4.976738,
+      "old_stage_context_s": 27.500725,
+      "old_stage_explicit_s": 39.171364,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 11, \"collision\": 8, \"score_callback\": 23, \"support\": 5}"
+    },
+    {
+      "proposal_index": 120,
+      "usable_slot": 49,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "abeced4ee9748f53d5225d31430c6f56030b8841287f930e6b056a7a74fdd82c",
+      "plan_canonical_sha256": "ad28ec5c6e0310a038a1fe03169d4eb1455e28e41b5fe625651676dc012f49dc",
+      "frame_seed": 5168844479451986977,
+      "attempt_seed": 5168844479451986977,
+      "target_side": "bottom",
+      "f_target": 0.17497335320751256,
+      "elevation_deg": 78.1181645510026,
+      "projected_size_ratio": 0.09673836897228094,
+      "camera_distance_m": 9.770777625160576,
+      "selected_assets": [
+        "Dist_cargo_truck_01",
+        "Dist_chinese_screen_panels",
+        "Dist_water_dispenser_01",
+        "Dist_Shelf_01",
+        "Dist_delivery_truck_01",
+        "Dist_delivery_van_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 155,
+        "bbox_px": [
+          82,
+          113,
+          95,
+          127
+        ],
+        "centroid_px": [
+          88.2258064516129,
+          120.65806451612903
+        ],
+        "centroid_norm": [
+          0.6946913893827787,
+          0.9500635001270002
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 17,
+      "old_lowres_render_count": 105,
+      "old_runtime_s": 59.793081283569336,
+      "old_stage_cargo_s": 0.021195,
+      "old_stage_context_s": 36.669306,
+      "old_stage_explicit_s": 20.662082,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 8, \"score_callback\": 12, \"support\": 24}"
+    },
+    {
+      "proposal_index": 121,
+      "usable_slot": 49,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "9a233076f43b04202b33bbfb0880a5650d5e606997cd9bf3ec69848616e89eb0",
+      "plan_canonical_sha256": "a592b83faebde808cc183d32fcb0633bbeef4a0e1b3f6cec6add8dc63ff0d3ea",
+      "frame_seed": 6831511138261656645,
+      "attempt_seed": 6831511138261656645,
+      "target_side": "left",
+      "f_target": 0.4495132565574447,
+      "elevation_deg": 46.859257384919886,
+      "projected_size_ratio": 0.2054328926292026,
+      "camera_distance_m": 3.379536040688755,
+      "selected_assets": [
+        "Dist_portable_welding_cart",
+        "Dist_construction_sign_01",
+        "Dist_Shelf_01",
+        "Dist_utility_box_01",
+        "Dist_water_dispenser_01",
+        "Dist_wooden_bookshelf_worn"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 1517,
+        "bbox_px": [
+          80,
+          17,
+          146,
+          69
+        ],
+        "centroid_px": [
+          114.51680949241924,
+          42.997363216875414
+        ],
+        "centroid_norm": [
+          0.5044793369710099,
+          0.3385619150935072
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 2710,
+      "old_side_actual": "left",
+      "old_side_match": true,
+      "old_realization_attempt_count": 9,
+      "old_lowres_render_count": 73,
+      "old_runtime_s": 75.17262387275696,
+      "old_stage_cargo_s": 7.179466,
+      "old_stage_context_s": 23.508964,
+      "old_stage_explicit_s": 38.158153,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 4, \"score_callback\": 23}"
+    },
+    {
+      "proposal_index": 128,
+      "usable_slot": 53,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "6103dd6dad48385112a25a8ba06ce5a97abf292b2f0bb5b05e1047a97ae6ada1",
+      "plan_canonical_sha256": "6bacfed3737bd2f9e156475f26a0f5951af3b51c785de936f4082b15ba710e47",
+      "frame_seed": 15158420102389181302,
+      "attempt_seed": 15158420102389181302,
+      "target_side": "right",
+      "f_target": 0.2706757082905613,
+      "elevation_deg": 23.953768753390325,
+      "projected_size_ratio": 0.5340155169561249,
+      "camera_distance_m": 1.9501339639173114,
+      "selected_assets": [
+        "Dist_painted_wooden_cabinet",
+        "Dist_chinese_screen_panels",
+        "Dist_water_dispenser_01",
+        "Dist_wooden_bookshelf_worn",
+        "Dist_Shelf_01",
+        "Dist_drawer_cabinet"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 3666,
+        "bbox_px": [
+          38,
+          88,
+          155,
+          127
+        ],
+        "centroid_px": [
+          89.65302782324059,
+          110.3202400436443
+        ],
+        "centroid_norm": [
+          0.5273707519014152,
+          0.8686633074302701
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 20,
+      "old_lowres_render_count": 93,
+      "old_runtime_s": 88.16813659667969,
+      "old_stage_cargo_s": 15.740115,
+      "old_stage_context_s": 14.739975,
+      "old_stage_explicit_s": 56.413544,
+      "old_reject_counts": "{\"camera_clearance\": 7, \"candidate_budget_exhausted\": 11, \"collision\": 1, \"score_callback\": 26, \"support\": 2}"
+    },
+    {
+      "proposal_index": 132,
+      "usable_slot": 53,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "58f4d5c7212903442d8598c92da17a85dd49b576ff8119f49650fbcba21db552",
+      "plan_canonical_sha256": "7255a2667c8577541e78ad268af2986c3c338f9156ccec12523215dfac7b8c77",
+      "frame_seed": 11332545152207732124,
+      "attempt_seed": 11332545152207732124,
+      "target_side": "right",
+      "f_target": 0.10291382724138247,
+      "elevation_deg": 1.7496564800422258,
+      "projected_size_ratio": 0.3540691845241032,
+      "camera_distance_m": 1.608875979690051,
+      "selected_assets": [
+        "Dist_traffic_barricade_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_portable_welding_cart",
+        "Dist_forklift_01",
+        "Dist_old_military_compressor"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 1406,
+        "bbox_px": [
+          0,
+          78,
+          92,
+          97
+        ],
+        "centroid_px": [
+          45.91394025604552,
+          85.9054054054054
+        ],
+        "centroid_norm": [
+          0.27008200150615014,
+          0.6764205150031921
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 2897,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 8,
+      "old_lowres_render_count": 35,
+      "old_runtime_s": 26.834275722503662,
+      "old_stage_cargo_s": 0.019535,
+      "old_stage_context_s": 14.235736,
+      "old_stage_explicit_s": 7.202658,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 3, \"score_callback\": 2, \"support\": 18}"
+    },
+    {
+      "proposal_index": 136,
+      "usable_slot": 55,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "b07d99fc707752fb87cd11658e637a8da6f02b516303f3f7feba0112bbd63e49",
+      "plan_canonical_sha256": "56afe7c9618004ab3a80675b912119c19182d9fe779e63c33f48cf8506bc76f1",
+      "frame_seed": 5293247083276632525,
+      "attempt_seed": 5293247083276632525,
+      "target_side": "right",
+      "f_target": 0.16124306670200617,
+      "elevation_deg": 36.87987025454237,
+      "projected_size_ratio": 0.4821920800778217,
+      "camera_distance_m": 1.374074925508473,
+      "selected_assets": [
+        "Dist_traffic_barricade_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_portable_welding_cart",
+        "Dist_forklift_02"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 5261,
+        "bbox_px": [
+          12,
+          41,
+          119,
+          127
+        ],
+        "centroid_px": [
+          60.87359817525185,
+          82.18570613951721
+        ],
+        "centroid_norm": [
+          0.35807998926618734,
+          0.6471315444056474
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 18,
+      "old_lowres_render_count": 44,
+      "old_runtime_s": 44.46357560157776,
+      "old_stage_cargo_s": 0.017712,
+      "old_stage_context_s": 23.016119,
+      "old_stage_explicit_s": 19.577502,
+      "old_reject_counts": "{\"camera_clearance\": 19, \"candidate_budget_exhausted\": 9, \"score_callback\": 14, \"support\": 3}"
+    },
+    {
+      "proposal_index": 137,
+      "usable_slot": 55,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "7ce2e9ba491f0e2b8b4b940ac7005657e5c54ae93af0738e849e720112ddbf52",
+      "plan_canonical_sha256": "73e0d838d0e216c6c42386305bcf1b621b14de8ac7cb1fe99beecfc6e4b0fcb8",
+      "frame_seed": 277777493609332788,
+      "attempt_seed": 277777493609332788,
+      "target_side": "right",
+      "f_target": 0.21177009451692813,
+      "elevation_deg": 12.166735617941903,
+      "projected_size_ratio": 0.07113505634435796,
+      "camera_distance_m": 7.546014355470209,
+      "selected_assets": [
+        "Dist_forklift_02",
+        "Dist_chinese_screen_panels",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_delivery_van_01",
+        "Dist_covered_car"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 104,
+        "bbox_px": [
+          133,
+          87,
+          157,
+          93
+        ],
+        "centroid_px": [
+          145.33653846153845,
+          89.97115384615384
+        ],
+        "centroid_norm": [
+          0.6402490681125041,
+          0.7084342822531798
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 424,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 2,
+      "old_lowres_render_count": 63,
+      "old_runtime_s": 49.160359382629395,
+      "old_stage_cargo_s": 5.099745,
+      "old_stage_context_s": 15.785945,
+      "old_stage_explicit_s": 21.699827,
+      "old_reject_counts": "{\"score_callback\": 9}"
+    },
+    {
+      "proposal_index": 142,
+      "usable_slot": 59,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "b3d9f816835c28fddfd564445622dabcf75cd44f01fc6f419982bde342345c36",
+      "plan_canonical_sha256": "ffdccdc42a2a258468f79dea4e18dac74c5840b28f55814ec819dcd6c71c8379",
+      "frame_seed": 292631393152029020,
+      "attempt_seed": 292631393152029020,
+      "target_side": "bottom",
+      "f_target": 0.3398625913123031,
+      "elevation_deg": 77.80318123378711,
+      "projected_size_ratio": 0.08729626591332634,
+      "camera_distance_m": 7.953007580789878,
+      "selected_assets": [
+        "Dist_portable_generator",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_delivery_truck_01",
+        "Dist_delivery_van_01",
+        "Dist_covered_car"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 253,
+        "bbox_px": [
+          101,
+          52,
+          126,
+          76
+        ],
+        "centroid_px": [
+          113.51383399209486,
+          63.66403162055336
+        ],
+        "centroid_norm": [
+          0.5000609426964532,
+          0.5012915875634123
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 19,
+      "old_lowres_render_count": 135,
+      "old_runtime_s": 133.57814717292786,
+      "old_stage_cargo_s": 11.874706,
+      "old_stage_context_s": 80.725242,
+      "old_stage_explicit_s": 39.706583,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 11, \"collision\": 1, \"score_callback\": 17, \"support\": 18}"
+    },
+    {
+      "proposal_index": 143,
+      "usable_slot": 59,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "ab1f62aa57982b02ef0ec82dfbcc6a024550a028055f221bc6ec292873c202ac",
+      "plan_canonical_sha256": "c3ccdf3fac44b0447546045ba0dffeb520970d7ff84f11d4846349185459be9a",
+      "frame_seed": 16635933437188481130,
+      "attempt_seed": 16635933437188481130,
+      "target_side": "left",
+      "f_target": 0.165924172579748,
+      "elevation_deg": 3.446048302725748,
+      "projected_size_ratio": 0.16103721540703184,
+      "camera_distance_m": 4.262854759135113,
+      "selected_assets": [
+        "Dist_propane_tank",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_cargo_truck_01",
+        "Dist_covered_car"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 229,
+        "bbox_px": [
+          0,
+          63,
+          40,
+          69
+        ],
+        "centroid_px": [
+          19.868995633187772,
+          65.84279475982532
+        ],
+        "centroid_norm": [
+          0.11687644490110455,
+          0.5184472028332703
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 18,
+      "old_lowres_render_count": 78,
+      "old_runtime_s": 60.79854941368103,
+      "old_stage_cargo_s": 0.016456,
+      "old_stage_context_s": 18.274287,
+      "old_stage_explicit_s": 41.190735,
+      "old_reject_counts": "{\"camera_clearance\": 2, \"candidate_budget_exhausted\": 9, \"score_callback\": 25, \"support\": 9}"
+    },
+    {
+      "proposal_index": 146,
+      "usable_slot": 59,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "42029f1d43fd43f13c9276f5b1d21f9fbb24fe65000c875a5955a738f22bf6a8",
+      "plan_canonical_sha256": "e3858c96049e7f79f9c3f700fb3d65a923f898ac7b56068ed2133c6d639e6cd0",
+      "frame_seed": 9026272252067271591,
+      "attempt_seed": 9026272252067271591,
+      "target_side": "bottom",
+      "f_target": 0.24104336438610516,
+      "elevation_deg": 3.028924675092468,
+      "projected_size_ratio": 0.28305528439132166,
+      "camera_distance_m": 3.2542381112056074,
+      "selected_assets": [
+        "Dist_metal_toolbox",
+        "Dist_potted_plant_01",
+        "Dist_sledgehammer_01",
+        "Dist_korean_fire_extinguisher_01",
+        "Dist_bollard_01",
+        "Dist_power_box_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 421,
+        "bbox_px": [
+          129,
+          60,
+          170,
+          72
+        ],
+        "centroid_px": [
+          150.37767220902612,
+          65.72209026128266
+        ],
+        "centroid_norm": [
+          0.884574542406036,
+          0.5174967737108871
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 89,
+      "old_runtime_s": 66.20333194732666,
+      "old_stage_cargo_s": 3.311832,
+      "old_stage_context_s": 24.879932,
+      "old_stage_explicit_s": 36.175059,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 12, \"score_callback\": 35, \"support\": 1}"
+    },
+    {
+      "proposal_index": 147,
+      "usable_slot": 59,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "093c3246e1f4804c89a4232805f1c63185651067917494b451d2ecd8e80157f0",
+      "plan_canonical_sha256": "b216f2dc04dfa23a5f66987e4c0a5ed210541e58758e9b0715e311240d2674d3",
+      "frame_seed": 2679912555538075380,
+      "attempt_seed": 2679912555538075380,
+      "target_side": "right",
+      "f_target": 0.1971867501066144,
+      "elevation_deg": 43.87948566680093,
+      "projected_size_ratio": 0.526066947800193,
+      "camera_distance_m": 1.9795993670192296,
+      "selected_assets": [
+        "Dist_planter_box_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_portable_welding_cart",
+        "Dist_concrete_road_barrier_02"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 6919,
+        "bbox_px": [
+          6,
+          29,
+          130,
+          125
+        ],
+        "centroid_px": [
+          64.26622344269403,
+          73.05362046538517
+        ],
+        "centroid_norm": [
+          0.37803660848643544,
+          0.5752253579951588
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 8024,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 9,
+      "old_lowres_render_count": 71,
+      "old_runtime_s": 88.09187388420105,
+      "old_stage_cargo_s": 0.019156,
+      "old_stage_context_s": 56.36854,
+      "old_stage_explicit_s": 24.037886,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 4, \"collision\": 1, \"score_callback\": 11, \"support\": 8}"
+    },
+    {
+      "proposal_index": 154,
+      "usable_slot": 63,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "ac7e72a946de005452859d244e5a0eb2d7780e638695624562c4f1ca762ff1d7",
+      "plan_canonical_sha256": "29ad1379df6c2616afc61c280dbaaa20d1d94c4ea64cce6d1a9fbaf539029224",
+      "frame_seed": 12421794763130786124,
+      "attempt_seed": 12421794763130786124,
+      "target_side": "left",
+      "f_target": 0.13714750827318622,
+      "elevation_deg": 18.838503496431603,
+      "projected_size_ratio": 0.22440173006486192,
+      "camera_distance_m": 4.64079219252895,
+      "selected_assets": [
+        "Dist_wine_barrel_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_cargo_truck_01",
+        "Dist_delivery_truck_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 864,
+        "bbox_px": [
+          0,
+          60,
+          55,
+          83
+        ],
+        "centroid_px": [
+          27.17824074074074,
+          71.24768518518519
+        ],
+        "centroid_norm": [
+          0.15987200435729848,
+          0.5610053951589385
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 100,
+      "old_runtime_s": 92.62316823005676,
+      "old_stage_cargo_s": 0.019722,
+      "old_stage_context_s": 28.989252,
+      "old_stage_explicit_s": 60.237348,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 12, \"score_callback\": 36}"
+    },
+    {
+      "proposal_index": 155,
+      "usable_slot": 63,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "7ae44fbb9f8303ef47b39aa477aabf065cf0c3e0b5eb829f2d97a3172657b207",
+      "plan_canonical_sha256": "f6af75bee36227a6196079c0c64ba77617d36b32dd97c35aa346d67f5dc682a0",
+      "frame_seed": 3633156446211841071,
+      "attempt_seed": 3633156446211841071,
+      "target_side": "right",
+      "f_target": 0.20139072164260288,
+      "elevation_deg": 12.740421430234273,
+      "projected_size_ratio": 0.09598872660551264,
+      "camera_distance_m": 8.197685139827135,
+      "selected_assets": [
+        "Dist_concrete_road_barrier_02",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_forklift_02",
+        "Dist_cargo_truck_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 177,
+        "bbox_px": [
+          0,
+          69,
+          32,
+          77
+        ],
+        "centroid_px": [
+          15.627118644067796,
+          72.57627118644068
+        ],
+        "centroid_norm": [
+          0.08181737509983139,
+          0.5714667022554384
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 730,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 4,
+      "old_lowres_render_count": 74,
+      "old_runtime_s": 42.384862661361694,
+      "old_stage_cargo_s": 6.140389,
+      "old_stage_context_s": 8.166595,
+      "old_stage_explicit_s": 22.489588,
+      "old_reject_counts": "{\"score_callback\": 7}"
+    },
+    {
+      "proposal_index": 158,
+      "usable_slot": 65,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "1d2fac12258aafaf263167125543b590d81bf6eab482543cea1a0ef547a9fc9e",
+      "plan_canonical_sha256": "dcd11ad1ff78a4fe647b6cac85dc4d13257426399d15ae34c86280c168f9075d",
+      "frame_seed": 11791339247361642010,
+      "attempt_seed": 11791339247361642010,
+      "target_side": "right",
+      "f_target": 0.29693888819819236,
+      "elevation_deg": 3.545732345961853,
+      "projected_size_ratio": 0.29570855265420126,
+      "camera_distance_m": 3.575864695219706,
+      "selected_assets": [
+        "Dist_power_box_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_water_dispenser_01",
+        "Dist_utility_box_01",
+        "Dist_Shelf_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 309,
+        "bbox_px": [
+          48,
+          0,
+          119,
+          6
+        ],
+        "centroid_px": [
+          81.73462783171522,
+          2.042071197411003
+        ],
+        "centroid_norm": [
+          0.4807919284218542,
+          0.01607930076701577
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 92,
+      "old_runtime_s": 43.55709099769592,
+      "old_stage_cargo_s": 0.01798,
+      "old_stage_context_s": 7.248233,
+      "old_stage_explicit_s": 34.201158,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 12, \"score_callback\": 33, \"support\": 3}"
+    },
+    {
+      "proposal_index": 159,
+      "usable_slot": 65,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "ed875e2c5bb0ec18a5c13154ae3d40e96ec65fcd51d34a4de3c0633d4b3b9746",
+      "plan_canonical_sha256": "a6c194ea6f206ff48e96ba1a5ca4b56589cec5ff4854826708f062049c0e8397",
+      "frame_seed": 10355578140301210918,
+      "attempt_seed": 10355578140301210918,
+      "target_side": "right",
+      "f_target": 0.12240496389104516,
+      "elevation_deg": 10.015334150162937,
+      "projected_size_ratio": 0.12565301602112766,
+      "camera_distance_m": 5.661226906323537,
+      "selected_assets": [
+        "Dist_traffic_barricade_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_portable_welding_cart",
+        "Dist_covered_car"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 239,
+        "bbox_px": [
+          95,
+          1,
+          134,
+          10
+        ],
+        "centroid_px": [
+          113.13807531380753,
+          5.368200836820083
+        ],
+        "centroid_norm": [
+          0.49840561812250017,
+          0.04226929792771719
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 991,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 2,
+      "old_lowres_render_count": 57,
+      "old_runtime_s": 46.47523212432861,
+      "old_stage_cargo_s": 5.049086,
+      "old_stage_context_s": 12.881936,
+      "old_stage_explicit_s": 22.131578,
+      "old_reject_counts": "{\"score_callback\": 7}"
+    },
+    {
+      "proposal_index": 163,
+      "usable_slot": 69,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "2427d6379c38aa2e65893e6bfce0d988d0ca7263fc46394ceeaa03c835f4e1fc",
+      "plan_canonical_sha256": "119d8865622196898179997b89e49b1801fa9b93742f3a71b1c456652dc49250",
+      "frame_seed": 15220104285921290163,
+      "attempt_seed": 15220104285921290163,
+      "target_side": "left",
+      "f_target": 0.27683038399999904,
+      "elevation_deg": 10.73199545943395,
+      "projected_size_ratio": 0.8049923202759377,
+      "camera_distance_m": 1.4784904801761165,
+      "selected_assets": [
+        "Dist_metal_jerrycan",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_portable_welding_cart",
+        "Dist_concrete_road_barrier"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 4444,
+        "bbox_px": [
+          0,
+          13,
+          127,
+          57
+        ],
+        "centroid_px": [
+          67.2011701170117,
+          32.66651665166517
+        ],
+        "centroid_norm": [
+          0.5291430717874936,
+          0.25721666654854464
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 19,
+      "old_lowres_render_count": 74,
+      "old_runtime_s": 82.61688041687012,
+      "old_stage_cargo_s": 0.016881,
+      "old_stage_context_s": 27.925386,
+      "old_stage_explicit_s": 53.245141,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 10, \"collision\": 4, \"score_callback\": 24, \"support\": 8}"
+    },
+    {
+      "proposal_index": 166,
+      "usable_slot": 69,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "3b6a388ff7f1f461130823b5ae258b6e3b8c1f12b11707e5313e984e0691b0f0",
+      "plan_canonical_sha256": "8fdc588d6468eb58d03d912e91871c10a81236add494829b540cf21f589ed64b",
+      "frame_seed": 6913298912175128978,
+      "attempt_seed": 6913298912175128978,
+      "target_side": "bottom",
+      "f_target": 0.18870592109118398,
+      "elevation_deg": 65.6372519803622,
+      "projected_size_ratio": 0.23525376625478855,
+      "camera_distance_m": 4.426716789507733,
+      "selected_assets": [
+        "Dist_concrete_road_barrier_02",
+        "Dist_construction_sign_01",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_utility_box_01",
+        "Dist_drawer_cabinet"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 1205,
+        "bbox_px": [
+          22,
+          54,
+          70,
+          90
+        ],
+        "centroid_px": [
+          47.40746887966805,
+          73.19170124481327
+        ],
+        "centroid_norm": [
+          0.27886746399804735,
+          0.5763126082268761
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 720,
+      "old_side_actual": "bottom",
+      "old_side_match": true,
+      "old_realization_attempt_count": 6,
+      "old_lowres_render_count": 57,
+      "old_runtime_s": 54.1078143119812,
+      "old_stage_cargo_s": 9.398946,
+      "old_stage_context_s": 11.211143,
+      "old_stage_explicit_s": 25.426892,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 1, \"collision\": 8, \"score_callback\": 7, \"support\": 4}"
+    },
+    {
+      "proposal_index": 173,
+      "usable_slot": 73,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "d5e704659d32dce3772bfe8d094bc05d0fa36c50373c65fc6ad755ab64f747c8",
+      "plan_canonical_sha256": "80944c365479a936ca90e95b7e3532520f7b1b58e61976868fecf50ad72276d3",
+      "frame_seed": 18187797613129918218,
+      "attempt_seed": 18187797613129918218,
+      "target_side": "left",
+      "f_target": 0.1150761980439105,
+      "elevation_deg": 18.84690993103562,
+      "projected_size_ratio": 0.0942514050031087,
+      "camera_distance_m": 7.58311249519336,
+      "selected_assets": [
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_cargo_truck_01",
+        "Dist_delivery_van_01",
+        "Dist_covered_car"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 197,
+        "bbox_px": [
+          23,
+          120,
+          59,
+          127
+        ],
+        "centroid_px": [
+          42.51776649746193,
+          124.51776649746193
+        ],
+        "centroid_norm": [
+          0.18730293611216708,
+          0.9804548543107239
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 122,
+      "old_runtime_s": 57.78732466697693,
+      "old_stage_cargo_s": 5.909488,
+      "old_stage_context_s": 12.616293,
+      "old_stage_explicit_s": 37.250034,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 12, \"score_callback\": 36}"
+    },
+    {
+      "proposal_index": 174,
+      "usable_slot": 73,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "5d111c3e191a6a806ccf98f116964ce246a850f0d7e8a3fc5d03d2b287ee5afd",
+      "plan_canonical_sha256": "1b966c187200b1573ae849b4aad07c4933cdf7902d0ba05fa5a89dbdff8c750a",
+      "frame_seed": 1318650020196764431,
+      "attempt_seed": 1318650020196764431,
+      "target_side": "right",
+      "f_target": 0.14832489796501136,
+      "elevation_deg": 4.309096926338414,
+      "projected_size_ratio": 0.2518769164014956,
+      "camera_distance_m": 3.6751699970613685,
+      "selected_assets": [
+        "Dist_plastic_crate_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_forklift_02",
+        "Dist_forklift_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 749,
+        "bbox_px": [
+          117,
+          60,
+          191,
+          73
+        ],
+        "centroid_px": [
+          154.0347129506008,
+          65.71028037383178
+        ],
+        "centroid_norm": [
+          0.8064644657099519,
+          0.5174037824711164
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 895,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 2,
+      "old_lowres_render_count": 50,
+      "old_runtime_s": 31.100996017456055,
+      "old_stage_cargo_s": 4.032035,
+      "old_stage_context_s": 8.708104,
+      "old_stage_explicit_s": 12.513082,
+      "old_reject_counts": "{\"score_callback\": 1}"
+    },
+    {
+      "proposal_index": 176,
+      "usable_slot": 75,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "e4c59f6082d706936d387d5dbf82f262f1c6d08f5f77042442dfaf8895858015",
+      "plan_canonical_sha256": "260922e75c0bcd74384933891b5734252a07d741d3905b57d6aff383ac42be28",
+      "frame_seed": 4424755390660075829,
+      "attempt_seed": 4424755390660075829,
+      "target_side": "bottom",
+      "f_target": 0.3891861039916183,
+      "elevation_deg": 40.57919302836313,
+      "projected_size_ratio": 0.10207869199176992,
+      "camera_distance_m": 4.121766543686585,
+      "selected_assets": [
+        "Dist_industrial_storage_cart",
+        "Dist_construction_sign_01",
+        "Dist_Shelf_01",
+        "Dist_utility_box_01",
+        "Dist_water_dispenser_01",
+        "Dist_wooden_bookshelf_worn"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 367,
+        "bbox_px": [
+          99,
+          54,
+          126,
+          76
+        ],
+        "centroid_px": [
+          113.34604904632153,
+          64.16621253405995
+        ],
+        "centroid_norm": [
+          0.4993218019661741,
+          0.505245767984724
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 614,
+      "old_side_actual": "bottom",
+      "old_side_match": true,
+      "old_realization_attempt_count": 16,
+      "old_lowres_render_count": 99,
+      "old_runtime_s": 53.78386306762695,
+      "old_stage_cargo_s": 0.018112,
+      "old_stage_context_s": 9.11454,
+      "old_stage_explicit_s": 37.865679,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 9, \"score_callback\": 33}"
+    },
+    {
+      "proposal_index": 180,
+      "usable_slot": 79,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "07e6926645f3a01c560a42cb46fe6e5cf0712f665257f9cd16f355f63cecbb9f",
+      "plan_canonical_sha256": "3ef23f69f1d3d67386a5f975e137c3561717bb9e04413c1b684df721ffa22c16",
+      "frame_seed": 18403185820053444607,
+      "attempt_seed": 18403185820053444607,
+      "target_side": "left",
+      "f_target": 0.20059055421810051,
+      "elevation_deg": 20.22649205924115,
+      "projected_size_ratio": 0.8427326106036971,
+      "camera_distance_m": 0.8173883296520082,
+      "selected_assets": [
+        "Dist_metal_tool_chest",
+        "Dist_propane_tank",
+        "Dist_old_tyre",
+        "Dist_power_box_01",
+        "Dist_metal_jerrycan",
+        "Dist_metal_toolbox"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 17022,
+        "bbox_px": [
+          0,
+          33,
+          227,
+          127
+        ],
+        "centroid_px": [
+          113.48102455645635,
+          85.43349782634237
+        ],
+        "centroid_norm": [
+          0.49991640773769314,
+          0.6727047072940344
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 16,
+      "old_lowres_render_count": 48,
+      "old_runtime_s": 24.42941975593567,
+      "old_stage_cargo_s": 0.018251,
+      "old_stage_context_s": 6.48438,
+      "old_stage_explicit_s": 15.965442,
+      "old_reject_counts": "{\"camera_clearance\": 5, \"candidate_budget_exhausted\": 7, \"collision\": 2, \"score_callback\": 9, \"support\": 20}"
+    },
+    {
+      "proposal_index": 183,
+      "usable_slot": 79,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "60a93f42c2164632fe7826611acd44bb8280467da49ec79f7b0e8fc15d6156be",
+      "plan_canonical_sha256": "11ac204dfe92c3d62853857d16c25907ca1091a8682311adbe01bb3888688f32",
+      "frame_seed": 11638179707344210669,
+      "attempt_seed": 11638179707344210669,
+      "target_side": "bottom",
+      "f_target": 0.17523444273776634,
+      "elevation_deg": 16.62851385411792,
+      "projected_size_ratio": 0.09932481890477544,
+      "camera_distance_m": 9.964840245879953,
+      "selected_assets": [
+        "Dist_barrel_stove",
+        "Dist_chinese_screen_panels",
+        "Dist_portable_welding_cart",
+        "Dist_forklift_01",
+        "Dist_forklift_02",
+        "Dist_old_military_compressor"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 217,
+        "bbox_px": [
+          162,
+          69,
+          190,
+          79
+        ],
+        "centroid_px": [
+          175.79723502304148,
+          73.80645161290323
+        ],
+        "centroid_norm": [
+          0.9204043718483848,
+          0.5811531623063246
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 110,
+      "old_runtime_s": 108.37117552757263,
+      "old_stage_cargo_s": 15.333103,
+      "old_stage_context_s": 15.307672,
+      "old_stage_explicit_s": 76.501703,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 13, \"score_callback\": 36}"
+    },
+    {
+      "proposal_index": 184,
+      "usable_slot": 79,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "882fadb6e4faafd29cd4cd3dd38d633b0d4a4cfd0a2d5d77e0634fc62473ebd3",
+      "plan_canonical_sha256": "bd21349e385613df46e6cbc28a4c87a6b267ae25de023b5462e71e900b5771f1",
+      "frame_seed": 14270548276312012377,
+      "attempt_seed": 14270548276312012377,
+      "target_side": "left",
+      "f_target": 0.3836264574201448,
+      "elevation_deg": 14.211756363258441,
+      "projected_size_ratio": 0.375071056510182,
+      "camera_distance_m": 1.320035927271307,
+      "selected_assets": [
+        "Dist_plastic_crate_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_portable_welding_cart",
+        "Dist_concrete_road_barrier_02"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 4829,
+        "bbox_px": [
+          83,
+          52,
+          227,
+          121
+        ],
+        "centroid_px": [
+          163.88569061917582,
+          78.48602195071443
+        ],
+        "centroid_norm": [
+          0.7219633947981313,
+          0.6180001728402711
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 58,
+      "old_runtime_s": 77.02824234962463,
+      "old_stage_cargo_s": 0.022659,
+      "old_stage_context_s": 54.562151,
+      "old_stage_explicit_s": 20.035048,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 14, \"collision\": 7, \"score_callback\": 11, \"support\": 18}"
+    },
+    {
+      "proposal_index": 187,
+      "usable_slot": 79,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "08eef602d32ec0768885857ab74b054ee10f0f4cede81f3dd60d842aa75623b4",
+      "plan_canonical_sha256": "4b6b6f8ec10971b51e0dceeb9ca2cfd606a72599f7144c200f44dd9c352bd768",
+      "frame_seed": 4087092818204089104,
+      "attempt_seed": 4087092818204089104,
+      "target_side": "bottom",
+      "f_target": 0.18002557219038512,
+      "elevation_deg": 48.477528260683854,
+      "projected_size_ratio": 0.16045613114353252,
+      "camera_distance_m": 7.023880525674858,
+      "selected_assets": [
+        "Dist_forklift_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_modular_chainlink_fence",
+        "Dist_cargo_truck_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 725,
+        "bbox_px": [
+          0,
+          79,
+          31,
+          111
+        ],
+        "centroid_px": [
+          16.06758620689655,
+          94.39172413793104
+        ],
+        "centroid_norm": [
+          0.09451521298174441,
+          0.7432419223459137
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 514,
+      "old_side_actual": "bottom",
+      "old_side_match": true,
+      "old_realization_attempt_count": 1,
+      "old_lowres_render_count": 53,
+      "old_runtime_s": 31.886475324630737,
+      "old_stage_cargo_s": 0.020074,
+      "old_stage_context_s": 22.320655,
+      "old_stage_explicit_s": 4.070215,
+      "old_reject_counts": "{}"
+    },
+    {
+      "proposal_index": 192,
+      "usable_slot": 83,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "db222babb4e94806e77925383cdf0bc280d9bcb26e0e6b41969f58b9ae87bb67",
+      "plan_canonical_sha256": "f61e27881d1f92be0d03fe5ea4fc9924c4728d11c8b76e435ee332f61de2ac11",
+      "frame_seed": 8167068482186040407,
+      "attempt_seed": 8167068482186040407,
+      "target_side": "right",
+      "f_target": 0.123365894996608,
+      "elevation_deg": 14.945633060520862,
+      "projected_size_ratio": 0.23303177187599905,
+      "camera_distance_m": 4.468926226202114,
+      "selected_assets": [
+        "Dist_industrial_storage_cart",
+        "Dist_construction_sign_01",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_utility_box_01",
+        "Dist_wooden_bookshelf_worn"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 658,
+        "bbox_px": [
+          115,
+          61,
+          170,
+          78
+        ],
+        "centroid_px": [
+          142.00455927051672,
+          69.89057750759878
+        ],
+        "centroid_norm": [
+          0.8353209368853924,
+          0.5503195079338487
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 102,
+      "old_runtime_s": 50.886961221694946,
+      "old_stage_cargo_s": 3.253599,
+      "old_stage_context_s": 7.871977,
+      "old_stage_explicit_s": 37.594843,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 12, \"score_callback\": 36}"
+    },
+    {
+      "proposal_index": 195,
+      "usable_slot": 83,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "47ce937962872e62f8c252900075e94e93d242f3351abc3c747ae3960add16a8",
+      "plan_canonical_sha256": "603b69356a360605d719f20beb59893489128dd44f755f73ba0cea3f6391e90a",
+      "frame_seed": 18027280644165670717,
+      "attempt_seed": 18027280644165670717,
+      "target_side": "bottom",
+      "f_target": 0.4108783468383854,
+      "elevation_deg": 28.654239480388743,
+      "projected_size_ratio": 0.4245941999729545,
+      "camera_distance_m": 1.7745623740330176,
+      "selected_assets": [
+        "Dist_propane_tank",
+        "Dist_construction_sign_01",
+        "Dist_water_dispenser_01",
+        "Dist_utility_box_01",
+        "Dist_bollard_01",
+        "Dist_old_military_compressor"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 6641,
+        "bbox_px": [
+          81,
+          40,
+          223,
+          127
+        ],
+        "centroid_px": [
+          155.1028459569342,
+          77.95226622496612
+        ],
+        "centroid_norm": [
+          0.6832724491494899,
+          0.613797371850127
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 3422,
+      "old_side_actual": "bottom",
+      "old_side_match": true,
+      "old_realization_attempt_count": 8,
+      "old_lowres_render_count": 60,
+      "old_runtime_s": 58.78199124336243,
+      "old_stage_cargo_s": 8.888536,
+      "old_stage_context_s": 15.77924,
+      "old_stage_explicit_s": 27.718965,
+      "old_reject_counts": "{\"camera_clearance\": 8, \"candidate_budget_exhausted\": 3, \"score_callback\": 14}"
+    },
+    {
+      "proposal_index": 199,
+      "usable_slot": 85,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "fbeb3741ae7b9aa7442034a834dc4d637b1959e3810082327753717032be7239",
+      "plan_canonical_sha256": "06079b77dcfdaaf584baca628a0d18d0d1d9636cbeed86d60e37b53cea226ebe",
+      "frame_seed": 14273025226772880577,
+      "attempt_seed": 14273025226772880577,
+      "target_side": "right",
+      "f_target": 0.11092954169765702,
+      "elevation_deg": 5.683132860891792,
+      "projected_size_ratio": 0.662335781758141,
+      "camera_distance_m": 1.0482113207600383,
+      "selected_assets": [
+        "Dist_wine_barrel_01",
+        "Dist_chinese_screen_panels",
+        "Dist_water_dispenser_01",
+        "Dist_portable_welding_cart",
+        "Dist_painted_wooden_cabinet",
+        "Dist_old_military_compressor"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 8441,
+        "bbox_px": [
+          0,
+          13,
+          220,
+          84
+        ],
+        "centroid_px": [
+          120.47364056391423,
+          38.32756782371757
+        ],
+        "centroid_norm": [
+          0.5307208835414724,
+          0.3017918726276974
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 84,
+      "old_runtime_s": 45.12682223320007,
+      "old_stage_cargo_s": 3.935695,
+      "old_stage_context_s": 10.941954,
+      "old_stage_explicit_s": 28.173528,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 13, \"collision\": 3, \"score_callback\": 23, \"support\": 10}"
+    },
+    {
+      "proposal_index": 201,
+      "usable_slot": 85,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "4bb2ad4548e76eff9a8594c524d3284bf79b67e50feb6051ebba918f716da572",
+      "plan_canonical_sha256": "d5d2014228d953fdacb7fdad1d25c9e97cd52927143a6e1d0dfe2176a999b1d4",
+      "frame_seed": 5152931427684084312,
+      "attempt_seed": 5152931427684084312,
+      "target_side": "left",
+      "f_target": 0.3417435681136394,
+      "elevation_deg": 6.447546611922638,
+      "projected_size_ratio": 0.29959005192826543,
+      "camera_distance_m": 3.4760893767071943,
+      "selected_assets": [
+        "Dist_chinese_screen_panels",
+        "Dist_construction_sign_01",
+        "Dist_Shelf_01",
+        "Dist_utility_box_01",
+        "Dist_water_dispenser_01",
+        "Dist_wooden_bookshelf_worn"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 789,
+        "bbox_px": [
+          104,
+          23,
+          170,
+          36
+        ],
+        "centroid_px": [
+          136.49429657794676,
+          30.24081115335868
+        ],
+        "centroid_norm": [
+          0.8029076269290986,
+          0.23811662325479277
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 85,
+      "old_runtime_s": 81.59587407112122,
+      "old_stage_cargo_s": 6.156677,
+      "old_stage_context_s": 19.583994,
+      "old_stage_explicit_s": 52.412609,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 14, \"collision\": 1, \"score_callback\": 33, \"support\": 2}"
+    },
+    {
+      "proposal_index": 202,
+      "usable_slot": 85,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "0b0fd8018038434be515cf217d2546ee7a2f731d76ace9f9ba51a36c63771622",
+      "plan_canonical_sha256": "3067b3fa978f9ee24799d68dae6d7a709b08a5a4a4f89e9465c4a891499421d0",
+      "frame_seed": 8508636142258360767,
+      "attempt_seed": 8508636142258360767,
+      "target_side": "left",
+      "f_target": 0.3743046620576926,
+      "elevation_deg": 38.668858248083716,
+      "projected_size_ratio": 0.17972249129990822,
+      "camera_distance_m": 5.058411025444843,
+      "selected_assets": [
+        "Dist_forklift_01",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_wooden_bookshelf_worn",
+        "Dist_covered_car",
+        "Dist_chinese_screen_panels"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 1093,
+        "bbox_px": [
+          114,
+          88,
+          165,
+          124
+        ],
+        "centroid_px": [
+          139.195791399817,
+          105.04117108874657
+        ],
+        "centroid_norm": [
+          0.7287737769623928,
+          0.8270958353444612
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 512,
+      "old_side_actual": "left",
+      "old_side_match": true,
+      "old_realization_attempt_count": 3,
+      "old_lowres_render_count": 49,
+      "old_runtime_s": 45.04691958427429,
+      "old_stage_cargo_s": 0.020328,
+      "old_stage_context_s": 15.48127,
+      "old_stage_explicit_s": 20.881452,
+      "old_reject_counts": "{\"score_callback\": 8}"
+    },
+    {
+      "proposal_index": 209,
+      "usable_slot": 89,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "8d2bc2e4e98a980e888128421d108b67b7ff2f78ae542a2c973bc2788ff8c2a7",
+      "plan_canonical_sha256": "182d69266efe0b0746e5cec051fb146bc4911af9c342224aa17c203791c5ddde",
+      "frame_seed": 13099437915421863979,
+      "attempt_seed": 13099437915421863979,
+      "target_side": "bottom",
+      "f_target": 0.3653783774023659,
+      "elevation_deg": 20.30953912671132,
+      "projected_size_ratio": 0.19429416337580507,
+      "camera_distance_m": 4.109243134119327,
+      "selected_assets": [
+        "Dist_old_tyre",
+        "Dist_construction_sign_01",
+        "Dist_utility_box_01",
+        "Dist_portable_welding_cart",
+        "Dist_concrete_road_barrier_02",
+        "Dist_concrete_road_barrier"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 848,
+        "bbox_px": [
+          118,
+          107,
+          170,
+          127
+        ],
+        "centroid_px": [
+          145.16391509433961,
+          117.81014150943396
+        ],
+        "centroid_norm": [
+          0.8539053829078801,
+          0.927638909523102
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 93,
+      "old_runtime_s": 72.35513949394226,
+      "old_stage_cargo_s": 0.019574,
+      "old_stage_context_s": 10.423514,
+      "old_stage_explicit_s": 58.388399,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 12, \"score_callback\": 36}"
+    },
+    {
+      "proposal_index": 211,
+      "usable_slot": 89,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "50588d35463ca3b50a697306b7a6c9e210460cbf336bdcaa6276673da1f013cc",
+      "plan_canonical_sha256": "edafc67e4e882be4d94f03d4e70a93e37f3552a0a173fb9cd8ea5547684d75c2",
+      "frame_seed": 3617937893768908147,
+      "attempt_seed": 3617937893768908147,
+      "target_side": "right",
+      "f_target": 0.326120944012687,
+      "elevation_deg": 17.683780428149326,
+      "projected_size_ratio": 0.07998937917856648,
+      "camera_distance_m": 8.679500600116743,
+      "selected_assets": [
+        "Dist_old_tyre",
+        "Dist_chinese_screen_panels",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_delivery_truck_01",
+        "Dist_delivery_van_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 200,
+        "bbox_px": [
+          28,
+          119,
+          57,
+          127
+        ],
+        "centroid_px": [
+          43.865,
+          123.175
+        ],
+        "centroid_norm": [
+          0.19323788546255508,
+          0.9698818897637795
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 829,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 3,
+      "old_lowres_render_count": 121,
+      "old_runtime_s": 94.5425968170166,
+      "old_stage_cargo_s": 0.01923,
+      "old_stage_context_s": 65.510292,
+      "old_stage_explicit_s": 20.24691,
+      "old_reject_counts": "{\"score_callback\": 6}"
+    },
+    {
+      "proposal_index": 216,
+      "usable_slot": 93,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "f9148bdfc59faab08126a8af3fa7b5b8ade7d1472b181163b39d9e0315323455",
+      "plan_canonical_sha256": "c4345271c5834d07e1884a4ca20c3d687627d55e96f21d930532e76be6efba83",
+      "frame_seed": 14613622280777374569,
+      "attempt_seed": 14613622280777374569,
+      "target_side": "right",
+      "f_target": 0.409656798583364,
+      "elevation_deg": 32.10113396384153,
+      "projected_size_ratio": 0.5574638590246012,
+      "camera_distance_m": 1.4689052353432408,
+      "selected_assets": [
+        "Dist_bollard_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 7059,
+        "bbox_px": [
+          10,
+          36,
+          145,
+          125
+        ],
+        "centroid_px": [
+          86.39977333899986,
+          74.58478538036549
+        ],
+        "centroid_norm": [
+          0.5082339608176463,
+          0.5872817746485471
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 6,
+      "old_lowres_render_count": 27,
+      "old_runtime_s": 43.482234477996826,
+      "old_stage_cargo_s": 0.015235,
+      "old_stage_context_s": 28.381837,
+      "old_stage_explicit_s": 13.902446,
+      "old_reject_counts": "{\"camera_clearance\": 4, \"candidate_budget_exhausted\": 3, \"score_callback\": 7, \"support\": 1}"
+    },
+    {
+      "proposal_index": 217,
+      "usable_slot": 93,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "ed2c8e8eac2647de5909b5f78dbe1a9021aacea0abaf686ccc913fa154e101fa",
+      "plan_canonical_sha256": "e9466bcaba4dc21af3edc9c518880b2119603c3b92cb06a30fb73399734ed555",
+      "frame_seed": 12135400490145930937,
+      "attempt_seed": 12135400490145930937,
+      "target_side": "left",
+      "f_target": 0.22549744870994018,
+      "elevation_deg": 35.29172069063684,
+      "projected_size_ratio": 0.9522842770836762,
+      "camera_distance_m": 1.2498090231917984,
+      "selected_assets": [
+        "Dist_WetFloorSign_01",
+        "Dist_construction_sign_01",
+        "Dist_utility_box_01",
+        "Dist_old_tyre",
+        "Dist_portable_generator",
+        "Dist_metal_jerrycan"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 7750,
+        "bbox_px": [
+          0,
+          9,
+          83,
+          127
+        ],
+        "centroid_px": [
+          36.116129032258065,
+          65.92929032258064
+        ],
+        "centroid_norm": [
+          0.2843789687579375,
+          0.5191282702565405
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 17,
+      "old_lowres_render_count": 61,
+      "old_runtime_s": 65.4227511882782,
+      "old_stage_cargo_s": 5.452048,
+      "old_stage_context_s": 39.862575,
+      "old_stage_explicit_s": 18.30392,
+      "old_reject_counts": "{\"camera_clearance\": 2, \"candidate_budget_exhausted\": 8, \"collision\": 4, \"score_callback\": 12, \"support\": 18}"
+    },
+    {
+      "proposal_index": 219,
+      "usable_slot": 93,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "6a98aa22abae62092de7621e9264522e35afbd60e52972dd3f92985262415bd1",
+      "plan_canonical_sha256": "055a78ab87f959c46148a52eaf6eae92a61c677b5bd8c5b3309fc9c12da7abbf",
+      "frame_seed": 11098530160855519953,
+      "attempt_seed": 11098530160855519953,
+      "target_side": "bottom",
+      "f_target": 0.3255214460816687,
+      "elevation_deg": 24.500845011328806,
+      "projected_size_ratio": 0.09874025257567907,
+      "camera_distance_m": 8.657426083972158,
+      "selected_assets": [
+        "Dist_utility_box_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_water_dispenser_01",
+        "Dist_wooden_bookshelf_worn",
+        "Dist_modular_chainlink_fence"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 171,
+        "bbox_px": [
+          152,
+          118,
+          174,
+          127
+        ],
+        "centroid_px": [
+          162.01169590643275,
+          123.52046783625731
+        ],
+        "centroid_norm": [
+          0.8482287743792291,
+          0.9726021089469079
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 229,
+      "old_side_actual": "bottom",
+      "old_side_match": true,
+      "old_realization_attempt_count": 10,
+      "old_lowres_render_count": 223,
+      "old_runtime_s": 277.4955143928528,
+      "old_stage_cargo_s": 13.339982,
+      "old_stage_context_s": 192.507571,
+      "old_stage_explicit_s": 58.676526,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 6, \"score_callback\": 20}"
+    },
+    {
+      "proposal_index": 222,
+      "usable_slot": 95,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "305e732d0d628c0dbd3ffd05dd97a6fa5cbbe85acaf3ce6ff233a5c7076edebe",
+      "plan_canonical_sha256": "1a5bd1ffd4004e511c7979acc8e565d95eca08eeb5ecde35cfccaeee4cfa0ae4",
+      "frame_seed": 7828104284634097709,
+      "attempt_seed": 7828104284634097709,
+      "target_side": "bottom",
+      "f_target": 0.17982903758551633,
+      "elevation_deg": 6.283223301972484,
+      "projected_size_ratio": 0.09983160511653726,
+      "camera_distance_m": 9.856834785998759,
+      "selected_assets": [
+        "Dist_power_box_01",
+        "Dist_construction_sign_01",
+        "Dist_utility_box_01",
+        "Dist_portable_welding_cart",
+        "Dist_old_military_compressor",
+        "Dist_traffic_barricade_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 117,
+        "bbox_px": [
+          143,
+          65,
+          170,
+          69
+        ],
+        "centroid_px": [
+          156.4102564102564,
+          66.90598290598291
+        ],
+        "centroid_norm": [
+          0.9200603318250377,
+          0.5268187630392355
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 20,
+      "old_lowres_render_count": 79,
+      "old_runtime_s": 111.0816707611084,
+      "old_stage_cargo_s": 0.016462,
+      "old_stage_context_s": 27.439108,
+      "old_stage_explicit_s": 71.555414,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 11, \"collision\": 9, \"score_callback\": 25, \"support\": 2}"
+    },
+    {
+      "proposal_index": 225,
+      "usable_slot": 95,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "7570e3adf2c160faff5830cf1f4bc3b1a8a84576e990d7da16ee034e7bc6e20f",
+      "plan_canonical_sha256": "15383a59d2e8084479a0fa70cc05a75e5597022121e80eaaf1ae625048072b62",
+      "frame_seed": 11324971944377319419,
+      "attempt_seed": 11324971944377319419,
+      "target_side": "left",
+      "f_target": 0.3945422839274353,
+      "elevation_deg": 33.33892404573831,
+      "projected_size_ratio": 0.28961103520979786,
+      "camera_distance_m": 1.4937043988994083,
+      "selected_assets": [
+        "Dist_multi_cleaner_5_litre",
+        "Dist_old_tyre",
+        "Dist_propane_tank",
+        "Dist_wine_bottles_01",
+        "Dist_Jansport_School_Backpack_Blue_Streak",
+        "Dist_Target_Basket_Medium"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 4286,
+        "bbox_px": [
+          104,
+          52,
+          212,
+          127
+        ],
+        "centroid_px": [
+          158.27788147456837,
+          84.6472235184321
+        ],
+        "centroid_norm": [
+          0.6972593897558078,
+          0.6665135710112764
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 19,
+      "old_lowres_render_count": 65,
+      "old_runtime_s": 57.127532958984375,
+      "old_stage_cargo_s": 0.013626,
+      "old_stage_context_s": 14.347241,
+      "old_stage_explicit_s": 41.574009,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 11, \"collision\": 5, \"score_callback\": 24, \"support\": 7}"
+    },
+    {
+      "proposal_index": 226,
+      "usable_slot": 95,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "d5387c0e3945072b637cf0cf2a902280e77eaef3c5d6e5a669a11d96fcde024c",
+      "plan_canonical_sha256": "ef2f50a47da636b7a44e4e618b43389e2052bdfbae18d8fa76e4cf855898f101",
+      "frame_seed": 11654870688686403865,
+      "attempt_seed": 11654870688686403865,
+      "target_side": "right",
+      "f_target": 0.22514819258691687,
+      "elevation_deg": 36.08797410169322,
+      "projected_size_ratio": 0.9330207963872553,
+      "camera_distance_m": 1.116161398446215,
+      "selected_assets": [
+        "Dist_painted_wooden_cabinet",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_utility_box_01",
+        "Dist_water_dispenser_01",
+        "Dist_potted_plant_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 9081,
+        "bbox_px": [
+          0,
+          70,
+          170,
+          127
+        ],
+        "centroid_px": [
+          85.96641339059575,
+          99.82854311199208
+        ],
+        "centroid_norm": [
+          0.5056847846505632,
+          0.7860515205668668
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 14,
+      "old_lowres_render_count": 48,
+      "old_runtime_s": 49.963534116744995,
+      "old_stage_cargo_s": 8.836237,
+      "old_stage_context_s": 26.507709,
+      "old_stage_explicit_s": 13.457113,
+      "old_reject_counts": "{\"camera_clearance\": 16, \"candidate_budget_exhausted\": 5, \"score_callback\": 5, \"support\": 15}"
+    },
+    {
+      "proposal_index": 229,
+      "usable_slot": 95,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "18b7101136cad51c05e783cde4a23c846f447fb9b91902f63ee625a502bce5d7",
+      "plan_canonical_sha256": "3d323c481999f125c57b4aa48e352069fb30b2f6d01f9ec213aa61c1632960d3",
+      "frame_seed": 10630670179612830404,
+      "attempt_seed": 10630670179612830404,
+      "target_side": "right",
+      "f_target": 0.3952533977702545,
+      "elevation_deg": 5.1268227043863615,
+      "projected_size_ratio": 0.162540931173661,
+      "camera_distance_m": 5.787967338393272,
+      "selected_assets": [
+        "Dist_wine_barrel_01",
+        "Dist_chinese_screen_panels",
+        "Dist_water_dispenser_01",
+        "Dist_wooden_bookshelf_worn",
+        "Dist_forklift_02",
+        "Dist_covered_car"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 225,
+        "bbox_px": [
+          134,
+          63,
+          170,
+          70
+        ],
+        "centroid_px": [
+          152.02666666666667,
+          66.38666666666667
+        ],
+        "centroid_norm": [
+          0.8942745098039216,
+          0.522729658792651
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 1173,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 9,
+      "old_lowres_render_count": 90,
+      "old_runtime_s": 77.88631129264832,
+      "old_stage_cargo_s": 6.14828,
+      "old_stage_context_s": 15.858304,
+      "old_stage_explicit_s": 47.469411,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 4, \"score_callback\": 20}"
+    },
+    {
+      "proposal_index": 231,
+      "usable_slot": 95,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "b16fd0df88d946c8d5ff3d18140ff31c53b95e5e35cfe0c1d9a5ded3bbd6ae6d",
+      "plan_canonical_sha256": "bfe53e3b04f093c991c17d741e858178a1f60bebc9957e17b6f8370b27cbc96a",
+      "frame_seed": 9785806176099431806,
+      "attempt_seed": 9785806176099431806,
+      "target_side": "bottom",
+      "f_target": 0.18618485148677552,
+      "elevation_deg": 62.57111490301854,
+      "projected_size_ratio": 0.14710424869140692,
+      "camera_distance_m": 5.555219792924193,
+      "selected_assets": [
+        "Dist_forklift_02",
+        "Dist_construction_sign_01",
+        "Dist_Shelf_01",
+        "Dist_utility_box_01",
+        "Dist_delivery_truck_01",
+        "Dist_modular_chainlink_fence"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 590,
+        "bbox_px": [
+          105,
+          82,
+          131,
+          113
+        ],
+        "centroid_px": [
+          117.18305084745762,
+          97.92372881355932
+        ],
+        "centroid_norm": [
+          0.6893120638085742,
+          0.7710529827839316
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 266,
+      "old_side_actual": "bottom",
+      "old_side_match": true,
+      "old_realization_attempt_count": 2,
+      "old_lowres_render_count": 71,
+      "old_runtime_s": 36.6462299823761,
+      "old_stage_cargo_s": 0.01749,
+      "old_stage_context_s": 17.828971,
+      "old_stage_explicit_s": 13.413387,
+      "old_reject_counts": "{\"score_callback\": 1}"
+    },
+    {
+      "proposal_index": 237,
+      "usable_slot": 99,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "40f1f22bdec382890fc3b42397fc105bd81dacdf80a2a084b2fa5a02c9dda6aa",
+      "plan_canonical_sha256": "382f1ea5bd9088e7186226bf5f249616a06621556d4bd2f615cc2899f615d187",
+      "frame_seed": 15999326562263759601,
+      "attempt_seed": 15999326562263759601,
+      "target_side": "right",
+      "f_target": 0.39731230282551705,
+      "elevation_deg": 8.376505754664043,
+      "projected_size_ratio": 0.4039123437889626,
+      "camera_distance_m": 2.5782866329510226,
+      "selected_assets": [
+        "Dist_fire_hydrant",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_utility_box_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 1742,
+        "bbox_px": [
+          0,
+          56,
+          91,
+          83
+        ],
+        "centroid_px": [
+          40.94948335246843,
+          67.2187141216992
+        ],
+        "centroid_norm": [
+          0.24087931383804956,
+          0.5292812135566866
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 20,
+      "old_lowres_render_count": 65,
+      "old_runtime_s": 68.61353516578674,
+      "old_stage_cargo_s": 0.015247,
+      "old_stage_context_s": 26.191043,
+      "old_stage_explicit_s": 41.19442,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 12, \"collision\": 2, \"score_callback\": 27, \"support\": 7}"
+    },
+    {
+      "proposal_index": 238,
+      "usable_slot": 99,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "8f353c1a9df67b7ef6f543aa3f2eeaffac6bddbd419dc983db39adea3b7a62f0",
+      "plan_canonical_sha256": "f9597593d817fd0a12aa8d8a1e0d5c860900db72d5e37aa7fb8bf826b052b098",
+      "frame_seed": 12095368835350680393,
+      "attempt_seed": 12095368835350680393,
+      "target_side": "right",
+      "f_target": 0.11961176855591678,
+      "elevation_deg": 53.905673621783706,
+      "projected_size_ratio": 0.1624351161932135,
+      "camera_distance_m": 7.286140952515758,
+      "selected_assets": [
+        "Dist_metal_tool_chest",
+        "Dist_Shelf_01",
+        "Dist_water_dispenser_01",
+        "Dist_delivery_truck_01",
+        "Dist_delivery_van_01",
+        "Dist_cargo_truck_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 789,
+        "bbox_px": [
+          117,
+          97,
+          151,
+          126
+        ],
+        "centroid_px": [
+          133.90494296577947,
+          111.18757921419518
+        ],
+        "centroid_norm": [
+          0.7876761350928204,
+          0.8754927497180723
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 19,
+      "old_lowres_render_count": 49,
+      "old_runtime_s": 44.270283460617065,
+      "old_stage_cargo_s": 0.019087,
+      "old_stage_context_s": 13.438514,
+      "old_stage_explicit_s": 26.593534,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 10, \"collision\": 2, \"score_callback\": 13, \"support\": 21}"
+    },
+    {
+      "proposal_index": 242,
+      "usable_slot": 99,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "728837cc4e4d301c9d3a507c02954b0f2ad3d84f868dabec48de5d791dad43da",
+      "plan_canonical_sha256": "22d7c3af0e8eb41ba67d69caa290f2dd68b9eb73f35aa2ccb277d6caa038f552",
+      "frame_seed": 2079973034422338576,
+      "attempt_seed": 2079973034422338576,
+      "target_side": "right",
+      "f_target": 0.3380639641511566,
+      "elevation_deg": 57.23238769455736,
+      "projected_size_ratio": 0.07515442334073334,
+      "camera_distance_m": 9.541491198475873,
+      "selected_assets": [
+        "Dist_drawer_cabinet",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_Shelf_01",
+        "Dist_modular_chainlink_fence",
+        "Dist_delivery_truck_01"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 125,
+        "bbox_px": [
+          79,
+          43,
+          91,
+          56
+        ],
+        "centroid_px": [
+          84.928,
+          49.64
+        ],
+        "centroid_norm": [
+          0.4995764705882353,
+          0.39086614173228346
+        ]
+      },
+      "old_outcome": "expensive_reject",
+      "old_solver_fail_reason": "bounded_local_search_exhausted",
+      "old_explicit_visible_pixels": 0,
+      "old_side_actual": null,
+      "old_side_match": null,
+      "old_realization_attempt_count": 21,
+      "old_lowres_render_count": 123,
+      "old_runtime_s": 68.60963487625122,
+      "old_stage_cargo_s": 0.020023,
+      "old_stage_context_s": 21.517165,
+      "old_stage_explicit_s": 44.823221,
+      "old_reject_counts": "{\"candidate_budget_exhausted\": 14, \"score_callback\": 36}"
+    },
+    {
+      "proposal_index": 244,
+      "usable_slot": 99,
+      "diagnostic_mode": "controlled-occlusion",
+      "framespec_canonical_sha256": "ba244671c1bdaddac311156597b3af03430909ceb4f5dbda9bd16480e6195051",
+      "plan_canonical_sha256": "089a3555c54b3283e8b0f923b8b72d8735a1ed77f2173f97dd219f74891764c2",
+      "frame_seed": 16231507082522818113,
+      "attempt_seed": 16231507082522818113,
+      "target_side": "right",
+      "f_target": 0.1919633793643682,
+      "elevation_deg": 11.799131856381715,
+      "projected_size_ratio": 0.20048431041687897,
+      "camera_distance_m": 2.6424041942550756,
+      "selected_assets": [
+        "Dist_utility_box_01",
+        "Dist_construction_sign_01",
+        "Dist_chinese_screen_panels",
+        "Dist_delivery_van_01",
+        "Dist_forklift_01",
+        "Dist_covered_car"
+      ],
+      "target_mask_stats": {
+        "visible_pixels": 483,
+        "bbox_px": [
+          71,
+          34,
+          115,
+          48
+        ],
+        "centroid_px": [
+          94.39544513457557,
+          40.22981366459627
+        ],
+        "centroid_norm": [
+          0.49421699023337995,
+          0.3167701863354037
+        ]
+      },
+      "old_outcome": "accepted",
+      "old_solver_fail_reason": null,
+      "old_explicit_visible_pixels": 2417,
+      "old_side_actual": "right",
+      "old_side_match": true,
+      "old_realization_attempt_count": 2,
+      "old_lowres_render_count": 29,
+      "old_runtime_s": 42.92759108543396,
+      "old_stage_cargo_s": 0.017789,
+      "old_stage_context_s": 26.618707,
+      "old_stage_explicit_s": 10.994022,
+      "old_reject_counts": "{\"score_callback\": 3, \"support\": 1}"
+    }
+  ]
+}

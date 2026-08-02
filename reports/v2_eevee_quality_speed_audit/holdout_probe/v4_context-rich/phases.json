@@ -1,0 +1,48 @@
+{
+  "gpu": "OPTIX",
+  "eevee_engine": "BLENDER_EEVEE",
+  "lowres": {
+    "calls": 21,
+    "total_s": 6.673558712005615,
+    "render_s": 8.761346101760864,
+    "holdout_calls": 21,
+    "render_calls": 24,
+    "render_s_at_placement_end": 5.789498329162598
+  },
+  "t_start": 1785658562.661701,
+  "t_end": 1785658576.5691538,
+  "phases": [
+    {
+      "phase": "placement",
+      "start": 1785658562.6689603,
+      "end": 1785658573.588578,
+      "dur": 10.92,
+      "mode": "context-rich",
+      "proposal": 0,
+      "lowres_calls": 21,
+      "lowres_total_s": 6.674,
+      "lowres_render_s": 5.789
+    },
+    {
+      "phase": "render_cycles64",
+      "start": 1785658573.588774,
+      "end": 1785658575.092762,
+      "dur": 1.504,
+      "mode": "context-rich"
+    },
+    {
+      "phase": "render_eevee32",
+      "start": 1785658575.0930614,
+      "end": 1785658576.1469765,
+      "dur": 1.054,
+      "mode": "context-rich"
+    },
+    {
+      "phase": "render_eevee128",
+      "start": 1785658576.1472704,
+      "end": 1785658576.5673795,
+      "dur": 0.42,
+      "mode": "context-rich"
+    }
+  ]
+}
