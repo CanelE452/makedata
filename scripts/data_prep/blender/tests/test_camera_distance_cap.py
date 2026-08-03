@@ -347,6 +347,92 @@ class RecordWiringTests(unittest.TestCase):
         )
 
 
+class DistancePreference(unittest.TestCase):
+    """2026-08-04 — 거리 분포를 2~6m 봉우리로 옮긴 장치."""
+
+    def test_lognorm_roundtrip_is_exact(self):
+        for d in (1.5, 2.0, 3.5, 6.0, 10.0):
+            self.assertAlmostEqual(vp._lognorm_icdf(vp._lognorm_cdf(d)), d, places=9)
+
+    def test_erfinv_matches_erf(self):
+        import math
+        for y in (-0.999, -0.5, 0.0, 0.3, 0.9, 0.9999):
+            self.assertAlmostEqual(math.erf(vp._erfinv(y)), y, places=12)
+
+    def test_median_is_the_configured_median(self):
+        self.assertAlmostEqual(vp._lognorm_cdf(vp.DIST_PREF_MEDIAN_M), 0.5, places=12)
+
+    def test_spans_respect_the_distance_window(self):
+        """구간이 [MIN, MAX] 를 넘어서면 안 된다 — 넘으면 solve 방어 reject 를 맞는다."""
+        for fx in (300.0, 450.0, 615.0, 700.0):
+            for width in (560, 640, 720, 960):
+                for span in vp.proj_size_bin_distance_spans(fx, width):
+                    if span is None:
+                        continue
+                    d_lo, d_hi = span
+                    self.assertGreaterEqual(d_lo, vp.MIN_CAMERA_DISTANCE_M - 1e-9)
+                    self.assertLessEqual(d_hi, vp.MAX_CAMERA_DISTANCE_M + 1e-9)
+                    self.assertLess(d_lo, d_hi)
+
+    def test_infeasible_bins_get_zero_weight(self):
+        spans = vp.proj_size_bin_distance_spans(300.0, 640)
+        weights = vp.distance_pref_weights(spans)
+        self.assertEqual(len(weights), len(vp.PROJ_SIZE_EDGES))
+        for span, w in zip(spans, weights):
+            if span is None:
+                self.assertEqual(w, 0.0)
+            else:
+                self.assertGreater(w, 0.0)   # 실현 가능하면 deficit 이 살아 있어야 한다
+
+    def test_weight_prefers_the_target_band(self):
+        """목표 대역을 덮는 구간이 극단 구간보다 무겁게 나와야 의미가 있다."""
+        spans = vp.proj_size_bin_distance_spans(615.0, 640)
+        weights = vp.distance_pref_weights(spans)
+        best = max(range(len(spans)), key=lambda i: weights[i])
+        d_lo, d_hi = spans[best]
+        self.assertLess(d_lo, 6.0)
+        self.assertGreater(d_hi, 2.0)
+
+    def test_deficit_pick_weight_steers_without_removing_bins(self):
+        """weight 는 soft steer 다 — 눌린 구간도 결국 뽑혀야(deficit 소진) 한다."""
+        import random
+        frac = [0.5, 0.5]
+        counts = [0, 0]
+        rng = random.Random(4)
+        picks = [vp._deficit_pick(frac, counts, rng, weight=[1.0, 0.01])
+                 for _ in range(400)]
+        self.assertGreater(picks.count(0), picks.count(1))
+        self.assertGreater(picks.count(1), 0)
+
+    def test_deficit_pick_weight_length_is_checked(self):
+        import random
+        with self.assertRaises(ValueError):
+            vp._deficit_pick([0.5, 0.5], [0, 0], random.Random(1), weight=[1.0])
+
+    def test_realised_distance_peaks_in_the_target_band(self):
+        """★이 변경의 목적 자체 — 실제 sample_frame 이 2~6m 를 최다로 만드는가."""
+        import random
+        assets = vp.load_assets()
+        rng = random.Random(4242)
+        quota = vp.QuotaState.new(assets)
+        distances = []
+        for i in range(3000):
+            spec, picks = vp.sample_frame(rng, quota, assets, frame_index=i, seed=4242)
+            vp.advance_quota(quota, picks)
+            distances.append(spec.fx * vp.PALLET_W
+                             / (spec.proj_size_ratio * spec.resolution[0]))
+        n = len(distances)
+        in_band = sum(1 for d in distances if 2.0 <= d < 6.0) / n
+        too_near = sum(1 for d in distances if d < 2.0) / n
+        self.assertGreater(in_band, 0.55)     # 구 균등 실측 0.429
+        self.assertLess(too_near, 0.20)       # 구 균등 실측 0.340
+        # 꼬리도 살아 있어야 한다 — 분산을 잃으면 목적의 절반만 이룬 것이다
+        self.assertGreater(sum(1 for d in distances if d >= 6.0) / n, 0.15)
+        for d in distances:
+            self.assertGreaterEqual(d, vp.MIN_CAMERA_DISTANCE_M - 1e-6)
+            self.assertLessEqual(d, vp.MAX_CAMERA_DISTANCE_M + 1e-6)
+
+
 def _load_runner():
     import importlib.util
 

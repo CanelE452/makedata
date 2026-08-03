@@ -500,6 +500,103 @@ def test_scaled_target_dims_rejects_non_positive_ratio():
         SP2.scaled_target_dims((1.1, 0.15, 1.1), 0.0)
 
 
+# --- 형상 지터 (축별 배율) --------------------------------------------------
+
+def test_shape_ratios_are_deterministic_for_a_seed():
+    a = SP2.sample_pallet_shape_ratios(_random.Random(99))
+    b = SP2.sample_pallet_shape_ratios(_random.Random(99))
+    assert a == b
+    assert len(a) == 3
+
+
+def test_shape_ratios_preserve_size():
+    """기하평균이 1 이어야 크기는 그대로고 비율만 바뀐다.
+
+    크기는 sample_pallet_scale_ratio 가 따로 담당한다 — 여기서 크기까지 흔들면
+    어느 쪽이 무엇을 바꿨는지 사후에 분리할 수 없다.
+    """
+    rng = _random.Random(2026)
+    for _ in range(500):
+        sx, sy, sz = SP2.sample_pallet_shape_ratios(rng)
+        assert (sx * sy * sz) ** (1.0 / 3.0) == pytest.approx(1.0, abs=0.02)
+
+
+def test_shape_ratios_respect_the_truncation_bound():
+    rng = _random.Random(7)
+    for _ in range(2000):
+        for v in SP2.sample_pallet_shape_ratios(rng):
+            assert 1.0 - SP2.PALLET_SHAPE_JITTER_MAX - 1e-9 <= v
+            assert v <= 1.0 + SP2.PALLET_SHAPE_JITTER_MAX + 1e-9
+
+
+def test_shape_ratios_actually_change_the_aspect():
+    """이 지터의 존재 이유 — 균등 배율만으로는 종횡비가 에셋 고유값에 고정된다."""
+    rng = _random.Random(31337)
+    base_long, base_short = 1.32, 1.10          # 종횡비 1.20 인 에셋
+    aspects = set()
+    for _ in range(400):
+        sx, _sy, sz = SP2.sample_pallet_shape_ratios(rng)
+        aspects.add(round((base_long * sx) / (base_short * sz), 3))
+    # 균등 배율만 쓰던 시절 실측 300장의 종횡비 고유값은 정확히 3개였다(1.18/1.20/1.50).
+    # 소수 3자리 반올림 때문에 값이 겹치므로 400 표본 전부가 달라지지는 않지만,
+    # 3개와 100개 이상은 이산/연속을 가르기에 충분하다.
+    assert len(aspects) > 100
+    assert max(aspects) - min(aspects) > 0.3     # 1.18~1.50 이산 간격보다 넓게 퍼진다
+
+
+def test_shape_jitter_disabled_by_zero_sigma():
+    assert SP2.sample_pallet_shape_ratios(_random.Random(3), sigma=0.0) == (1.0, 1.0, 1.0)
+
+
+# --- 정준축 -> 오브젝트축 치환 ------------------------------------------------
+
+def _rot_z90():
+    return [[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]
+
+
+def test_axis_permutation_identity():
+    eye = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+    assert SP2.axis_permutation_from_matrix(eye) == [0, 1, 2]
+
+
+def test_axis_permutation_swaps_and_ignores_sign():
+    """부호는 배율에 영향이 없다 — 축 대응만 맞으면 된다."""
+    assert SP2.axis_permutation_from_matrix(_rot_z90()) == [1, 0, 2]
+
+
+def test_axis_permutation_rejects_non_permutation():
+    """임의 각도 회전은 scale 벡터로 표현 불가 -> None (호출자가 균등으로 되돌아간다)."""
+    c = s = 0.7071067811865476           # 45도
+    tilted = [[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]]
+    assert SP2.axis_permutation_from_matrix(tilted) is None
+
+
+def test_object_shape_scale_moves_ratios_onto_object_axes():
+    obj = SP2.object_shape_scale((1.1, 0.9, 1.0), _rot_z90())
+    # 정준 X(=1.1) -> 오브젝트 축 1,  정준 Y(=0.9) -> 오브젝트 축 0
+    assert obj == pytest.approx((0.9, 1.1, 1.0))
+
+
+def test_object_shape_scale_returns_none_for_non_permutation():
+    c = s = 0.7071067811865476
+    tilted = [[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]]
+    assert SP2.object_shape_scale((1.1, 0.9, 1.0), tilted) is None
+
+
+def test_real_pallet_rotations_are_all_permutations():
+    """ORIENTATION_OVERRIDES 가 전부 90도 배수여야 축별 배율이 성립한다.
+
+    하나라도 임의 각도면 그 팔레트만 조용히 균등으로 되돌아가 형상 지터가
+    적용되지 않는다 — 그래서 여기서 못 박는다.
+    """
+    import numpy as np
+    from blender_math import euler_to_rotation_matrix
+    r_yz_swap = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]], dtype=float)
+    for rot_deg in ((90, 0, 90), (0, 0, 0), (0, 0, 90)):
+        canon = r_yz_swap @ euler_to_rotation_matrix(rot_deg)
+        assert SP2.axis_permutation_from_matrix(canon) is not None, rot_deg
+
+
 def test_pallet_stage_seed_exists_and_others_are_unchanged():
     """stage 를 추가해도 기존 stage seed 는 그대로여야 한다 (재현성)."""
     seeds = SP2.derive_stage_seeds(4242)

@@ -107,15 +107,56 @@ SCENE_PRESETS = ["indoor", "outdoor-day", "outdoor-night", "random-mix"]
 SCENE_PRESET_FRAC = [0.25, 0.30, 0.25, 0.20]
 
 # --- projected size — IMAGE-WIDTH-RATIO bins (v2_domain_randomization.md). -------
-#     Per-bin fraction = UNIFORM 0.20 (v2 규약 Phase C, kept unchanged). Rationale:
+#     ORIGINAL PRESCRIPTION (v2 규약 Phase C): per-bin fraction = UNIFORM 0.20. Rationale:
 #     the bin edges are (near-)geometric in the width ratio, and width-ratio is the
 #     ONLY resize-invariant projected-size axis (§① of the doc). A geometric bin grid
 #     sampled uniformly => camera distance drawn log-uniform => scale-invariant coverage
 #     (no distance/size band is over/under-represented). So "uniform over geometric bins"
-#     is the deliberate prescription here, not an ASSUMED_UNIFORM placeholder.
+#     was a deliberate prescription, not an ASSUMED_UNIFORM placeholder.
+#
+# ★2026-08-04 규약 변경 — 균등 0.20 을 버린다.  이유와 대가를 다 적어 둔다.
+#   문제: 균등은 화면크기 커버리지는 완벽하지만(각 구간 정확히 20%) 실현 **거리**가
+#         1.5~2m 에 34% 쌓이는 쌍봉이 된다.  bin 4(>60%)는 고fx 에서 통째로 1.5~2.0m
+#         이라 구간 내부를 어떻게 뽑아도 못 뺀다 — quota 가 구간 점유율을 강제하므로
+#         DIST_PREF 가중치로도 못 바꾼다(실측: 가중치를 걸어도 실현이 정확히 0.200x5).
+#   변경: 실제 샘플러 20,000 회로 목표 히스토그램(1.5~2m 11% / 2~6m 63% / 6~10m 26%)에
+#         맞춰 격자 탐색한 결과.
+#         거리      2~6m 42.9% -> 61.8% · 1.5~2m 34.0% -> 12.9% · 6~10m 23.2% -> 25.1%
+#                   봉우리 1.5~2m -> 2~3m · 중앙 2.75m -> 3.74m
+#   ★대가: 화면크기 ">60%"(초근접) 구간이 20% -> 2% 로 줄어든다.  scale-invariant
+#         커버리지를 배치 거리대 집중과 맞바꾼 것이다.  지게차/AGV 카메라가 팔레트를
+#         보는 거리(2~6m)를 우선한 선택이고, 초근접은 사용자가 1만 장 감사에서 직접
+#         "너무 가까이 있는 건 문제"라고 지적한 구간이다.  2% = 1만 장에서 200장으로
+#         케이스 자체는 남는다.
+#   ★평가셋 실측이 나오면 ELEV_BIN_FRAC 과 함께 다시 맞춰야 한다.
 PROJ_SIZE_EDGES = [(0.0, 0.10), (0.10, 0.20), (0.20, 0.40), (0.40, 0.60), (0.60, 1.0)]
 PROJ_SIZE_LABELS = ["<10%", "10-20%", "20-40%", "40-60%", ">60%"]
-PROJ_SIZE_FRAC = [0.20, 0.20, 0.20, 0.20, 0.20]  # uniform over geometric bins (prescribed)
+PROJ_SIZE_FRAC = [0.18, 0.25, 0.40, 0.15, 0.02]  # 거리 2~6m 집중 (구 [0.20]*5)
+
+# --- camera-distance PREFERENCE (2026-08-04, 규약 변경). ------------------------
+# ★이것은 위 "uniform over geometric bins" 규약을 의도적으로 완화한다.  규약이 산
+# 것은 scale-invariant coverage(어느 거리대도 과대/과소 대표되지 않음)였는데, 실측
+# 1만 장 + 300장에서 나온 거리 분포는 1.5~2m 와 9~10m 양쪽에 쌓인 **쌍봉**이었다.
+# 배치 카메라(지게차/AGV)가 실제로 팔레트를 보는 거리는 그 사이다.
+#
+# ★왜 PROJ_SIZE_FRAC 재가중만으로는 안 되는가 — ratio->거리 변환이 fx 에 의존한다:
+#     d = fx * PALLET_W / (ratio * W)
+#   fx 를 70% 랜덤(300~700)으로 돌리므로 같은 ratio 구간이 fx 에 따라 완전히 다른
+#   거리로 간다(fx=300 이면 0.20~0.40 구간이 벌써 1.5~2.6m, fx=700 이면 3.0~6.0m).
+#   그래서 고정 가중치로는 거리 분포를 제어할 수 없다 — 실제로 여러 가중치를
+#   시뮬레이션해도 1.5~2m 봉우리가 25~33% 로 남았다.
+#
+# 대신 프레임마다 **그 프레임의 fx/W 로** 각 ratio 구간이 덮는 거리 구간을 계산하고,
+# 아래 목표 분포가 그 구간에 싣는 질량으로 가중한다.  구간을 고른 뒤 구간 **안에서도**
+# 목표 분포의 역변환으로 뽑으므로, fx 가 무엇이든 실현 거리가 목표를 따라간다.
+# PROJ_SIZE_FRAC deficit(=화면크기 커버리지)은 곱해져서 함께 살아 있다.
+#
+# 목표 = 로그정규(중앙 3.5m, log-sigma 0.75), [MIN, MAX] 로 절단.
+# 시뮬레이션 4만 표본: 2~6m 68.1% · 1.5~2m 12.5% · 6~10m 19.4% · 표준편차 2.07
+# (기존 균등: 2~6m 44.8% · 1.5~2m 29.5% · 표준편차 2.63 — 표준편차는 컸지만 그건
+#  양 끝에 쌓인 결과지 유효한 분산이 아니었다).
+DIST_PREF_MEDIAN_M = 3.5
+DIST_PREF_LOG_SIGMA = 0.75
 
 # --- camera distance CAP (Phase 1, 2026-07-27). ---------------------------------
 # solve_placement inverts the projected-size ratio into a camera distance
@@ -142,6 +183,80 @@ def proj_size_feasible_upper(fx, image_width, min_distance_m=None):
     """
     floor_m = MIN_CAMERA_DISTANCE_M if min_distance_m is None else float(min_distance_m)
     return fx * PALLET_W / (floor_m * float(image_width))
+
+
+def _lognorm_cdf(d, median_m=None, log_sigma=None):
+    """로그정규 CDF.  d <= 0 이면 0."""
+    med = DIST_PREF_MEDIAN_M if median_m is None else float(median_m)
+    sig = DIST_PREF_LOG_SIGMA if log_sigma is None else float(log_sigma)
+    if d <= 0.0 or sig <= 0.0:
+        return 0.0 if d <= med else 1.0
+    z = (math.log(float(d)) - math.log(med)) / sig
+    return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
+
+
+def _lognorm_icdf(u, median_m=None, log_sigma=None):
+    """로그정규 역CDF.  `u` 는 (0,1) 로 clamp 한다."""
+    med = DIST_PREF_MEDIAN_M if median_m is None else float(median_m)
+    sig = DIST_PREF_LOG_SIGMA if log_sigma is None else float(log_sigma)
+    if sig <= 0.0:
+        return med
+    uu = min(max(float(u), 1e-12), 1.0 - 1e-12)
+    return math.exp(math.log(med) + sig * math.sqrt(2.0) * _erfinv(2.0 * uu - 1.0))
+
+
+def _erfinv(y):
+    """erf 역함수.  Newton 정련을 붙인 Winitzki 근사 (math 에 없다)."""
+    if y <= -1.0:
+        return -float("inf")
+    if y >= 1.0:
+        return float("inf")
+    if y == 0.0:
+        return 0.0
+    a = 0.147
+    ln = math.log(1.0 - y * y)
+    t = 2.0 / (math.pi * a) + ln / 2.0
+    x = math.copysign(math.sqrt(max(0.0, math.sqrt(t * t - ln / a) - t)), y)
+    for _ in range(3):       # Newton: f(x)=erf(x)-y,  f'(x)=2/sqrt(pi) exp(-x^2)
+        err = math.erf(x) - y
+        x -= err / (2.0 / math.sqrt(math.pi) * math.exp(-x * x))
+    return x
+
+
+def proj_size_bin_distance_spans(fx, image_width,
+                                 min_distance_m=None, max_distance_m=None):
+    """각 projected-size 구간이 이 프레임의 intrinsics 에서 덮는 **거리 구간**.
+
+    실현 불가능한 구간(거리 [MIN, MAX] 와 겹치지 않음)은 None.  반환 순서는
+    `PROJ_SIZE_EDGES` 와 같다.
+    """
+    lower = proj_size_feasible_lower(fx, image_width, max_distance_m=max_distance_m)
+    upper = proj_size_feasible_upper(fx, image_width, min_distance_m=min_distance_m)
+    spans = []
+    for lo, hi in PROJ_SIZE_EDGES:
+        a, b = max(lo, lower), min(hi, upper)
+        if not (a < b):
+            spans.append(None)
+            continue
+        # ratio 가 클수록 가깝다 -> 상/하한이 뒤집힌다.
+        spans.append((fx * PALLET_W / (b * float(image_width)),
+                      fx * PALLET_W / (a * float(image_width))))
+    return spans
+
+
+def distance_pref_weights(spans, median_m=None, log_sigma=None):
+    """거리 구간들에 목표 분포가 싣는 질량.  실현 불가 구간은 0.0."""
+    out = []
+    for span in spans:
+        if span is None:
+            out.append(0.0)
+            continue
+        d_lo, d_hi = span
+        mass = _lognorm_cdf(d_hi, median_m, log_sigma) - _lognorm_cdf(d_lo, median_m, log_sigma)
+        # 목표 분포의 꼬리 밖이라 질량이 0 으로 죽으면 그 구간이 영영 안 뽑힌다.
+        # 실현 가능한 구간은 아주 작은 하한을 남겨 quota deficit 이 살아 있게 한다.
+        out.append(max(float(mass), 1e-9))
+    return out
 
 # --- azimuth — 30deg x 12 bins uniform. ----------------------------------------
 AZIMUTH_NBINS = 12
@@ -423,7 +538,7 @@ class QuotaState:
         )
 
 
-def _deficit_pick(frac, counts, rng, mask=None):
+def _deficit_pick(frac, counts, rng, mask=None, weight=None):
     """Greedy least-filled pick: choose among under-quota bins weighted by deficit
     (same pattern as gen_trunc_addon._weighted_pick over the deficit vector). Falls
     back to uniform when every bin is at/over quota. Deterministic under a seeded rng.
@@ -433,6 +548,15 @@ def _deficit_pick(frac, counts, rng, mask=None):
     it gets selection probability 0; the deficit weights of the remaining bins are untouched,
     which keeps the greedy quota logic intact — an infeasible bin simply accrues deficit and
     is re-targeted on the next frame whose intrinsics make it feasible.
+
+    weight: optional per-bin PREFERENCE multiplier applied on top of the deficit. Unlike
+    `mask` (a hard 0/1 feasibility flag) this is a soft steer: it changes WHICH of the
+    under-quota bins gets picked without removing any of them from play. Used by the
+    camera-distance preference — a bin's weight is the target distance distribution's mass
+    over the distance span that bin covers *for this frame's intrinsics*. Bins that are
+    feasible but disfavoured keep a tiny positive weight, so they still accrue and
+    eventually discharge deficit; the fallback when every bin is at quota also honours the
+    weights instead of going uniform.
     """
     n = sum(counts)
     deficits = [max(0.0, f * (n + 1) - c) for f, c in zip(frac, counts)]
@@ -443,8 +567,24 @@ def _deficit_pick(frac, counts, rng, mask=None):
         if not allowed:
             raise ValueError("_deficit_pick: every bin is masked out as infeasible")
         deficits = [d if m else 0.0 for d, m in zip(deficits, mask)]
+    if weight is not None:
+        if len(weight) != len(frac):
+            raise ValueError("_deficit_pick: weight length must match frac")
+        deficits = [d * max(0.0, float(w)) for d, w in zip(deficits, weight)]
     tot = sum(deficits)
     if tot <= 0:
+        if weight is not None:
+            # 전 구간이 quota 를 채웠다.  균등으로 떨어뜨리면 선호가 통째로 사라지므로
+            # (특히 대량 생성에서 후반부가 전부 이 경로다) 선호 가중으로 뽑는다.
+            wts = [max(0.0, float(weight[i])) for i in allowed]
+            if sum(wts) > 0:
+                r = rng.uniform(0.0, sum(wts))
+                acc = 0.0
+                for i, w in zip(allowed, wts):
+                    acc += w
+                    if r <= acc:
+                        return i
+                return allowed[-1]
         return allowed[rng.randrange(len(allowed))]
     r = rng.uniform(0.0, tot)
     acc = 0.0
@@ -601,9 +741,21 @@ def sample_frame(rng: random.Random, quota_state: QuotaState, assets: Assets,
             f"[{lower:.4f}, {upper:.4f}] but no bin overlaps it "
             f"(fx={fx:.2f}, image_width={resolution[0]})"
         )
-    psi = _deficit_pick(PROJ_SIZE_FRAC, qs.proj_size, rng, mask=feasible)
+    #    구간 선택과 구간 내부 샘플링 **둘 다** 거리 선호를 따른다.  구간만 고르고
+    #    안에서 ratio-uniform 으로 뽑으면 거리 쪽은 1/d^2 로 쏠려 근거리에 다시 쌓인다.
+    spans = proj_size_bin_distance_spans(fx, resolution[0])
+    dist_w = distance_pref_weights(spans)
+    psi = _deficit_pick(PROJ_SIZE_FRAC, qs.proj_size, rng, mask=feasible, weight=dist_w)
     plo, phi = PROJ_SIZE_EDGES[psi]
-    proj_size_ratio = rng.uniform(max(plo, lower), min(phi, upper))
+    d_lo, d_hi = spans[psi]
+    c_lo, c_hi = _lognorm_cdf(d_lo), _lognorm_cdf(d_hi)
+    # rng 호출 횟수는 이전(rng.uniform 1회)과 같다 — 재현성 구조를 바꾸지 않는다.
+    u = rng.uniform(c_lo, c_hi) if c_hi > c_lo else c_lo
+    d_target = _lognorm_icdf(u) if c_hi > c_lo else 0.5 * (d_lo + d_hi)
+    proj_size_ratio = fx * PALLET_W / (float(d_target) * float(resolution[0]))
+    # 역변환이 부동소수점으로 구간을 미세하게 벗어날 수 있다.  solve_placement 의
+    # 방어 reject 에 걸리지 않도록 실현 가능 구간으로 clamp 한다.
+    proj_size_ratio = min(max(proj_size_ratio, max(plo, lower)), min(phi, upper))
 
     # -- f_target (occlusion) --
     fti = _deficit_pick(F_TARGET_FRAC, qs.f_target, rng)

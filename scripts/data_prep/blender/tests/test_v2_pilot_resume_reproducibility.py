@@ -27,7 +27,15 @@ import run_v2_scene_logic as R  # noqa: E402
 import v2_pipeline as vp        # noqa: E402
 
 SEED = 7000
-N_PROPOSALS = 120        # 렌더 없이 stream 만 도는 길이 (충분히 accept/reject 섞인다)
+N_PROPOSALS = 120        # 렌더 없이 stream 만 도는 길이
+
+# reject 경로도 재생 검증해야 하는데, solve_placement reject 는 **드물다** —
+# 2026-08-04 PROJ_SIZE_FRAC 변경(초근접 구간 20%->2%)으로 0.85% -> 0.33% 가 됐고,
+# SEED 7000 의 120 proposal 에는 reject 가 한 건도 안 남았다(그 전엔 3건이었다).
+# 그래서 reject 재생 테스트만 **reject 가 실제로 나오는 seed** 를 따로 쓴다.
+# 재선정 방법: seed 를 훑으면서 iter_proposals(...) 의 plan is None 건수를 세고
+# 2건 이상인 seed 를 고른다 (분포를 또 바꾸면 이 값도 다시 골라야 한다).
+REJECT_SEED = 7026       # 120 proposal 중 reject 2건 (2026-08-04 실측)
 
 
 def canon(obj):
@@ -41,15 +49,15 @@ class StreamFixture(unittest.TestCase):
     def setUpClass(cls):
         cls.assets = vp.load_assets()
 
-    def stream(self, max_proposals=N_PROPOSALS):
-        return R.iter_proposals(SEED, self.assets, vp,
+    def stream(self, max_proposals=N_PROPOSALS, seed=SEED):
+        return R.iter_proposals(seed, self.assets, vp,
                                 placement_mode="constrained",
                                 max_proposals=max_proposals)
 
-    def drain(self, max_proposals=N_PROPOSALS):
+    def drain(self, max_proposals=N_PROPOSALS, seed=SEED):
         """(proposal_index, kind, canonical json) 목록."""
         out = []
-        for proposal_index, plan, reject in self.stream(max_proposals):
+        for proposal_index, plan, reject in self.stream(max_proposals, seed=seed):
             if plan is not None:
                 out.append((proposal_index, "plan", canon(plan.to_dict())))
             else:
@@ -101,16 +109,24 @@ class ProposalStreamIsReplayable(StreamFixture):
         self.assertEqual([x for x in full if x[0] >= 55], specs(skip_before=55))
 
     def test_reject_order_is_identical(self):
-        full = self.drain()
-        replay = self.drain()
-        self.assertEqual([r[0] for r in full if r[1] == "reject"],
-                         [r[0] for r in replay if r[1] == "reject"])
+        full = self.drain(seed=REJECT_SEED)
+        replay = self.drain(seed=REJECT_SEED)
+        rejects = [r[0] for r in full if r[1] == "reject"]
+        self.assertEqual(rejects, [r[0] for r in replay if r[1] == "reject"])
+        # reject 가 0 건이면 이 테스트는 빈 리스트끼리 비교하는 셈이라 아무것도 못 지킨다.
+        self.assertTrue(rejects, "REJECT_SEED 에 reject 가 없다 — seed 재선정 필요")
 
     def test_accept_reject_split_is_stable(self):
-        kinds = [r[1] for r in self.drain()]
-        self.assertEqual(kinds, [r[1] for r in self.drain()])
+        kinds = [r[1] for r in self.drain(seed=REJECT_SEED)]
+        self.assertEqual(kinds, [r[1] for r in self.drain(seed=REJECT_SEED)])
         self.assertIn("plan", kinds)      # fixture 가 의미 있으려면 둘 다 나와야 한다
         self.assertIn("reject", kinds)
+
+    def test_reject_records_replay_identically(self):
+        """reject 는 순서뿐 아니라 **내용**도 같아야 재개가 안전하다."""
+        full = [r for r in self.drain(seed=REJECT_SEED) if r[1] == "reject"]
+        replay = [r for r in self.drain(seed=REJECT_SEED) if r[1] == "reject"]
+        self.assertEqual(full, replay)
 
 
 class SeedDerivation(unittest.TestCase):

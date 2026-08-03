@@ -2321,12 +2321,30 @@ def mode_semantics_verdict(diagnostic_mode, record):
 # 팔레트 치수 랜덤화 — KS T-11 근처가 많고, 벗어날수록 드물게 (종 모양)
 #
 # 에셋이 4종뿐이라 치수 값이 이산이었다(고유값 3~4개).  현장에는 규격 외 팔레트가
-# 흔하므로 프레임마다 크기를 흔들어 커버리지를 넓힌다.  **균등 스케일만** 쓴다 —
-# 가로/세로/높이를 따로 흔들면 존재하지 않는 형상을 학습시키게 된다.
+# 흔하므로 프레임마다 치수를 흔들어 커버리지를 넓힌다.
+#
+# **크기(SIZE)와 형상(SHAPE)을 분리해서 흔든다.**
+#   size  = 균등 배율.  세 축을 같은 비율로 -> 비율 보존, 전체만 커지고 작아진다.
+#   shape = 축별 배율.  기하평균 1 로 정규화 -> 크기는 안 건드리고 **비율만** 바꾼다.
+#
+# ★2026-08-04 정정.  이 자리에 원래 "축별로 흔들면 존재하지 않는 형상을 학습시킨다"
+#   고 적어 두고 shape 를 막아 놨었는데, 근거 없이 단정한 것이었다.  실측하면:
+#     - 팔레트 데크 판자 폭은 규격과 무관하게 ~100mm 로 거의 일정하다.  한 축을 r 배
+#       늘리면 판자 폭도 r 배가 되는데, 화면크기 중앙값(0.236)에서 ±15% = **2.1 px**.
+#       640x480 에서 구분 불가이고, 실물의 마모/제조편차도 이 정도는 흔들린다.
+#     - 반대로 균등 배율만 쓰면 바닥면 종횡비가 에셋 고유값(1.18/1.20/1.50) 3개에
+#       완전히 고정된다 — 실측 300장에서 정확히 그랬다.  규격 외 팔레트를 못 배운다.
+#   ±40% 를 넘기면 포크 개구부 비례가 눈에 띄게 무너지므로 거기가 실제 한계다.
+#   max_dev 0.15 는 그 한계의 절반 이하로 잡은 값이다.
+#
 # sigma=0.10 이므로 68% 가 ±10% 안에 들어오고(높이 135~165mm), 절단 상한이 ±20%다.
 PALLET_SCALE_JITTER_SIGMA = 0.10
 PALLET_SCALE_JITTER_MAX = 0.20
 PALLET_SCALE_JITTER_TRIES = 16      # 절단 구간 밖이면 다시 뽑는 횟수
+
+# 형상 지터 — 축별.  size 지터보다 작게 잡는다(형상은 크기보다 민감하다).
+PALLET_SHAPE_JITTER_SIGMA = 0.08
+PALLET_SHAPE_JITTER_MAX = 0.15
 
 
 def sample_pallet_scale_ratio(rng, sigma=None, max_dev=None):
@@ -2353,6 +2371,83 @@ def scaled_target_dims(base_dims, ratio):
     if not (r > 0.0):
         raise ValueError("scale ratio must be positive: %r" % (ratio,))
     return tuple(float(v) * r for v in base_dims)
+
+
+def sample_pallet_shape_ratios(rng, sigma=None, max_dev=None):
+    """정준축 (X, Y=높이, Z) 별 배율 3개를 돌려준다.
+
+    ★X 와 Z 중 어느 쪽이 긴변인지는 **에셋마다 다르다** — 여기서 정하지 않는다.
+    현재 4종은 우연히 전부 Z 가 긴변이지만(60장 실측에서 종횡비 = base * sZ/sX 가
+    60/60 일치), 새 에셋이 반대일 수 있으므로 축 이름에 긴변/짧은변을 박지 않는다.
+    Y 만 높이로 고정이다 (TARGET_CANONICAL_DIMS 의 가운데 값 0.15).
+
+    **기하평균이 정확히 1** 이 되도록 정규화하므로 크기는 건드리지 않고 비율만 바꾼다.
+    크기는 `sample_pallet_scale_ratio` 가 따로 담당한다 — 두 축을 섞으면 어느 쪽이
+    무엇을 바꿨는지 사후에 분리할 수 없다.
+
+    `rng` 는 호출자가 frame seed 로 고정한다 (재현성).  절단은 크기 지터와 같은
+    rejection + clamp 방식이다.
+    """
+    s = PALLET_SHAPE_JITTER_SIGMA if sigma is None else float(sigma)
+    m = PALLET_SHAPE_JITTER_MAX if max_dev is None else float(max_dev)
+    if s <= 0.0 or m <= 0.0:
+        return (1.0, 1.0, 1.0)
+    devs = []
+    for _ in range(3):
+        for _try in range(PALLET_SCALE_JITTER_TRIES):
+            dev = rng.gauss(0.0, s)
+            if abs(dev) <= m:
+                break
+        else:
+            dev = max(-m, min(m, rng.gauss(0.0, s)))
+        devs.append(1.0 + dev)
+    # 기하평균 1 로 정규화.  정규화가 절단 상한을 조금 넘길 수 있으므로 다시 clamp 한다
+    # (넘겨봐야 m 의 몇 % 수준이지만, 상한은 상한이다).
+    gm = (devs[0] * devs[1] * devs[2]) ** (1.0 / 3.0)
+    out = [max(1.0 - m, min(1.0 + m, v / gm)) for v in devs]
+    return tuple(float(v) for v in out)
+
+
+def axis_permutation_from_matrix(rot, tol=1e-6):
+    """정준축 i -> 오브젝트 로컬축 j 대응을 돌려준다 (`[j0, j1, j2]`).
+
+    `rot` 는 정준좌표 = rot @ 오브젝트좌표 인 3x3.  축별 배율을 오브젝트의 scale
+    벡터로 표현하려면 이 대응이 **부호 있는 축 치환**이어야 한다 — 즉 각 행에
+    크기 1 인 성분이 정확히 하나여야 한다.  팔레트의 base_rot 은 전부 90도 배수라
+    (ORIENTATION_OVERRIDES: [90,0,90] / [0,0,0] / [0,0,90]) 이 조건을 만족한다.
+
+    치환이 아니면 (임의 각도 회전) 축별 배율을 scale 로 표현할 수 없으므로 None 을
+    돌려준다.  호출자는 균등 배율로 되돌아가야 한다 — 억지로 적용하면 메쉬가
+    전단(shear)된다.
+    """
+    used = set()
+    out = []
+    for i in range(3):
+        row = [abs(float(rot[i][j])) for j in range(3)]
+        big = [j for j in range(3) if abs(row[j] - 1.0) <= tol]
+        small = [j for j in range(3) if row[j] <= tol]
+        if len(big) != 1 or len(small) != 2:
+            return None
+        j = big[0]
+        if j in used:
+            return None
+        used.add(j)
+        out.append(j)
+    return out
+
+
+def object_shape_scale(shape_ratios, rot, tol=1e-6):
+    """정준축 배율을 오브젝트 로컬축 배율로 옮긴다.
+
+    치환이 아니면 None (호출자가 균등으로 되돌아간다).
+    """
+    perm = axis_permutation_from_matrix(rot, tol=tol)
+    if perm is None:
+        return None
+    obj = [1.0, 1.0, 1.0]
+    for i, j in enumerate(perm):
+        obj[j] = float(shape_ratios[i])
+    return tuple(obj)
 
 
 PREFILTER_BURIED_MAX = -0.60      # 계획 바닥이 자기 높이의 60% 넘게 지면 아래 (winner 최소 -0.535)

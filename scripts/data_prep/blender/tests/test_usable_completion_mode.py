@@ -55,6 +55,7 @@ RECORD_RENDERED_KEYS = (
     "holdout_engine",
     # 2026-08-02: 프레임마다 적용된 팔레트 균등 배율 (1.0 = 정본 치수)
     "pallet_scale_ratio",
+    "pallet_shape_ratios",
     # 2026-08-01 (G1.6): target-seed 예산 회계 5 + fine refinement 11 + 이름 정리 1
     "target_seed_free_cap", "target_seed_unique_count", "target_seed_free_used",
     "target_seed_paid_used", "target_seed_duplicate_count",

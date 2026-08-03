@@ -183,13 +183,14 @@ def force_distractors_v2_enabled():
 # ---------------------------------------------------------------------------
 # Pallet
 # ---------------------------------------------------------------------------
-def _select_and_place_pallet(pallet_type, translate, scale_ratio=1.0):
+def _select_and_place_pallet(pallet_type, translate, scale_ratio=1.0, shape_ratios=None):
     """Show `pallet_type` (hide the others), normalise its scale, and ground it at the
     (translated) world origin with yaw=0 — the pose solve_placement assumed.
 
-    `scale_ratio` 는 정본 치수에 곱하는 **균등** 배율이다(형상 유지).  1.0 이면
-    예전과 완전히 같은 경로를 탄다.  keypoint/cuboid/dimensions_m 은 전부 배치 후
-    측정값이라 배율이 자동으로 반영된다.
+    `scale_ratio` 는 정본 치수에 곱하는 **균등** 배율이다(형상 유지 = 크기만 바뀜).
+    `shape_ratios` 는 정준축별 배율로 **비율만** 바꾼다(기하평균 1 정규화).  둘 다
+    기본값이면 예전과 완전히 같은 경로를 탄다.  keypoint/cuboid/dimensions_m 은 전부
+    배치 후 측정값이라 두 배율이 자동으로 반영된다.
     """
     from blender_config import TARGET_CANONICAL_DIMS
     from pallet_geometry import get_normalized_scale
@@ -204,9 +205,11 @@ def _select_and_place_pallet(pallet_type, translate, scale_ratio=1.0):
     target_dims = None
     if abs(float(scale_ratio) - 1.0) > 1e-9:
         target_dims = SP2.scaled_target_dims(TARGET_CANONICAL_DIMS, scale_ratio)
+    if shape_ratios is not None and all(abs(float(v) - 1.0) <= 1e-9 for v in shape_ratios):
+        shape_ratios = None
     pobj.scale = tuple(get_normalized_scale(
         pobj, ORIENTATION_OVERRIDES.get(pallet_type, (0, 0, 0)),
-        target_dims=target_dims))
+        target_dims=target_dims, shape_ratios=shape_ratios))
     bpy.context.view_layer.update()
     set_object_pose_grounded(pobj, float(translate[0]), float(translate[1]), 0.0,
                              base_rot_deg=ORIENTATION_OVERRIDES.get(pallet_type, (0, 0, 0)),
@@ -760,10 +763,14 @@ def _realize_constrained(
     _hide_distractor_pool(resolve_truncated=True, restore_transforms=True)
     # 팔레트 크기를 frame seed 로 고정된 종 모양 분포에서 뽑는다.  에셋 4종만으로는
     # 치수가 이산이라(고유값 3~4개) 규격 외 팔레트를 전혀 못 배운다.
-    pallet_scale_ratio = SP2.sample_pallet_scale_ratio(
-        random.Random(stage_seeds["pallet"]))
+    # 크기와 형상을 **같은 rng 스트림**에서 순서대로 뽑는다(size 먼저, shape 다음).
+    # 크기는 균등 배율이라 비율을 보존하고, 형상은 기하평균 1 이라 크기를 보존한다.
+    _pallet_rng = random.Random(stage_seeds["pallet"])
+    pallet_scale_ratio = SP2.sample_pallet_scale_ratio(_pallet_rng)
+    pallet_shape_ratios = SP2.sample_pallet_shape_ratios(_pallet_rng)
     pobj = _select_and_place_pallet(spec.pallet_type, translate,
-                                    scale_ratio=pallet_scale_ratio)
+                                    scale_ratio=pallet_scale_ratio,
+                                    shape_ratios=pallet_shape_ratios)
     if pobj is None:
         return {
             "realize_ok": False,
@@ -2930,8 +2937,10 @@ def _realize_constrained(
         "failure_reason": None,
         "diagnostic_mode": diagnostic_mode,
         "stage_seeds": stage_seeds,
-        # 이 프레임에 적용된 팔레트 균등 배율 (1.0 = 정본 치수).
+        # 이 프레임에 적용된 팔레트 균등 배율 (1.0 = 정본 치수) — 크기만.
         "pallet_scale_ratio": float(pallet_scale_ratio),
+        # 정준축(X=긴변, Y=높이, Z=짧은변) 별 배율 — 비율만 (기하평균 1).
+        "pallet_shape_ratios": [float(v) for v in pallet_shape_ratios],
         "floor_mode_requested": floor_mode_requested,
         "floor_mode_actual": floor_mode,
         "floor_fallback_reason": floor_fallback_reason,

@@ -11,6 +11,7 @@ from mathutils.bvhtree import BVHTree
 
 from blender_math import canonical_corners_yup, euler_to_rotation_matrix
 from blender_config import TARGET_CANONICAL_DIMS
+import scene_placement_v2 as SP2
 
 
 R_YZ_SWAP = np.array(
@@ -18,6 +19,7 @@ R_YZ_SWAP = np.array(
     dtype=np.float64,
 )
 _normalization_cache = {}
+_authored_scale_cache = {}
 
 
 @contextmanager
@@ -133,8 +135,59 @@ def get_canonical_rotation(base_rot_deg):
     return R_YZ_SWAP @ euler_to_rotation_matrix(base_rot_deg)
 
 
-def get_normalized_scale(obj, base_rot_deg, target_dims=None):
-    """Return a uniform parent scale that preserves the source pallet proportions."""
+def get_normalized_scale(obj, base_rot_deg, target_dims=None, shape_ratios=None):
+    """Return the parent scale that brings the pallet to the canonical size.
+
+    Base behaviour is a UNIFORM least-squares fit — it keeps the source asset's own
+    proportions intact (that is why every asset stays at its native footprint aspect).
+
+    `shape_ratios` (canonical X, Y=height, Z — which of X/Z is the long side varies by
+    asset, so do not assume) multiplies that uniform scale per axis, so the asset's aspect
+    is *jittered around* its native value rather than
+    collapsed onto a common target. Ratios live in CANONICAL axes and are mapped onto
+    object-local axes through the base rotation; if that mapping is not a signed axis
+    permutation the request is ignored (uniform result), because a non-permutation would
+    need a shear that `obj.scale` cannot express.
+    """
+    uniform = _uniform_normalized_scale(obj, base_rot_deg, target_dims=target_dims)
+    if shape_ratios is None:
+        return uniform
+    obj_shape = SP2.object_shape_scale(shape_ratios, get_canonical_rotation(base_rot_deg))
+    if obj_shape is None:
+        # base_rot 이 축 치환이 아니다 -> scale 로 표현 불가.  균등으로 되돌린다.
+        return uniform
+    return np.asarray(uniform, dtype=np.float64) * np.asarray(obj_shape, dtype=np.float64)
+
+
+def authored_scale(obj):
+    """The object's scale as authored in the .blend — captured once, never re-read.
+
+    ★2026-08-04.  `_uniform_normalized_scale` used to read `obj.scale` live, which is the
+    PREVIOUS frame's scale by the time the next frame asks. That was harmless while every
+    frame applied a UNIFORM ratio: the least-squares fit maps current_dims onto
+    target_dims exactly, so any leftover uniform factor is divided straight back out and
+    the result is self-correcting.
+
+    Per-axis shape jitter breaks that. A uniform fit cannot undo a non-uniform
+    distortion, so the previous frame's stretch stays baked into current_dims and the new
+    frame's stretch multiplies on top of it — the aspect ratio random-walks away frame
+    after frame. Measured before this fix (60 frames): Pallet_0's footprint aspect reached
+    1.93x its native value where the per-frame bound is 1.287x, and Pallet_2 crossed below
+    1.0 (long and short swapped).
+
+    Capturing the authored scale once makes every frame start from the same geometry.
+    The first call happens in `_select_and_place_pallet` BEFORE it writes `obj.scale`, and
+    a fresh Blender process reloads the .blend, so the captured value is identical across
+    processes — chunked runs stay reproducible.
+    """
+    key = obj.name
+    if key not in _authored_scale_cache:
+        _authored_scale_cache[key] = tuple(float(v) for v in obj.scale)
+    return np.array(_authored_scale_cache[key], dtype=np.float64)
+
+
+def _uniform_normalized_scale(obj, base_rot_deg, target_dims=None):
+    """Uniform least-squares parent scale (cached). Preserves the source proportions."""
     target_dims = np.array(
         TARGET_CANONICAL_DIMS if target_dims is None else target_dims,
         dtype=np.float64,
@@ -144,7 +197,7 @@ def get_normalized_scale(obj, base_rot_deg, target_dims=None):
         return _normalization_cache[cache_key]
 
     with temporary_visible_hierarchy(obj):
-        base_scale = np.array(obj.scale, dtype=np.float64)
+        base_scale = authored_scale(obj)
         saved_location = obj.location.copy()
         saved_rotation = obj.rotation_euler.copy()
         saved_scale = obj.scale.copy()
