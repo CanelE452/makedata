@@ -893,20 +893,21 @@ def build_figure3(frames, root, out, src, args):
 
     # ★ 팔레트 이름별 막대가 아니라 **프레임 분포**로 그린다 — "어느 에셋인가"가 아니라
     #   "데이터셋이 어떤 비율을 얼마나 담고 있나"가 질문이기 때문이다.
-    #   다만 값이 실제로 이산(고유값 3~4개)이므로 KDE 로 매끄럽게 만들지 않는다.
-    #   없는 연속성을 지어내면 커버리지를 과장하게 된다.
     per_frame = [(max(f["dim_w_m"], f["dim_d_m"]),
                   min(f["dim_w_m"], f["dim_d_m"]), f["dim_h_m"])
                  for f in frames if f["dim_w_m"] is not None]
     asp = np.array([lo / sh for lo, sh, _h in per_frame], dtype=float)
     sle = np.array([lo / h for lo, _sh, h in per_frame], dtype=float)
 
-    def _spike(ax, vals, ref, xlabel, title):
-        """고유값이 적은 변수의 분포 — 실제 값 위치에 그대로 세운다.
+    # 이산/연속을 **데이터를 보고** 고른다.  2026-08-04 형상 지터 전에는 에셋 4종의
+    # 고유값 3~4개뿐이라 값 위치에 막대를 세우고 라벨을 붙이는 게 맞았는데, 지터를
+    # 넣은 뒤로는 고유값이 수십~수백 개라 같은 방식으로 그리면 라벨이 전부 겹쳐
+    # 읽을 수 없다.  반대로 이산 데이터에 히스토그램을 씌우면 없는 연속성을 지어낸다.
+    # 그래서 한쪽으로 고정하지 않고 고유값 수로 분기한다 — 옛 데이터도 그대로 읽힌다.
+    DISCRETE_MAX_UNIQUE = 8
 
-        표시 정밀도(소수 2자리)로 묶는다.  그보다 미세한 차이는 그림에서 구분되지
-        않으면서 라벨만 겹치게 만든다.
-        """
+    def _spike(ax, vals, ref, xlabel, title):
+        """고유값이 적은 변수 — 실제 값 위치에 그대로 세우고 값을 라벨한다."""
         uniq, cnt = np.unique(np.round(vals, 2), return_counts=True)
         span = max(float(uniq.max() - uniq.min()), 1e-6)
         ax.bar(uniq, cnt, width=span * 0.045, color="0.45")
@@ -919,21 +920,52 @@ def build_figure3(frames, root, out, src, args):
         ax.set_xlim(min(uniq.min(), ref) - span * 0.25,
                     max(uniq.max(), ref) + span * 0.25)
         ax.set_ylim(0, max(cnt) * 1.34)
+
+    def _histo(ax, vals, ref, xlabel, title):
+        """연속화된 변수 — 히스토그램 + 중앙값.  개별 값 라벨은 붙이지 않는다."""
+        lo, hi = float(vals.min()), float(vals.max())
+        span = max(hi - lo, 1e-6)
+        n_bins = int(min(40, max(12, round(len(vals) ** 0.5))))
+        ax.hist(vals, bins=n_bins, range=(lo - span * 0.02, hi + span * 0.02),
+                color="0.45")
+        med = float(np.median(vals))
+        ax.axvline(med, color="0.15", linewidth=0.9)
+        ax.axvline(ref, color="#D55E00", linewidth=0.9, linestyle="--")
+        ax.set_xlim(min(lo, ref) - span * 0.10, max(hi, ref) + span * 0.10)
+        ax.text(0.98, 0.95,
+                "n=%d  unique=%d\nmedian %.2f   range %.2f-%.2f"
+                % (len(vals), len(np.unique(np.round(vals, 3))), med, lo, hi),
+                transform=ax.transAxes, ha="right", va="top", fontsize=5.8)
+
+    def _ratio_panel(ax, vals, ref, xlabel, title):
+        n_uniq = len(np.unique(np.round(vals, 2)))
+        mode = "discrete" if n_uniq <= DISCRETE_MAX_UNIQUE else "continuous"
+        (_spike if mode == "discrete" else _histo)(ax, vals, ref, xlabel, title)
         ax.set_xlabel(xlabel)
         ax.set_ylabel("Frames")
         ax.set_title(title, loc="left", fontsize=8)
+        return mode
 
     ax_b = fig.add_subplot(gs[1, 0])
-    _spike(ax_b, asp, 1.0, "Footprint long : short",
-           "(b) Aspect over frames  (KS 1.00 = square)")
+    mode_b = _ratio_panel(ax_b, asp, 1.0, "Footprint long : short",
+                          "(b) Aspect over frames  (KS 1.00 = square)")
     ax_b2 = fig.add_subplot(gs[1, 1])
-    _spike(ax_b2, sle, KS[0] / KS[2], "Long side : height",
-           "(c) Slenderness over frames  (KS 7.33)")
-    panels["panel_b_distribution_is_discrete"] = {
-        "aspect_unique": sorted(set(np.round(asp, 4).tolist())),
-        "slenderness_unique": sorted(set(np.round(sle, 4).tolist())),
-        "note": "에셋이 4종뿐이라 값이 이산이다. KDE 로 매끄럽게 그리지 않는다 — "
-                "연속 분포가 필요하면 generator 에서 치수를 랜덤화해야 한다.",
+    mode_c = _ratio_panel(ax_b2, sle, KS[0] / KS[2], "Long side : height",
+                          "(c) Slenderness over frames  (KS 7.33)")
+    asp_uniq = sorted(set(np.round(asp, 4).tolist()))
+    sle_uniq = sorted(set(np.round(sle, 4).tolist()))
+    panels["panel_b_ratio_distribution"] = {
+        "aspect_render_mode": mode_b,
+        "slenderness_render_mode": mode_c,
+        "aspect_n_unique": len(asp_uniq),
+        "slenderness_n_unique": len(sle_uniq),
+        # 이산일 때만 값을 전부 남긴다 — 연속이면 수백 개라 의미가 없다.
+        "aspect_unique": asp_uniq if mode_b == "discrete" else None,
+        "slenderness_unique": sle_uniq if mode_c == "discrete" else None,
+        "note": "고유값 %d개 이하이면 값 위치에 막대를 세우고(discrete), 넘으면 "
+                "히스토그램으로 그린다(continuous).  균등 배율만 쓰던 시절에는 에셋 "
+                "4종의 고유값 3~4개뿐이라 discrete 가 정직했고, 축별 형상 지터를 "
+                "넣은 뒤에는 continuous 가 맞다." % DISCRETE_MAX_UNIQUE,
     }
 
     def _stat(vals):
