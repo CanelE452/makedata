@@ -922,16 +922,50 @@ def build_figure3(frames, root, out, src, args):
         ax.set_ylim(0, max(cnt) * 1.34)
 
     def _histo(ax, vals, ref, xlabel, title):
-        """연속화된 변수 — 히스토그램 + 중앙값.  개별 값 라벨은 붙이지 않는다."""
+        """연속화된 변수 — 밀도 히스토그램(옅게) + KDE 곡선(진하게).
+
+        ★KDE 는 **연속 분기에서만** 쓴다.  고유값이 3~4개뿐이던 시절에 KDE 를 씌우면
+        없는 연속성을 지어내 커버리지를 과장하게 되므로 금지했었고, 그 판단은
+        지금도 discrete 분기에 대해 유효하다.  형상 지터로 고유값이 표본수에
+        육박하게 된 뒤로는 연속 표현이 데이터를 왜곡하지 않는다.
+
+        경계 보정은 fig1 의 2D KDE 와 같은 reflection 을 쓴다 — 비율은 하한이
+        있는 양수 변수라 보정 없이는 왼쪽 끝이 눌린다.
+        """
         lo, hi = float(vals.min()), float(vals.max())
         span = max(hi - lo, 1e-6)
         n_bins = int(min(40, max(12, round(len(vals) ** 0.5))))
         ax.hist(vals, bins=n_bins, range=(lo - span * 0.02, hi + span * 0.02),
-                color="0.45")
+                density=True, color="0.78", edgecolor="none")
+        x0, x1 = lo - span * 0.10, hi + span * 0.10
+        try:
+            from scipy.stats import gaussian_kde
+            # reflection: 양 끝에서 거울상을 붙여 경계 bias 를 줄이고, 지지구간
+            # 밖으로 샌 질량을 되접는다.
+            mirrored = np.concatenate([vals, 2 * lo - vals, 2 * hi - vals])
+            # ★대역폭은 **원본**에서 뽑아 고정한다.  거울상을 붙이면 표본 범위가
+            #   3배가 되어 표준편차가 커지고, Scott 규칙을 거울상 집합에 그대로
+            #   적용하면 대역폭이 부풀어 과평활된다(히스토그램 봉우리를 놓친다).
+            n_obs = int(vals.size)
+            std_obs = float(np.std(vals, ddof=1)) if n_obs > 1 else 0.0
+            std_mir = float(np.std(mirrored, ddof=1))
+            if std_obs > 0 and std_mir > 0:
+                h = std_obs * n_obs ** (-1.0 / 5.0)      # Scott (1D)
+                kde = gaussian_kde(mirrored, bw_method=h / std_mir)
+            else:
+                kde = gaussian_kde(mirrored, bw_method=KDE_BW_RULE)
+            gx = np.linspace(x0, x1, 400)
+            gy = kde(gx) * 3.0                      # 거울상 2벌만큼 되돌린다
+            inside = (gx >= lo - span * 0.02) & (gx <= hi + span * 0.02)
+            ax.plot(gx[inside], gy[inside], color="0.15", linewidth=1.3)
+            ax.fill_between(gx[inside], gy[inside], color="0.45", alpha=0.30)
+        except Exception:
+            pass                                    # scipy 없으면 히스토그램만
         med = float(np.median(vals))
-        ax.axvline(med, color="0.15", linewidth=0.9)
+        ax.axvline(med, color="0.15", linewidth=0.9, linestyle=":")
         ax.axvline(ref, color="#D55E00", linewidth=0.9, linestyle="--")
-        ax.set_xlim(min(lo, ref) - span * 0.10, max(hi, ref) + span * 0.10)
+        ax.set_xlim(x0, x1)
+        ax.set_ylim(bottom=0)
         ax.text(0.98, 0.95,
                 "n=%d  unique=%d\nmedian %.2f   range %.2f-%.2f"
                 % (len(vals), len(np.unique(np.round(vals, 3))), med, lo, hi),
@@ -942,7 +976,9 @@ def build_figure3(frames, root, out, src, args):
         mode = "discrete" if n_uniq <= DISCRETE_MAX_UNIQUE else "continuous"
         (_spike if mode == "discrete" else _histo)(ax, vals, ref, xlabel, title)
         ax.set_xlabel(xlabel)
-        ax.set_ylabel("Frames")
+        # discrete 는 프레임 수를 그대로 세우고, continuous 는 밀도로 정규화한다
+        # (KDE 곡선과 축이 맞아야 한다).
+        ax.set_ylabel("Frames" if mode == "discrete" else "Density")
         ax.set_title(title, loc="left", fontsize=8)
         return mode
 
@@ -962,10 +998,14 @@ def build_figure3(frames, root, out, src, args):
         # 이산일 때만 값을 전부 남긴다 — 연속이면 수백 개라 의미가 없다.
         "aspect_unique": asp_uniq if mode_b == "discrete" else None,
         "slenderness_unique": sle_uniq if mode_c == "discrete" else None,
+        "kde_bandwidth_rule": KDE_BW_RULE,
+        "kde_boundary_correction": "reflection",
         "note": "고유값 %d개 이하이면 값 위치에 막대를 세우고(discrete), 넘으면 "
-                "히스토그램으로 그린다(continuous).  균등 배율만 쓰던 시절에는 에셋 "
-                "4종의 고유값 3~4개뿐이라 discrete 가 정직했고, 축별 형상 지터를 "
-                "넣은 뒤에는 continuous 가 맞다." % DISCRETE_MAX_UNIQUE,
+                "밀도 히스토그램 + KDE 곡선으로 그린다(continuous).  균등 배율만 "
+                "쓰던 시절에는 에셋 4종의 고유값 3~4개뿐이라 discrete 가 정직했고 "
+                "KDE 는 없는 연속성을 지어내므로 금지였다.  축별 형상 지터로 고유값이 "
+                "표본수에 육박한 뒤에는 continuous 가 맞다.  KDE 는 continuous "
+                "분기에서만 그린다." % DISCRETE_MAX_UNIQUE,
     }
 
     def _stat(vals):
