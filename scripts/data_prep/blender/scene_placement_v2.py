@@ -2239,6 +2239,44 @@ def mode_semantics_verdict(diagnostic_mode, record):
 #
 # 임계는 baseline 의 winner 49건(=프레임을 살린 후보)이 전부 통과하도록 잡고, 물리적
 # 여유를 더했다.  근거는 reports/v2_generator_fix_g1_g3/g1/controlled_failure_matrix.md.
+# ---------------------------------------------------------------------------
+# 팔레트 치수 랜덤화 — KS T-11 근처가 많고, 벗어날수록 드물게 (종 모양)
+#
+# 에셋이 4종뿐이라 치수 값이 이산이었다(고유값 3~4개).  현장에는 규격 외 팔레트가
+# 흔하므로 프레임마다 크기를 흔들어 커버리지를 넓힌다.  **균등 스케일만** 쓴다 —
+# 가로/세로/높이를 따로 흔들면 존재하지 않는 형상을 학습시키게 된다.
+# sigma=0.10 이므로 68% 가 ±10% 안에 들어오고(높이 135~165mm), 절단 상한이 ±20%다.
+PALLET_SCALE_JITTER_SIGMA = 0.10
+PALLET_SCALE_JITTER_MAX = 0.20
+PALLET_SCALE_JITTER_TRIES = 16      # 절단 구간 밖이면 다시 뽑는 횟수
+
+
+def sample_pallet_scale_ratio(rng, sigma=None, max_dev=None):
+    """1.0 을 중심으로 한 절단 정규분포 배율을 돌려준다.
+
+    `rng` 는 `random.Random` 호환 객체여야 하고, 호출자가 frame seed 로 고정한다
+    (재현성).  절단은 rejection 으로 하되 시도 횟수를 묶고, 끝내 못 뽑으면 clamp 한다
+    — 무한 루프가 생기면 렌더가 통째로 멈춘다.
+    """
+    s = PALLET_SCALE_JITTER_SIGMA if sigma is None else float(sigma)
+    m = PALLET_SCALE_JITTER_MAX if max_dev is None else float(max_dev)
+    if s <= 0.0 or m <= 0.0:
+        return 1.0
+    for _ in range(PALLET_SCALE_JITTER_TRIES):
+        dev = rng.gauss(0.0, s)
+        if abs(dev) <= m:
+            return 1.0 + dev
+    return 1.0 + max(-m, min(m, rng.gauss(0.0, s)))
+
+
+def scaled_target_dims(base_dims, ratio):
+    """정본 치수에 균등 배율을 곱한다 (형상 유지)."""
+    r = float(ratio)
+    if not (r > 0.0):
+        raise ValueError("scale ratio must be positive: %r" % (ratio,))
+    return tuple(float(v) * r for v in base_dims)
+
+
 PREFILTER_BURIED_MAX = -0.60      # 계획 바닥이 자기 높이의 60% 넘게 지면 아래 (winner 최소 -0.535)
 PREFILTER_FLOAT_MAX = 1.90        # 계획 바닥이 자기 높이의 1.9배 넘게 공중 (winner 최대 1.751)
 PREFILTER_SILHOUETTE_MIN = 1.15   # 실루엣/요구 겹침면적 (winner 최소 1.192)
@@ -2462,7 +2500,9 @@ def camera_clearance_for_role(role):
         raise ValueError(f"unknown scene role: {role!r}") from exc
 
 
-_STAGES = ("background", "anchor", "cargo", "context", "occluder")
+# "pallet" 은 나중에 추가됐다.  각 stage seed 가 stage 이름으로 독립 해시되므로
+# 항목을 늘려도 기존 stage 의 seed 값은 변하지 않는다.
+_STAGES = ("background", "anchor", "cargo", "context", "occluder", "pallet")
 
 
 def derive_stage_seeds(frame_seed):

@@ -1,0 +1,8 @@
+**팔레트 합성데이터 1만장 생성 완료**
+
+- accepted **10000장** / rejected 12846 (거부율 56.2%)
+- 소요 **16.0시간** (5.78 s/usable)
+- 게이트 실패: 0건
+- mode: cargo-only 2000 / clean-static 2000 / context-rich 3000 / controlled-occlusion 3000
+- 용량 7.5 GB
+- 위치 `data/pallet/runs/diagnostics/v2_prod10k_s800{1..5}_public/`

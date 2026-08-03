@@ -183,9 +183,15 @@ def force_distractors_v2_enabled():
 # ---------------------------------------------------------------------------
 # Pallet
 # ---------------------------------------------------------------------------
-def _select_and_place_pallet(pallet_type, translate):
+def _select_and_place_pallet(pallet_type, translate, scale_ratio=1.0):
     """Show `pallet_type` (hide the others), normalise its scale, and ground it at the
-    (translated) world origin with yaw=0 — the pose solve_placement assumed."""
+    (translated) world origin with yaw=0 — the pose solve_placement assumed.
+
+    `scale_ratio` 는 정본 치수에 곱하는 **균등** 배율이다(형상 유지).  1.0 이면
+    예전과 완전히 같은 경로를 탄다.  keypoint/cuboid/dimensions_m 은 전부 배치 후
+    측정값이라 배율이 자동으로 반영된다.
+    """
+    from blender_config import TARGET_CANONICAL_DIMS
     from pallet_geometry import get_normalized_scale
     initialize_pallet_assets()
     pobj = get_obj(pallet_type)
@@ -195,7 +201,12 @@ def _select_and_place_pallet(pallet_type, translate):
         o = get_obj(n)
         if o is not None:
             set_render_visibility(o, n == pallet_type)
-    pobj.scale = tuple(get_normalized_scale(pobj, ORIENTATION_OVERRIDES.get(pallet_type, (0, 0, 0))))
+    target_dims = None
+    if abs(float(scale_ratio) - 1.0) > 1e-9:
+        target_dims = SP2.scaled_target_dims(TARGET_CANONICAL_DIMS, scale_ratio)
+    pobj.scale = tuple(get_normalized_scale(
+        pobj, ORIENTATION_OVERRIDES.get(pallet_type, (0, 0, 0)),
+        target_dims=target_dims))
     bpy.context.view_layer.update()
     set_object_pose_grounded(pobj, float(translate[0]), float(translate[1]), 0.0,
                              base_rot_deg=ORIENTATION_OVERRIDES.get(pallet_type, (0, 0, 0)),
@@ -747,7 +758,12 @@ def _realize_constrained(
 
     # Reset every dynamic object before static inventory is collected.
     _hide_distractor_pool(resolve_truncated=True, restore_transforms=True)
-    pobj = _select_and_place_pallet(spec.pallet_type, translate)
+    # 팔레트 크기를 frame seed 로 고정된 종 모양 분포에서 뽑는다.  에셋 4종만으로는
+    # 치수가 이산이라(고유값 3~4개) 규격 외 팔레트를 전혀 못 배운다.
+    pallet_scale_ratio = SP2.sample_pallet_scale_ratio(
+        random.Random(stage_seeds["pallet"]))
+    pobj = _select_and_place_pallet(spec.pallet_type, translate,
+                                    scale_ratio=pallet_scale_ratio)
     if pobj is None:
         return {
             "realize_ok": False,
@@ -2914,6 +2930,8 @@ def _realize_constrained(
         "failure_reason": None,
         "diagnostic_mode": diagnostic_mode,
         "stage_seeds": stage_seeds,
+        # 이 프레임에 적용된 팔레트 균등 배율 (1.0 = 정본 치수).
+        "pallet_scale_ratio": float(pallet_scale_ratio),
         "floor_mode_requested": floor_mode_requested,
         "floor_mode_actual": floor_mode,
         "floor_fallback_reason": floor_fallback_reason,

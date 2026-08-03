@@ -444,3 +444,66 @@ def test_dedup_returns_keys_that_match_planned_offset_key():
     offsets = (ORIGIN, (0.30, 0.0, 0.0, 0.0))
     kept, keys = SP2.dedup_candidate_offsets(DEDUP_PLAN, offsets, set())
     assert list(keys) == [SP2.planned_offset_key(DEDUP_PLAN, o) for o in kept]
+
+# ---------------------------------------------------------------------------
+# 팔레트 치수 랜덤화 — KS 근처가 많고 벗어날수록 드문 종 모양, 균등 스케일
+# ---------------------------------------------------------------------------
+import random as _random
+
+
+def test_scale_ratio_is_deterministic_for_a_given_seed():
+    a = SP2.sample_pallet_scale_ratio(_random.Random(1234))
+    b = SP2.sample_pallet_scale_ratio(_random.Random(1234))
+    assert a == b
+
+
+def test_scale_ratio_stays_inside_the_truncation_bound():
+    rng = _random.Random(7)
+    for _ in range(2000):
+        r = SP2.sample_pallet_scale_ratio(rng)
+        assert abs(r - 1.0) <= SP2.PALLET_SCALE_JITTER_MAX + 1e-12
+
+
+def test_scale_ratio_concentrates_near_one():
+    """종 모양이므로 ±1 sigma 안이 과반이어야 한다."""
+    rng = _random.Random(11)
+    vals = [SP2.sample_pallet_scale_ratio(rng) for _ in range(4000)]
+    near = sum(1 for v in vals
+               if abs(v - 1.0) <= SP2.PALLET_SCALE_JITTER_SIGMA)
+    assert near / len(vals) > 0.60
+    far = sum(1 for v in vals
+              if abs(v - 1.0) > SP2.PALLET_SCALE_JITTER_SIGMA * 1.5)
+    assert far / len(vals) < 0.20
+
+
+def test_scale_ratio_mean_is_centred_on_the_spec():
+    rng = _random.Random(99)
+    vals = [SP2.sample_pallet_scale_ratio(rng) for _ in range(4000)]
+    assert abs(sum(vals) / len(vals) - 1.0) < 0.01
+
+
+def test_zero_sigma_disables_the_jitter():
+    assert SP2.sample_pallet_scale_ratio(_random.Random(3), sigma=0.0) == 1.0
+
+
+def test_scaled_target_dims_is_uniform():
+    """균등 배율이라 종횡비가 보존돼야 한다 — 비균등이면 형상이 왜곡된다."""
+    base = (1.1, 0.15, 1.1)
+    out = SP2.scaled_target_dims(base, 1.2)
+    assert out == pytest.approx((1.32, 0.18, 1.32))
+    assert out[0] / out[2] == pytest.approx(base[0] / base[2])
+    assert out[0] / out[1] == pytest.approx(base[0] / base[1])
+
+
+def test_scaled_target_dims_rejects_non_positive_ratio():
+    with pytest.raises(ValueError):
+        SP2.scaled_target_dims((1.1, 0.15, 1.1), 0.0)
+
+
+def test_pallet_stage_seed_exists_and_others_are_unchanged():
+    """stage 를 추가해도 기존 stage seed 는 그대로여야 한다 (재현성)."""
+    seeds = SP2.derive_stage_seeds(4242)
+    assert "pallet" in seeds
+    for stage in ("background", "anchor", "cargo", "context", "occluder"):
+        assert seeds[stage] == SP2.derive_stage_seeds(4242)[stage]
+    assert seeds["pallet"] != seeds["cargo"]

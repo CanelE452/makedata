@@ -1203,7 +1203,9 @@ class StageSeedTests(unittest.TestCase):
         second = derive(7123)
         changed = derive(7124)
         self.assertEqual(
-            {"background", "anchor", "cargo", "context", "occluder"},
+            # "pallet" 은 2026-08-02 치수 랜덤화에서 추가됐다.  stage 이름으로
+            # 독립 해시되므로 기존 stage 의 seed 값은 그대로다.
+            {"background", "anchor", "cargo", "context", "occluder", "pallet"},
             set(first),
         )
         self.assertEqual(first, second)

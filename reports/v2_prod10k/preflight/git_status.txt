@@ -1,0 +1,12 @@
+ M scripts/data_prep/blender/build_v2_pilot_paper_figures.py
+ M scripts/data_prep/blender/run_v2_scene_logic.py
+ M scripts/data_prep/blender/scene_placement_v2.py
+ M scripts/data_prep/blender/tests/test_constraint_rescue.py
+ M scripts/data_prep/blender/tests/test_scene_placement_v2.py
+ M scripts/data_prep/blender/tests/test_usable_completion_mode.py
+ M scripts/data_prep/blender/v2_realize.py
+?? reports/v2_eevee_test100/
+?? reports/v2_merged_figures_test/
+?? reports/v2_merged_figures_test2/
+?? reports/v2_p5_test100/
+?? reports/v2_prod10k/

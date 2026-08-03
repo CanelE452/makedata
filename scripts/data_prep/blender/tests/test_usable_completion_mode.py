@@ -53,6 +53,8 @@ RECORD_RENDERED_KEYS = (
     # 2026-08-02: holdout 엔진은 배포 마스크 픽셀을 바꾸므로 프레임마다 남긴다
     # (샤드를 병합하면 progress.json 은 사라진다).
     "holdout_engine",
+    # 2026-08-02: 프레임마다 적용된 팔레트 균등 배율 (1.0 = 정본 치수)
+    "pallet_scale_ratio",
     # 2026-08-01 (G1.6): target-seed 예산 회계 5 + fine refinement 11 + 이름 정리 1
     "target_seed_free_cap", "target_seed_unique_count", "target_seed_free_used",
     "target_seed_paid_used", "target_seed_duplicate_count",

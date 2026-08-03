@@ -1072,6 +1072,8 @@ def _record_rendered(idx, frame_seed, mode, plan, rs, meas, gates, runtime_s,
         # 샤드를 병합하면 progress.json 은 남지 않는다 — 프레임 단위로도 남겨야
         # "이 마스크가 어느 엔진으로 만들어졌는지"를 나중에 추적할 수 있다.
         "holdout_engine": _SESSION_HOLDOUT_ENGINE,
+        # 이 프레임에 적용된 팔레트 균등 배율 (1.0 = 정본 치수).
+        "pallet_scale_ratio": placement.get("pallet_scale_ratio"),
         "target_seed_free_cap": placement.get("target_seed_free_cap"),
         "target_seed_unique_count": placement.get("target_seed_unique_count"),
         "target_seed_free_used": placement.get("target_seed_free_used"),
@@ -1323,6 +1325,7 @@ def _record_realize_failure(idx, frame_seed, mode, plan, runtime_s, detail):
         "final_seed_score": metrics.get("final_seed_score"),
         "search_winning_stage": metrics.get("search_winning_stage"),
         "holdout_engine": _SESSION_HOLDOUT_ENGINE,
+        "pallet_scale_ratio": metrics.get("pallet_scale_ratio"),
         "target_seed_free_cap": metrics.get("target_seed_free_cap"),
         "target_seed_unique_count": metrics.get("target_seed_unique_count"),
         "target_seed_free_used": metrics.get("target_seed_free_used"),

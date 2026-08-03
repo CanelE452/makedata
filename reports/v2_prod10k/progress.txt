@@ -1,0 +1,26 @@
+[ROUND 1] delivered=500/10000  elapsed=2750s  (5.50 s/usable)
+[ROUND 2] delivered=1000/10000  elapsed=5524s  (5.52 s/usable)
+[ROUND 3] delivered=1500/10000  elapsed=8287s  (5.52 s/usable)
+[ROUND 4] delivered=2000/10000  elapsed=11223s  (5.61 s/usable)
+[ROUND 5] delivered=2500/10000  elapsed=14033s  (5.61 s/usable)
+[ROUND 6] delivered=3000/10000  elapsed=17016s  (5.67 s/usable)
+[ROUND 7] delivered=3500/10000  elapsed=19732s  (5.64 s/usable)
+[ROUND 8] delivered=4000/10000  elapsed=22694s  (5.67 s/usable)
+[ROUND 9] delivered=4500/10000  elapsed=25617s  (5.69 s/usable)
+[ROUND 10] delivered=5000/10000  elapsed=28764s  (5.75 s/usable)
+[ROUND 11] delivered=5500/10000  elapsed=31542s  (5.73 s/usable)
+[ROUND 12] delivered=6000/10000  elapsed=34345s  (5.72 s/usable)
+[ROUND 13] delivered=6500/10000  elapsed=37354s  (5.75 s/usable)
+[ROUND 14] delivered=7000/10000  elapsed=40251s  (5.75 s/usable)
+[ROUND 15] delivered=7500/10000  elapsed=43221s  (5.76 s/usable)
+[ROUND 16] delivered=8000/10000  elapsed=46013s  (5.75 s/usable)
+[ROUND 17] delivered=8500/10000  elapsed=48986s  (5.76 s/usable)
+[ROUND 18] delivered=9000/10000  elapsed=51886s  (5.77 s/usable)
+[ROUND 19] delivered=9500/10000  elapsed=54678s  (5.76 s/usable)
+[ROUND 20] delivered=10000/10000  elapsed=57763s  (5.78 s/usable)
+[DONE] total_elapsed=57764s  rounds=21
+  seed8001 delivered=2000
+  seed8002 delivered=2000
+  seed8003 delivered=2000
+  seed8004 delivered=2000
+  seed8005 delivered=2000
