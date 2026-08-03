@@ -185,6 +185,77 @@ ACCEPTANCE_CONSTRAINTS = ("side", "visibility", "target", "G1", "G2")
 # 각 면은 한 축의 부호를 공유하는 코너 4개다.
 
 
+def cuboid_axes_from_corners(pts, tol=1e-6):
+    """육면체 코너 8개에서 세 모서리 방향(단위벡터 3개)을 유도한다.
+
+    ★2026-08-04 정정.  원래는 "한 코너의 **최근접 3점**이 곧 세 모서리"라고 가정하고
+    "면대각·체대각은 항상 모서리보다 길다"고 주석까지 달아 뒀는데 **틀렸다.**
+    면대각은 자기를 이루는 두 모서리보다는 길지만 **나머지 한 모서리보다 길다는 보장이
+    없다.**  실측 반례(팔레트 Pallet_3, 폭 0.792 x 높이 0.154 x 깊이 1.125):
+
+        모서리   0.154 · 0.792 · 1.125
+        면대각   sqrt(0.792^2 + 0.154^2) = 0.807   <- 세 번째 모서리 1.125 보다 짧다
+
+    그래서 최근접 3점이 (모서리, 모서리, **면대각**) 이 되어 축 두 개가 거의 나란해지고
+    (내적 0.98), 면 구성이 깨져 보이는 코너가 7개인데 6개로 세어졌다.  납작하고 한 변이
+    긴 상자 — 즉 **팔레트 그 자체** — 에서 상시 발생한다.  1.1x1.1 정사각 상자로만
+    테스트해서 못 잡았다(sqrt(1.1^2+0.15^2)=1.110 > 1.1 로 아슬아슬하게 통과).
+
+    올바른 방법: 한 코너에서 뻗은 7개 변위 중 **서로 직교하는 유일한 3개 조합**이 곧
+    세 모서리다.  (면대각 (a,b,0) 은 다른 두 모서리 (a,0,0)·(0,b,0) 중 어느 것과도
+    직교하지 않으므로 직교 3조합은 유일하다.  a==b 인 정사각 단면에서도 유일하다.)
+    """
+    if len(pts) != 8:
+        raise ValueError("cuboid must hold 8 points, got %d" % (len(pts),))
+
+    def _sub(a, b):
+        return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
+
+    def _dot(a, b):
+        return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+    units, scale = [], 0.0
+    for j in range(1, 8):
+        e = _sub(pts[j], pts[0])
+        n = math.sqrt(_dot(e, e))
+        if n <= 1e-12:
+            raise ValueError("degenerate cuboid: duplicated corners")
+        scale = max(scale, n)
+        units.append((e[0] / n, e[1] / n, e[2] / n))
+
+    # 직교 판정은 단위벡터 내적이라 무차원 — 상자 크기와 무관하게 tol 이 통한다.
+    best = None
+    for i in range(len(units)):
+        for j in range(i + 1, len(units)):
+            if abs(_dot(units[i], units[j])) > tol:
+                continue
+            for k in range(j + 1, len(units)):
+                if abs(_dot(units[i], units[k])) > tol:
+                    continue
+                if abs(_dot(units[j], units[k])) > tol:
+                    continue
+                worst = max(abs(_dot(units[i], units[j])),
+                            abs(_dot(units[i], units[k])),
+                            abs(_dot(units[j], units[k])))
+                if best is None or worst < best[0]:
+                    best = (worst, (units[i], units[j], units[k]))
+    if best is None:
+        # 수치오차로 tol 을 못 맞추는 상자 — 가장 직교에 가까운 조합으로 완화 재시도.
+        for i in range(len(units)):
+            for j in range(i + 1, len(units)):
+                for k in range(j + 1, len(units)):
+                    worst = max(abs(_dot(units[i], units[j])),
+                                abs(_dot(units[i], units[k])),
+                                abs(_dot(units[j], units[k])))
+                    if best is None or worst < best[0]:
+                        best = (worst, (units[i], units[j], units[k]))
+        if best is None or best[0] > 1e-3:
+            raise ValueError(
+                "cuboid axes not orthogonal (worst |dot| = %.6g) — not a box"
+                % (best[0] if best else float("nan")))
+    return list(best[1])
+
+
 def self_visible_corner_mask(corners_world, cam_pos):
     """자체가림을 뺀 코너 가시성 (길이 8 bool 리스트).
 
@@ -197,8 +268,8 @@ def self_visible_corner_mask(corners_world, cam_pos):
 
     ★**코너 순서에 의존하지 않는다.**  이 파이프라인에는 canonical 순서와 v4 순열
     (`perm_v4`) 두 가지가 돌아다녀서, 면을 인덱스로 박아두면 어느 한쪽에서 반드시
-    틀린다.  그래서 면을 상자 기하에서 직접 유도한다 — 한 코너의 최근접 3점이 곧
-    세 모서리 방향이고(면대각·체대각보다 항상 짧다), 그 세 축의 부호로 면이 갈린다.
+    틀린다.  그래서 면을 상자 기하에서 직접 유도한다 — `cuboid_axes_from_corners`
+    참조.
     """
     pts = [tuple(float(v) for v in c[:3]) for c in corners_world]
     if len(pts) != 8:
@@ -212,16 +283,7 @@ def self_visible_corner_mask(corners_world, cam_pos):
     def _dot(a, b):
         return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
-    # 코너 0 의 최근접 3점 = 세 모서리 방향 (축)
-    d0 = sorted(range(1, 8), key=lambda j: _dot(_sub(pts[j], pts[0]),
-                                                _sub(pts[j], pts[0])))[:3]
-    axes = []
-    for j in d0:
-        e = _sub(pts[j], pts[0])
-        n = math.sqrt(_dot(e, e))
-        if n <= 1e-12:
-            raise ValueError("degenerate cuboid: duplicated corners")
-        axes.append((e[0] / n, e[1] / n, e[2] / n))
+    axes = cuboid_axes_from_corners(pts)
 
     visible = [False] * 8
     for ax in axes:

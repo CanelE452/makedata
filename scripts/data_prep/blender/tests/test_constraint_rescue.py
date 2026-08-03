@@ -500,6 +500,72 @@ def test_scaled_target_dims_rejects_non_positive_ratio():
         SP2.scaled_target_dims((1.1, 0.15, 1.1), 0.0)
 
 
+# --- 육면체 축 유도 (자체가림의 기반) ---------------------------------------
+
+def _box_corners(a, b, c):
+    """중심 원점, 변 길이 (a, b, c) 인 축정렬 상자의 코너 8개."""
+    return [(sx * a / 2.0, sy * b / 2.0, sz * c / 2.0)
+            for sz in (1, -1) for sx, sy in ((1, 1), (-1, 1), (-1, -1), (1, -1))]
+
+
+def _cam_at(elev_deg, az_deg, r=5.0):
+    import math as _m
+    e, z = _m.radians(elev_deg), _m.radians(az_deg)
+    return (r * _m.cos(e) * _m.cos(z), r * _m.cos(e) * _m.sin(z), r * _m.sin(e))
+
+
+def test_cuboid_axes_are_orthogonal_for_a_flat_elongated_box():
+    """★2026-08-04 회귀.  실측 반례 — 팔레트 Pallet_3 (0.792 x 1.125 x 0.154).
+
+    "한 코너의 최근접 3점 = 세 모서리" 가정이 여기서 깨진다:
+        면대각 sqrt(0.792^2 + 0.154^2) = 0.807  <  세 번째 모서리 1.125
+    최근접 3점이 (모서리, 모서리, 면대각) 이 되어 축 두 개가 거의 나란해졌다.
+    """
+    axes = SP2.cuboid_axes_from_corners(_box_corners(0.792, 1.125, 0.154))
+    dots = [abs(sum(x * y for x, y in zip(axes[i], axes[j])))
+            for i, j in ((0, 1), (0, 2), (1, 2))]
+    assert max(dots) < 1e-9, dots
+
+
+def test_self_visible_is_seven_for_a_generic_view_of_a_flat_pallet():
+    """일반 시점의 육면체는 3면(=7코너)이 보인다.  버그 때는 6 이 나왔다."""
+    pts = _box_corners(0.792, 1.125, 0.154)
+    for elev, az in ((5, 30), (25, 40), (45, 20), (15, 130), (35, 250)):
+        assert sum(SP2.self_visible_corner_mask(pts, _cam_at(elev, az))) == 7, (elev, az)
+
+
+def test_self_visible_axis_aligned_view_sees_two_faces():
+    """방위가 축에 정렬되면 옆면이 하나만 전면 -> 6코너.  이건 정상이다."""
+    pts = _box_corners(0.792, 1.125, 0.154)
+    assert sum(SP2.self_visible_corner_mask(pts, _cam_at(25, 0))) == 6
+
+
+def test_cuboid_axes_handle_a_square_cross_section():
+    """정사각 단면(고유값 축퇴)에서도 축이 유일하게 잡혀야 한다 — PCA 였다면 깨진다."""
+    axes = SP2.cuboid_axes_from_corners(_box_corners(1.1, 1.1, 0.15))
+    dots = [abs(sum(x * y for x, y in zip(axes[i], axes[j])))
+            for i, j in ((0, 1), (0, 2), (1, 2))]
+    assert max(dots) < 1e-9, dots
+
+
+def test_cuboid_axes_reject_a_non_box():
+    pts = _box_corners(1.0, 1.0, 1.0)
+    pts[3] = (pts[3][0] + 0.4, pts[3][1] - 0.3, pts[3][2] + 0.5)   # 한 점을 어긋냄
+    with pytest.raises(ValueError):
+        SP2.cuboid_axes_from_corners(pts)
+
+
+def test_self_visible_still_order_independent_on_the_flat_box():
+    import random as _r
+    pts = _box_corners(0.792, 1.125, 0.154)
+    cam = _cam_at(25, 40)
+    base = SP2.self_visible_corner_mask(pts, cam)
+    order = list(range(8))
+    _r.Random(9).shuffle(order)
+    shuffled = SP2.self_visible_corner_mask([pts[i] for i in order], cam)
+    assert [shuffled[order.index(i)] for i in range(8)] == list(base)
+
+
 # --- 형상 지터 (축별 배율) --------------------------------------------------
 
 def test_shape_ratios_are_deterministic_for_a_seed():
