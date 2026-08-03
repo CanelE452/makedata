@@ -1,0 +1,7 @@
+anchor,target_visible_fraction,usable_id,projected_size_actual,visible_fraction,selection_rule
+fully visible,1.0,0,0.3435656423608599,1.0,closest visible_fraction to target; tie-break smallest usable_id
+mildly occluded,0.9,152,0.5627644511118934,0.8994027869940279,closest visible_fraction to target; tie-break smallest usable_id
+moderately occluded,0.65,199,0.09971045264278403,0.6501089324618736,closest visible_fraction to target; tie-break smallest usable_id
+strongly occluded,0.35,119,0.2613555688024099,0.5050620602871361,closest visible_fraction to target; tie-break smallest usable_id
+small projected size,,288,0.052647943489625725,1.0,extreme projected size; tie-break smallest usable_id
+large projected size,,93,1.187932430778282,0.933481260730135,extreme projected size; tie-break smallest usable_id

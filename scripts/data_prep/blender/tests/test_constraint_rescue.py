@@ -507,3 +507,135 @@ def test_pallet_stage_seed_exists_and_others_are_unchanged():
     for stage in ("background", "anchor", "cargo", "context", "occluder"):
         assert seeds[stage] == SP2.derive_stage_seeds(4242)[stage]
     assert seeds["pallet"] != seeds["cargo"]
+
+# ---------------------------------------------------------------------------
+# 자체가림 — 육면체 코너 8점 (중앙점 제외)
+# ---------------------------------------------------------------------------
+def _unit_box():
+    """canonical_corners_yup 과 같은 부호 배치의 단위 상자."""
+    return [(-1, 1, 1), (1, 1, 1), (1, -1, 1), (-1, -1, 1),
+            (-1, 1, -1), (1, 1, -1), (1, -1, -1), (-1, -1, -1)]
+
+
+def test_all_eight_corners_are_never_visible():
+    """★핵심: 육면체는 한 시점에서 8개가 다 보일 수 없다."""
+    box = _unit_box()
+    rng = _random.Random(0)
+    for _ in range(500):
+        cam = (rng.uniform(-30, 30), rng.uniform(-30, 30), rng.uniform(-30, 30))
+        if max(abs(c) for c in cam) < 1.5:
+            continue                      # 상자 내부는 제외
+        m = SP2.self_visible_corner_mask(box, cam)
+        assert sum(m) <= 7
+
+
+def test_corner_view_sees_seven():
+    """세 면이 보이는 코너 방향 -> 7개."""
+    assert sum(SP2.self_visible_corner_mask(_unit_box(), (10, 10, 10))) == 7
+
+
+def test_face_on_view_sees_four():
+    """한 면만 정면으로 보는 방향 -> 4개."""
+    assert sum(SP2.self_visible_corner_mask(_unit_box(), (0, 0, 10))) == 4
+
+
+def test_edge_view_sees_six():
+    """두 면이 보이는 모서리 방향 -> 6개."""
+    assert sum(SP2.self_visible_corner_mask(_unit_box(), (10, 0, 10))) == 6
+
+
+def test_face_on_view_returns_that_faces_corners():
+    """+z 정면 -> +z 면의 코너 0,1,2,3 만."""
+    m = SP2.self_visible_corner_mask(_unit_box(), (0, 0, 10))
+    assert [i for i, v in enumerate(m) if v] == [0, 1, 2, 3]
+
+
+def test_opposite_views_are_complementary_on_the_far_face():
+    """앞뒤에서 보면 각각 반대쪽 면 코너가 빠진다."""
+    front = SP2.self_visible_corner_mask(_unit_box(), (0, 0, 10))
+    back = SP2.self_visible_corner_mask(_unit_box(), (0, 0, -10))
+    assert [i for i, v in enumerate(front) if v] == [0, 1, 2, 3]
+    assert [i for i, v in enumerate(back) if v] == [4, 5, 6, 7]
+
+
+def test_flat_box_like_a_pallet_still_obeys_the_bound():
+    """팔레트는 납작하다(1.1 x 1.1 x 0.15) — 그래도 8개는 안 된다."""
+    flat = [(-0.55, 0.075, 0.55), (0.55, 0.075, 0.55),
+            (0.55, -0.075, 0.55), (-0.55, -0.075, 0.55),
+            (-0.55, 0.075, -0.55), (0.55, 0.075, -0.55),
+            (0.55, -0.075, -0.55), (-0.55, -0.075, -0.55)]
+    rng = _random.Random(7)
+    for _ in range(300):
+        cam = (rng.uniform(-8, 8), rng.uniform(0.2, 8), rng.uniform(-8, 8))
+        m = SP2.self_visible_corner_mask(flat, cam)
+        assert 4 <= sum(m) <= 7
+
+
+def test_wrong_corner_count_is_rejected():
+    with pytest.raises(ValueError):
+        SP2.self_visible_corner_mask(_unit_box()[:7], (10, 10, 10))
+
+
+def test_self_occlusion_is_independent_of_corner_order():
+    """★이 파이프라인에는 canonical 순서와 perm_v4 순열이 함께 돈다.
+    어떤 순서로 넣어도 '보이는 코너 집합'은 같아야 한다."""
+    box = _unit_box()
+    cam = (7.0, 3.0, 5.0)
+    base = SP2.self_visible_corner_mask(box, cam)
+    base_pts = {box[i] for i, v in enumerate(base) if v}
+    perm = [1, 5, 6, 2, 0, 4, 7, 3]                  # 실제 label 의 perm_v4
+    shuffled = [box[i] for i in perm]
+    got = SP2.self_visible_corner_mask(shuffled, cam)
+    assert {shuffled[i] for i, v in enumerate(got) if v} == base_pts
+    assert sum(got) == sum(base)
+
+
+# ---------------------------------------------------------------------------
+# G1/G2 에 자체가림 반영 — 탐색기와 라벨의 코너 계산을 일치시킨다
+# ---------------------------------------------------------------------------
+def test_gate_without_self_visible_keeps_old_behaviour():
+    """인자를 안 주면 예전과 동일해야 한다 (기존 경로 보호)."""
+    m = SP2.external_corner_gate_metrics([True] * 8, [0.0] * 8)
+    assert m["V_inframe"] == 8 and m["V_vis"] == 8 and m["G1_pass"] is True
+
+
+def test_gate_with_self_visible_counts_only_front_corners():
+    """뒷면 코너 4개를 빼면 V_inframe 이 8 -> 4 로 준다."""
+    self_vis = [True, True, True, True, False, False, False, False]
+    m = SP2.external_corner_gate_metrics([True] * 8, [0.0] * 8,
+                                         self_visible=self_vis)
+    assert m["V_inframe"] == 4
+    assert m["V_vis"] == 4
+    assert m["G1_pass"] is True          # 4 는 PnP 하한이라 여전히 통과
+
+
+def test_gate_fails_when_occlusion_eats_a_front_corner():
+    """자체가림으로 4개만 남았는데 그중 하나를 외부 가림이 먹으면 G1 탈락."""
+    self_vis = [True, True, True, True, False, False, False, False]
+    occ = [0.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    m = SP2.external_corner_gate_metrics([True] * 8, occ, self_visible=self_vis)
+    assert m["V_vis"] == 3
+    assert m["G1_pass"] is False
+
+
+def test_gate_ignores_occlusion_on_self_hidden_corners():
+    """뒷면 코너가 가려지는 것은 의미가 없다 — ext_occ 에 세면 안 된다."""
+    self_vis = [True, True, True, True, False, False, False, False]
+    occ = [0.0, 0.0, 0.0, 0.0, 0.9, 0.9, 0.9, 0.9]
+    m = SP2.external_corner_gate_metrics([True] * 8, occ, self_visible=self_vis)
+    assert m["ext_occ_corners"] == 0
+    assert m["V_vis"] == 4
+
+
+def test_gate_rejects_wrong_self_visible_length():
+    with pytest.raises(ValueError):
+        SP2.external_corner_gate_metrics([True] * 8, [0.0] * 8,
+                                         self_visible=[True] * 7)
+
+
+def test_centre_occlusion_preserves_corners_and_passes_g1():
+    """★사용자 지적: 가운데만 가리면 꼭짓점은 살아 추론 가능해야 한다."""
+    self_vis = [True, True, True, True, False, False, False, False]
+    occ = [0.1, 0.1, 0.1, 0.1, 0.0, 0.0, 0.0, 0.0]   # 중앙 가림 -> 코너는 낮은 값
+    m = SP2.external_corner_gate_metrics([True] * 8, occ, self_visible=self_vis)
+    assert m["V_vis"] == 4 and m["G1_pass"] is True

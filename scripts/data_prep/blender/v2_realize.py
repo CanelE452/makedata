@@ -4031,7 +4031,12 @@ def _candidate_corner_gate_metrics(
         )
         for index in range(8)
     ]
-    metrics = SP2.external_corner_gate_metrics(in_frame, fractions)
+    # 자체가림을 함께 센다 — 뒷면 코너를 "보인다"고 세면 G1 이 통과인데 라벨에서는
+    # 4점 미만인 프레임이 만들어진다.  이 값을 넣어야 탐색기가 코너를 살리는
+    # 배치(가운데만 가리는 배치 등)를 스스로 고른다.
+    metrics = SP2.external_corner_gate_metrics(
+        in_frame, fractions,
+        self_visible=SP2.self_visible_corner_mask(corners_v4, cam_pos))
     metrics["in_frame"] = in_frame
     metrics["occlusion_fractions"] = fractions
     return metrics
@@ -4187,6 +4192,7 @@ def measure_geometry_and_masks(rs):
     corner_gate = SP2.external_corner_gate_metrics(
         in_frame8,
         occ_frac[:8],
+        self_visible=SP2.self_visible_corner_mask(corners_v4, cam_pos),
     )
     V_inframe = corner_gate["V_inframe"]
     ext_occ_corners = corner_gate["ext_occ_corners"]
@@ -4323,6 +4329,8 @@ def measure_geometry_and_masks(rs):
     return {
         "perm": [int(p) for p in perm],
         "corners_v4": corners_v4, "uv8_v4": uv8_v4, "cent_uv": cent_uv,
+        # 자체가림 판정에 필요하다 (코너 8점 + 카메라 위치).
+        "cam_pos": cam_pos,
         "centroid_world": centroid_world, "r_for_pose": geom["r_for_pose"],
         "R_w2c": R, "t_w2c": t,
         "front_cos": _r4(front_cos), "facing_margin_deg": _r4(facing_margin),

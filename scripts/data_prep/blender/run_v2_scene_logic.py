@@ -134,7 +134,12 @@ PHYSICAL_DERIVED_CONDITIONS = (
     "exact_collision_zero",
     "camera_distance_within_limit",
     "mask_m0_non_empty",
+    "pnp_min_keypoints",
 )
+
+# PnP 최소 대응점.  육면체는 자체가림 때문에 한 시점에서 최대 7코너만 보이므로
+# 상한은 7 이고, 4 는 PnP 가 풀리는 하한이다.
+PNP_MIN_VISIBLE_KEYPOINTS = 4
 EXTRA_USABLE_CONDITIONS = (
     "no_magenta",
     "mask_pixel_inclusion",
@@ -405,6 +410,14 @@ def usable_conditions(record, magenta_max=DEFAULT_MAGENTA_MAX_FRACTION,
     if m0_area is None:
         m0_area = _number(record.get("mask_area_target_only"))
     conditions["mask_m0_non_empty"] = None if m0_area is None else m0_area > 0
+
+    # PnP 는 최소 4점이 필요하다.  자체가림을 반영하기 전에는 이 조건이 항상 참처럼
+    # 보였으나(2026-08-03 정정), 실제로는 4점 미만인 프레임이 23% 있었다.
+    # 하한만 건다 — "4점 근처인데 잘 가려진" 어려운 케이스는 남겨야 한다.
+    vis_kp = _number(record.get("visible_kp_count"))
+    conditions["pnp_min_keypoints"] = (
+        None if vis_kp is None else vis_kp >= PNP_MIN_VISIBLE_KEYPOINTS
+    )
 
     magenta = _number(record.get("magenta_fraction"))
     conditions["no_magenta"] = (
@@ -870,15 +883,30 @@ def _visible_keypoint_metrics(meas):
     in_frame8 = meas.get("in_frame8")
     if uv8 is None or cent is None or in_frame8 is None:
         return out
-    uv9 = np.vstack([np.asarray(uv8, dtype=float)[:, :2],
-                     np.asarray(cent, dtype=float).reshape(1, 2)])
-    in_frame9 = [bool(v) for v in in_frame8] + [bool(meas.get("center_in_frame"))]
+    # ★2026-08-03 정정.  이전에는 (a) 중앙점을 세고 (b) 자체가림을 무시해
+    # "9개 전부 보임" 이 21.7% 나왔다 — 육면체는 한 시점에서 최대 7코너만 보이므로
+    # 기하학적으로 불가능한 값이다.  이제
+    #   - centroid 는 세지 않는다 (상자 내부 점이라 '보인다'가 성립하지 않고,
+    #     PnP 에 쓰는 것도 표면 코너 8점이다)
+    #   - 자체가림(뒷면 코너)을 반영한다
+    uv9 = np.asarray(uv8, dtype=float)[:, :2]
+    in_frame9 = [bool(v) for v in in_frame8]
+    corners = meas.get("corners_v4")
+    cam_pos = meas.get("cam_pos")
+    if corners is None or cam_pos is None:
+        # 3D 정보가 없으면 **측정 불가**로 남긴다.  예전에는 [True]*8 로 채웠는데,
+        # 그러면 자체가림을 무시한 값이 섞여 8(기하학적으로 불가능)이 나온다 —
+        # 실제로 300장 중 1건이 그렇게 새어 나왔다.  없는 값을 지어내지 않는다.
+        return out
+    self_vis = SP2.self_visible_corner_mask(corners, cam_pos)
     occ = meas.get("occlusion_fraction") or []
     visible = []
-    for i in range(9):
+    for i in range(8):
         occ_i = _number(occ[i]) if i < len(occ) else None
         visible.append(
-            in_frame9[i] and (occ_i is None or occ_i < OCCLUSION_VISIBLE_MAX)
+            in_frame9[i]
+            and self_vis[i]
+            and (occ_i is None or occ_i < OCCLUSION_VISIBLE_MAX)
         )
     pts = uv9[np.asarray(visible, dtype=bool)]
     out["visible_kp_count"] = int(sum(visible))

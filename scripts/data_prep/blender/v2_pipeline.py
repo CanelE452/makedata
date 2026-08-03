@@ -86,11 +86,21 @@ SENSOR_MM = 36.0
 #     measure elevation here. See _docs/method/v2_domain_randomization.md ("잠정" note).
 ELEV_BIN_EDGES = [(0.5, 3.0), (3.0, 8.0), (8.0, 15.0), (15.0, 25.0),
                   (25.0, 40.0), (40.0, 60.0), (60.0, 80.0)]
-ELEV_BIN_FRAC = [0.08, 0.18, 0.20, 0.20, 0.16, 0.10, 0.08]  # 잠정, sums to 1.00
+# 2026-08-03 재조정 — 1만 장 실측이 저앙각으로 심하게 쏠렸다(중앙 17.6°, 20° 미만 55%,
+# 50° 이상 13%).  위 "잠정" 주석대로 평가셋 측정 전에는 확정할 수 없으나, 중간 뷰가
+# 비는 것은 커버리지 결함이므로 **중간(15~40°)을 봉우리로 하고 양 끝을 꼬리로** 다시
+# 배분했다.  극단(0.5~3°, 60~80°)은 남겨 두되 비중을 줄인다.
+# 이전 값: [0.08, 0.18, 0.20, 0.20, 0.16, 0.10, 0.08]  (20° 미만 46% 처방)
+ELEV_BIN_FRAC = [0.05, 0.10, 0.15, 0.24, 0.22, 0.15, 0.09]  # 잠정, sums to 1.00
 
 # --- V (in-frame corner count) target — gen_trunc_addon.V_FRAC verbatim. --------
 V_VALUES = [4, 5, 6, 7, 8]
-V_FRAC = [0.15, 0.25, 0.30, 0.20, 0.10]
+# 2026-08-03 재조정 — V=4 는 PnP 최소치라 여유가 0 이고, 한 점만 틀려도 자세가 튄다.
+# 1만 장 실측에서 visible_kp=4 인 265장 중에는 bbox 최소변이 1.7~2.9px 인 것도 있었다.
+# **게이트로 버리지 않고 목표 배분에서 줄인다** — 만들고 버리면 생성 시간이 그대로
+# 낭비되지만, 안 뽑으면 비용이 0 이다.
+# 이전 값: [0.15, 0.25, 0.30, 0.20, 0.10]
+V_FRAC = [0.04, 0.20, 0.30, 0.28, 0.18]
 
 # --- scene_preset — prescribed. -------------------------------------------------
 SCENE_PRESETS = ["indoor", "outdoor-day", "outdoor-night", "random-mix"]
@@ -115,6 +125,23 @@ PROJ_SIZE_FRAC = [0.20, 0.20, 0.20, 0.20, 0.20]  # uniform over geometric bins (
 # cap is enforced at SAMPLING time (sample_frame narrows/masks the ratio bins so no frame can
 # ever ask for d > cap) and re-checked as a hard defensive reject in solve_placement.
 MAX_CAMERA_DISTANCE_M = 10.0
+
+# --- camera distance FLOOR (2026-08-03, 1만 장 감사 결과). ----------------------
+# 상한만 있고 하한이 없어서, ratio 가 큰 프레임은 카메라가 팔레트 안까지 들어갔다.
+# 1만 장 실측: projected_size_actual 이 1.0 을 넘은 게 983장(9.83%), 최대 279.69
+# (거리 0.82m).  실물을 열어보면 판자가 화면을 가득 채워 무엇인지 알 수 없다.
+# 팔레트 긴 변이 1.1~1.27m 이므로 1.5m 아래에서는 프레임에 담기지 않는다.
+MIN_CAMERA_DISTANCE_M = 1.5
+
+
+def proj_size_feasible_upper(fx, image_width, min_distance_m=None):
+    """거리 하한이 강제하는 projected-size ratio 상한.
+
+    d = fx * PALLET_W / (ratio * W) 이므로 ratio 가 클수록 카메라가 가까워진다.
+    `proj_size_feasible_lower` 의 대칭이다.
+    """
+    floor_m = MIN_CAMERA_DISTANCE_M if min_distance_m is None else float(min_distance_m)
+    return fx * PALLET_W / (floor_m * float(image_width))
 
 # --- azimuth — 30deg x 12 bins uniform. ----------------------------------------
 AZIMUTH_NBINS = 12
@@ -563,16 +590,20 @@ def sample_frame(rng: random.Random, quota_state: QuotaState, assets: Assets,
     #    a partially-feasible bin is narrowed to [max(lo, lower), hi) and sampled
     #    continuous-uniform inside the narrowed interval.
     lower = proj_size_feasible_lower(fx, resolution[0])
-    feasible = [max(lo, lower) < hi for lo, hi in PROJ_SIZE_EDGES]
+    # 거리 하한(MIN_CAMERA_DISTANCE_M)이 강제하는 ratio 상한.  하한이 없던 시절에는
+    # 카메라가 팔레트 안까지 들어가 화면크기가 279배까지 튀었다.
+    upper = proj_size_feasible_upper(fx, resolution[0])
+    feasible = [max(lo, lower) < min(hi, upper) for lo, hi in PROJ_SIZE_EDGES]
     if not any(feasible):
         raise RuntimeError(
-            "no feasible proj_size bin: camera-distance cap "
-            f"{MAX_CAMERA_DISTANCE_M} m forces ratio >= {lower:.4f} but the largest bin "
-            f"edge is {PROJ_SIZE_EDGES[-1][1]} (fx={fx:.2f}, image_width={resolution[0]})"
+            "no feasible proj_size bin: camera-distance range "
+            f"[{MIN_CAMERA_DISTANCE_M}, {MAX_CAMERA_DISTANCE_M}] m forces ratio in "
+            f"[{lower:.4f}, {upper:.4f}] but no bin overlaps it "
+            f"(fx={fx:.2f}, image_width={resolution[0]})"
         )
     psi = _deficit_pick(PROJ_SIZE_FRAC, qs.proj_size, rng, mask=feasible)
     plo, phi = PROJ_SIZE_EDGES[psi]
-    proj_size_ratio = rng.uniform(max(plo, lower), phi)
+    proj_size_ratio = rng.uniform(max(plo, lower), min(phi, upper))
 
     # -- f_target (occlusion) --
     fti = _deficit_pick(F_TARGET_FRAC, qs.f_target, rng)
@@ -1140,6 +1171,10 @@ def solve_placement(
     if d_pallet > MAX_CAMERA_DISTANCE_M + 1e-6:
         return _reject(spec, "camera_distance_out_of_range",
                        f"d_pallet={d_pallet:.3f}m > cap={MAX_CAMERA_DISTANCE_M}m "
+                       f"(fx={fx:.2f} W={W} ratio={proj:.5f})")
+    if d_pallet < MIN_CAMERA_DISTANCE_M - 1e-6:
+        return _reject(spec, "camera_distance_out_of_range",
+                       f"d_pallet={d_pallet:.3f}m < floor={MIN_CAMERA_DISTANCE_M}m "
                        f"(fx={fx:.2f} W={W} ratio={proj:.5f})")
 
     e = math.radians(spec.elevation_deg)

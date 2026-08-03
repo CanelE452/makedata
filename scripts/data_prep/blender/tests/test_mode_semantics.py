@@ -223,6 +223,9 @@ class UsableGateIntegration(unittest.TestCase):
             "corrupt_mask": False, "exact_collision_count": 0,
             "camera_distance_limit_m": 10.0, "camera_distance_actual_m": 3.0,
             "mask_m0_area_px": 5000, "magenta_fraction": 0.0,
+            # 2026-08-03: PnP 최소 대응점 게이트가 생겼다.  "완전한 프레임" 픽스처는
+            # 이 값을 가지고 있어야 unknown 으로 떨어지지 않는다.
+            "visible_kp_count": 6,
             "mask_pixel_inclusion_ok": True, "mask_m0_content_sha256": "h",
             "G1_pass": True, "G2_pass": True, "G3_pass": True,
             "G4_pass": True, "G5_pass": True,

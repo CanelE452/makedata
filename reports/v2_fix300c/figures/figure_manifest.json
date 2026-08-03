@@ -1,0 +1,441 @@
+{
+  "dataset_root": "data/pallet/runs/diagnostics/v2_fix300c_merged",
+  "frames": 300,
+  "kde": {
+    "bandwidth_rule": "scott",
+    "grid_per_axis": 256,
+    "library": "scipy.stats.gaussian_kde",
+    "normalization": "support 안 적분 1",
+    "note": "discrete 변수에는 KDE 를 쓰지 않는다"
+  },
+  "output_sha256": {
+    "fig1_geometric_camera_coverage.pdf": "7f507948f8bdcfcd080b6c876e185ecdf55b96d2bd41d9b3b8a74aa2ddaa31d3",
+    "fig1_geometric_camera_coverage.png": "a9aea366765b18bc1b0bdac7802c83ce76e22fbc583e4b95357db2e161410298",
+    "fig1a_azimuth_elevation.pdf": "5f15e1c08ee5a38107cb234d0ac0c5e6415196524cd968a2c0581d5d0d9f94e6",
+    "fig1a_azimuth_elevation.png": "17608f2e4ae509162af9f3bc9f5e7cf8ee9991639ddba9fdee0d7f3d4481e3db",
+    "fig1b_distance_projected_size.pdf": "04da9b07bae28a292a663122e4521602fa5d748aed643e0521c39fe8f785373d",
+    "fig1b_distance_projected_size.png": "d730877723777723e0c2045dd7700e4fc9db63e020c7b40d91d9bfc303901d9c",
+    "fig2_occlusion_annotation_quality.pdf": "7eb63d95d6223a5715c9ea1cafc25ea047635945e1b0bf442603522d85a72723",
+    "fig2_occlusion_annotation_quality.png": "58c98d989ab267af19fa9538b9a4ea40d410d5e0f003f0e2076fa497a7f39457",
+    "fig2a_scale_visibility.pdf": "3fc69f431100e94b126cbca77353a2124edd9f4ff96d24b86859f19afd7f1256",
+    "fig2a_scale_visibility.png": "7c26c8fb6b812d27a4f990285237d1397a977a9fb113004c2ca5d04875a8b9b0",
+    "fig2b_reprojection_ecdf.pdf": "4379ffcdfff00c83daefe7c470a67e7aa3a249c6d94d223cc81a5da6270e10cd",
+    "fig2b_reprojection_ecdf.png": "9015d5970cd567a765be9a4587f5e1caaf5d28739a6a36d1c8607daeaede31b0",
+    "fig3_appearance_composition.pdf": "bc20dbf777e77338f9a11e56c5f0a5ab51583e940f83471ba52d131bbbf42d3c",
+    "fig3_appearance_composition.png": "38707dc35f9c3a691f06950633ee017c1203104daf75111bfd17cc90b94630d2",
+    "figure_source/fig1_density_azimuth_elevation.csv": "e1084499cb777dcbcd22bc0e7f7d731fc1a330db43a4a1aebd19a7e271357527",
+    "figure_source/fig1_density_distance_scale.csv": "2b6c1783d919fc319ab944e2582bb67783f5d17735ea368222bb9efc67a9974b",
+    "figure_source/fig1_frames.csv": "5ce9e5de5b51d1b4674085fc55bd01d36af31d441da6da75f188355beeadba56",
+    "figure_source/fig1_selected_frames.csv": "06558a4be7e13a06a99cd190d61e9e5f503048dc8dd7d9aaf42143dca7ddb91f",
+    "figure_source/fig2_density_scale_visibility.csv": "b2bf538b2f205f3a4302ebbb46e2846ae6b8a2733d50484230ee842cbf7e78b6",
+    "figure_source/fig2_reprojection_frames.csv": "d010266ced0d8339510d25198f6fbcb3e9f984eab8480b169a25c4d931259dd7",
+    "figure_source/fig2_reprojection_points.csv": "abaf7ad1ba060d3a7724a2000e933901b51b9c3f5b286a8c395137e7fd9d3aa0",
+    "figure_source/fig2_selected_frames.csv": "d7dbcaad055485c5502c4cf06b140afe15a9ba9df1b94d04d3b712ff9550d309",
+    "figure_source/fig2_visibility.csv": "0b338237d9d389421f2f5ed3987d21c1f76ef836440f058fd0706f2688bf39c9",
+    "figure_source/fig3_frames.csv": "478f6f0a123b2d60d0d2d22ba1bed785e2d599e13ba5524c506b8547a57bbe54",
+    "table_dataset_statistics.csv": "aa5ddd42c37b1359f16a6b00c8348f72d795d1d3043b6988f838be3394734ea1",
+    "table_dataset_statistics.tex": "e548ed588f584b7ae132ea931e3f8e2305234650c562735894b4b363edd05a9f"
+  },
+  "panels": {
+    "f_total_vs_mask_ratio": {
+      "compared": 300,
+      "max_abs_diff": 0.0,
+      "note": "record 의 f_total 과 mask ratio 로 재계산한 값의 차이"
+    },
+    "fig1_files": {
+      "pdf": "7f507948f8bdcfcd080b6c876e185ecdf55b96d2bd41d9b3b8a74aa2ddaa31d3",
+      "png": "a9aea366765b18bc1b0bdac7802c83ce76e22fbc583e4b95357db2e161410298"
+    },
+    "fig1_frames_csv_sha256": "5ce9e5de5b51d1b4674085fc55bd01d36af31d441da6da75f188355beeadba56",
+    "fig1_selected_csv_sha256": "06558a4be7e13a06a99cd190d61e9e5f503048dc8dd7d9aaf42143dca7ddb91f",
+    "fig1a_azimuth_elevation": {
+      "pdf": "5f15e1c08ee5a38107cb234d0ac0c5e6415196524cd968a2c0581d5d0d9f94e6",
+      "png": "17608f2e4ae509162af9f3bc9f5e7cf8ee9991639ddba9fdee0d7f3d4481e3db"
+    },
+    "fig1b_distance_projected_size": {
+      "pdf": "04da9b07bae28a292a663122e4521602fa5d748aed643e0521c39fe8f785373d",
+      "png": "d730877723777723e0c2045dd7700e4fc9db63e020c7b40d91d9bfc303901d9c"
+    },
+    "fig2_files": {
+      "pdf": "7eb63d95d6223a5715c9ea1cafc25ea047635945e1b0bf442603522d85a72723",
+      "png": "58c98d989ab267af19fa9538b9a4ea40d410d5e0f003f0e2076fa497a7f39457"
+    },
+    "fig2_reprojection_frames_csv_sha256": "d010266ced0d8339510d25198f6fbcb3e9f984eab8480b169a25c4d931259dd7",
+    "fig2_reprojection_points_csv_sha256": "abaf7ad1ba060d3a7724a2000e933901b51b9c3f5b286a8c395137e7fd9d3aa0",
+    "fig2_selected_csv_sha256": "d7dbcaad055485c5502c4cf06b140afe15a9ba9df1b94d04d3b712ff9550d309",
+    "fig2_visibility_csv_sha256": "0b338237d9d389421f2f5ed3987d21c1f76ef836440f058fd0706f2688bf39c9",
+    "fig2a_scale_visibility": {
+      "pdf": "3fc69f431100e94b126cbca77353a2124edd9f4ff96d24b86859f19afd7f1256",
+      "png": "7c26c8fb6b812d27a4f990285237d1397a977a9fb113004c2ca5d04875a8b9b0"
+    },
+    "fig2b_reprojection_ecdf": {
+      "pdf": "4379ffcdfff00c83daefe7c470a67e7aa3a249c6d94d223cc81a5da6270e10cd",
+      "png": "9015d5970cd567a765be9a4587f5e1caaf5d28739a6a36d1c8607daeaede31b0"
+    },
+    "fig3_files": {
+      "pdf": "bc20dbf777e77338f9a11e56c5f0a5ab51583e940f83471ba52d131bbbf42d3c",
+      "png": "38707dc35f9c3a691f06950633ee017c1203104daf75111bfd17cc90b94630d2"
+    },
+    "fig3_frames_csv_sha256": "478f6f0a123b2d60d0d2d22ba1bed785e2d599e13ba5524c506b8547a57bbe54",
+    "panel_a_elevation_support": [
+      0.5,
+      80.0
+    ],
+    "panel_a_kde": {
+      "bandwidth_rule": "scott",
+      "boundary_correction": "reflection",
+      "factor": 0.28719842245387095,
+      "grid": 256,
+      "n_points": 198
+    },
+    "panel_a_luma": {
+      "below_g5_count": 0,
+      "frame_max": 124.79000091552734,
+      "frame_median": 50.27499961853027,
+      "frame_min": 6.320000171661377,
+      "g5_floor": 12.0,
+      "g5_margin_min": 0.23999977111816406,
+      "note": "final = vignette/noise/JPEG 적용 후, 학습이 실제로 보는 픽셀",
+      "pallet_max": 129.00999450683594,
+      "pallet_median": 38.31500053405762,
+      "pallet_min": 12.239999771118164
+    },
+    "panel_a_outside_support": {
+      "count": 0,
+      "ids": []
+    },
+    "panel_a_point_mass": {
+      "n_fully_visible": 102,
+      "n_total": 300,
+      "note": "zero-inflated — visible_fraction=1 은 point mass 로 분리해 그린다",
+      "p_fully_visible": 0.34
+    },
+    "panel_b_distance_gt10_count": 0,
+    "panel_b_distance_max_m": 9.968393998053497,
+    "panel_b_distribution_is_discrete": {
+      "aspect_unique": [
+        1.1761,
+        1.2,
+        1.2031,
+        1.498
+      ],
+      "note": "에셋이 4종뿐이라 값이 이산이다. KDE 로 매끄럽게 그리지 않는다 — 연속 분포가 필요하면 generator 에서 치수를 랜덤화해야 한다.",
+      "slenderness_unique": [
+        6.4144,
+        8.0,
+        8.3301,
+        8.7473
+      ]
+    },
+    "panel_b_excluded_projected_size_gt1": {
+      "count": 1,
+      "fraction": 0.0033333333333333335,
+      "ids": [
+        93
+      ],
+      "max_projected_size": 1.187932430778282,
+      "note": "truncation 의 raw-corner 때문에 1 을 넘는 frame 은 clip 하지 않고 제외 집계"
+    },
+    "panel_b_kde": {
+      "bandwidth_rule": "scott",
+      "boundary_correction": "reflection",
+      "factor": 0.26813142547240554,
+      "grid": 256,
+      "n_points": 299
+    },
+    "panel_b_pallet_dimensions": {
+      "Pallet_0": {
+        "W_over_D": {
+          "max": 1.2000014422462766,
+          "median": 0.833333462748293,
+          "min": 0.8333326462377509
+        },
+        "W_over_H": {
+          "max": 8.000004660435616,
+          "median": 6.66666717610792,
+          "min": 6.666662013167584
+        },
+        "depth_m": {
+          "max": 1.3879795074466168,
+          "median": 1.1186151925794559,
+          "min": 0.8040024116053274
+        },
+        "height_m": {
+          "max": 0.17375635355710983,
+          "median": 0.1522433189675212,
+          "min": 0.12060036603361379
+        },
+        "n": 69,
+        "scale_factor_h": 1.440761411194062,
+        "scale_factor_w": 1.6941471299361701,
+        "width_m": {
+          "max": 1.3900508880615234,
+          "median": 1.0631380081176767,
+          "min": 0.8205018699372917
+        }
+      },
+      "Pallet_1": {
+        "W_over_D": {
+          "max": 1.2031045371586864,
+          "median": 1.2031034197143597,
+          "min": 0.8311825914269318
+        },
+        "W_over_H": {
+          "max": 8.747330949545962,
+          "median": 8.747323357078534,
+          "min": 7.270626105499508
+        },
+        "depth_m": {
+          "max": 1.3772640228271484,
+          "median": 1.0190879702568054,
+          "min": 0.7970664501190186
+        },
+        "height_m": {
+          "max": 0.16260005719959736,
+          "median": 0.1339062803890556,
+          "min": 0.10962820379063487
+        },
+        "n": 74,
+        "scale_factor_h": 1.4831954878155877,
+        "scale_factor_w": 1.757071437154955,
+        "width_m": {
+          "max": 1.4223153591156006,
+          "median": 1.0948301553726196,
+          "min": 0.8094806671142578
+        }
+      },
+      "Pallet_2": {
+        "W_over_D": {
+          "max": 1.176145702563837,
+          "median": 1.1761439570195047,
+          "min": 0.850234876879794
+        },
+        "W_over_H": {
+          "max": 6.414396292105104,
+          "median": 6.414392049646289,
+          "min": 5.453741581866857
+        },
+        "depth_m": {
+          "max": 1.3897419571876526,
+          "median": 1.0426703989505768,
+          "min": 0.8080682158470154
+        },
+        "height_m": {
+          "max": 0.21665993705391884,
+          "median": 0.18128416407853365,
+          "min": 0.1472652219235897
+        },
+        "n": 78,
+        "scale_factor_h": 1.4712226975513296,
+        "scale_factor_w": 1.706859598975715,
+        "width_m": {
+          "max": 1.370859146118164,
+          "median": 1.0820024013519287,
+          "min": 0.8031469881534576
+        }
+      },
+      "Pallet_3": {
+        "W_over_D": {
+          "max": 1.4979674872944526,
+          "median": 0.6675717847566864,
+          "min": 0.6675713183166889
+        },
+        "W_over_H": {
+          "max": 8.330109050419578,
+          "median": 5.560942785202498,
+          "min": 5.560937785556523
+        },
+        "depth_m": {
+          "max": 1.4749159812927246,
+          "median": 1.131622433662416,
+          "min": 0.7047743201255798
+        },
+        "height_m": {
+          "max": 0.17705852072685957,
+          "median": 0.15051261898551616,
+          "min": 0.12318888306617737
+        },
+        "n": 79,
+        "scale_factor_h": 1.437293011510976,
+        "scale_factor_w": 2.1494755580923277,
+        "width_m": {
+          "max": 1.4724903106689453,
+          "median": 0.9392394423484802,
+          "min": 0.6850463151931763
+        }
+      }
+    },
+    "panel_b_reference_ks_t11": {
+      "W_over_D": 1.0,
+      "W_over_H": 7.333333333333333,
+      "depth_mm": 1100,
+      "height_mm": 150,
+      "width_mm": 1100
+    },
+    "panel_b_stats": {
+      "frames_with_valid_annotation": 300,
+      "gate_rule": "label 이 float 좌표를 그대로 저장하므로 max <= 1e-4 px",
+      "gate_threshold_px": 0.0001,
+      "invalid_K": 0,
+      "invalid_frames": 0,
+      "invalid_pose": 0,
+      "keypoints": 2700,
+      "max_px": 2.3437142008433856e-13,
+      "median_px": 2.842170943040401e-14,
+      "p95_px": 1.1368683772161603e-13,
+      "p99_px": 1.2710574864626038e-13,
+      "unit_note": "픽셀 단위 — annotation 의 기하 자기일관성이지 모델 성능이 아니다"
+    },
+    "panel_c_anchor_ids": [
+      0,
+      152,
+      199,
+      119,
+      288,
+      93
+    ],
+    "panel_c_coverage": {
+      "background_assets": [
+        "industrial",
+        "parking_lot"
+      ],
+      "counts": [
+        [
+          42,
+          40,
+          29,
+          29
+        ],
+        [
+          40,
+          50,
+          41,
+          29
+        ]
+      ],
+      "empty_cells": 0,
+      "scene_presets": [
+        "indoor",
+        "outdoor-day",
+        "outdoor-night",
+        "random-mix"
+      ]
+    },
+    "panel_c_occlusion_vs_keypoints": {
+      "counts": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          28,
+          46,
+          19,
+          35
+        ],
+        [
+          0,
+          0,
+          3,
+          46,
+          13,
+          18
+        ],
+        [
+          0,
+          0,
+          2,
+          24,
+          5,
+          60
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "kp_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "note": "면적 가시비율과 keypoint 가시성은 다른 축이다 — 가운데 가림은 코너를 남기고, 모서리 가림/잘림은 코너를 없앤다.",
+      "occluded_but_5plus_kp": 5,
+      "pnp_impossible_below_4": 0,
+      "unoccluded_but_truncated": 53,
+      "visible_fraction_bins": [
+        "<0.25",
+        "0.25-0.50",
+        "0.50-0.75",
+        "0.75-0.90",
+        "0.90-1.00",
+        "1.00"
+      ]
+    },
+    "panel_c_selected_ids": [
+      93,
+      21,
+      147,
+      18,
+      205,
+      126,
+      99,
+      282,
+      82,
+      167,
+      35,
+      163
+    ]
+  },
+  "plot_seed": 8401,
+  "style": {
+    "cmap": "viridis",
+    "dpi": 300,
+    "font_pt": 8,
+    "raster": "density mesh only",
+    "vector_text": "pdf.fonttype=42"
+  },
+  "table": {
+    "csv_sha256": "aa5ddd42c37b1359f16a6b00c8348f72d795d1d3043b6988f838be3394734ea1",
+    "tex_sha256": "e548ed588f584b7ae132ea931e3f8e2305234650c562735894b4b363edd05a9f"
+  }
+}

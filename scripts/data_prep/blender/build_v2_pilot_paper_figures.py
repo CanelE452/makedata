@@ -8,7 +8,8 @@
     Figure 2  Occlusion and Annotation Quality
               (a) projected size x visible fraction (zero-inflated: point mass 분리)
               (b) annotation reprojection error ECDF (all keypoints / per-frame max)
-              (c) annotation overlay montage (6, deterministic anchors)
+              (c) 가시비율(면적) x visible_kp — 가운데 가림 vs 잘림 구분
+              (d) annotation overlay montage (6, deterministic anchors)
 
     Figure 3  Appearance and Asset Composition
               (a) 밝기 분포 (프레임 전체 vs 가시 팔레트 영역, G5 하한선 표시)
@@ -291,6 +292,10 @@ def frame_metrics(root: Path, idx: int, rec: dict):
         "pallet_type": rec.get("pallet_type"),
         # object-frame 실측 치수.  label 의 `cuboid` 는 world-frame Z-up AABB 라
         # 회전에 따라 값이 변하므로 치수 통계에 쓰면 안 된다.
+        # 코너 9점 중 보이는 개수.  **면적 가시비율과 다른 축**이다 — 가운데를 가리면
+        # 면적은 크게 줄어도 코너는 살고, 모서리 하나만 가려도 면적 손실은 작은데
+        # keypoint 는 줄어든다.  PnP 난이도는 이쪽이 결정한다.
+        "visible_kp_count": rec.get("visible_kp_count"),
         "dim_w_m": fnum((obj or {}).get("dimensions_m", {}).get("width")),
         "dim_d_m": fnum((obj or {}).get("dimensions_m", {}).get("depth")),
         "dim_h_m": fnum((obj or {}).get("dimensions_m", {}).get("height")),
@@ -640,8 +645,9 @@ def build_figure2(frames, root, out, src, args):
     by_id = {f["usable_id"]: f for f in frames}
     # 몽타주가 1행(6장)뿐이라 fig1(2행)과 같은 높이 비율을 주면 이미지 위아래로
     # 빈 공간이 크게 남는다 (set_aspect("equal") 이라 이미지가 세로로 안 늘어난다).
-    fig = plt.figure(figsize=(7.2, 6.8))
-    gs = fig.add_gridspec(3, 2, height_ratios=[1.0, 1.0, 0.72], hspace=0.62,
+    # (d) 가시비율 x visible_kp 를 넣느라 4행으로 늘렸다.
+    fig = plt.figure(figsize=(7.2, 8.6))
+    gs = fig.add_gridspec(4, 2, height_ratios=[1.0, 1.0, 0.95, 0.72], hspace=0.62,
                           wspace=0.30)
     ax_a = fig.add_subplot(gs[0, :])
     if gx3 is not None:
@@ -688,7 +694,71 @@ def build_figure2(frames, root, out, src, args):
                    % (st["median_px"] or 0, st["p95_px"] or 0, st["p99_px"] or 0,
                       st["max_px"] or 0, st["invalid_frames"]), loc="left")
 
-    gsc = gs[2, :].subgridspec(1, 6, wspace=0.06)
+    # ---- (d) 가시비율(면적) x visible_kp(코너 9점) ------------------------
+    # 두 축은 다른 것을 잰다.  가운데를 가리면 면적은 크게 줄어도 코너는 살아남고,
+    # 모서리 하나만 가려도 면적 손실은 작은데 keypoint 는 줄어든다.  PnP 난이도를
+    # 결정하는 것은 keypoint 쪽이므로, "면적은 많이 가렸는데 코너는 살아 있는"
+    # 좋은 학습 케이스가 실제로 얼마나 있는지 이 패널에서만 보인다.
+    ax_d = fig.add_subplot(gs[2, :])
+    kp_rows = [(f["visible_fraction"], f["visible_kp_count"]) for f in frames
+               if f["visible_fraction"] is not None
+               and isinstance(f["visible_kp_count"], int)]
+    if kp_rows:
+        # 0~7 고정.  0~3 은 PnP 불가 구간이라 비어 있어도 보여야 한다
+        # (육면체 자체가림 때문에 상한은 7 이다).
+        kvals = list(range(0, 8))
+        vedges = [0.0, 0.25, 0.50, 0.75, 0.90, 0.999, 1.0001]
+        vlabels = ["<0.25", "0.25-0.50", "0.50-0.75", "0.75-0.90",
+                   "0.90-1.00", "1.00"]
+        grid = np.zeros((len(kvals), len(vlabels)), dtype=int)
+        for v, k in kp_rows:
+            if k not in kvals:
+                # 육면체 상한(7)을 넘는 값은 측정 결함이다.  그림에서 조용히
+                # 버리지 않고 건수를 따로 세어 제목에 드러낸다.
+                continue
+            for j in range(len(vlabels)):
+                if vedges[j] <= v < vedges[j + 1]:
+                    grid[kvals.index(k), j] += 1
+                    break
+        im3 = ax_d.imshow(grid, cmap=CMAP, aspect="auto", origin="lower")
+        ax_d.set_xticks(range(len(vlabels)))
+        ax_d.set_xticklabels(vlabels, fontsize=6.5)
+        ax_d.set_yticks(range(len(kvals)))
+        ax_d.set_yticklabels([str(k) for k in kvals], fontsize=6.5)
+        for i in range(len(kvals)):
+            for j in range(len(vlabels)):
+                if grid[i, j]:
+                    ax_d.text(j, i, str(grid[i, j]), ha="center", va="center",
+                              fontsize=6,
+                              color=("white" if grid[i, j] < grid.max() * 0.6
+                                     else "black"))
+        fig.colorbar(im3, ax=ax_d, pad=0.01, label="frames")
+        ax_d.set_xlabel("Visible fraction (mask area)")
+        ax_d.set_ylabel("Visible keypoints")
+        hard = sum(1 for v, k in kp_rows if v < 0.75 and k >= 5)
+        trunc = sum(1 for v, k in kp_rows if v >= 0.999 and k <= 5)
+        ax_d.set_title(
+            "(c) Occlusion vs keypoint visibility  "
+            "(occluded-but-5+ kp: %d;  unoccluded-but-truncated: %d;  "
+            "PnP-impossible <4: %d)"
+            % (hard, trunc,
+               sum(1 for _v, k in kp_rows if k < 4)), loc="left", fontsize=8)
+        _impossible = sum(1 for _v, k in kp_rows if k > 7)
+        if _impossible:
+            ax_d.set_xlabel("Visible fraction (mask area)   "
+                            "[%d frame(s) above the cuboid limit of 7 — "
+                            "measurement defect]" % _impossible)
+        panels["panel_c_occlusion_vs_keypoints"] = {
+            "kp_values": kvals, "visible_fraction_bins": vlabels,
+            "counts": grid.tolist(),
+            "occluded_but_5plus_kp": int(hard),
+            "pnp_impossible_below_4": int(sum(1 for _v, k in kp_rows if k < 4)),
+            "unoccluded_but_truncated": int(trunc),
+            "note": "면적 가시비율과 keypoint 가시성은 다른 축이다 — "
+                    "가운데 가림은 코너를 남기고, 모서리 가림/잘림은 코너를 없앤다.",
+        }
+
+    gsc = gs[3, :].subgridspec(1, 6, wspace=0.06)
     for n, a in enumerate(anchors):
         ax = fig.add_subplot(gsc[0, n])
         f = by_id[a["usable_id"]]
@@ -704,9 +774,9 @@ def build_figure2(frames, root, out, src, args):
                                           a["visible_fraction"]),
                       fontsize=4.6, labelpad=1.5)
     # fig1 과 같은 이유로 좌표를 박지 않고 몽타주 블록 상단에서 계산한다.
-    montage_top = gs[2, :].get_position(fig).y1
+    montage_top = gs[3, :].get_position(fig).y1
     fig.text(0.012, montage_top + 0.010,
-             "(c) Annotation overlay montage — canonical archive style "
+             "(d) Annotation overlay montage — canonical archive style "
              "(GT cuboid + pose axes + pitch/yaw/roll panel)",
              fontsize=9, ha="left", va="bottom")
     panels["fig2_files"] = save_fig(fig, out, "fig2_occlusion_annotation_quality")

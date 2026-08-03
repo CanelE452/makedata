@@ -70,9 +70,25 @@ def external_corner_gate_metrics(
     in_frame,
     occlusion_fractions,
     threshold=0.5,
+    self_visible=None,
 ):
-    """Summarize the existing G1/G2 contract for one explicit candidate."""
+    """Summarize the existing G1/G2 contract for one explicit candidate.
+
+    `self_visible` (길이 8 bool) 를 주면 **자체가림**을 함께 센다.  주지 않으면
+    예전과 동일하게 동작한다(호출자가 3D 정보를 못 구하는 경로 대비).
+
+    ★2026-08-03: 자체가림이 빠져 있어 G1 이 실제보다 코너를 많게 셌다.  육면체는
+    한 시점에서 최대 7코너만 보이므로, 뒷면 코너를 세면 "G1 통과"인데 라벨에서는
+    4점 미만인 프레임이 만들어진다(실측 거부율 74%의 주원인).  이 값을 넣으면
+    탐색기가 **코너를 살리는 배치**(예: 가운데만 가리는 배치)를 스스로 고르게 된다 —
+    별도의 'center' 목표를 만들 필요가 없다.
+    """
     in_frame = tuple(bool(value) for value in in_frame)
+    if self_visible is not None:
+        self_visible = tuple(bool(value) for value in self_visible)
+        if len(self_visible) != 8:
+            raise ValueError("self_visible must contain 8 corners")
+        in_frame = tuple(a and b for a, b in zip(in_frame, self_visible))
     occlusion_fractions = tuple(
         float(value) for value in occlusion_fractions
     )
@@ -158,6 +174,68 @@ G1_MIN_V_VIS = 4
 G2_MIN_EXT_OCC = 1
 G2_MAX_EXT_OCC = 4
 ACCEPTANCE_CONSTRAINTS = ("side", "visibility", "target", "G1", "G2")
+
+
+# ---------------------------------------------------------------------------
+# 자체가림 (self-occlusion) — 육면체 코너 8점
+#
+# `blender_math.canonical_corners_yup` 의 순서(0=FTR 1=FTL 2=FBL 3=FBR
+# 4=RTR 5=RTL 6=RBL 7=RBR)를 좌표 부호로 풀면 다음과 같다:
+#   0(-,+,+) 1(+,+,+) 2(+,-,+) 3(-,-,+) 4(-,+,-) 5(+,+,-) 6(+,-,-) 7(-,-,-)
+# 각 면은 한 축의 부호를 공유하는 코너 4개다.
+
+
+def self_visible_corner_mask(corners_world, cam_pos):
+    """자체가림을 뺀 코너 가시성 (길이 8 bool 리스트).
+
+    볼록 육면체에서 코너는 **인접한 3개 면 중 하나라도 전면(front-facing)이면**
+    보인다.  한 시점에서 전면은 1~3개뿐이라 보이는 코너는 4 / 6 / 7 개다 —
+    **8개가 전부 보이는 일은 기하학적으로 불가능하다.**
+
+    면 법선은 (면 중심 - 상자 중심) 방향으로 잡는다.  육면체이므로 이 방향이
+    바깥 법선과 일치한다 (별도의 법선 입력이 필요 없다).
+
+    ★**코너 순서에 의존하지 않는다.**  이 파이프라인에는 canonical 순서와 v4 순열
+    (`perm_v4`) 두 가지가 돌아다녀서, 면을 인덱스로 박아두면 어느 한쪽에서 반드시
+    틀린다.  그래서 면을 상자 기하에서 직접 유도한다 — 한 코너의 최근접 3점이 곧
+    세 모서리 방향이고(면대각·체대각보다 항상 짧다), 그 세 축의 부호로 면이 갈린다.
+    """
+    pts = [tuple(float(v) for v in c[:3]) for c in corners_world]
+    if len(pts) != 8:
+        raise ValueError("corners_world must hold 8 points, got %d" % (len(pts),))
+    cam = tuple(float(v) for v in cam_pos[:3])
+    ctr = tuple(sum(p[k] for p in pts) / 8.0 for k in range(3))
+
+    def _sub(a, b):
+        return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
+
+    def _dot(a, b):
+        return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+    # 코너 0 의 최근접 3점 = 세 모서리 방향 (축)
+    d0 = sorted(range(1, 8), key=lambda j: _dot(_sub(pts[j], pts[0]),
+                                                _sub(pts[j], pts[0])))[:3]
+    axes = []
+    for j in d0:
+        e = _sub(pts[j], pts[0])
+        n = math.sqrt(_dot(e, e))
+        if n <= 1e-12:
+            raise ValueError("degenerate cuboid: duplicated corners")
+        axes.append((e[0] / n, e[1] / n, e[2] / n))
+
+    visible = [False] * 8
+    for ax in axes:
+        for sign in (1.0, -1.0):
+            face = [i for i in range(8)
+                    if _dot(_sub(pts[i], ctr), ax) * sign > 0.0]
+            if len(face) != 4:
+                continue                    # 축이 퇴화한 경우는 건너뛴다
+            fc = tuple(sum(pts[i][k] for i in face) / 4.0 for k in range(3))
+            nrm = tuple(sign * a for a in ax)          # 바깥 법선
+            if _dot(nrm, _sub(cam, fc)) > 0.0:         # 카메라가 이 면의 바깥쪽
+                for i in face:
+                    visible[i] = True
+    return visible
 
 
 def candidate_geometry_key(candidate):

@@ -450,8 +450,10 @@ class V2PipelinePlacementModeTests(unittest.TestCase):
         # select by PREDICATE (see the note above): the case under test is a lateral "right"
         # occluder at an elevation/target combination whose PLACEMENT seed must fall back to
         # "bottom" while the audited side stays "right".
+        # 표본 수는 이 케이스가 뽑히기만 하면 되는 값이다.  2026-08-03 에 elevation/V
+        # 목표 분포를 재조정하면서 200개 안에 안 들어와 늘렸다(판정 내용은 불변).
         plans, _, _, _ = vp.generate_accepted(
-            200,
+            600,
             7500,
             self.assets,
             placement_mode="constrained",
