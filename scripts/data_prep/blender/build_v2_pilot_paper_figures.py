@@ -292,6 +292,12 @@ def frame_metrics(root: Path, idx: int, rec: dict):
         "pallet_type": rec.get("pallet_type"),
         # object-frame 실측 치수.  label 의 `cuboid` 는 world-frame Z-up AABB 라
         # 회전에 따라 값이 변하므로 치수 통계에 쓰면 안 된다.
+        # ★`width`/`depth` 는 **고정 축이 아니다** — 코너 순서가
+        #   camera_dynamic_0123_v4 라 width = 카메라를 향한 앞면의 폭,
+        #   depth = 앞->뒤 이고, 어느 물리 축이 오는지는 시점에 따라 바뀐다
+        #   (실측 300장에서 width<depth 가 49%).  프레임 간 집계에는 반드시
+        #   max/min(long:short) 이나 곱·부피 같은 **뒤바뀜 무관량**을 써야 한다.
+        #   height 만 고정 축이다.  아래 (b)(c) 는 그래서 max/min 을 쓴다.
         # 코너 9점 중 보이는 개수.  **면적 가시비율과 다른 축**이다 — 가운데를 가리면
         # 면적은 크게 줄어도 코너는 살고, 모서리 하나만 가려도 면적 손실은 작은데
         # keypoint 는 줄어든다.  PnP 난이도는 이쪽이 결정한다.

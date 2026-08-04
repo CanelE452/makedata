@@ -470,12 +470,23 @@ def main():
     print(f"[M1] kp12 overlays={ko} -> {os.path.join(aud, 'overlay_kp12')}")
 
     # dims spread (is ratio DR active?)
+    #
+    # ★2026-08-04 정정.  예전에는 width/depth 를 그대로 프레임 간에 비교했는데
+    #   **틀린 측정**이었다.  라벨 코너 순서가 camera_dynamic_0123_v4 라
+    #   `width` = 카메라를 향한 앞면의 폭, `depth` = 앞->뒤 이므로 **어느 물리 축이
+    #   width 로 오는지가 시점에 따라 바뀐다**(실측 300장에서 width<depth 인 프레임이
+    #   49%).  그래서 r 과 1/r 이 섞여 범위가 0.54~1.78 로 부풀고 표준편차가
+    #   0.273 으로 나왔다 — 뒤바뀜을 제거하면 1.00~1.85 · 0.180 이다.
+    #   즉 형상 DR 을 끄고 균등 배율만 써도 이 지표는 "퍼져 있다"고 보고했을 것이다.
+    #   long:short 는 뒤바뀜에 무관하므로 이걸 쓴다.  height 만은 고정 축이다.
     ws = [_load_label(d, r["idx"])["objects"][0]["dimensions_m"] for r in recs[:min(N, 2000)]]
-    wratio = np.array([w["width"] / max(w["depth"], 1e-6) for w in ws])
+    wratio = np.array([max(w["width"], w["depth"]) / max(min(w["width"], w["depth"]), 1e-6)
+                       for w in ws])
     rep["dims_ratio_spread"] = {"min": round(float(wratio.min()), 4),
                                 "max": round(float(wratio.max()), 4),
-                                "std": round(float(wratio.std()), 4)}
-    print(f"[i] width/depth ratio spread min={wratio.min():.3f} max={wratio.max():.3f} std={wratio.std():.3f}")
+                                "std": round(float(wratio.std()), 4),
+                                "definition": "long:short (v4 width/depth swap with the camera)"}
+    print(f"[i] long:short ratio spread min={wratio.min():.3f} max={wratio.max():.3f} std={wratio.std():.3f}")
 
     json.dump(rep, open(os.path.join(aud, "pilot_audit_report.json"), "w"), indent=2,
               default=lambda o: None)
