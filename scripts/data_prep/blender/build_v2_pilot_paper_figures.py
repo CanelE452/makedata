@@ -56,6 +56,9 @@ import overlay_v2_detailed as OV                      # noqa: E402  (projection 
 #   Figure 2(c) 는 이걸 그대로 쓴다 — cuboid 만 직접 그리면 pose 축과
 #   Pitch/Yaw/Roll 패널이 빠져 규약에서 벗어난다.
 import overlay_archive_trunc_style as ARCH            # noqa: E402
+# 자체가림 판정 재사용 — 생성 파이프라인(G1)과 **같은 함수**를 써야 그림과 게이트가
+# 어긋나지 않는다.  bpy-free 라 여기서 그냥 import 된다.
+import scene_placement_v2 as SP2                      # noqa: E402
 
 PROJECT_ROOT = os.path.abspath(os.path.join(_THIS, "..", "..", ".."))
 
@@ -274,6 +277,37 @@ def frame_metrics(root: Path, idx: int, rec: dict):
     m_tgt = fnum(rec.get("mask_area_target_only"))
     visible_fraction = (m_vis / m_tgt) if (m_vis is not None and m_tgt and m_tgt > 0) else None
 
+    # ---- 키포인트를 **왜** 잃었는지 분해 ------------------------------------
+    # visible = 자체보임 AND 화면안 AND 외부가림 없음.  세 조건이므로 원인도 셋으로
+    # 나뉜다.  개수만 세는 것과 달리 "잘려서 잃었나 / 가려져서 잃었나"가 갈린다.
+    #   lost_self  = 8 - (자체보임)                 육면체라 최소 1, 보통 2
+    #   lost_trunc = (자체보임) - (자체보임 AND 화면안)
+    #   lost_occ   = (자체보임 AND 화면안) - visible_kp_count
+    # coplanar_ratio: 보이는 코너들의 3번째 특이값/1번째.  0 이면 한 평면에 몰려
+    # 평면 PnP 의 2중해가 생긴다 — 개수는 통과인데 자세가 안 정해지는 경우다.
+    # ★팔레트가 원래 납작해서(0.15/1.1) 정상값도 0.10 근처다.  0.02 미만만 퇴화.
+    kp_n = rec.get("visible_kp_count")
+    lost_self = lost_trunc = lost_occ = coplanar_ratio = None
+    corners_w = geom.get("corners_w")
+    uv8 = geom.get("uv8")
+    res = ((label.get("camera_data") or {}).get("resolution") or [None, None])
+    if (corners_w is not None and uv8 is not None and cam is not None
+            and isinstance(kp_n, int) and res[0] and res[1]):
+        try:
+            self_vis = SP2.self_visible_corner_mask(corners_w.tolist(), list(cam))
+        except Exception:
+            self_vis = None
+        if self_vis is not None:
+            in_frame = [bool(0 <= u < res[0] and 0 <= v < res[1]) for u, v in uv8]
+            keep = [i for i in range(8) if self_vis[i] and in_frame[i]]
+            lost_self = 8 - int(sum(self_vis))
+            lost_trunc = int(sum(self_vis)) - len(keep)
+            lost_occ = len(keep) - kp_n
+            if len(keep) >= 3:
+                P = np.asarray(corners_w, dtype=float)[keep]
+                sv = np.linalg.svd(P - P.mean(axis=0), compute_uv=False)
+                coplanar_ratio = float(sv[2] / sv[0]) if sv[0] > 0 else 0.0
+
     return {
         "usable_id": int(idx), "frame_id": stem,
         "azimuth_deg": azimuth, "elevation_deg": elevation,
@@ -302,6 +336,11 @@ def frame_metrics(root: Path, idx: int, rec: dict):
         # 면적은 크게 줄어도 코너는 살고, 모서리 하나만 가려도 면적 손실은 작은데
         # keypoint 는 줄어든다.  PnP 난이도는 이쪽이 결정한다.
         "visible_kp_count": rec.get("visible_kp_count"),
+        # 키포인트 손실 원인 분해 (위 계산 참조)
+        "kp_lost_self": lost_self,
+        "kp_lost_truncation": lost_trunc,
+        "kp_lost_occlusion": lost_occ,
+        "kp_coplanar_ratio": coplanar_ratio,
         "dim_w_m": fnum((obj or {}).get("dimensions_m", {}).get("width")),
         "dim_d_m": fnum((obj or {}).get("dimensions_m", {}).get("depth")),
         "dim_h_m": fnum((obj or {}).get("dimensions_m", {}).get("height")),
@@ -666,68 +705,78 @@ def build_figure2(frames, root, out, src, args):
                    % (st["median_px"] or 0, st["p95_px"] or 0, st["p99_px"] or 0,
                       st["max_px"] or 0, st["invalid_frames"]), loc="left")
 
-    # ---- (d) 가시비율(면적) x visible_kp(코너 9점) ------------------------
-    # 두 축은 다른 것을 잰다.  가운데를 가리면 면적은 크게 줄어도 코너는 살아남고,
-    # 모서리 하나만 가려도 면적 손실은 작은데 keypoint 는 줄어든다.  PnP 난이도를
-    # 결정하는 것은 keypoint 쪽이므로, "면적은 많이 가렸는데 코너는 살아 있는"
-    # 좋은 학습 케이스가 실제로 얼마나 있는지 이 패널에서만 보인다.
+    # ---- (b) 키포인트 개수 x **손실 원인** ---------------------------------
+    # ★2026-08-04 교체.  이전 패널은 "가시비율(면적) x visible_kp" 였는데,
+    #   (1) 48칸 중 32칸이 구조적으로 비었고(kp<4 는 게이트가 막고, 가시비율<0.5 는
+    #       F_TARGET 상한 0.45 가 막는다) (2) 가로축이 (a) 와 같은 가림 축이라
+    #       정보가 겹쳤다.
+    #   실제로 알고 싶은 것은 "몇 개 남았나"가 아니라 **왜 잃었나** 다.  키포인트는
+    #   세 조건(자체보임 / 화면안 / 외부가림 없음)을 다 만족해야 세므로 원인도 셋이다.
+    #   실측 300장: 잘린 프레임 33%, 외부가림 관여 64% — 둘 다 흔한데 이전 패널로는
+    #   구분이 안 됐다.
     ax_d = fig.add_subplot(gs[1, :])
-    kp_rows = [(f["visible_fraction"], f["visible_kp_count"]) for f in frames
-               if f["visible_fraction"] is not None
-               and isinstance(f["visible_kp_count"], int)]
-    if kp_rows:
-        # 0~7 고정.  0~3 은 PnP 불가 구간이라 비어 있어도 보여야 한다
-        # (육면체 자체가림 때문에 상한은 7 이다).
+    cause_rows = [f for f in frames
+                  if isinstance(f["visible_kp_count"], int)
+                  and f["kp_lost_truncation"] is not None
+                  and f["kp_lost_occlusion"] is not None]
+    if cause_rows:
         kvals = list(range(0, 8))
-        vedges = [0.0, 0.25, 0.50, 0.75, 0.90, 0.999, 1.0001]
-        vlabels = ["<0.25", "0.25-0.50", "0.50-0.75", "0.75-0.90",
-                   "0.90-1.00", "1.00"]
-        grid = np.zeros((len(kvals), len(vlabels)), dtype=int)
-        for v, k in kp_rows:
-            if k not in kvals:
-                # 육면체 상한(7)을 넘는 값은 측정 결함이다.  그림에서 조용히
-                # 버리지 않고 건수를 따로 세어 제목에 드러낸다.
-                continue
-            for j in range(len(vlabels)):
-                if vedges[j] <= v < vedges[j + 1]:
-                    grid[kvals.index(k), j] += 1
-                    break
-        im3 = ax_d.imshow(grid, cmap=CMAP, aspect="auto", origin="lower")
-        ax_d.set_xticks(range(len(vlabels)))
-        ax_d.set_xticklabels(vlabels, fontsize=6.5)
-        ax_d.set_yticks(range(len(kvals)))
-        ax_d.set_yticklabels([str(k) for k in kvals], fontsize=6.5)
-        for i in range(len(kvals)):
-            for j in range(len(vlabels)):
-                if grid[i, j]:
-                    ax_d.text(j, i, str(grid[i, j]), ha="center", va="center",
-                              fontsize=6,
-                              color=("white" if grid[i, j] < grid.max() * 0.6
-                                     else "black"))
-        fig.colorbar(im3, ax=ax_d, pad=0.01, label="images")
-        ax_d.set_xlabel("Visible fraction (mask area)")
-        ax_d.set_ylabel("Visible keypoints")
-        hard = sum(1 for v, k in kp_rows if v < 0.75 and k >= 5)
-        trunc = sum(1 for v, k in kp_rows if v >= 0.999 and k <= 5)
+        CATS = [("self-occlusion only", "0.72"),
+                ("truncation only", "#0072B2"),
+                ("external occlusion only", "#D55E00"),
+                ("truncation + occlusion", "#4C1D6B")]
+
+        def _cat(f):
+            t = f["kp_lost_truncation"] > 0
+            o = f["kp_lost_occlusion"] > 0
+            return 3 if (t and o) else 1 if t else 2 if o else 0
+
+        counts = np.zeros((len(kvals), len(CATS)), dtype=int)
+        for f in cause_rows:
+            k = f["visible_kp_count"]
+            if k in kvals:
+                counts[k, _cat(f)] += 1
+        bottom = np.zeros(len(kvals), dtype=float)
+        for c, (lab, col) in enumerate(CATS):
+            ax_d.bar(kvals, counts[:, c], bottom=bottom, color=col,
+                     label=lab, width=0.72, edgecolor="white", linewidth=0.4)
+            bottom += counts[:, c]
+        for k in kvals:
+            tot = int(counts[k].sum())
+            if tot:
+                ax_d.text(k, tot + max(bottom) * 0.02, str(tot),
+                          ha="center", va="bottom", fontsize=6.5)
+        ax_d.set_xticks(kvals)
+        ax_d.set_xlim(-0.6, 7.6)
+        ax_d.set_ylim(0, max(bottom) * 1.16 if bottom.max() else 1)
+        ax_d.set_xlabel("Visible keypoints  "
+                        "(cuboid limit is 7 — one corner is always self-hidden)")
+        ax_d.set_ylabel("Images")
+        ax_d.legend(loc="upper left", frameon=False, fontsize=6.2)
+        # 개수는 통과인데 **자세가 유일하게 안 정해지는** 경우를 따로 센다.
+        # 팔레트가 납작해서(0.15/1.1) 정상값도 0.10 근처다 — 0.02 미만만 퇴화.
+        copl = [f for f in cause_rows if f["kp_coplanar_ratio"] is not None
+                and f["kp_coplanar_ratio"] < 0.02]
+        below4 = sum(1 for f in cause_rows if f["visible_kp_count"] < 4)
+        over7 = sum(1 for f in cause_rows if f["visible_kp_count"] > 7)
         ax_d.set_title(
-            "(b) Occlusion vs keypoint visibility  "
-            "(occluded-but-5+ kp: %d;  unoccluded-but-truncated: %d;  "
-            "PnP-impossible <4: %d)"
-            % (hard, trunc,
-               sum(1 for _v, k in kp_rows if k < 4)), loc="left", fontsize=8)
-        _impossible = sum(1 for _v, k in kp_rows if k > 7)
-        if _impossible:
-            ax_d.set_xlabel("Visible fraction (mask area)   "
-                            "[%d frame(s) above the cuboid limit of 7 — "
-                            "measurement defect]" % _impossible)
-        panels["panel_c_occlusion_vs_keypoints"] = {
-            "kp_values": kvals, "visible_fraction_bins": vlabels,
-            "counts": grid.tolist(),
-            "occluded_but_5plus_kp": int(hard),
-            "pnp_impossible_below_4": int(sum(1 for _v, k in kp_rows if k < 4)),
-            "unoccluded_but_truncated": int(trunc),
-            "note": "면적 가시비율과 keypoint 가시성은 다른 축이다 — "
-                    "가운데 가림은 코너를 남기고, 모서리 가림/잘림은 코너를 없앤다.",
+            "(b) Why keypoints were lost  "
+            "(PnP-impossible <4: %d;  coplanar visible set: %d;  above limit 7: %d)"
+            % (below4, len(copl), over7), loc="left", fontsize=8)
+        panels["panel_c_keypoint_loss_cause"] = {
+            "kp_values": kvals,
+            "categories": [c for c, _col in CATS],
+            "counts": counts.tolist(),
+            "pnp_impossible_below_4": int(below4),
+            "coplanar_visible_set": int(len(copl)),
+            "coplanar_ids": [f["usable_id"] for f in copl][:50],
+            "above_cuboid_limit_7": int(over7),
+            "mean_lost_self": float(np.mean([f["kp_lost_self"] for f in cause_rows])),
+            "mean_lost_truncation": float(np.mean([f["kp_lost_truncation"] for f in cause_rows])),
+            "mean_lost_occlusion": float(np.mean([f["kp_lost_occlusion"] for f in cause_rows])),
+            "note": "keypoint 는 자체보임 AND 화면안 AND 외부가림없음 이라 원인이 셋이다. "
+                    "coplanar(<0.02)= 보이는 코너가 한 평면에 몰려 평면 PnP 2중해가 "
+                    "생기는 경우 — 개수는 통과인데 자세가 유일하지 않다.",
         }
 
     gsc = gs[2, :].subgridspec(1, 6, wspace=0.06)
