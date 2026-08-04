@@ -420,15 +420,12 @@ def build_figure1(frames, root, out, src, args):
                 "density": float(z1[j, i])}
                for j, y in enumerate(gy1) for i, x in enumerate(gx1)])
 
-    # (b) distance x projected size — bounded, 1 초과는 clip 하지 않고 별도 집계
-    DIST_LO, DIST_HI, PS_LO, PS_HI = 0.0, 10.0, 0.0, 1.0
+    # ★거리 x 화면크기 **플롯은 제거**했지만(위 compose 주석 참조) 이상치 통계는
+    #   남긴다.  1만 장 감사에서 화면크기 279.69(카메라가 팔레트 안까지 들어감)를
+    #   잡아낸 게 바로 이 수치이고, 그건 그림이 아니라 max 값이 알려준 것이다.
+    DIST_HI, PS_HI = 10.0, 1.0
     ps_all = np.array([p for _i, _d, p in ds])
     over = [(i, p) for i, _d, p in ds if p > PS_HI]
-    keep = [(i, d, p) for i, d, p in ds if PS_LO <= p <= PS_HI]
-    b_x = np.array([d for _i, d, _p in keep])
-    b_y = np.array([p for _i, _d, p in keep])
-    gx2, gy2, z2, kmeta2 = kde_2d(b_x, b_y, (DIST_LO, DIST_HI), (PS_LO, PS_HI))
-    panels["panel_b_kde"] = kmeta2
     panels["panel_b_excluded_projected_size_gt1"] = {
         "count": len(over), "fraction": len(over) / max(len(ds), 1),
         "max_projected_size": float(ps_all.max()) if ps_all.size else None,
@@ -437,10 +434,6 @@ def build_figure1(frames, root, out, src, args):
     }
     panels["panel_b_distance_max_m"] = float(max(d for _i, d, _p in ds)) if ds else None
     panels["panel_b_distance_gt10_count"] = sum(1 for _i, d, _p in ds if d > DIST_HI)
-    write_csv(src / "fig1_density_distance_scale.csv",
-              [{"camera_distance_m": float(x), "projected_size": float(y),
-                "density": float(z2[j, i])}
-               for j, y in enumerate(gy2) for i, x in enumerate(gx2)])
 
     # (c) deterministic maximin montage
     feat_ids, feats = [], []
@@ -471,8 +464,15 @@ def build_figure1(frames, root, out, src, args):
     # ---- compose ----
     # (c) 제목 자리를 확보하려고 세로를 키우고 행 간격을 넓혔다.  예전에는
     # fig.text 를 figure 좌표 0.305 에 **하드코딩**해 몽타주 첫 줄 위에 겹쳤다.
-    fig = plt.figure(figsize=(7.2, 7.4))
-    gs = fig.add_gridspec(3, 2, height_ratios=[1.0, 1.0, 1.25], hspace=0.62,
+    # ★2026-08-04 (b) 제거.  "카메라거리 x 화면크기" 는 두 축이 독립이 아니라
+    #   렌즈식 ratio = fx * 팔레트폭 / (거리 * 이미지폭) 으로 거의 결정된다 —
+    #   실측 300장에서 예측 ratio 와 상관 0.960 (log 잔차 0.169, 그나마도 팔레트
+    #   크기 지터 +-20% 에서 나온다).  즉 곡선 모양은 데이터가 아니라 공식이 그린
+    #   것이라 커버리지 패널로서의 정보량이 거리 히스토그램 + fx 분포를 넘지 않는다.
+    #   (이상치 탐지용으로는 값이 있었으나 — 화면크기 279.69 를 그렇게 잡았다 —
+    #    그 역할은 MIN_CAMERA_DISTANCE_M 게이트와 표의 max 값이 대신한다.)
+    fig = plt.figure(figsize=(7.2, 6.0))
+    gs = fig.add_gridspec(2, 2, height_ratios=[1.0, 1.35], hspace=0.62,
                           wspace=0.28)
     ax_a = fig.add_subplot(gs[0, :])
     # y 라벨은 축 높이보다 길면 위 패널로 넘쳐 서로 겹친다.  제목이 이미 축의
@@ -486,15 +486,7 @@ def build_figure1(frames, root, out, src, args):
                    loc="left")
     fig.colorbar(im, ax=ax_a, pad=0.01, label="density")
 
-    ax_b = fig.add_subplot(gs[1, :])
-    im2 = density_panel(ax_b, gx2, gy2, z2,
-                        "Realized camera distance [m]",
-                        "Projected size [img-width]")
-    ax_b.set_xlim(DIST_LO, DIST_HI); ax_b.set_ylim(PS_LO, PS_HI)
-    ax_b.set_title("(b) Camera distance x projected size joint density", loc="left")
-    fig.colorbar(im2, ax=ax_b, pad=0.01, label="density")
-
-    gsc = gs[2, :].subgridspec(2, 6, hspace=0.55, wspace=0.06)
+    gsc = gs[1, :].subgridspec(2, 6, hspace=0.55, wspace=0.06)
     for n, fid in enumerate(sel_ids):
         ax = fig.add_subplot(gsc[n // 6, n % 6])
         img = load_rgb(root, by_id[fid]["rgb_rel"])
@@ -511,9 +503,9 @@ def build_figure1(frames, root, out, src, args):
             fontsize=4.6, labelpad=1.5)
     # 좌표를 박아 두면 figsize/행비율이 바뀔 때마다 몽타주 위에 겹친다.
     # 몽타주 블록의 실제 상단을 읽어 그 위에 놓는다.
-    montage_top = gs[2, :].get_position(fig).y1
+    montage_top = gs[1, :].get_position(fig).y1
     fig.text(0.012, montage_top + 0.010,
-             "(c) Deterministic representative montage",
+             "(b) Deterministic representative montage",
              fontsize=9, ha="left", va="bottom")
     panels["fig1_files"] = save_fig(fig, out, "fig1_geometric_camera_coverage")
 
@@ -524,11 +516,6 @@ def build_figure1(frames, root, out, src, args):
                                    "Realized camera azimuth [deg]",
                                    "Realized camera elevation [deg]"),
                      ax.set_xlim(0, 360), ax.set_ylim(ELEV_LO, ELEV_HI))),
-        ("fig1b_distance_projected_size",
-         lambda ax: (density_panel(ax, gx2, gy2, z2,
-                                   "Realized camera distance [m]",
-                                   "Realized projected size [image-width ratio]"),
-                     ax.set_xlim(DIST_LO, DIST_HI), ax.set_ylim(PS_LO, PS_HI))),
     ):
         f1 = plt.figure(figsize=(3.4, 2.4))
         builder(f1.add_subplot(111))
@@ -576,17 +563,17 @@ def build_figure2(frames, root, out, src, args):
         "p_fully_visible": len(full_vis) / max(len(usable), 1),
         "note": "zero-inflated — visible_fraction=1 은 point mass 로 분리해 그린다",
     }
+    # ★2026-08-04 "화면크기 x 가시비율" 플롯 제거.  이 패널이 물은 것은 "크기와
+    #   가림이 잘못 얽혀 있나" 였고, 답은 **아니오**로 이미 나왔다 —
+    #   실측 300장 상관 +0.106 (완전가시 제외 +0.086).  약한 양의 경향은 물리적으로
+    #   당연하다(가까이서 크게 찍으면 가림 물체가 화면 밖으로 밀려난다).
+    #   결론이 난 확인은 패널 대신 숫자로 남긴다.  PnP 난이도를 실제로 결정하는
+    #   축은 (c) 가시비율 x visible_kp 쪽이다.
     PS_LO, PS_HI = 0.0, 1.0
-    gx3 = gy3 = z3 = kmeta3 = None
     px = np.array([min(max(p, PS_LO), PS_HI) for p, _v, _i in partial])
     pv = np.array([v for _p, v, _i in partial])
-    if px.size >= 8:
-        gx3, gy3, z3, kmeta3 = kde_2d(px, pv, (PS_LO, PS_HI), (0.0, 1.0))
-        write_csv(src / "fig2_density_scale_visibility.csv",
-                  [{"projected_size": float(x), "visible_fraction": float(y),
-                    "density": float(z3[j, i])}
-                   for j, y in enumerate(gy3) for i, x in enumerate(gx3)])
-    panels["panel_a_kde"] = kmeta3
+    panels["panel_a_scale_visibility_correlation"] = (
+        float(np.corrcoef(px, pv)[0, 1]) if px.size >= 8 else None)
 
     pt_rows, fr_rows = [], []
     for f in frames:
@@ -652,31 +639,10 @@ def build_figure2(frames, root, out, src, args):
     # 몽타주가 1행(6장)뿐이라 fig1(2행)과 같은 높이 비율을 주면 이미지 위아래로
     # 빈 공간이 크게 남는다 (set_aspect("equal") 이라 이미지가 세로로 안 늘어난다).
     # (d) 가시비율 x visible_kp 를 넣느라 4행으로 늘렸다.
-    fig = plt.figure(figsize=(7.2, 8.6))
-    gs = fig.add_gridspec(4, 2, height_ratios=[1.0, 1.0, 0.95, 0.72], hspace=0.62,
+    fig = plt.figure(figsize=(7.2, 6.6))
+    gs = fig.add_gridspec(3, 2, height_ratios=[1.0, 0.95, 0.72], hspace=0.62,
                           wspace=0.30)
-    ax_a = fig.add_subplot(gs[0, :])
-    if gx3 is not None:
-        im = density_panel(ax_a, gx3, gy3, z3,
-                           "Realized projected size [image-width ratio]",
-                           "Visible fraction of the pallet")
-        fig.colorbar(im, ax=ax_a, pad=0.01, label="density")
-    ax_a.set_xlim(PS_LO, PS_HI)
-    # point mass(가시비율 정확히 1)는 밀도와 섞이면 안 되므로 위쪽 여백에 따로 찍는다.
-    # 예전에는 y=1.005 + clip_on=False 라 축 밖으로 삐져나가 colorbar 옆까지 점이
-    # 흩어졌다.  여백을 만들어 **축 안에** 그린다.
-    ax_a.set_ylim(0.0, 1.06)
-    if full_vis:
-        ax_a.axhline(1.0, color="0.75", linewidth=0.5, linestyle="-")
-        ax_a.scatter([t[0] for t in full_vis], [1.03] * len(full_vis),
-                     s=2.0, marker="|", color="0.1", clip_on=True,
-                     label="fully visible (P=%.3f)"
-                           % (len(full_vis) / max(len(usable), 1)))
-        ax_a.legend(loc="lower left", frameon=False)
-    ax_a.set_title("(a) Projected size x visible fraction "
-                   "(point mass at 1 shown separately)", loc="left")
-
-    ax_b = fig.add_subplot(gs[1, :])
+    ax_b = fig.add_subplot(gs[0, :])
     for arr, lab, ls, cl in ((all_err, "all keypoints", "-", "0.15"),
                              (max_err, "per-frame maximum", "--", "0.45")):
         if arr.size:
@@ -695,7 +661,7 @@ def build_figure2(frames, root, out, src, args):
     # center left 는 곡선 위에 얹혀 선과 글자가 겹쳤다.
     ax_b.legend(loc="lower right", frameon=False, fontsize=7)
     st = panels["panel_b_stats"]
-    ax_b.set_title("(b) Annotation reprojection error ECDF "
+    ax_b.set_title("(a) Annotation reprojection error ECDF "
                    "(median %.2e, p95 %.2e, p99 %.2e, max %.2e px; invalid %d)"
                    % (st["median_px"] or 0, st["p95_px"] or 0, st["p99_px"] or 0,
                       st["max_px"] or 0, st["invalid_frames"]), loc="left")
@@ -705,7 +671,7 @@ def build_figure2(frames, root, out, src, args):
     # 모서리 하나만 가려도 면적 손실은 작은데 keypoint 는 줄어든다.  PnP 난이도를
     # 결정하는 것은 keypoint 쪽이므로, "면적은 많이 가렸는데 코너는 살아 있는"
     # 좋은 학습 케이스가 실제로 얼마나 있는지 이 패널에서만 보인다.
-    ax_d = fig.add_subplot(gs[2, :])
+    ax_d = fig.add_subplot(gs[1, :])
     kp_rows = [(f["visible_fraction"], f["visible_kp_count"]) for f in frames
                if f["visible_fraction"] is not None
                and isinstance(f["visible_kp_count"], int)]
@@ -744,7 +710,7 @@ def build_figure2(frames, root, out, src, args):
         hard = sum(1 for v, k in kp_rows if v < 0.75 and k >= 5)
         trunc = sum(1 for v, k in kp_rows if v >= 0.999 and k <= 5)
         ax_d.set_title(
-            "(c) Occlusion vs keypoint visibility  "
+            "(b) Occlusion vs keypoint visibility  "
             "(occluded-but-5+ kp: %d;  unoccluded-but-truncated: %d;  "
             "PnP-impossible <4: %d)"
             % (hard, trunc,
@@ -764,7 +730,7 @@ def build_figure2(frames, root, out, src, args):
                     "가운데 가림은 코너를 남기고, 모서리 가림/잘림은 코너를 없앤다.",
         }
 
-    gsc = gs[3, :].subgridspec(1, 6, wspace=0.06)
+    gsc = gs[2, :].subgridspec(1, 6, wspace=0.06)
     for n, a in enumerate(anchors):
         ax = fig.add_subplot(gsc[0, n])
         f = by_id[a["usable_id"]]
@@ -780,21 +746,12 @@ def build_figure2(frames, root, out, src, args):
                                           a["visible_fraction"]),
                       fontsize=4.6, labelpad=1.5)
     # fig1 과 같은 이유로 좌표를 박지 않고 몽타주 블록 상단에서 계산한다.
-    montage_top = gs[3, :].get_position(fig).y1
+    montage_top = gs[2, :].get_position(fig).y1
     fig.text(0.012, montage_top + 0.010,
-             "(d) Annotation overlay montage — canonical archive style "
+             "(c) Annotation overlay montage — canonical archive style "
              "(GT cuboid + pose axes + pitch/yaw/roll panel)",
              fontsize=9, ha="left", va="bottom")
     panels["fig2_files"] = save_fig(fig, out, "fig2_occlusion_annotation_quality")
-
-    f2a = plt.figure(figsize=(3.4, 2.4))
-    axa = f2a.add_subplot(111)
-    if gx3 is not None:
-        density_panel(axa, gx3, gy3, z3, "Realized projected size",
-                      "Visible fraction")
-    axa.set_xlim(PS_LO, PS_HI)
-    axa.set_ylim(0, 1)
-    panels["fig2a_scale_visibility"] = save_fig(f2a, out, "fig2a_scale_visibility")
 
     f2b = plt.figure(figsize=(3.4, 2.4))
     axb = f2b.add_subplot(111)
@@ -844,8 +801,8 @@ def build_figure3(frames, root, out, src, args):
     panels["fig3_frames_csv_sha256"] = write_csv(src / "fig3_frames.csv",
                                                  fig3_frames)
 
-    fig = plt.figure(figsize=(7.2, 6.8))
-    gs = fig.add_gridspec(3, 2, height_ratios=[1.0, 1.0, 1.0], hspace=0.62,
+    fig = plt.figure(figsize=(7.2, 4.8))
+    gs = fig.add_gridspec(2, 2, height_ratios=[1.0, 1.0], hspace=0.62,
                           wspace=0.30)
 
     # ---- (a) 밝기 분포 -----------------------------------------------------
@@ -928,7 +885,13 @@ def build_figure3(frames, root, out, src, args):
         ax.set_ylim(0, max(cnt) * 1.34)
 
     def _histo(ax, vals, ref, xlabel, title):
-        """연속화된 변수 — 밀도 히스토그램(옅게) + KDE 곡선(진하게).
+        """연속화된 변수 — 히스토그램(옅게) + KDE 곡선(진하게).
+
+        ★세로축은 **장수(Frames)** 다.  KDE 는 원래 밀도(적분 1)를 내놓지만
+        `n * bin_width` 를 곱해 장수 스케일로 되돌린다 — (a) 는 장수인데 (b)(c) 만
+        "Density" 로 표기하면 같은 그림 안에서 세로축 의미가 갈리고, 2.5 같은 값이
+        장수인지 아닌지 읽는 사람이 판단할 수 없다.  스케일만 바꾸는 것이라
+        곡선 모양은 그대로다.
 
         ★KDE 는 **연속 분기에서만** 쓴다.  고유값이 3~4개뿐이던 시절에 KDE 를 씌우면
         없는 연속성을 지어내 커버리지를 과장하게 되므로 금지했었고, 그 판단은
@@ -941,8 +904,10 @@ def build_figure3(frames, root, out, src, args):
         lo, hi = float(vals.min()), float(vals.max())
         span = max(hi - lo, 1e-6)
         n_bins = int(min(40, max(12, round(len(vals) ** 0.5))))
-        ax.hist(vals, bins=n_bins, range=(lo - span * 0.02, hi + span * 0.02),
-                density=True, color="0.78", edgecolor="none")
+        hist_lo, hist_hi = lo - span * 0.02, hi + span * 0.02
+        bin_w = (hist_hi - hist_lo) / n_bins
+        ax.hist(vals, bins=n_bins, range=(hist_lo, hist_hi),
+                color="0.78", edgecolor="none")
         x0, x1 = lo - span * 0.10, hi + span * 0.10
         try:
             from scipy.stats import gaussian_kde
@@ -961,7 +926,8 @@ def build_figure3(frames, root, out, src, args):
             else:
                 kde = gaussian_kde(mirrored, bw_method=KDE_BW_RULE)
             gx = np.linspace(x0, x1, 400)
-            gy = kde(gx) * 3.0                      # 거울상 2벌만큼 되돌린다
+            # 거울상 2벌(x3) 을 되돌리고, n*bin_width 를 곱해 장수 스케일로 맞춘다.
+            gy = kde(gx) * 3.0 * len(vals) * bin_w
             inside = (gx >= lo - span * 0.02) & (gx <= hi + span * 0.02)
             ax.plot(gx[inside], gy[inside], color="0.15", linewidth=1.3)
             ax.fill_between(gx[inside], gy[inside], color="0.45", alpha=0.30)
@@ -982,9 +948,9 @@ def build_figure3(frames, root, out, src, args):
         mode = "discrete" if n_uniq <= DISCRETE_MAX_UNIQUE else "continuous"
         (_spike if mode == "discrete" else _histo)(ax, vals, ref, xlabel, title)
         ax.set_xlabel(xlabel)
-        # discrete 는 프레임 수를 그대로 세우고, continuous 는 밀도로 정규화한다
-        # (KDE 곡선과 축이 맞아야 한다).
-        ax.set_ylabel("Frames" if mode == "discrete" else "Density")
+        # 두 분기 모두 세로축은 장수다 — continuous 쪽은 KDE 를 장수 스케일로
+        # 되돌려 맞춘다(_histo 주석 참조).
+        ax.set_ylabel("Frames")
         ax.set_title(title, loc="left", fontsize=8)
         return mode
 
@@ -1038,8 +1004,9 @@ def build_figure3(frames, root, out, src, args):
                                           "height_mm": 150, "W_over_D": 1.0,
                                           "W_over_H": 1100.0 / 150.0}
 
-    # ---- (d) 씬 조합 커버리지 (빈칸 = 한 번도 안 나온 조합) ----------------
-    ax_c = fig.add_subplot(gs[2, :])
+    # ---- (d) 씬 조합 커버리지 — ★2026-08-04 플롯 제거 -----------------------
+    # 배경 2종 x 프리셋 4종 = 8칸짜리 표라 그림으로 그릴 만큼 정보가 많지 않고,
+    # 판단에 필요한 것은 "빈 조합이 있나" 하나뿐이다.  숫자로만 남긴다.
     presets = sorted({f["scene_preset"] for f in frames if f["scene_preset"]})
     bgs = sorted({f["background_asset"] for f in frames if f["background_asset"]})
     grid = np.zeros((len(bgs), len(presets)), dtype=int)
@@ -1047,23 +1014,9 @@ def build_figure3(frames, root, out, src, args):
         if f["scene_preset"] in presets and f["background_asset"] in bgs:
             grid[bgs.index(f["background_asset"]),
                  presets.index(f["scene_preset"])] += 1
-    im = ax_c.imshow(grid, cmap=CMAP, aspect="auto")
-    ax_c.set_xticks(range(len(presets)))
-    ax_c.set_xticklabels(presets, fontsize=6.5)
-    ax_c.set_yticks(range(len(bgs)))
-    ax_c.set_yticklabels(bgs, fontsize=6.5)
-    for i in range(len(bgs)):
-        for j in range(len(presets)):
-            ax_c.text(j, i, str(grid[i, j]), ha="center", va="center",
-                      fontsize=7,
-                      color="white" if grid[i, j] < grid.max() * 0.6 else "black")
-    fig.colorbar(im, ax=ax_c, pad=0.01, label="frames")
-    empty = int((grid == 0).sum())
-    ax_c.set_title("(d) Scene preset x background coverage (empty cells: %d)"
-                   % empty, loc="left")
     panels["panel_c_coverage"] = {
         "scene_presets": presets, "background_assets": bgs,
-        "counts": grid.tolist(), "empty_cells": empty}
+        "counts": grid.tolist(), "empty_cells": int((grid == 0).sum())}
 
     panels["fig3_files"] = save_fig(fig, out, "fig3_appearance_composition")
     return panels
