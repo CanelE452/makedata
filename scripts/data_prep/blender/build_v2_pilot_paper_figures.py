@@ -704,7 +704,7 @@ def build_figure2(frames, root, out, src, args):
                               fontsize=6,
                               color=("white" if grid[i, j] < grid.max() * 0.6
                                      else "black"))
-        fig.colorbar(im3, ax=ax_d, pad=0.01, label="frames")
+        fig.colorbar(im3, ax=ax_d, pad=0.01, label="images")
         ax_d.set_xlabel("Visible fraction (mask area)")
         ax_d.set_ylabel("Visible keypoints")
         hard = sum(1 for v, k in kp_rows if v < 0.75 and k >= 5)
@@ -808,18 +808,18 @@ def build_figure3(frames, root, out, src, args):
     # ---- (a) 밝기 분포 -----------------------------------------------------
     ax_a = fig.add_subplot(gs[0, :])
     bins = np.linspace(0.0, 255.0, 52)
-    ax_a.hist(lf, bins=bins, color="0.55", alpha=0.75, label="whole frame")
+    ax_a.hist(lf, bins=bins, color="0.55", alpha=0.75, label="whole image")
     ax_a.hist(lp, bins=bins, histtype="step", color="#0072B2", linewidth=1.2,
               label="visible pallet region")
     ax_a.axvline(G5_LUMA_MIN, color="#D55E00", linewidth=0.9, linestyle="--",
                  label="G5 floor (%.0f)" % G5_LUMA_MIN)
     ax_a.set_xlim(0, 160)
     ax_a.set_xlabel("Mean luma of the final image [0-255]")
-    ax_a.set_ylabel("Frames")
+    ax_a.set_ylabel("Images")
     ax_a.legend(loc="upper right", frameon=False, fontsize=7)
     ax_a.set_title(
         "(a) Brightness distribution "
-        "(frame median %.1f, pallet median %.1f, G5 margin min %.1f)"
+        "(whole-image median %.1f, pallet median %.1f, G5 margin min %.1f)"
         % (float(np.median(lf)) if lf.size else float("nan"),
            float(np.median(lp)) if lp.size else float("nan"),
            float(lp.min() - G5_LUMA_MIN) if lp.size else float("nan")),
@@ -887,7 +887,7 @@ def build_figure3(frames, root, out, src, args):
     def _histo(ax, vals, ref, xlabel, title):
         """연속화된 변수 — 히스토그램(옅게) + KDE 곡선(진하게).
 
-        ★세로축은 **장수(Frames)** 다.  KDE 는 원래 밀도(적분 1)를 내놓지만
+        ★세로축은 **사진 장수(Images)** 다.  KDE 는 원래 밀도(적분 1)를 내놓지만
         `n * bin_width` 를 곱해 장수 스케일로 되돌린다 — (a) 는 장수인데 (b)(c) 만
         "Density" 로 표기하면 같은 그림 안에서 세로축 의미가 갈리고, 2.5 같은 값이
         장수인지 아닌지 읽는 사람이 판단할 수 없다.  스케일만 바꾸는 것이라
@@ -948,18 +948,20 @@ def build_figure3(frames, root, out, src, args):
         mode = "discrete" if n_uniq <= DISCRETE_MAX_UNIQUE else "continuous"
         (_spike if mode == "discrete" else _histo)(ax, vals, ref, xlabel, title)
         ax.set_xlabel(xlabel)
-        # 두 분기 모두 세로축은 장수다 — continuous 쪽은 KDE 를 장수 스케일로
-        # 되돌려 맞춘다(_histo 주석 참조).
-        ax.set_ylabel("Frames")
+        # 두 분기 모두 세로축은 **사진 장수**다 — continuous 쪽은 KDE 를 장수
+        # 스케일로 되돌려 맞춘다(_histo 주석 참조).
+        # ★"Frames" 가 아니라 "Images" 로 쓴다 — frame 은 영상 프레임인지 사진
+        #   테두리인지 모호해서 읽는 사람이 헷갈린다(사용자 지적).
+        ax.set_ylabel("Images")
         ax.set_title(title, loc="left", fontsize=8)
         return mode
 
     ax_b = fig.add_subplot(gs[1, 0])
     mode_b = _ratio_panel(ax_b, asp, 1.0, "Footprint long : short",
-                          "(b) Aspect over frames  (KS 1.00 = square)")
+                          "(b) Footprint aspect  (KS 1.00 = square)")
     ax_b2 = fig.add_subplot(gs[1, 1])
     mode_c = _ratio_panel(ax_b2, sle, KS[0] / KS[2], "Long side : height",
-                          "(c) Slenderness over frames  (KS 7.33)")
+                          "(c) Slenderness  (KS 7.33)")
     asp_uniq = sorted(set(np.round(asp, 4).tolist()))
     sle_uniq = sorted(set(np.round(sle, 4).tolist()))
     panels["panel_b_ratio_distribution"] = {
