@@ -54,6 +54,7 @@ RECORD_RENDERED_KEYS = (
     # (샤드를 병합하면 progress.json 은 사라진다).
     "holdout_engine",
     # 2026-08-02: 프레임마다 적용된 팔레트 균등 배율 (1.0 = 정본 치수)
+    "tri_holdout",
     "pallet_scale_ratio",
     "pallet_shape_ratios",
     # 2026-08-01 (G1.6): target-seed 예산 회계 5 + fine refinement 11 + 이름 정리 1
@@ -507,6 +508,11 @@ class FakeRealize:
     @staticmethod
     def set_holdout_engine(engine=None):
         return {"engine": "eevee" if engine is None else engine}
+
+    @staticmethod
+    def set_tri_holdout(enabled=None):
+        # 실제 v2_realize 와 같은 계약: None 이면 현재 값(기본 False) 유지.
+        return {"enabled": bool(enabled)}
 
 
 def _fake_process_frame(overrides, salt=""):

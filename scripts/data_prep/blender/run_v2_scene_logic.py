@@ -84,13 +84,16 @@ USABLE_MODE_CYCLE = (0, 1, 2, 3, 2, 3, 0, 1, 2, 3)
 # 이 세션이 쓴 holdout 엔진.  record 빌더는 module-top 에서 v2_realize 를 import 할 수
 # 없어(bpy 필요) 여기에 담아 둔다.  `_apply_holdout_engine()` 이 설정 시점에 채운다.
 _SESSION_HOLDOUT_ENGINE = None
+_SESSION_TRI_HOLDOUT = False
 
 
 def _apply_holdout_engine(vr, args):
-    """holdout 엔진을 프로세스에 심고, record 에 남길 값을 기억한다."""
-    global _SESSION_HOLDOUT_ENGINE
+    """holdout 엔진 + 3단계 holdout 을 프로세스에 심고, record 에 남길 값을 기억한다."""
+    global _SESSION_HOLDOUT_ENGINE, _SESSION_TRI_HOLDOUT
     applied = vr.set_holdout_engine(getattr(args, "holdout_engine", None))
     _SESSION_HOLDOUT_ENGINE = applied.get("engine")
+    tri = vr.set_tri_holdout(getattr(args, "tri_holdout", None))
+    _SESSION_TRI_HOLDOUT = bool(tri.get("enabled"))
     return _SESSION_HOLDOUT_ENGINE
 
 
@@ -662,6 +665,14 @@ def _args():
              "cycles 는 이전 정본이며 기존 데이터셋과 픽셀 단위로 이어붙일 때 쓴다.",
     )
     parser.add_argument(
+        "--tri-holdout",
+        action="store_true",
+        default=None,
+        help="explicit 탐색의 holdout 렌더 2회를 3단계(흰/회/검) 1회로 합친다.  "
+             "근사가 아니라 같은 깊이 버퍼의 라벨 분리다.  ★기본 OFF — "
+             "locked benchmark 검증 전까지 production 동작을 바꾸지 않는다.",
+    )
+    parser.add_argument(
         "--session-usable-cap",
         type=int,
         default=None,
@@ -1100,6 +1111,7 @@ def _record_rendered(idx, frame_seed, mode, plan, rs, meas, gates, runtime_s,
         # 샤드를 병합하면 progress.json 은 남지 않는다 — 프레임 단위로도 남겨야
         # "이 마스크가 어느 엔진으로 만들어졌는지"를 나중에 추적할 수 있다.
         "holdout_engine": _SESSION_HOLDOUT_ENGINE,
+        "tri_holdout": _SESSION_TRI_HOLDOUT,
         # 이 프레임에 적용된 팔레트 배율 — 균등(크기) + 축별(비율).
         "pallet_scale_ratio": placement.get("pallet_scale_ratio"),
         "pallet_shape_ratios": placement.get("pallet_shape_ratios"),
@@ -1354,6 +1366,7 @@ def _record_realize_failure(idx, frame_seed, mode, plan, runtime_s, detail):
         "final_seed_score": metrics.get("final_seed_score"),
         "search_winning_stage": metrics.get("search_winning_stage"),
         "holdout_engine": _SESSION_HOLDOUT_ENGINE,
+        "tri_holdout": _SESSION_TRI_HOLDOUT,
         "pallet_scale_ratio": metrics.get("pallet_scale_ratio"),
         "pallet_shape_ratios": metrics.get("pallet_shape_ratios"),
         "target_seed_free_cap": metrics.get("target_seed_free_cap"),
@@ -1804,6 +1817,7 @@ USABLE_MANIFEST_COLUMNS = (
     "occluder_side_match",
     "explicit_metrics_available",
     "holdout_engine",
+    "tri_holdout",
     "pallet_scale_ratio",
     "pallet_shape_ratios",
     "constraint_rescue_mode",

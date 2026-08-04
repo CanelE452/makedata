@@ -1366,6 +1366,11 @@ def _realize_constrained(
                 width=explicit_before_mask.shape[1],
             )
             score_counter = {"count": 0}
+            # 3단계 holdout 이 켜져 있으면 explicit_score 가 후보 마스크까지 같이
+            # 뽑아 여기에 담아 둔다.  뒤의 side/visible 판정이 그걸 재사용해
+            # 두 번째 렌더를 건너뛴다.  `obj` 는 캐시가 **그 후보의 것인지**
+            # 확인하는 열쇠다 — 다른 후보의 마스크를 잘못 쓰면 조용히 틀린다.
+            tri_cache = {"obj": None, "area": None, "mask": None}
             aggregate_rejects = {}
             aggregate_log = []
             search_runs = []
@@ -1695,16 +1700,27 @@ def _realize_constrained(
 
                 def explicit_score(candidate_obj, candidate_metrics):
                     score_counter["count"] += 1
-                    area, candidate_mask = _lowres_holdout(
-                        scene,
-                        pobj,
-                        token=(
-                            f"{frame_seed}_explicit_"
+                    _tok = (f"{frame_seed}_explicit_"
                             f"{proposal_idx}_{stage_name}_"
-                            f"{score_counter['count']}"
-                        ),
-                        size=lowres128,
-                    )
+                            f"{score_counter['count']}")
+                    if TRI_HOLDOUT_TUNING["enabled"]:
+                        # 한 장에서 팔레트(흰) + 후보(회) 를 모두 얻는다.
+                        # 아래 side/visible 판정이 쓰던 두 번째 렌더가 사라진다.
+                        (area, candidate_mask,
+                         _tri_obj_area, _tri_obj_mask) = _lowres_holdout_tri(
+                            scene, pobj, candidate_obj,
+                            token=_tok + "_tri", size=lowres128)
+                        tri_cache["area"] = _tri_obj_area
+                        tri_cache["mask"] = _tri_obj_mask
+                        tri_cache["obj"] = candidate_obj
+                    else:
+                        tri_cache["obj"] = None
+                        area, candidate_mask = _lowres_holdout(
+                            scene,
+                            pobj,
+                            token=_tok,
+                            size=lowres128,
+                        )
                     m0 = explicit_baseline["mask_area_target_only"]
                     m3 = explicit_baseline["mask_area_after_context"]
                     f_value = (
@@ -1788,19 +1804,26 @@ def _realize_constrained(
                         side_target,
                         side_actual,
                     )
-                    object_visible_area, object_visible_mask = (
-                        _lowres_holdout(
-                            scene,
-                            pobj,
-                            only_white=candidate_obj,
-                            token=(
-                                f"{frame_seed}_explicit_object_visible_"
-                                f"{proposal_idx}_{stage_name}_"
-                                f"{score_counter['count']}"
-                            ),
-                            size=lowres128,
+                    if (TRI_HOLDOUT_TUNING["enabled"]
+                            and tri_cache.get("obj") is candidate_obj
+                            and tri_cache.get("mask") is not None):
+                        # explicit_score 의 3단계 렌더에서 이미 뽑았다 — 렌더 생략.
+                        object_visible_area = tri_cache["area"]
+                        object_visible_mask = tri_cache["mask"]
+                    else:
+                        object_visible_area, object_visible_mask = (
+                            _lowres_holdout(
+                                scene,
+                                pobj,
+                                only_white=candidate_obj,
+                                token=(
+                                    f"{frame_seed}_explicit_object_visible_"
+                                    f"{proposal_idx}_{stage_name}_"
+                                    f"{score_counter['count']}"
+                                ),
+                                size=lowres128,
+                            )
                         )
-                    )
                     visible_rows, visible_cols = np.nonzero(
                         object_visible_mask > 127
                     )
@@ -3236,7 +3259,9 @@ _MASK_MATS = {}
 
 def _mask_mats():
     if not _MASK_MATS:
-        for nm, v in (("__V2_WHITE", 1.0), ("__V2_BLACK", 0.0)):
+        # __V2_GRAY 는 3단계 holdout 용이다.  값 0.5 를 쓰면 view_transform=Standard
+        # 에서 픽셀값 128 로 떨어져 흰(255)·검(0)과 등간격으로 갈린다.
+        for nm, v in (("__V2_WHITE", 1.0), ("__V2_BLACK", 0.0), ("__V2_GRAY", 0.5)):
             m = bpy.data.materials.get(nm) or bpy.data.materials.new(nm)
             m.use_nodes = True
             nt = m.node_tree
@@ -3251,6 +3276,11 @@ def _mask_mats():
     return _MASK_MATS["__V2_WHITE"], _MASK_MATS["__V2_BLACK"]
 
 
+# 3단계 holdout 분류 임계.  흰 255 / 회 128 / 검 0 의 중점이다.
+TRI_MASK_WHITE_MIN = 192
+TRI_MASK_GRAY_MIN = 64
+
+
 #   engine : holdout 마스크(탐색용 저해상도 + 배포용 최종)를 어떤 엔진으로 뽑을지.
 #            기본은 "eevee" — controlled 6케이스 replay 에서 154.6s -> 84.1s (1.84배),
 #            6/6 accepted 판정 동일.  _render_holdout 이 렌더 직전에 모든 재질을
@@ -3260,6 +3290,24 @@ def _mask_mats():
 #            단위로 이어붙일 때 쓴다 (엔진이 다르면 exact-repro 락이 깨진다).
 HOLDOUT_ENGINES = ("cycles", "eevee")
 HOLDOUT_TUNING = {"engine": "eevee"}
+
+# 3단계 holdout — explicit 탐색의 렌더 2회를 1회로 합친다.
+#   측정(v5set 300장): controlled 가 전체 계산시간의 70%, 그중 explicit 단계가
+#   낭비의 69%.  홀드아웃 렌더 19,833회 / coarse 평가 8,908회 = **2.23**,
+#   회귀 t = 0.216s x (렌더수) + 0.30s -> 비용이 전부 호출 횟수에 붙어 있다.
+#   해상도(128x128)를 더 낮춰도, 기하를 숨겨도 안 줄어든다.
+# ★**기본 OFF**.  G1.6/G1.7 과 같은 규약 — 되돌리려면 코드를 만지지 말고
+#   `--tri-holdout` 을 빼기만 하면 된다.  근사는 아니지만(같은 깊이 버퍼의 라벨
+#   분리) 탐색 경로를 건드리므로 locked benchmark 로 like-for-like 검증 전까지는
+#   production 동작을 바꾸지 않는다.
+TRI_HOLDOUT_TUNING = {"enabled": False}
+
+
+def set_tri_holdout(enabled):
+    """3단계 holdout 을 켠다/끈다.  None 이면 현재 값 유지."""
+    if enabled is not None:
+        TRI_HOLDOUT_TUNING["enabled"] = bool(enabled)
+    return dict(TRI_HOLDOUT_TUNING)
 
 
 def set_holdout_engine(engine=None):
@@ -3298,13 +3346,36 @@ def _eevee_engine_name():
     return "BLENDER_EEVEE" if ok else None
 
 
-def _render_holdout(scene, pallet_root, path, extra_hide=(), only_white=None):
+def _render_holdout(scene, pallet_root, path, extra_hide=(), only_white=None,
+                    gray_root=None):
     """Binary holdout mask: pallet hierarchy=white, else=black, world=black. Occlusion is
     automatic (visible occluders paint black over the pallet). `extra_hide` objects are
     hidden for this pass (their occlusion removed). `only_white`, if given, is the object
     whose hierarchy is painted white INSTEAD of the pallet (used for the distractor-only
-    visibility mask). Restores everything."""
+    visibility mask). Restores everything.
+
+    ★`gray_root` (2026-08-04): 그 계층을 **회색(128)** 으로 칠해 한 장에서 흰/회/검
+    3단계를 얻는다.  explicit 탐색은 후보마다 렌더를 두 번 했다 —
+      (1) 팔레트 마스크(후보가 가린 상태)   (2) 후보 자체의 가시 마스크(only_white)
+    두 장이 재는 것은 **같은 깊이 버퍼의 다른 라벨**이라 한 장으로 합칠 수 있다:
+        팔레트 보임 = v >= 192      후보 보임 = 64 <= v < 192
+    가시성은 색이 아니라 깊이가 정한다.  후보가 팔레트를 가리면 그 픽셀은 어느
+    방식에서든 팔레트가 아니고, 팔레트가 후보를 가리면 어느 방식에서든 후보가
+    아니다 — 그래서 **근사가 아니라 정확히 같은 집합**이다.
+    측정: 렌더 19,833회 / coarse 평가 8,908회 = 2.23, holdout 1회 0.216s.
+
+    ★단 픽셀 필터(기본 1.5px)가 켜져 있으면 흰/회 경계가 ~190 으로 섞여 임계
+    분류가 흔들린다.  3단계일 때만 필터를 최소로 낮춘다 — 2단계 경로(배포용
+    마스크 포함)는 건드리지 않는다.
+    """
     white, black = _mask_mats()
+    gray = _MASK_MATS["__V2_GRAY"] if gray_root is not None else None
+    gray_set = set()
+    if gray_root is not None:
+        roots_g = gray_root if isinstance(gray_root, (list, tuple, set)) else [gray_root]
+        for g in roots_g:
+            if g is not None:
+                gray_set.update({g, *g.children_recursive})
     roots = only_white if only_white is not None else [pallet_root]
     if not isinstance(roots, (list, tuple, set)):
         roots = [roots]
@@ -3334,7 +3405,9 @@ def _render_holdout(scene, pallet_root, path, extra_hide=(), only_white=None):
         if not materials:
             mesh_data.materials.append(black)
     for ob in mesh_objects:
-        tgt = white if ob in pal_set else black
+        # 흰 우선 — 후보가 pal_set 에도 들어 있는 이상 상황에서도 팔레트 판정이
+        # 먼저 이긴다(현재 호출부에서는 두 집합이 겹치지 않는다).
+        tgt = white if ob in pal_set else (gray if ob in gray_set else black)
         for slot in ob.material_slots:
             slot.link = "OBJECT"
             slot.material = tgt
@@ -3371,9 +3444,23 @@ def _render_holdout(scene, pallet_root, path, extra_hide=(), only_white=None):
                         setattr(ee, attr, value)
     scene.render.filepath = path
     scene.render.image_settings.color_mode = "BW"
+    # 3단계일 때만 픽셀 필터를 최소로.  2단계는 임계가 중점(127) 하나뿐이라
+    # 번짐이 대칭으로 상쇄되지만, 3단계는 흰/회 경계가 임계(192)를 넘나든다.
+    filter_bk = None
+    if gray_root is not None:
+        try:
+            filter_bk = scene.render.filter_size
+            scene.render.filter_size = 0.0
+        except Exception:
+            filter_bk = None
     try:
         bpy.ops.render.render(write_still=True)
     finally:
+        if filter_bk is not None:
+            try:
+                scene.render.filter_size = filter_bk
+            except Exception:
+                pass
         _ee = getattr(scene, "eevee", None)
         for attr, value in eevee_restore.items():
             if _ee is not None:
@@ -3411,6 +3498,20 @@ def _mask_area(path):
     from PIL import Image
     arr = np.array(Image.open(path).convert("L"))
     return int((arr > 127).sum()), arr
+
+
+def tri_mask_split(arr):
+    """3단계 holdout 배열 -> (흰 마스크, 회 마스크).
+
+    `_mask_area` 의 `>127` 을 3단계에 그대로 쓰면 회색(128)이 흰색으로 세어진다 —
+    그래서 전용 분리기를 둔다.  반환은 **2단계 경로와 같은 0/255 이진 배열**이라
+    기존 소비자(`np.nonzero(m > 127)`, `SP2.mask_index_stats`)가 그대로 돌아간다.
+    """
+    a = np.asarray(arr)
+    white = np.where(a >= TRI_MASK_WHITE_MIN, 255, 0).astype(np.uint8)
+    gray = np.where((a >= TRI_MASK_GRAY_MIN) & (a < TRI_MASK_WHITE_MIN),
+                    255, 0).astype(np.uint8)
+    return white, gray
 
 
 # G1.6 탐색 조정값.  프로세스당 CLI 인자로 한 번만 설정하고, 모든 record 에 그대로
@@ -3460,6 +3561,20 @@ def set_search_tuning(target_seed_free_cap=None, near_miss_gap_threshold=None,
 _LOWRES_RENDER_COUNT = 0
 
 
+def _lowres_holdout_tri(scene, pallet_root, gray_root, token="tri", size=128):
+    """흰(팔레트) + 회(gray_root) 를 **한 번의 렌더**로 얻는다.
+
+    반환 (white_area, white_mask, gray_area, gray_mask) — 마스크는 0/255 이진이라
+    2단계 경로의 소비자를 그대로 쓸 수 있다.  `_render_holdout` 의 gray_root 주석에
+    왜 이게 근사가 아닌지 적어 두었다.
+    """
+    _, arr = _lowres_holdout(scene, pallet_root, token=token, size=size,
+                             gray_root=gray_root)
+    white, gray = tri_mask_split(arr)
+    return (int((white > 127).sum()), white,
+            int((gray > 127).sum()), gray)
+
+
 def _lowres_holdout(
     scene,
     pallet_root,
@@ -3467,6 +3582,7 @@ def _lowres_holdout(
     only_white=None,
     token="mask",
     size=128,
+    gray_root=None,
 ):
     # 저해상도 holdout 이 controlled 파이프라인 비용의 대부분이다 (baseline: 실패
     # 94건의 explicit 단계 3,118초).  프레임별로 몇 번 돌았는지 세어 record 에 남긴다.
@@ -3501,6 +3617,7 @@ def _lowres_holdout(
             path,
             extra_hide=extra_hide,
             only_white=only_white,
+            gray_root=gray_root,
         )
     finally:
         scene.render.resolution_x = old_x
